@@ -1,0 +1,146 @@
+<!doctype html><html lang='en'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width, initial-scale=1'><meta name='color-scheme' content='dark'><meta http-equiv='refresh' content='900'><title>Crypto Cycle Dashboard</title><style>
+* { box-sizing:border-box; }
+body { margin:0; background:#0d1117; color:#e6edf3;
+       font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; }
+a { color:#58a6ff; text-decoration:none; }
+a:hover { text-decoration:underline; }
+header { padding:20px 24px; background:#161b22; border-bottom:1px solid #21262d;
+         position:sticky; top:0; z-index:2; }
+.title { font-size:21px; font-weight:800; }
+.meta { color:#8b949e; font-size:13px; margin-top:4px; }
+.meta .stale { color:#f85149; font-weight:700; }
+.cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(360px,1fr));
+         gap:16px; padding:20px 24px; max-width:1200px; }
+.card { background:#161b22; border:1px solid #21262d; border-radius:14px; padding:18px 20px; }
+.card-head { display:flex; justify-content:space-between; align-items:center; gap:10px; }
+.asset { font-size:22px; font-weight:800; }
+.price { color:#8b949e; font-size:16px; margin-left:6px; }
+.pill { color:#fff; font-size:12px; font-weight:700; padding:4px 11px; border-radius:20px;
+        white-space:nowrap; }
+.verdict { color:#8b949e; font-size:13px; margin:6px 0 14px; }
+.metric { display:flex; align-items:center; gap:10px; margin:7px 0; font-size:13px; }
+.mlabel { width:54px; color:#8b949e; }
+.bar { flex:1; height:9px; background:#21262d; border-radius:6px; overflow:hidden; }
+.fill { display:block; height:100%; border-radius:6px; }
+.mval { width:62px; text-align:right; font-variant-numeric:tabular-nums; font-weight:600; }
+.mscale { color:#6e7681; font-size:11px; font-weight:400; }
+.chips { display:flex; gap:8px; flex-wrap:wrap; margin:12px 0 2px; }
+.chips span { background:#21262d; color:#adbac7; font-size:12px; padding:3px 9px; border-radius:6px; }
+.block { margin-top:12px; border-top:1px solid #21262d; padding-top:10px; }
+.blabel { font-size:11px; letter-spacing:.08em; color:#8b949e; font-weight:700; }
+.bval { font-size:14px; margin-top:3px; line-height:1.45; }
+.sub { color:#8b949e; font-size:12px; }
+.neg { color:#f85149; }
+.wrap { padding:4px 24px 8px; max-width:1200px; }
+.wrap h3 { margin:26px 0 10px; font-size:16px; }
+/* weekly buy planner */
+.planner { margin:6px 24px 8px; max-width:1200px; background:#11203a55; border:1px solid #1f6feb66;
+           border-radius:14px; padding:18px 20px; }
+.planner h3 { margin:0 0 4px; font-size:16px; }
+.pgrid { display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:14px; margin:14px 0 6px; }
+.pin label { display:block; font-size:12px; color:#8b949e; margin-bottom:5px; }
+.inwrap { display:flex; align-items:center; background:#0d1117; border:1px solid #30363d; border-radius:9px; padding:0 10px; }
+.inwrap span { color:#8b949e; }
+.inwrap input { flex:1; background:transparent; border:0; color:#e6edf3; font-size:16px; padding:10px 6px;
+                outline:none; font-variant-numeric:tabular-nums; }
+.chk { display:inline-flex; align-items:center; gap:7px; color:#8b949e; font-size:12px; margin-top:4px; cursor:pointer; }
+.pout { margin-top:14px; display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:12px; }
+.pcard { background:#0d1117; border:1px solid #21262d; border-radius:11px; padding:12px 14px; }
+.ptop { display:flex; justify-content:space-between; align-items:center; gap:8px; }
+.pbig { font-size:20px; margin:8px 0 4px; }
+.pbig b { color:#3fb950; }
+/* bottom-prediction derivation */
+.dcard { background:#161b22; border:1px solid #21262d; border-radius:11px; padding:12px 14px; margin:8px 0; }
+.dhead { font-size:14px; }
+.dlist { margin:8px 0 0 18px; padding:0; color:#adbac7; font-size:12.5px; line-height:1.55; }
+table.d { border-collapse:collapse; font-size:13px; width:100%; max-width:560px; background:#161b22;
+          border:1px solid #21262d; border-radius:10px; overflow:hidden; }
+table.d th, table.d td { padding:7px 12px; border-bottom:1px solid #21262d; text-align:right;
+                         font-variant-numeric:tabular-nums; }
+table.d th { color:#8b949e; font-weight:600; background:#1b212a; }
+table.d td:first-child, table.d th:first-child { text-align:left; }
+table.d tr:last-child td { border-bottom:none; }
+.gallery { display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:16px; }
+.gallery figure { margin:0; background:#161b22; border:1px solid #21262d; border-radius:12px; padding:10px; }
+.gallery img { width:100%; border-radius:6px; display:block; }
+.gallery figcaption { color:#adbac7; font-size:12px; margin-top:6px; }
+footer { color:#6e7681; font-size:11px; padding:18px 24px; }
+pre.err { background:#161b22; border:1px solid #5a1f1f; color:#ffb4b4; padding:14px; border-radius:8px;
+          overflow:auto; font-size:12px; }
+</style></head><body>
+      <header>
+        <div class="title">📊 Crypto Cycle Dashboard</div>
+        <div class="meta">2026-06-18 · v12.0.0 · data through 2026-06-17 (1d old)
+          · updated 22:06:13</div>
+      </header>
+      <div class="cards">
+    <section class="card">
+      <div class="card-head">
+        <div><span class="asset">BTC</span><span class="price">$64,401</span></div>
+        <span class="pill" style="background:#2a8">ACCUMULATE</span>
+      </div>
+      <div class="verdict">LIKELY · MODERATE conviction</div>
+      <div class="metric"><span class="mlabel">Bottom</span><span class="bar"><span class="fill" style="width:63%;background:#0a9d6e"></span></span><span class="mval">63<span class="mscale">/100</span></span></div>
+      <div class="metric"><span class="mlabel">Top</span><span class="bar"><span class="fill" style="width:6%;background:#e0900a"></span></span><span class="mval">6<span class="mscale">/100</span></span></div>
+      <div class="chips"><span>cycle 20</span><span>gate 0.75</span>
+        <span>position 53%</span></div>
+      <div class="block">
+        <div class="blabel">ACTION</div>
+        <div class="bval"><b>Deploy 17% of capital now</b><div class='sub'>→ DCA to 90% over 26w · reserve 10% · redeploy below $38,733</div></div>
+      </div>
+      <div class="block">
+        <div class="blabel">BOTTOM ESTIMATE</div>
+        <div class="bval">~$39,931 <span class='neg'>(-38%)</span> · around 2026-09-14<div class='sub'>range $30,714–$50,955 · 2026-07-15 → 2026-11-01</div></div>
+      </div>
+    </section>
+    <section class="card">
+      <div class="card-head">
+        <div><span class="asset">ETH</span><span class="price">$1,747</span></div>
+        <span class="pill" style="background:#2a8">ACCUMULATE</span>
+      </div>
+      <div class="verdict">LIKELY · MODERATE conviction</div>
+      <div class="metric"><span class="mlabel">Bottom</span><span class="bar"><span class="fill" style="width:59%;background:#0a9d6e"></span></span><span class="mval">59<span class="mscale">/100</span></span></div>
+      <div class="metric"><span class="mlabel">Top</span><span class="bar"><span class="fill" style="width:4%;background:#e0900a"></span></span><span class="mval">4<span class="mscale">/100</span></span></div>
+      <div class="chips"><span>cycle 21</span><span>gate 0.68</span>
+        <span>position 49%</span></div>
+      <div class="block">
+        <div class="blabel">ACTION</div>
+        <div class="bval"><b>Deploy 21% of capital now</b><div class='sub'>→ DCA to 90% over 20w · reserve 10% · redeploy below $1,148</div></div>
+      </div>
+      <div class="block">
+        <div class="blabel">BOTTOM ESTIMATE</div>
+        <div class="bval">~$1,183 <span class='neg'>(-32%)</span> · around 2026-08-14<div class='sub'>range $895–$1,393 · 2026-07-09 → 2026-09-18</div></div>
+      </div>
+    </section></div>
+      <section class="planner"><h3>🧮 Weekly buy planner</h3><p class='sub'>Enter how much you still plan to deploy into each asset — this applies the model's current %-plan to your number. It runs entirely in your browser; nothing is sent anywhere.</p><div class="pgrid"><div class="pin"><label>BTC capital to deploy</label><div class="inwrap"><span>$</span><input id="cap-BTC" type="number" min="0" step="100" inputmode="decimal" oninput="recompute()" placeholder="e.g. 10000"></div></div><div class="pin"><label>ETH capital to deploy</label><div class="inwrap"><span>$</span><input id="cap-ETH" type="number" min="0" step="100" inputmode="decimal" oninput="recompute()" placeholder="e.g. 3000"></div></div></div><label class="chk"><input type="checkbox" id="started" onchange="recompute()"> I've already made the initial front-load</label><div id="pout" class="pout"></div><script>
+const POLICY={"BTC": {"now_f": 0.1691, "tgt_f": 0.895, "res_f": 0.105, "H": 26, "anchor": 38733, "regime": "ACCUMULATE", "color": "#2a8"}, "ETH": {"now_f": 0.2147, "tgt_f": 0.895, "res_f": 0.105, "H": 20, "anchor": 1148, "regime": "ACCUMULATE", "color": "#2a8"}};
+
+function fmt(x){return '$'+Math.round(x).toLocaleString('en-US');}
+function pct(x){return (x*100).toFixed(0)+'%';}
+function recompute(){
+  var started=document.getElementById('started').checked, out='';
+  for(var a in POLICY){
+    var p=POLICY[a], el=document.getElementById('cap-'+a), C=parseFloat(el&&el.value);
+    if(!(C>0)) continue;
+    var weekly_f=Math.max(0,(p.tgt_f-p.now_f)/p.H);
+    var front=p.now_f*C, weekly=weekly_f*C, reserve=p.res_f*C;
+    var thisweek=started?weekly:front+weekly;
+    var lead=started?'':('Front-load '+fmt(front)+' ('+pct(p.now_f)+') now, then ');
+    out+='<div class="pcard"><div class="ptop"><b>'+a+'</b>'
+      +'<span class="pill" style="background:'+p.color+'">'+p.regime+'</span></div>'
+      +'<div class="pbig">Buy this week &asymp; <b>'+fmt(thisweek)+'</b></div>'
+      +'<div class="sub">'+lead+'~'+fmt(weekly)+'/wk for '+p.H+' weeks &middot; keep '+fmt(reserve)
+      +' ('+pct(p.res_f)+') in reserve for a dip below $'+Math.round(p.anchor).toLocaleString('en-US')+'</div></div>';
+  }
+  document.getElementById('pout').innerHTML =
+    out || '<div class="sub">Enter an amount above to see this week\'s suggested buy.</div>';
+}
+recompute();
+</script></section>
+      <div class="wrap">
+        <h3>Bottom prediction <span class='sub'>(how it's derived)</span></h3><div class='dcard'><div class='dhead'><b>BTC</b> bottom &asymp; <b>$39,931</b> <span class='neg'>(-38%)</span> around 2026-09-14 <span class='sub'>· range $30,714–$50,955, 2026-07-15→2026-11-01</span></div><ol class='dlist'><li><b>Diminishing-DD</b> [55%]: cycle max-DDs 93/82/83/76% &rarr; projected 72% &rarr; ~$35,477 (trajectory-adj &rarr; 66% &rarr; ~$41,801)</li><li><b>Closest analogues</b> [45%]: 2022-06-06 (mid_bear, -50% further, ~168d to bottom) &rarr; ~$37,646</li><li><b>Scenario mix</b>: near-bottom 0% / moderate 50% / extended bear 50%</li></ol></div><div class='dcard'><div class='dhead'><b>ETH</b> bottom &asymp; <b>$1,183</b> <span class='neg'>(-32%)</span> around 2026-08-14 <span class='sub'>· range $895–$1,393, 2026-07-09→2026-09-18</span></div><ol class='dlist'><li><b>Diminishing-DD</b> [35%]: cycle max-DDs 94/80% &rarr; projected 79% &rarr; ~$1,011 (trajectory-adj &rarr; 77% &rarr; ~$1,112)</li><li><b>Closest analogues</b> [65%]: 2022-08-27 (mid_bear, -26% further, ~86d to bottom) &rarr; ~$1,222</li><li><b>Scenario mix</b>: near-bottom 0% / moderate 50% / extended bear 50%</li></ol></div>
+        
+        <h3>Dynamic-DCA track record <span class='sub'>(historic clusters, decay-weighted)</span></h3><table class='d'><tr><th>Asset</th><th>n</th><th>Win</th><th>Avg&nbsp;12m</th><th>Avg&nbsp;DD</th><th>Worst&nbsp;DD</th></tr><tr><td>BTC</td><td>6</td><td>100%</td><td>+200%</td><td>-12%</td><td>-52%</td></tr><tr><td>ETH</td><td>9</td><td>95%</td><td>+38%</td><td>-17%</td><td>-79%</td></tr></table>
+        <h3>Charts</h3><div class='gallery'><figure><img loading="lazy" src="reports/conviction_dial.png" alt="Conviction dial"><figcaption>Conviction dial <span class="sub">· 2026-06-18 08:57</span></figcaption></figure><figure><img loading="lazy" src="reports/scenario_stress.png" alt="Scenario stress test"><figcaption>Scenario stress test <span class="sub">· 2026-06-18 08:57</span></figcaption></figure><figure><img loading="lazy" src="reports/deploy_BTC_2022.png" alt="BTC · 2022 deployment backtest"><figcaption>BTC · 2022 deployment backtest <span class="sub">· 2026-06-18 07:53</span></figcaption></figure><figure><img loading="lazy" src="reports/deploy_ETH_2022.png" alt="ETH · 2022 deployment backtest"><figcaption>ETH · 2022 deployment backtest <span class="sub">· 2026-06-18 07:53</span></figcaption></figure></div>
+      </div>
+      <footer>Generated by Claude Code · research/educational only, not investment advice.</footer></body></html>
