@@ -35,6 +35,13 @@ header { padding:20px 24px; background:#161b22; border-bottom:1px solid #21262d;
 .bval { font-size:14px; margin-top:3px; line-height:1.45; }
 .sub { color:#8b949e; font-size:12px; }
 .neg { color:#f85149; }
+.diag { margin-top:12px; background:#0d1117; border:1px solid #30363d; border-radius:10px; padding:10px 12px; }
+.diagtop { display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap; }
+.conf { font-size:12px; font-weight:800; padding:3px 8px; border-radius:7px; color:#fff; }
+.diagrow { display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:8px; margin-top:8px; }
+.dmetric { color:#8b949e; font-size:11.5px; line-height:1.35; }
+.dmetric b { display:block; color:#e6edf3; font-size:13px; font-variant-numeric:tabular-nums; }
+.warn { color:#d29922; font-size:11.5px; margin-top:7px; line-height:1.4; }
 .wrap { padding:4px 24px 8px; max-width:1200px; }
 .wrap h3 { margin:26px 0 10px; font-size:16px; }
 /* weekly buy planner */
@@ -64,6 +71,8 @@ table.d th, table.d td { padding:7px 12px; border-bottom:1px solid #21262d; text
 table.d th { color:#8b949e; font-weight:600; background:#1b212a; }
 table.d td:first-child, table.d th:first-child { text-align:left; }
 table.d tr:last-child td { border-bottom:none; }
+.tablewrap { max-width:100%; overflow-x:auto; }
+.tablewrap table.d { min-width:520px; }
 /* prediction history controls */
 .hctl { display:flex; flex-wrap:wrap; align-items:center; gap:12px; margin:10px 0 4px; max-width:1200px; }
 .rangepick { position:relative; display:inline-block; }
@@ -81,11 +90,6 @@ table.d tr:last-child td { border-bottom:none; }
 .hnav:hover:not(:disabled) { background:#2a3038; }
 .hnav:disabled { color:#484f58; cursor:default; opacity:.5; }
 .hnav.prev { left:8px; } .hnav.next { right:8px; }
-.hjump { display:flex; justify-content:center; align-items:center; gap:8px; margin:0 0 10px; }
-.hsel { background:#0d1117; color:#c9d1d9; border:1px solid #30363d; border-radius:7px;
-        padding:6px 8px; font-size:12px; height:30px; }
-.hsel:focus { outline:1px solid #1f6feb; outline-offset:1px; }
-.hsel.hm { width:112px; } .hsel.hy { width:82px; }
 .hpop-cals { display:flex; gap:20px; }
 .hcal-hd { text-align:center; font-weight:600; color:#e6edf3; font-size:13.5px; height:24px;
            line-height:24px; margin-bottom:4px; }
@@ -111,6 +115,7 @@ table.d tr:last-child td { border-bottom:none; }
 @media (max-width:620px) { .hpop-cals { flex-direction:column; gap:14px; }
   .hpop { left:50%; transform:translateX(-50%); } }
 #histwrap table.d { max-width:1120px; }
+#histwrap { max-width:100%; overflow-x:auto; }
 #histwrap table.d th, #histwrap table.d td { white-space:nowrap; }  /* keep ISO dates on one line */
 .rmark { color:#6e7681; cursor:help; font-weight:700; }
 .gallery { display:grid; grid-template-columns:1fr; gap:16px; }
@@ -127,10 +132,20 @@ table.d tr:last-child td { border-bottom:none; }
 footer { color:#6e7681; font-size:11px; padding:18px 24px; }
 pre.err { background:#161b22; border:1px solid #5a1f1f; color:#ffb4b4; padding:14px; border-radius:8px;
           overflow:auto; font-size:12px; }
+@media (max-width:620px) {
+  header { padding:16px; }
+  .cards { grid-template-columns:1fr; gap:12px; padding:14px 16px; }
+  .card { padding:16px; }
+  .clegend { margin:2px 16px 8px; }
+  .planner { margin:6px 16px 8px; padding:16px; }
+  .wrap { padding:4px 16px 8px; }
+  .rangepick, .htrig { width:100%; min-width:0; }
+  table.d th, table.d td { padding:6px 8px; font-size:12px; }
+}
 </style></head><body>
       <header>
         <div class="title">📊 Crypto Cycle Dashboard</div>
-        <div class="meta">2026-06-27 · data as of 20:30 ET</div>
+        <div class="meta">2026-06-27 · data as of 23:14 ET · model v12.0.0 (ea912512bdb515a0)</div>
       </header>
       <div class="cards">
     <section class="card">
@@ -142,6 +157,7 @@ pre.err { background:#161b22; border:1px solid #5a1f1f; color:#ffb4b4; padding:1
       <div class="metric"><span class="mlabel">Bottom</span><span class="bar"><span class="fill" style="width:69%;background:#0a9d6e"></span></span><span class="mval">69<span class="mscale">/100</span></span></div>
       <div class="metric"><span class="mlabel">Top</span><span class="bar"><span class="fill" style="width:0%;background:#e0900a"></span></span><span class="mval">0<span class="mscale">/100</span></span></div>
       <div class="chips"><span title="Where price sits in the cycle: 0 = cycle bottom, 100 = cycle top. Now 13: lower than 84% of 12y history; 26th pctile within bottoming (cycle&lt;50).">cycle 13</span><span title="0-1 confirmation gate: how strongly the three capitulation signal groups (price-depth, volume/momentum, time) agree; the bottom score is multiplied by it. Now 0.78: higher than 88% of history; 81st pctile among bottoming days.">gate 0.78</span></div>
+      <div class='diag'><div class='diagtop'><b>Evidence quality</b><span class='conf' style='background:#9e6a03'>MODERATE</span></div><div class='diagrow'><div class='dmetric'><b>6</b>independent bottom events</div><div class='dmetric'><b>53%</b>forecast price-band width</div><div class='dmetric'><b>109d</b>timing window</div><div class='dmetric'><b>3.0</b>analogue effective n</div></div><div class='warn'>daily trigger count (343) collapses to 6 independent events · wide price band; point forecast is low precision</div></div>
       <div class="block">
         <div class="blabel">ACTION</div>
         <div class="bval"><b>Deploy 32% of capital now</b><div class='sub'>→ DCA to 80% over 52w · reserve 20% · redeploy below $21,628</div><div class='sub' style='margin-top:5px'>Why now: ~43% of the projected peak→bottom decline is already behind us — small starter, the rest waits for lower.</div></div>
@@ -161,6 +177,7 @@ pre.err { background:#161b22; border:1px solid #5a1f1f; color:#ffb4b4; padding:1
       <div class="metric"><span class="mlabel">Bottom</span><span class="bar"><span class="fill" style="width:66%;background:#0a9d6e"></span></span><span class="mval">66<span class="mscale">/100</span></span></div>
       <div class="metric"><span class="mlabel">Top</span><span class="bar"><span class="fill" style="width:0%;background:#e0900a"></span></span><span class="mval">0<span class="mscale">/100</span></span></div>
       <div class="chips"><span title="Where price sits in the cycle: 0 = cycle bottom, 100 = cycle top. Now 15: lower than 81% of 9y history; 23rd pctile within bottoming (cycle&lt;50).">cycle 15</span><span title="0-1 confirmation gate: how strongly the three capitulation signal groups (price-depth, volume/momentum, time) agree; the bottom score is multiplied by it. Now 0.73: higher than 80% of history; 75th pctile among bottoming days.">gate 0.73</span></div>
+      <div class='diag'><div class='diagtop'><b>Evidence quality</b><span class='conf' style='background:#238636'>HIGH</span></div><div class='diagrow'><div class='dmetric'><b>9</b>independent bottom events</div><div class='dmetric'><b>41%</b>forecast price-band width</div><div class='dmetric'><b>68d</b>timing window</div><div class='dmetric'><b>3.0</b>analogue effective n</div></div><div class='warn'>daily trigger count (261) collapses to 9 independent events · moderate price band; size from the range, not the point estimate</div></div>
       <div class="block">
         <div class="blabel">ACTION</div>
         <div class="bval"><b>Deploy 28% of capital now</b><div class='sub'>→ DCA to 70% over 52w · reserve 30% · redeploy below $654</div><div class='sub' style='margin-top:5px'>Why now: ~57% of the projected peak→bottom decline is already behind us — small starter, the rest waits for lower.</div></div>
@@ -239,8 +256,9 @@ function recompute(){
 recompute();
 </script></section>
       <div class="wrap">
-        <h3>Bottom prediction <span class='sub'>(how it's derived)</span></h3><div class='dcard'><div class='dhead'><b>BTC</b> bottom &asymp; <b>$37,161</b> <span class='neg'>(-38%)</span> around 2026-09-19 <span class='sub'>· range $28,056–$47,846, 2026-07-19→2026-11-06</span></div><ol class='dlist'><li><b>Diminishing-DD</b> [55%]: cycle max-DDs 93/82/83/76% &rarr; projected 72% &rarr; ~$35,477 (trajectory-adj &rarr; 69% &rarr; ~$38,809)</li><li><b>Closest analogues</b> [45%]: 2022-06-06 (mid_bear, -50% further, ~168d to bottom) &rarr; ~$35,148</li><li><b>Scenario mix</b>: near-bottom 0% / moderate 50% / extended bear 50%</li></ol></div><div class='dcard'><div class='dhead'><b>ETH</b> bottom &asymp; <b>$1,123</b> <span class='neg'>(-29%)</span> around 2026-08-20 <span class='sub'>· range $845–$1,307, 2026-07-16→2026-09-23</span></div><ol class='dlist'><li><b>Diminishing-DD</b> [35%]: cycle max-DDs 94/80% &rarr; projected 79% &rarr; ~$1,011 (trajectory-adj &rarr; 77% &rarr; ~$1,087)</li><li><b>Closest analogues</b> [65%]: 2022-08-27 (mid_bear, -26% further, ~86d to bottom) &rarr; ~$1,143</li><li><b>Scenario mix</b>: near-bottom 0% / moderate 50% / extended bear 50%</li></ol></div>
-        <h3>Prediction history <span class='sub'>(daily closes — how the call has evolved)</span></h3><p class='sub' style='max-width:820px;margin:-2px 0 10px;line-height:1.55'><b>What this is for:</b> see the model's daily read at any point in past cycles — its <b>stance + the action it advised</b> (deploy&nbsp;X% when accumulating, trim toward X% invested when distributing), the projected <b>bottom</b> (date + price), and the bottom/top scores — so you can judge how it behaved at real tops and bottoms. For example near the <b>2021 top</b> the stance was <b>DIST</b> (trim) with the top score elevated; at the <b>2022 bottom</b> it was <b>S-ACC</b> (deploy heavily) with a bottom near the eventual low. Click the date field to pick a <b>start</b> then an <b>end</b> date in one calendar (or use a quick preset — 30d / 90d / 1y / All); defaults to the latest close. Closes only — the provisional intraday spot is excluded. Rows marked <span class='rmark'>~</span> predate the live dashboard and are <b>causally reconstructed</b> from the current model (computed as-of each date, no look-ahead), so they weren't shown live at the time.</p><div class='hctl'><div class='rangepick'><button type='button' id='hist-trig' class='htrig' onclick='calToggle(event)' aria-haspopup='dialog' aria-expanded='false' disabled><span class='hcalico'>📅</span><span id='hist-trig-txt'>Loading…</span><span class='hcar'>▾</span></button><div id='hist-pop' class='hpop' role='dialog' aria-label='Pick a date range'><button type='button' class='hnav prev' id='hist-prev' onclick='calNav(-1)' aria-label='Previous month'>‹</button><button type='button' class='hnav next' id='hist-next' onclick='calNav(1)' aria-label='Next month'>›</button><div class='hjump'><select id='hist-month' class='hsel hm' onchange='calJump()' aria-label='Month'></select><select id='hist-year' class='hsel hy' onchange='calJump()' aria-label='Year'></select></div><div id='hist-grids' class='hpop-cals'></div><div class='hpre'><button type='button' class='hchip' onclick="calPreset('latest')">Latest</button><button type='button' class='hchip' onclick="calPreset('30')">30d</button><button type='button' class='hchip' onclick="calPreset('90')">90d</button><button type='button' class='hchip' onclick="calPreset('365')">1y</button><button type='button' class='hchip' onclick="calPreset('all')">All</button><span class='hpre-sp'></span><span id='hist-sel' class='sub'></span><button type='button' class='hchip hchip-go' onclick='calClose()'>Done</button></div></div></div><input type='hidden' id='hist-from'><input type='hidden' id='hist-to'></div><div id='histcap' class='sub' style='margin:6px 0'></div><div id='histwrap' style='overflow-x:auto'><div class='sub'>Loading history…</div></div><script>
+        <h3>Model evidence <span class='sub'>(event-level, not daily-trigger inflated)</span></h3><p class='sub' style='max-width:780px;margin:-2px 0 10px;line-height:1.55'>This table collapses adjacent daily bottom-score triggers into one independent event per bottom cluster. The daily trigger count is shown only as a diagnostic, because adjacent days in the same bear market are not independent samples.</p><div class='tablewrap'><table class='d'><tr><th>Asset</th><th>Events</th><th>Daily triggers</th><th>Win</th><th>Avg&nbsp;12m</th><th>Avg&nbsp;DD</th><th>Worst&nbsp;DD</th><th>Quality</th></tr><tr><td>BTC</td><td>6</td><td>343</td><td>67%</td><td>+177%</td><td>-28%</td><td>-59%</td><td>MODERATE</td></tr><tr><td>ETH</td><td>9</td><td>261</td><td>67%</td><td>+26%</td><td>-28%</td><td>-79%</td><td>HIGH</td></tr></table></div>
+        <h3>Bottom prediction <span class='sub'>(how it's derived)</span></h3><div class='dcard'><div class='dhead'><b>BTC</b> bottom &asymp; <b>$37,161</b> <span class='neg'>(-38%)</span> around 2026-09-19 <span class='sub'>· range $28,056–$47,846, 2026-07-19→2026-11-06</span></div><ol class='dlist'><li><b>Diminishing-DD</b> [55%]: cycle max-DDs 93/82/83/76% &rarr; projected 72% &rarr; ~$35,477 (trajectory-adj &rarr; 69% &rarr; ~$38,809)</li><li><b>Closest analogues</b> [45%]: 2022-06-06 (mid_bear, -50% further, ~168d to bottom) &rarr; ~$35,148</li><li><b>Scenario mix</b>: near-bottom 0% / moderate 50% / extended bear 50%</li><li><b>Uncertainty</b>: evidence quality MODERATE · 6 independent events · price band 53% · timing window 109d</li></ol></div><div class='dcard'><div class='dhead'><b>ETH</b> bottom &asymp; <b>$1,123</b> <span class='neg'>(-29%)</span> around 2026-08-20 <span class='sub'>· range $845–$1,307, 2026-07-16→2026-09-23</span></div><ol class='dlist'><li><b>Diminishing-DD</b> [35%]: cycle max-DDs 94/80% &rarr; projected 79% &rarr; ~$1,011 (trajectory-adj &rarr; 77% &rarr; ~$1,087)</li><li><b>Closest analogues</b> [65%]: 2022-08-27 (mid_bear, -26% further, ~86d to bottom) &rarr; ~$1,143</li><li><b>Scenario mix</b>: near-bottom 0% / moderate 50% / extended bear 50%</li><li><b>Uncertainty</b>: evidence quality HIGH · 9 independent events · price band 41% · timing window 68d</li></ol></div>
+        <h3>Prediction history <span class='sub'>(daily closes — how the call has evolved)</span></h3><p class='sub' style='max-width:820px;margin:-2px 0 10px;line-height:1.55'><b>What this is for:</b> see the model's daily read at any point in past cycles — its <b>stance + the action it advised</b> (deploy&nbsp;X% when accumulating, trim toward X% invested when distributing), the projected <b>bottom</b> (date + price), and the bottom/top scores — so you can judge how it behaved at real tops and bottoms. For example near the <b>2021 top</b> the stance was <b>DIST</b> (trim) with the top score elevated; at the <b>2022 bottom</b> it was <b>S-ACC</b> (deploy heavily) with a bottom near the eventual low. Click the date field to pick a <b>start</b> then an <b>end</b> date in one calendar (or use a quick preset — 30d / 90d / 1y / All); defaults to the latest close. Closes only — the provisional intraday spot is excluded. Rows marked <span class='rmark'>~</span> predate the live dashboard and are <b>causally reconstructed</b> from the current model (computed as-of each date, no look-ahead), so they weren't shown live at the time.</p><div class='hctl'><div class='rangepick'><button type='button' id='hist-trig' class='htrig' onclick='calToggle(event)' aria-haspopup='dialog' aria-expanded='false' disabled><span class='hcalico'>📅</span><span id='hist-trig-txt'>Loading…</span><span class='hcar'>▾</span></button><div id='hist-pop' class='hpop' role='dialog' aria-label='Pick a date range'><button type='button' class='hnav prev' id='hist-prev' onclick='calNav(-1)' aria-label='Previous month'>‹</button><button type='button' class='hnav next' id='hist-next' onclick='calNav(1)' aria-label='Next month'>›</button><div id='hist-grids' class='hpop-cals'></div><div class='hpre'><button type='button' class='hchip' onclick="calPreset('latest')">Latest</button><button type='button' class='hchip' onclick="calPreset('30')">30d</button><button type='button' class='hchip' onclick="calPreset('90')">90d</button><button type='button' class='hchip' onclick="calPreset('365')">1y</button><button type='button' class='hchip' onclick="calPreset('all')">All</button><span class='hpre-sp'></span><span id='hist-sel' class='sub'></span><button type='button' class='hchip hchip-go' onclick='calClose()'>Done</button></div></div></div><input type='hidden' id='hist-from'><input type='hidden' id='hist-to'></div><div id='histcap' class='sub' style='margin:6px 0'></div><div id='histwrap' style='overflow-x:auto'><div class='sub'>Loading history…</div></div><script>
 var HIST=[];
 function histFmt(x){return x==null?'—':'$'+Math.round(x).toLocaleString('en-US');}
 function histN(x){return x==null?'—':x;}
@@ -269,7 +287,6 @@ var DLO='',DHI='';            // selectable bounds (oldest / newest close)
 var selF='',selT='';          // committed selection (mirrored into the hidden inputs)
 var penF='',penT='',hov='';   // pending pick + hover preview
 var calLeft=0;                // left month shown, as year*12+month
-var calFocus=0;               // month/year selected in the jump controls
 var MON=['January','February','March','April','May','June','July','August','September','October','November','December'];
 var MONS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 function pad2(n){return (n<10?'0':'')+n;}
@@ -278,31 +295,9 @@ function parseYMD(s){var p=s.split('-');return new Date(+p[0],+p[1]-1,+p[2]);}
 function addDays(s,n){var d=parseYMD(s);d.setDate(d.getDate()+n);return ymd(d);}
 function mIdx(y,m){return y*12+m;}
 function fmtShort(s){if(!s)return '';var d=parseYMD(s);return MONS[d.getMonth()]+' '+d.getDate()+', '+d.getFullYear();}
-function monthMin(){var d=parseYMD(DLO);return mIdx(d.getFullYear(),d.getMonth());}
-function monthMax(){var d=parseYMD(DHI);return mIdx(d.getFullYear(),d.getMonth());}
-function clampMonth(i){var mn=monthMin(),mx=monthMax();return i<mn?mn:(i>mx?mx:i);}
 function leftMin(){var d=parseYMD(DLO);return mIdx(d.getFullYear(),d.getMonth());}
 function leftMax(){var d=parseYMD(DHI);var mx=mIdx(d.getFullYear(),d.getMonth())-1,mn=leftMin();return mx<mn?mn:mx;}
 function clampLeft(i){var mn=leftMin(),mx=leftMax();return i<mn?mn:(i>mx?mx:i);}
-function focusFromLeft(){return calLeft<=monthMin()?monthMin():clampMonth(calLeft+1);}
-function calSyncJump(){
-  var ms=document.getElementById('hist-month'),ys=document.getElementById('hist-year');if(!ms||!ys||!DLO||!DHI)return;
-  if(!ms.options.length){var mh='';for(var m=0;m<12;m++)mh+='<option value="'+m+'">'+MONS[m]+'</option>';ms.innerHTML=mh;}
-  var lo=parseYMD(DLO),hi=parseYMD(DHI),minY=lo.getFullYear(),maxY=hi.getFullYear();
-  if(ys.getAttribute('data-min')!==''+minY||ys.getAttribute('data-max')!==''+maxY){
-    var yh='';for(var y=minY;y<=maxY;y++)yh+='<option value="'+y+'">'+y+'</option>';ys.innerHTML=yh;ys.setAttribute('data-min',minY);ys.setAttribute('data-max',maxY);
-  }
-  calFocus=clampMonth(calFocus||focusFromLeft());
-  var fy=Math.floor(calFocus/12),fm=calFocus%12;ys.value=''+fy;
-  for(var i=0;i<ms.options.length;i++){var mi=+ms.options[i].value,idx=mIdx(fy,mi);ms.options[i].disabled=(idx<monthMin()||idx>monthMax());}
-  ms.value=''+fm;
-}
-function calJump(){
-  var ms=document.getElementById('hist-month'),ys=document.getElementById('hist-year');if(!ms||!ys||!ys.value)return;
-  calFocus=clampMonth(mIdx(+ys.value,+ms.value));
-  calLeft=calFocus<=leftMin()?leftMin():clampLeft(calFocus-1);
-  calRender();
-}
 function buildMonth(idx){
   var y=Math.floor(idx/12),m=idx%12,start=new Date(y,m,1).getDay(),dim=new Date(y,m+1,0).getDate();
   var dow=['S','M','T','W','T','F','S'],h='<div class="hcal"><div class="hcal-hd">'+MON[m]+' '+y+'</div><div class="hgrid">';
@@ -327,13 +322,12 @@ function calPaint(){
 }
 function calRender(){
   var g=document.getElementById('hist-grids');if(!g)return;
-  if(!calFocus)calFocus=focusFromLeft();calSyncJump();
   g.innerHTML=buildMonth(calLeft)+buildMonth(calLeft+1);
   var p=document.getElementById('hist-prev'),n=document.getElementById('hist-next');
   if(p)p.disabled=(calLeft<=leftMin()); if(n)n.disabled=(calLeft>=leftMax());
   calPaint();
 }
-function calNav(step){calLeft=clampLeft(calLeft+step);calFocus=focusFromLeft();calRender();}
+function calNav(step){calLeft=clampLeft(calLeft+step);calRender();}
 function calHover(d){if(penF&&!penT){hov=d;calPaint();}}
 function calPick(d){
   if(!penF||(penF&&penT)){penF=d;penT='';hov='';calPaint();return;}  // begin a new range
@@ -362,7 +356,7 @@ function calTrigText(){
 function calOpen(){
   var pop=document.getElementById('hist-pop');if(!pop)return;
   penF=selF;penT=selT;hov='';
-  var d=parseYMD(selT||DHI);calFocus=mIdx(d.getFullYear(),d.getMonth());calLeft=calFocus<=leftMin()?leftMin():clampLeft(calFocus-1);
+  var d=parseYMD(selT||DHI);calLeft=clampLeft(mIdx(d.getFullYear(),d.getMonth())-1);
   calRender();pop.classList.add('open');
   var tg=document.getElementById('hist-trig');if(tg)tg.setAttribute('aria-expanded','true');
 }
@@ -420,7 +414,7 @@ fetch('history.json').then(function(r){return r.ok?r.json():[];}).then(function(
 }).catch(function(){var el=document.getElementById('histwrap');if(el)el.innerHTML='<div class="sub">History unavailable.</div>';});
 </script>
         
-        <h3>Dynamic-DCA track record <span class='sub'>(historic clusters, decay-weighted)</span></h3><table class='d'><tr><th>Asset</th><th>n</th><th>Win</th><th>Avg&nbsp;12m</th><th>Avg&nbsp;DD</th><th>Worst&nbsp;DD</th></tr><tr><td>BTC</td><td>6</td><td>100%</td><td>+199%</td><td>-12%</td><td>-53%</td></tr><tr><td>ETH</td><td>9</td><td>95%</td><td>+38%</td><td>-17%</td><td>-79%</td></tr></table>
+        <h3>Dynamic-DCA track record <span class='sub'>(historic clusters, decay-weighted)</span></h3><div class='tablewrap'><table class='d'><tr><th>Asset</th><th>n</th><th>Win</th><th>Avg&nbsp;12m</th><th>Avg&nbsp;DD</th><th>Worst&nbsp;DD</th></tr><tr><td>BTC</td><td>6</td><td>100%</td><td>+199%</td><td>-12%</td><td>-53%</td></tr><tr><td>ETH</td><td>9</td><td>95%</td><td>+38%</td><td>-17%</td><td>-79%</td></tr></table></div>
         <h3>Charts <span class='sub'>· tap any chart to open it full-size</span></h3><p class='sub' style='max-width:780px;margin:-2px 0 14px;line-height:1.55'><b>Which plan is the recommendation?</b> The deployment shown up top (the ACTION box and weekly planner) is the <b>convex-depth bottom-loader (&gamma;=2.0, deep anchor &times;0.60)</b> &mdash; it holds back on the way down and sizes up hard near the bottom. The first two charts show why we still keep a reserve (don't go all-in). Below them is a grid of deployment backtests &mdash; <b>BTC in the left column, ETH in the right</b>, the <b>current 2026 cycle</b> on top, then the <b>2022</b> and <b>2018</b> bears, plus two shape-stress cases &mdash; the <b>2020 COVID</b> fast-V crash and the <b>2019 H2</b> mid-cycle dip &mdash; replaying <b>that exact plan</b> so you can see how it deploys, holds reserve through the low, and redeploys up the recovery (including the hard case, ETH 2018, and where a patient plan gives up some capture: the fast COVID V).</p><div class='gallery'><figure><a class="shot" href="reports/conviction_dial.png?v=edbdfbc6" target="_blank" rel="noopener"><img loading="lazy" src="reports/conviction_dial.png?v=edbdfbc6" alt="Why keep a reserve"></a><figcaption><span class="takeaway">Why not go all-in</span><span class="cap">Each coloured line is a forward market scenario; the black dashed line is the worst case across them. The robustness argument for holding a reserve rather than going max-aggressive: the worst case is best when you lean in moderately and keep dry powder for a deeper low. The current convex-depth plan up top follows exactly this principle (gentle floor + held reserve).</span><span class="sub">Why keep a reserve · 2026-06-23 15:39</span></figcaption></figure><figure><a class="shot" href="reports/scenario_stress.png?v=de5d09a0" target="_blank" rel="noopener"><img loading="lazy" src="reports/scenario_stress.png?v=de5d09a0" alt="Scenario stress test"></a><figcaption><span class="takeaway">Why keep a reserve</span><span class="cap">Left: six ways BTC could move from today. Right: how four deployment styles score in each &mdash; all-in-now, wait-for-deep, flat DCA and a reserve-holding hybrid. The hybrid bars stay solid everywhere and are never the worst; the current convex-depth plan up top is the same keep-a-reserve family, just bottom-loaded so the average cost hugs the low.</span><span class="sub">Scenario stress test · 2026-06-23 15:39</span></figcaption></figure><figure><a class="shot" href="reports/deploy_BTC_2026.png?v=967dbf49" target="_blank" rel="noopener"><img loading="lazy" src="reports/deploy_BTC_2026.png?v=967dbf49" alt="BTC · 2026 (current cycle, live)"></a><figcaption><span class="takeaway">BTC — 2026: where we are now</span><span class="cap"><b>2026 / current cycle.</b> The live plan replayed causally from the model's first accumulate signal (Feb 2026) to today &mdash; green dots = buys, bottom panel = dry powder left. The box shows how much is deployed and the average cost so far. Incomplete (no recovery yet); a snapshot, regenerated when the backtest is re-run.</span><span class="sub">BTC · 2026 (current cycle, live) · 2026-06-26 18:45</span></figcaption></figure><figure><a class="shot" href="reports/deploy_ETH_2026.png?v=3a598501" target="_blank" rel="noopener"><img loading="lazy" src="reports/deploy_ETH_2026.png?v=3a598501" alt="ETH · 2026 (current cycle, live)"></a><figcaption><span class="takeaway">ETH — 2026: where we are now</span><span class="cap"><b>2026 / current cycle.</b> ETH's live deployment to date, holding the new ETH-specific 30% reserve. Green dots = buys; bottom panel = dry powder left. Box = deployed % and avg cost so far. Incomplete snapshot, regenerated when the backtest is re-run.</span><span class="sub">ETH · 2026 (current cycle, live) · 2026-06-26 18:45</span></figcaption></figure><figure><a class="shot" href="reports/deploy_BTC_2022.png?v=7b8dda2a" target="_blank" rel="noopener"><img loading="lazy" src="reports/deploy_BTC_2022.png?v=7b8dda2a" alt="BTC · 2022 deployment backtest"></a><figcaption><span class="takeaway">BTC — 2022 bear (does it hold up?)</span><span class="cap"><b>2022 bear.</b> The live plan (convex-depth bottom-loader) replayed through the real 2022 crash and recovery. Green dots = buys; bottom panel = dry powder, with the hard reserve held for below the predicted bottom. It deploys into weakness, keeps reserve for a deeper low, then redeploys as the trend turns &mdash; box shows avg cost vs the actual low.</span><span class="sub">BTC · 2022 deployment backtest · 2026-06-26 18:45</span></figcaption></figure><figure><a class="shot" href="reports/deploy_ETH_2022.png?v=af7b00c6" target="_blank" rel="noopener"><img loading="lazy" src="reports/deploy_ETH_2022.png?v=af7b00c6" alt="ETH · 2022 deployment backtest"></a><figcaption><span class="takeaway">ETH — 2022 bear (does it hold up?)</span><span class="cap"><b>2022 bear.</b> The same live plan through ETH's 2022 bear. Green dots = buys; bottom panel = dry powder (the hard reserve waits for a low below the predicted bottom, then redeploys up the recovery). Shows how the recommended plan would actually have deployed through a real bear.</span><span class="sub">ETH · 2022 deployment backtest · 2026-06-26 18:45</span></figcaption></figure><figure><a class="shot" href="reports/deploy_BTC_2020covid.png?v=3a1be791" target="_blank" rel="noopener"><img loading="lazy" src="reports/deploy_BTC_2020covid.png?v=3a1be791" alt="BTC · 2020 COVID (fast-V crash)"></a><figcaption><span class="takeaway">BTC — 2020 COVID (fast V)</span><span class="cap"><b>2020 COVID crash &mdash; a fast, violent V, and the plan's honest weakness.</b> Reading for a &#8209;80%-class cycle bottom that never comes, it holds its reserve through the ~&#8209;60% March low (gone in days) and ends up deploying the bulk of the pool <em>up the V-recovery</em> &mdash; avg cost well above the low (watch the orange line climb after the red marker). A patient bottom-loader can't catch a low that round-trips in weeks.</span><span class="sub">BTC · 2020 COVID (fast-V crash) · 2026-06-26 18:45</span></figcaption></figure><figure><a class="shot" href="reports/deploy_ETH_2020covid.png?v=a5a49078" target="_blank" rel="noopener"><img loading="lazy" src="reports/deploy_ETH_2020covid.png?v=a5a49078" alt="ETH · 2020 COVID (fast-V crash)"></a><figcaption><span class="takeaway">ETH — 2020 COVID (fast V)</span><span class="cap"><b>2020 COVID crash.</b> ETH's COVID V under the same plan, same lesson: reserve held through the fast low, the bulk deployed up the recovery rather than at the bottom &mdash; low-capture traded away for patience when the V round-trips before the plan can size in.</span><span class="sub">ETH · 2020 COVID (fast-V crash) · 2026-06-26 18:45</span></figcaption></figure><figure><a class="shot" href="reports/deploy_BTC_2019.png?v=8d9eeed9" target="_blank" rel="noopener"><img loading="lazy" src="reports/deploy_BTC_2019.png?v=8d9eeed9" alt="BTC · 2019 H2 (mid-cycle dip)"></a><figcaption><span class="takeaway">BTC — 2019 H2 (mid-cycle correction)</span><span class="cap"><b>2019 H2 correction &mdash; a mid-cycle pullback, not a bear.</b> After the spring-2019 run to ~$13.8k, BTC slid ~&#8209;47% into December. The plan deploys the gentle floor gradually down the slide &mdash; landing only modestly above the low &mdash; while holding most of its reserve for the deeper cycle bottom it (correctly) never sees here. A check that it doesn't empty the pool into a shallow correction.</span><span class="sub">BTC · 2019 H2 (mid-cycle dip) · 2026-06-26 18:45</span></figcaption></figure><figure><a class="shot" href="reports/deploy_ETH_2019.png?v=6e11fd31" target="_blank" rel="noopener"><img loading="lazy" src="reports/deploy_ETH_2019.png?v=6e11fd31" alt="ETH · 2019 H2 (mid-cycle dip)"></a><figcaption><span class="takeaway">ETH — 2019 H2 (mid-cycle correction)</span><span class="cap"><b>2019 H2 correction.</b> ETH's parallel mid-cycle dip: the gentle floor deploys into the drift lower while the reserve stays held for a true cycle low that doesn't come &mdash; the patient plan correctly sitting out a correction rather than emptying the pool into it.</span><span class="sub">ETH · 2019 H2 (mid-cycle dip) · 2026-06-26 18:45</span></figcaption></figure><figure><a class="shot" href="reports/deploy_BTC_2018.png?v=952268a8" target="_blank" rel="noopener"><img loading="lazy" src="reports/deploy_BTC_2018.png?v=952268a8" alt="BTC · 2018 deployment backtest"></a><figcaption><span class="takeaway">BTC — 2018 bear (single low)</span><span class="cap"><b>2018 bear.</b> The same live plan replayed through BTC's &#8209;83% grind to a single low (no double bottom). The dry-powder panel holds reserve into the capitulation, then redeploys up the 2019 recovery &mdash; a different-shaped bear to check the plan isn't tuned to 2022 alone.</span><span class="sub">BTC · 2018 deployment backtest · 2026-06-26 18:45</span></figcaption></figure><figure><a class="shot" href="reports/deploy_ETH_2018.png?v=bd61a8c0" target="_blank" rel="noopener"><img loading="lazy" src="reports/deploy_ETH_2018.png?v=bd61a8c0" alt="ETH · 2018 deployment backtest"></a><figcaption><span class="takeaway">ETH — 2018 bear (the hard case)</span><span class="cap"><b>2018 bear &mdash; the worst result in the set, shown honestly.</b> ETH's first-ever bear fell &#8209;94% to $84, far below the causal &#8209;80% prediction (no prior ETH cycle &rarr; the model defaults), so the reserve released as price broke that too-high predicted bottom, just before the final capitulation. The window ends in 2019 with ETH ~$130 (pool &#8209;68%); the cheap coins paid off only in the 2021 run, outside this window. Today's assets have several prior cycles, so it's not a blind first-cycle default.</span><span class="sub">ETH · 2018 deployment backtest · 2026-06-26 18:45</span></figcaption></figure></div>
       </div>
       <footer>Research / educational only — not investment advice.</footer></body></html>
