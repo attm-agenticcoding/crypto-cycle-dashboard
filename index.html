@@ -107,7 +107,7 @@ table.d tr:last-child td { border-bottom:none; }
 .hchip-go:hover { background:#388bfd; }
 @media (max-width:620px) { .hpop-cals { flex-direction:column; gap:14px; }
   .hpop { left:50%; transform:translateX(-50%); } }
-#histwrap table.d { max-width:1120px; }
+#histwrap table.d { min-width:1160px; max-width:none; }
 #histwrap { max-width:100%; overflow-x:auto; }
 #histwrap table.d th, #histwrap table.d td { white-space:nowrap; }  /* keep ISO dates on one line */
 .rmark { color:#6e7681; cursor:help; font-weight:700; }
@@ -138,12 +138,12 @@ pre.err { background:#161b22; border:1px solid #5a1f1f; color:#ffb4b4; padding:1
 </style></head><body>
       <header>
         <div class="title">📊 Claude Crypto Cycle Dashboard</div>
-        <div class="meta">2026-06-30 · data as of 08:11 ET · <span class='live'>● LIVE intraday — provisional, not a close</span></div>
+        <div class="meta">2026-06-30 · data as of 08:17 ET · <span class='live'>● LIVE intraday — provisional, not a close</span></div>
       </header>
       <div class="cards">
     <section class="card">
       <div class="card-head">
-        <div><span class="asset">BTC</span><span class="price">$58,944</span></div>
+        <div><span class="asset">BTC</span><span class="price">$58,949</span></div>
         <span class="pill" style="background:#0a7">STRONG_ACCUMULATE</span>
       </div>
       <div class="verdict">YES · MODERATE conviction</div>
@@ -162,13 +162,13 @@ pre.err { background:#161b22; border:1px solid #5a1f1f; color:#ffb4b4; padding:1
     </section>
     <section class="card">
       <div class="card-head">
-        <div><span class="asset">ETH</span><span class="price">$1,572</span></div>
+        <div><span class="asset">ETH</span><span class="price">$1,571</span></div>
         <span class="pill" style="background:#0a7">STRONG_ACCUMULATE</span>
       </div>
       <div class="verdict">YES · MODERATE conviction</div>
       <div class="metric"><span class="mlabel">Bottom</span><span class="bar"><span class="fill" style="width:76%;background:#0a9d6e"></span></span><span class="mval">76<span class="mscale">/100</span></span></div>
       <div class="metric"><span class="mlabel">Top</span><span class="bar"><span class="fill" style="width:0%;background:#e0900a"></span></span><span class="mval">0<span class="mscale">/100</span></span></div>
-      <div class="chips"><span title="Where price sits in the cycle: 0 = cycle bottom, 100 = cycle top. Now 13: lower than 85% of 9y history; 18th pctile within bottoming (cycle&lt;50).">cycle 13</span><span title="0-1 confirmation gate: how strongly the three capitulation signal groups (price-depth, volume/momentum, time) agree; the bottom score is multiplied by it. Now 0.83: higher than 86% of history; 82nd pctile among bottoming days.">gate 0.83</span></div>
+      <div class="chips"><span title="Where price sits in the cycle: 0 = cycle bottom, 100 = cycle top. Now 13: lower than 85% of 9y history; 18th pctile within bottoming (cycle&lt;50).">cycle 13</span><span title="0-1 confirmation gate: how strongly the three capitulation signal groups (price-depth, volume/momentum, time) agree; the bottom score is multiplied by it. Now 0.84: higher than 86% of history; 83rd pctile among bottoming days.">gate 0.84</span></div>
       <div class="block">
         <div class="blabel">ACTION</div>
         <div class="bval"><b>Deploy 28% of capital now</b><div class='sub'>→ DCA to 70% over 52w · reserve 30% · redeploy below $688</div><div class='sub' style='margin-top:5px'>Why now: ~58% of the projected peak→bottom decline is already behind us — small starter, the rest waits for lower.</div></div>
@@ -181,7 +181,7 @@ pre.err { background:#161b22; border:1px solid #5a1f1f; color:#ffb4b4; padding:1
     </section></div>
       <div class="clegend"><span><b>cycle</b> 0-100: where we are in the cycle (0 = bottom, 100 = top)</span><span><b>gate</b> 0-1: how strongly the capitulation signals confirm the bottom score</span></div>
       <section class="planner"><h3>🧮 Weekly buy planner <span class="sub" style="font-weight:400">· catch-up DCA</span></h3><p class='sub'>Enter your total pool and how much you've <b>already deployed</b>. Each week it compares that against the model's current target: it paces the rest toward the target over the horizon, and if you're behind it splits the shortfall over the next 3 weeks — then holds the reserve back for the markup or a deeper dip. Runs entirely in your browser; nothing is sent anywhere.</p><div class="pgrid"><div class="pin"><label>BTC total pool</label><div class="inwrap"><span>$</span><input id="pool-BTC" type="number" min="0" step="100" inputmode="decimal" oninput="recompute()" placeholder="e.g. 100000"></div></div><div class="pin"><label>BTC already deployed</label><div class="inwrap"><span>$</span><input id="dep-BTC" type="number" min="0" step="100" inputmode="decimal" oninput="recompute()" placeholder="0"></div></div><div class="pin"><label>ETH total pool</label><div class="inwrap"><span>$</span><input id="pool-ETH" type="number" min="0" step="100" inputmode="decimal" oninput="recompute()" placeholder="e.g. 50000"></div></div><div class="pin"><label>ETH already deployed</label><div class="inwrap"><span>$</span><input id="dep-ETH" type="number" min="0" step="100" inputmode="decimal" oninput="recompute()" placeholder="0"></div></div></div><div id="pout" class="pout"></div><script>
-const POLICY={"BTC": {"now_f": 0.3231, "tgt_f": 0.8, "res_f": 0.2, "H": 52, "anchor": 20720, "regime": "STRONG_ACCUMULATE", "color": "#0a7", "dist": false, "keep_f": 0.6865, "stop_pct": null, "stop_price": null}, "ETH": {"now_f": 0.2827, "tgt_f": 0.7, "res_f": 0.3, "H": 52, "anchor": 688, "regime": "STRONG_ACCUMULATE", "color": "#0a7", "dist": false, "keep_f": 0.6572, "stop_pct": null, "stop_price": null}};
+const POLICY={"BTC": {"now_f": 0.3231, "tgt_f": 0.8, "res_f": 0.2, "H": 52, "anchor": 20720, "regime": "STRONG_ACCUMULATE", "color": "#0a7", "dist": false, "keep_f": 0.6865, "stop_pct": null, "stop_price": null}, "ETH": {"now_f": 0.2827, "tgt_f": 0.7, "res_f": 0.3, "H": 52, "anchor": 688, "regime": "STRONG_ACCUMULATE", "color": "#0a7", "dist": false, "keep_f": 0.6586, "stop_pct": null, "stop_price": null}};
 
 function fmt(x){return '$'+Math.round(x).toLocaleString('en-US');}
 function pct(x){return (x*100).toFixed(0)+'%';}
@@ -248,7 +248,7 @@ recompute();
 </script></section>
       <div class="wrap">
         <h3>Bottom prediction <span class='sub'>(how it's derived)</span></h3><div class='dcard'><div class='dhead'><b>BTC</b> bottom &asymp; <b>$35,601</b> <span class='neg'>(-41%)</span> around 2026-10-04 <span class='sub'>· range $28,328–$42,717, 2026-08-31→2026-11-07</span></div><ol class='dlist'><li><b>Diminishing-DD</b> [55%]: cycle max-DDs 93/82/83/76% &rarr; projected 72% &rarr; ~$35,477 (trajectory-adj &rarr; 69% &rarr; ~$39,208)</li><li><b>Closest analogues</b> [45%]: 2022-06-06 (mid_bear, -50% further, ~168d to bottom) &rarr; ~$31,191</li><li><b>Scenario mix</b>: near-bottom 0% / moderate 50% / extended bear 50%</li></ol></div><div class='dcard'><div class='dhead'><b>ETH</b> bottom &asymp; <b>$1,182</b> <span class='neg'>(-27%)</span> around 2026-08-23 <span class='sub'>· range $912–$1,359, 2026-07-22→2026-09-25</span></div><ol class='dlist'><li><b>Diminishing-DD</b> [35%]: cycle max-DDs 94/80% &rarr; projected 79% &rarr; ~$1,011 (trajectory-adj &rarr; 77% &rarr; ~$1,131)</li><li><b>Closest analogues</b> [65%]: 2022-08-27 (mid_bear, -26% further, ~86d to bottom) &rarr; ~$1,210</li><li><b>Scenario mix</b>: near-bottom 0% / moderate 50% / extended bear 50%</li></ol></div>
-        <h3>Prediction history <span class='sub'>(daily closes — how the call has evolved)</span></h3><p class='sub' style='max-width:820px;margin:-2px 0 10px;line-height:1.55'><b>What this is for:</b> see the model's daily read at any point in past cycles — its <b>stance + the action it advised</b> (deploy&nbsp;X% when accumulating, trim toward X% invested when distributing), the projected <b>bottom</b> (date + price), and the bottom/top scores — so you can judge how it behaved at real tops and bottoms. For example near the <b>2021 top</b> the stance was <b>DIST</b> (trim) with the top score elevated; at the <b>2022 bottom</b> it was <b>S-ACC</b> (deploy heavily) with a bottom near the eventual low. Click the date field to pick a <b>start</b> then an <b>end</b> date in one calendar (or use a quick preset — 7d / 30d / 90d / 1y / All); defaults to the latest 7 calendar days. Closes only — the provisional intraday spot is excluded. Rows marked <span class='rmark'>~</span> predate the live dashboard and are <b>causally reconstructed</b> from the current model (computed as-of each date, no look-ahead), so they weren't shown live at the time.</p><div class='hctl'><div class='rangepick'><button type='button' id='hist-trig' class='htrig' onclick='calToggle(event)' aria-haspopup='dialog' aria-expanded='false' disabled><span class='hcalico'>📅</span><span id='hist-trig-txt'>Loading…</span><span class='hcar'>▾</span></button><div id='hist-pop' class='hpop' role='dialog' aria-label='Pick a date range'><button type='button' class='hnav prev' id='hist-prev' onclick='calNav(-1)' aria-label='Previous month'>‹</button><button type='button' class='hnav next' id='hist-next' onclick='calNav(1)' aria-label='Next month'>›</button><div id='hist-grids' class='hpop-cals'></div><div class='hpre'><button type='button' class='hchip' onclick="calPreset('latest')">Latest</button><button type='button' class='hchip' onclick="calPreset('6')">7d</button><button type='button' class='hchip' onclick="calPreset('30')">30d</button><button type='button' class='hchip' onclick="calPreset('90')">90d</button><button type='button' class='hchip' onclick="calPreset('365')">1y</button><button type='button' class='hchip' onclick="calPreset('all')">All</button><span class='hpre-sp'></span><span id='hist-sel' class='sub'></span><button type='button' class='hchip hchip-go' onclick='calClose()'>Done</button></div></div></div><input type='hidden' id='hist-from'><input type='hidden' id='hist-to'></div><div id='histcap' class='sub' style='margin:6px 0'></div><div id='histwrap' style='overflow-x:auto'><div class='sub'>Loading history…</div></div><script>
+        <h3>Prediction history <span class='sub'>(daily closes — how the call has evolved)</span></h3><p class='sub' style='max-width:820px;margin:-2px 0 10px;line-height:1.55'><b>What this is for:</b> see the model's daily read at any point in past cycles — its <b>stance + the action it advised</b> (deploy&nbsp;X% when accumulating, trim toward X% invested when distributing), the actual <b>BTC/ETH close</b>, projected <b>bottom</b> (date + price), and the bottom/top scores — so you can judge how it behaved at real tops and bottoms. For example near the <b>2021 top</b> the stance was <b>DIST</b> (trim) with the top score elevated; at the <b>2022 bottom</b> it was <b>S-ACC</b> (deploy heavily) with a bottom near the eventual low. Click the date field to pick a <b>start</b> then an <b>end</b> date in one calendar (or use a quick preset — 7d / 30d / 90d / 1y / All); defaults to the latest 7 calendar days. Closes only — the provisional intraday spot is excluded. Rows marked <span class='rmark'>~</span> predate the live dashboard and are <b>causally reconstructed</b> from the current model (computed as-of each date, no look-ahead), so they weren't shown live at the time.</p><div class='hctl'><div class='rangepick'><button type='button' id='hist-trig' class='htrig' onclick='calToggle(event)' aria-haspopup='dialog' aria-expanded='false' disabled><span class='hcalico'>📅</span><span id='hist-trig-txt'>Loading…</span><span class='hcar'>▾</span></button><div id='hist-pop' class='hpop' role='dialog' aria-label='Pick a date range'><button type='button' class='hnav prev' id='hist-prev' onclick='calNav(-1)' aria-label='Previous month'>‹</button><button type='button' class='hnav next' id='hist-next' onclick='calNav(1)' aria-label='Next month'>›</button><div id='hist-grids' class='hpop-cals'></div><div class='hpre'><button type='button' class='hchip' onclick="calPreset('latest')">Latest</button><button type='button' class='hchip' onclick="calPreset('6')">7d</button><button type='button' class='hchip' onclick="calPreset('30')">30d</button><button type='button' class='hchip' onclick="calPreset('90')">90d</button><button type='button' class='hchip' onclick="calPreset('365')">1y</button><button type='button' class='hchip' onclick="calPreset('all')">All</button><span class='hpre-sp'></span><span id='hist-sel' class='sub'></span><button type='button' class='hchip hchip-go' onclick='calClose()'>Done</button></div></div></div><input type='hidden' id='hist-from'><input type='hidden' id='hist-to'></div><div id='histcap' class='sub' style='margin:6px 0'></div><div id='histwrap' style='overflow-x:auto'><div class='sub'>Loading history…</div></div><script>
 var HIST=[];
 function histFmt(x){return x==null?'—':'$'+Math.round(x).toLocaleString('en-US');}
 function histN(x){return x==null?'—':x;}
@@ -371,12 +371,12 @@ function histRender(){
   for(var i=0;i<disp.length;i++){var r=disp[i],A=r.assets||{},B=A.BTC||{},E=A.ETH||{};
     var mark=r.recon?' <span class="rmark" title="causally reconstructed from the current model (before the dashboard went live) — no look-ahead">~</span>':'';
     body+='<tr><td>'+r.date+mark+'</td>'
-      +'<td>'+histAct(B)+'</td><td>'+histN(B.bottom_date)+'</td><td>'+histFmt(B.bottom_price)+'</td><td>'+histN(B.top)+'</td>'
-      +'<td>'+histAct(E)+'</td><td>'+histN(E.bottom_date)+'</td><td>'+histFmt(E.bottom_price)+'</td><td>'+histN(E.top)+'</td></tr>';
+      +'<td>'+histFmt(B.price)+'</td><td>'+histAct(B)+'</td><td>'+histN(B.bottom_date)+'</td><td>'+histFmt(B.bottom_price)+'</td><td>'+histN(B.top)+'</td>'
+      +'<td>'+histFmt(E.price)+'</td><td>'+histAct(E)+'</td><td>'+histN(E.bottom_date)+'</td><td>'+histFmt(E.bottom_price)+'</td><td>'+histN(E.top)+'</td></tr>';
   }
   wrap.innerHTML='<table class="d"><tr><th>Close</th>'
-    +'<th>BTC stance · action</th><th>BTC bottom</th><th>BTC $</th><th>BTC top</th>'
-    +'<th>ETH stance · action</th><th>ETH bottom</th><th>ETH $</th><th>ETH top</th></tr>'+body+'</table>';
+    +'<th>BTC close</th><th>BTC stance · action</th><th>BTC bottom</th><th>BTC $</th><th>BTC top</th>'
+    +'<th>ETH close</th><th>ETH stance · action</th><th>ETH bottom</th><th>ETH $</th><th>ETH top</th></tr>'+body+'</table>';
 }
 function histLatest(){ calPreset('latest'); }                     // back-compat alias
 document.addEventListener('click',function(e){                     // click-away closes the calendar
