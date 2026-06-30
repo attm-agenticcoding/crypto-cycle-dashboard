@@ -138,12 +138,12 @@ pre.err { background:#161b22; border:1px solid #5a1f1f; color:#ffb4b4; padding:1
 </style></head><body>
       <header>
         <div class="title">📊 Claude Crypto Cycle Dashboard</div>
-        <div class="meta">2026-06-30 · data as of 12:00 ET · <span class='live'>● LIVE intraday — provisional, not a close</span></div>
+        <div class="meta">2026-06-30 · data as of 12:30 ET · <span class='live'>● LIVE intraday — provisional, not a close</span></div>
       </header>
       <div class="cards">
     <section class="card">
       <div class="card-head">
-        <div><span class="asset">BTC</span><span class="price">$58,331</span></div>
+        <div><span class="asset">BTC</span><span class="price">$58,203</span></div>
         <span class="pill" style="background:#0a7">STRONG_ACCUMULATE</span>
       </div>
       <div class="verdict">YES · MODERATE conviction</div>
@@ -162,7 +162,7 @@ pre.err { background:#161b22; border:1px solid #5a1f1f; color:#ffb4b4; padding:1
     </section>
     <section class="card">
       <div class="card-head">
-        <div><span class="asset">ETH</span><span class="price">$1,564</span></div>
+        <div><span class="asset">ETH</span><span class="price">$1,561</span></div>
         <span class="pill" style="background:#0a7">STRONG_ACCUMULATE</span>
       </div>
       <div class="verdict">YES · MODERATE conviction</div>
@@ -181,7 +181,7 @@ pre.err { background:#161b22; border:1px solid #5a1f1f; color:#ffb4b4; padding:1
     </section></div>
       <div class="clegend"><span><b>cycle</b> 0-100: where we are in the cycle (0 = bottom, 100 = top)</span><span><b>gate</b> 0-1: how strongly the capitulation signals confirm the bottom score</span></div>
       <section class="planner"><h3>🧮 Weekly buy planner <span class="sub" style="font-weight:400">· catch-up DCA</span></h3><p class='sub'>Enter your total pool and how much you've <b>already deployed</b>. Each week it compares that against the model's current target: it paces the rest toward the target over the horizon, and if you're behind it splits the shortfall over the next 3 weeks — then holds the reserve back for the markup or a deeper dip. Runs entirely in your browser; nothing is sent anywhere.</p><div class="pgrid"><div class="pin"><label>BTC total pool</label><div class="inwrap"><span>$</span><input id="pool-BTC" type="number" min="0" step="100" inputmode="decimal" oninput="recompute()" placeholder="e.g. 100000"></div></div><div class="pin"><label>BTC already deployed</label><div class="inwrap"><span>$</span><input id="dep-BTC" type="number" min="0" step="100" inputmode="decimal" oninput="recompute()" placeholder="0"></div></div><div class="pin"><label>ETH total pool</label><div class="inwrap"><span>$</span><input id="pool-ETH" type="number" min="0" step="100" inputmode="decimal" oninput="recompute()" placeholder="e.g. 50000"></div></div><div class="pin"><label>ETH already deployed</label><div class="inwrap"><span>$</span><input id="dep-ETH" type="number" min="0" step="100" inputmode="decimal" oninput="recompute()" placeholder="0"></div></div></div><div id="pout" class="pout"></div><script>
-const POLICY={"BTC": {"now_f": 0.3231, "tgt_f": 0.8, "res_f": 0.2, "H": 52, "anchor": 20720, "regime": "STRONG_ACCUMULATE", "color": "#0a7", "dist": false, "keep_f": 0.6986, "stop_pct": null, "stop_price": null}, "ETH": {"now_f": 0.2827, "tgt_f": 0.7, "res_f": 0.3, "H": 52, "anchor": 688, "regime": "STRONG_ACCUMULATE", "color": "#0a7", "dist": false, "keep_f": 0.663, "stop_pct": null, "stop_price": null}};
+const POLICY={"BTC": {"now_f": 0.3231, "tgt_f": 0.8, "res_f": 0.2, "H": 52, "anchor": 20720, "regime": "STRONG_ACCUMULATE", "color": "#0a7", "dist": false, "keep_f": 0.7027, "stop_pct": null, "stop_price": null}, "ETH": {"now_f": 0.2827, "tgt_f": 0.7, "res_f": 0.3, "H": 52, "anchor": 688, "regime": "STRONG_ACCUMULATE", "color": "#0a7", "dist": false, "keep_f": 0.6635, "stop_pct": null, "stop_price": null}};
 
 function fmt(x){return '$'+Math.round(x).toLocaleString('en-US');}
 function pct(x){return (x*100).toFixed(0)+'%';}
