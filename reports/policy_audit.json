@@ -2,62 +2,62 @@
   "asset_stratification": {
     "BTC": {
       "accumulation_episodes": 4,
-      "avg_accumulation_utility": 0.261337,
-      "avg_distribution_utility": 7.086513,
-      "bottom_calibration_mae": 0.16381,
+      "avg_accumulation_utility": 0.288151,
+      "avg_distribution_utility": 7.083705,
+      "bottom_calibration_mae": 0.15683,
       "distribution_windows": 4,
       "reasons": [
         "current utility asset gate passed"
       ],
       "status": "PASS",
-      "top_calibration_mae": 0.11455
+      "top_calibration_mae": 0.10999
     },
     "ETH": {
       "accumulation_episodes": 4,
-      "avg_accumulation_utility": 0.034189,
-      "avg_distribution_utility": 9.590683,
-      "bottom_calibration_mae": 0.14996,
+      "avg_accumulation_utility": 0.092551,
+      "avg_distribution_utility": 9.57016,
+      "bottom_calibration_mae": 0.19587,
       "distribution_windows": 3,
       "reasons": [
-        "current utility asset gate passed"
+        "bottom calibration watch"
       ],
-      "status": "PASS",
-      "top_calibration_mae": 0.16266
+      "status": "WATCH",
+      "top_calibration_mae": 0.16814
     }
   },
   "common_exam": {
     "current_utility_audit_snapshot": {
       "accumulation_target_perturbation_min_terminal_win_rate": 0.75,
-      "accumulation_target_perturbation_worst_terminal_edge": -0.030987,
+      "accumulation_target_perturbation_worst_terminal_edge": -0.02555,
       "accumulation_terminal_win_rate_vs_median_baseline": 0.875,
       "accumulation_window_jitter_min_terminal_win_rate": 0.75,
-      "accumulation_window_jitter_worst_terminal_edge": -0.113771,
-      "accumulation_worst_terminal_edge_vs_median_baseline": -0.022912,
-      "btc_avg_accumulation_utility": 0.261337,
+      "accumulation_window_jitter_worst_terminal_edge": -0.108472,
+      "accumulation_worst_terminal_edge_vs_median_baseline": -0.017668,
+      "btc_avg_accumulation_utility": 0.288151,
       "early_exhaustion_status": "FAIL",
-      "eth_avg_accumulation_utility": 0.034189,
+      "eth_avg_accumulation_utility": 0.092551,
       "parameter_plateau_status": "FAIL",
       "synthetic_stress_status": "FAIL"
     },
-    "generated_at": "2026-07-05T16:49:00.592364+00:00",
+    "generated_at": "2026-07-05T19:57:49.099637+00:00",
     "known_risks": [
       {
-        "evidence": "Fable external audit saw a 0.292 result shift at MAX_HORIZON_WEEKS x0.75.",
+        "evidence": "The live policy now uses deploy_duration_cdf_floor() with horizon multipliers (1.0, 1.5, 2.0) instead of a single linear 52-week clock.",
         "id": "horizon_cliff",
-        "risk": "A single 52-week clock floor can be a tuned point rather than a robust plateau.",
-        "status": "OPEN"
+        "risk": "The updated clock must still clear the parameter plateau common exam.",
+        "status": "MITIGATED_RETEST_REQUIRED"
       },
       {
         "evidence": "Deep anchor is coupled to the bottom forecast through DEPLOY_DEEP_ANCHOR_M=0.6.",
         "id": "forecast_coupled_deep_anchor",
-        "risk": "If the bottom forecast follows price lower during a delayed lower-low path, depth-floor sizing can release capital too early unless reserve gates bind.",
-        "status": "OPEN"
+        "risk": "If the bottom forecast follows price lower during a delayed lower-low path, depth-floor sizing can release working capital too early; the final reserve tranche is now separately gated by non-forecast evidence.",
+        "status": "OPEN_LAST_TRANCHE_DECOUPLED"
       },
       {
-        "evidence": "Last-tranche release remains coupled to forecast/depth path until a non-forecast trigger is adopted.",
+        "evidence": "DEPLOY_LAST_TRANCHE_FRACTION=0.92 is locked until absolute observed drawdown exceeds the historical library or recovery/resolution confirmation fires.",
         "id": "forecast_driven_last_tranche",
-        "risk": "Forecast error can exhaust reserve above a trailing final low unless a non-forecast guard binds.",
-        "status": "OPEN"
+        "risk": "Forecast error can still affect earlier reserve laddering; common-exam synthetic paths must verify the final-tranche lock is sufficient.",
+        "status": "MITIGATED_RETEST_REQUIRED"
       },
       {
         "evidence": "Historical replay contains left-tail cost weak spots; see accumulation episode rows for negative utility or high average-cost premium cases.",
@@ -101,26 +101,26 @@
               "status": "PASS",
               "summary": {
                 "cost_win_rate_vs_median_baseline": 0.75,
-                "mean_cost_edge_vs_median_baseline": -0.729992,
-                "mean_terminal_edge_vs_median_baseline": 0.197858,
+                "mean_cost_edge_vs_median_baseline": -0.766209,
+                "mean_terminal_edge_vs_median_baseline": 0.223929,
                 "n": 8,
                 "terminal_win_rate_vs_median_baseline": 0.875,
-                "worst_cost_edge_vs_median_baseline": 0.145828,
-                "worst_terminal_edge_vs_median_baseline": -0.022912
+                "worst_cost_edge_vs_median_baseline": 0.148104,
+                "worst_terminal_edge_vs_median_baseline": -0.017668
               },
               "terminal_ratio_shift": 0.0,
               "worst_heldout_deterioration_row": {
                 "asset": "BTC",
-                "cell_heldout_terminal_edge": 0.277946,
+                "cell_heldout_terminal_edge": 0.377043,
                 "delta_vs_live": 0.0,
                 "episode": "2018 bear (single low)",
-                "live_heldout_terminal_edge": 0.277946
+                "live_heldout_terminal_edge": 0.377043
               },
               "worst_terminal_ratio_shift_row": {
                 "asset": "BTC",
-                "cell_terminal_value": 1.197256,
+                "cell_terminal_value": 1.296353,
                 "episode": "2018 bear (single low)",
-                "live_terminal_value": 1.197256,
+                "live_terminal_value": 1.296353,
                 "terminal_ratio_shift": 0.0
               }
             },
@@ -133,7 +133,7 @@
                 "reserve_floor": 1.0
               },
               "failures": [],
-              "heldout_terminal_edge_delta_vs_live": -0.023717,
+              "heldout_terminal_edge_delta_vs_live": -0.045346,
               "name": "gamma_0.75|deep_anchor_m_1.00|reserve_floor_1.00|floor_w_1.00|max_horizon_weeks_1.00",
               "params": {
                 "deep_anchor_m": 0.6,
@@ -148,27 +148,27 @@
               "status": "PASS",
               "summary": {
                 "cost_win_rate_vs_median_baseline": 0.75,
-                "mean_cost_edge_vs_median_baseline": -0.717104,
-                "mean_terminal_edge_vs_median_baseline": 0.195805,
+                "mean_cost_edge_vs_median_baseline": -0.754009,
+                "mean_terminal_edge_vs_median_baseline": 0.220169,
                 "n": 8,
                 "terminal_win_rate_vs_median_baseline": 0.875,
-                "worst_cost_edge_vs_median_baseline": 0.145828,
-                "worst_terminal_edge_vs_median_baseline": -0.022912
+                "worst_cost_edge_vs_median_baseline": 0.148104,
+                "worst_terminal_edge_vs_median_baseline": -0.017668
               },
-              "terminal_ratio_shift": 0.029559,
+              "terminal_ratio_shift": 0.034979,
               "worst_heldout_deterioration_row": {
                 "asset": "BTC",
-                "cell_heldout_terminal_edge": 0.254229,
-                "delta_vs_live": -0.023717,
+                "cell_heldout_terminal_edge": 0.331697,
+                "delta_vs_live": -0.045346,
                 "episode": "2018 bear (single low)",
-                "live_heldout_terminal_edge": 0.277946
+                "live_heldout_terminal_edge": 0.377043
               },
               "worst_terminal_ratio_shift_row": {
-                "asset": "ETH",
-                "cell_terminal_value": 0.527748,
+                "asset": "BTC",
+                "cell_terminal_value": 1.251008,
                 "episode": "2018 bear (single low)",
-                "live_terminal_value": 0.543823,
-                "terminal_ratio_shift": 0.029559
+                "live_terminal_value": 1.296353,
+                "terminal_ratio_shift": 0.034979
               }
             },
             {
@@ -180,7 +180,7 @@
                 "reserve_floor": 1.0
               },
               "failures": [],
-              "heldout_terminal_edge_delta_vs_live": -0.002231,
+              "heldout_terminal_edge_delta_vs_live": -0.003953,
               "name": "gamma_1.25|deep_anchor_m_1.00|reserve_floor_1.00|floor_w_1.00|max_horizon_weeks_1.00",
               "params": {
                 "deep_anchor_m": 0.6,
@@ -195,27 +195,27 @@
               "status": "PASS",
               "summary": {
                 "cost_win_rate_vs_median_baseline": 0.75,
-                "mean_cost_edge_vs_median_baseline": -0.736594,
-                "mean_terminal_edge_vs_median_baseline": 0.199636,
+                "mean_cost_edge_vs_median_baseline": -0.772056,
+                "mean_terminal_edge_vs_median_baseline": 0.226269,
                 "n": 8,
                 "terminal_win_rate_vs_median_baseline": 0.875,
-                "worst_cost_edge_vs_median_baseline": 0.145828,
-                "worst_terminal_edge_vs_median_baseline": -0.022912
+                "worst_cost_edge_vs_median_baseline": 0.148104,
+                "worst_terminal_edge_vs_median_baseline": -0.017668
               },
-              "terminal_ratio_shift": 0.015055,
+              "terminal_ratio_shift": 0.014694,
               "worst_heldout_deterioration_row": {
-                "asset": "BTC",
-                "cell_heldout_terminal_edge": 0.527814,
-                "delta_vs_live": -0.002231,
+                "asset": "ETH",
+                "cell_heldout_terminal_edge": 0.504148,
+                "delta_vs_live": -0.003953,
                 "episode": "2022 bear (DOUBLE bottom)",
-                "live_heldout_terminal_edge": 0.530045
+                "live_heldout_terminal_edge": 0.508101
               },
               "worst_terminal_ratio_shift_row": {
-                "asset": "ETH",
-                "cell_terminal_value": 0.55201,
+                "asset": "BTC",
+                "cell_terminal_value": 1.315401,
                 "episode": "2018 bear (single low)",
-                "live_terminal_value": 0.543823,
-                "terminal_ratio_shift": 0.015055
+                "live_terminal_value": 1.296353,
+                "terminal_ratio_shift": 0.014694
               }
             },
             {
@@ -226,8 +226,10 @@
                 "max_horizon_weeks": 1.0,
                 "reserve_floor": 1.0
               },
-              "failures": [],
-              "heldout_terminal_edge_delta_vs_live": -0.018166,
+              "failures": [
+                "held-out terminal edge deterioration above 5pp"
+              ],
+              "heldout_terminal_edge_delta_vs_live": -0.087094,
               "name": "gamma_1.00|deep_anchor_m_0.75|reserve_floor_1.00|floor_w_1.00|max_horizon_weeks_1.00",
               "params": {
                 "deep_anchor_m": 0.45,
@@ -239,30 +241,30 @@
                   "ETH": 0.3
                 }
               },
-              "status": "PASS",
+              "status": "FAIL",
               "summary": {
                 "cost_win_rate_vs_median_baseline": 0.875,
-                "mean_cost_edge_vs_median_baseline": -0.773679,
-                "mean_terminal_edge_vs_median_baseline": 0.20907,
+                "mean_cost_edge_vs_median_baseline": -0.776339,
+                "mean_terminal_edge_vs_median_baseline": 0.219596,
                 "n": 8,
                 "terminal_win_rate_vs_median_baseline": 1.0,
-                "worst_cost_edge_vs_median_baseline": 0.145828,
-                "worst_terminal_edge_vs_median_baseline": 0.010296
+                "worst_cost_edge_vs_median_baseline": 0.148104,
+                "worst_terminal_edge_vs_median_baseline": 0.011403
               },
-              "terminal_ratio_shift": 0.146141,
+              "terminal_ratio_shift": 0.080058,
               "worst_heldout_deterioration_row": {
                 "asset": "BTC",
-                "cell_heldout_terminal_edge": 0.25978,
-                "delta_vs_live": -0.018166,
+                "cell_heldout_terminal_edge": 0.289949,
+                "delta_vs_live": -0.087094,
                 "episode": "2018 bear (single low)",
-                "live_heldout_terminal_edge": 0.277946
+                "live_heldout_terminal_edge": 0.377043
               },
               "worst_terminal_ratio_shift_row": {
                 "asset": "ETH",
-                "cell_terminal_value": 0.623298,
+                "cell_terminal_value": 0.61195,
                 "episode": "2018 bear (single low)",
-                "live_terminal_value": 0.543823,
-                "terminal_ratio_shift": 0.146141
+                "live_terminal_value": 0.56659,
+                "terminal_ratio_shift": 0.080058
               }
             },
             {
@@ -274,10 +276,9 @@
                 "reserve_floor": 1.0
               },
               "failures": [
-                "terminal-ratio shift above 15%",
                 "held-out terminal edge deterioration above 5pp"
               ],
-              "heldout_terminal_edge_delta_vs_live": -0.099069,
+              "heldout_terminal_edge_delta_vs_live": -0.050561,
               "name": "gamma_1.00|deep_anchor_m_1.25|reserve_floor_1.00|floor_w_1.00|max_horizon_weeks_1.00",
               "params": {
                 "deep_anchor_m": 0.75,
@@ -292,27 +293,27 @@
               "status": "FAIL",
               "summary": {
                 "cost_win_rate_vs_median_baseline": 0.75,
-                "mean_cost_edge_vs_median_baseline": -0.661307,
-                "mean_terminal_edge_vs_median_baseline": 0.190415,
+                "mean_cost_edge_vs_median_baseline": -0.739847,
+                "mean_terminal_edge_vs_median_baseline": 0.219931,
                 "n": 8,
                 "terminal_win_rate_vs_median_baseline": 0.875,
-                "worst_cost_edge_vs_median_baseline": 0.145828,
-                "worst_terminal_edge_vs_median_baseline": -0.073948
+                "worst_cost_edge_vs_median_baseline": 0.148104,
+                "worst_terminal_edge_vs_median_baseline": -0.068229
               },
-              "terminal_ratio_shift": 0.182173,
+              "terminal_ratio_shift": 0.074078,
               "worst_heldout_deterioration_row": {
                 "asset": "ETH",
-                "cell_heldout_terminal_edge": 0.073664,
-                "delta_vs_live": -0.099069,
-                "episode": "2018 bear (single low)",
-                "live_heldout_terminal_edge": 0.172733
+                "cell_heldout_terminal_edge": -0.068229,
+                "delta_vs_live": -0.050561,
+                "episode": "2019 H2 correction (mid-cycle)",
+                "live_heldout_terminal_edge": -0.017668
               },
               "worst_terminal_ratio_shift_row": {
                 "asset": "ETH",
-                "cell_terminal_value": 0.444753,
+                "cell_terminal_value": 0.524618,
                 "episode": "2018 bear (single low)",
-                "live_terminal_value": 0.543823,
-                "terminal_ratio_shift": 0.182173
+                "live_terminal_value": 0.56659,
+                "terminal_ratio_shift": 0.074078
               }
             },
             {
@@ -324,7 +325,7 @@
                 "reserve_floor": 0.75
               },
               "failures": [],
-              "heldout_terminal_edge_delta_vs_live": -0.045574,
+              "heldout_terminal_edge_delta_vs_live": -0.029112,
               "name": "gamma_1.00|deep_anchor_m_1.00|reserve_floor_0.75|floor_w_1.00|max_horizon_weeks_1.00",
               "params": {
                 "deep_anchor_m": 0.6,
@@ -339,27 +340,27 @@
               "status": "PASS",
               "summary": {
                 "cost_win_rate_vs_median_baseline": 0.75,
-                "mean_cost_edge_vs_median_baseline": -0.699154,
-                "mean_terminal_edge_vs_median_baseline": 0.193847,
+                "mean_cost_edge_vs_median_baseline": -0.748817,
+                "mean_terminal_edge_vs_median_baseline": 0.220814,
                 "n": 8,
                 "terminal_win_rate_vs_median_baseline": 1.0,
-                "worst_cost_edge_vs_median_baseline": 0.145828,
-                "worst_terminal_edge_vs_median_baseline": 0.000609
+                "worst_cost_edge_vs_median_baseline": 0.148104,
+                "worst_terminal_edge_vs_median_baseline": 0.005471
               },
-              "terminal_ratio_shift": 0.083805,
+              "terminal_ratio_shift": 0.051381,
               "worst_heldout_deterioration_row": {
                 "asset": "ETH",
-                "cell_heldout_terminal_edge": 0.127159,
-                "delta_vs_live": -0.045574,
+                "cell_heldout_terminal_edge": 0.166389,
+                "delta_vs_live": -0.029112,
                 "episode": "2018 bear (single low)",
-                "live_heldout_terminal_edge": 0.172733
+                "live_heldout_terminal_edge": 0.195501
               },
               "worst_terminal_ratio_shift_row": {
                 "asset": "ETH",
-                "cell_terminal_value": 0.498248,
+                "cell_terminal_value": 0.537478,
                 "episode": "2018 bear (single low)",
-                "live_terminal_value": 0.543823,
-                "terminal_ratio_shift": 0.083805
+                "live_terminal_value": 0.56659,
+                "terminal_ratio_shift": 0.051381
               }
             },
             {
@@ -371,7 +372,7 @@
                 "reserve_floor": 1.25
               },
               "failures": [],
-              "heldout_terminal_edge_delta_vs_live": -0.025414,
+              "heldout_terminal_edge_delta_vs_live": -0.024937,
               "name": "gamma_1.00|deep_anchor_m_1.00|reserve_floor_1.25|floor_w_1.00|max_horizon_weeks_1.00",
               "params": {
                 "deep_anchor_m": 0.6,
@@ -386,27 +387,27 @@
               "status": "PASS",
               "summary": {
                 "cost_win_rate_vs_median_baseline": 0.75,
-                "mean_cost_edge_vs_median_baseline": -0.762721,
-                "mean_terminal_edge_vs_median_baseline": 0.203728,
+                "mean_cost_edge_vs_median_baseline": -0.779048,
+                "mean_terminal_edge_vs_median_baseline": 0.22519,
                 "n": 8,
                 "terminal_win_rate_vs_median_baseline": 0.875,
-                "worst_cost_edge_vs_median_baseline": 0.145828,
-                "worst_terminal_edge_vs_median_baseline": -0.048326
+                "worst_cost_edge_vs_median_baseline": 0.148104,
+                "worst_terminal_edge_vs_median_baseline": -0.042605
               },
-              "terminal_ratio_shift": 0.105365,
+              "terminal_ratio_shift": 0.045119,
               "worst_heldout_deterioration_row": {
                 "asset": "ETH",
-                "cell_heldout_terminal_edge": -0.048326,
-                "delta_vs_live": -0.025414,
+                "cell_heldout_terminal_edge": -0.042605,
+                "delta_vs_live": -0.024937,
                 "episode": "2019 H2 correction (mid-cycle)",
-                "live_heldout_terminal_edge": -0.022912
+                "live_heldout_terminal_edge": -0.017668
               },
               "worst_terminal_ratio_shift_row": {
                 "asset": "ETH",
-                "cell_terminal_value": 0.601123,
+                "cell_terminal_value": 0.592154,
                 "episode": "2018 bear (single low)",
-                "live_terminal_value": 0.543823,
-                "terminal_ratio_shift": 0.105365
+                "live_terminal_value": 0.56659,
+                "terminal_ratio_shift": 0.045119
               }
             },
             {
@@ -433,27 +434,27 @@
               "status": "PASS",
               "summary": {
                 "cost_win_rate_vs_median_baseline": 0.75,
-                "mean_cost_edge_vs_median_baseline": -0.759982,
-                "mean_terminal_edge_vs_median_baseline": 0.223597,
+                "mean_cost_edge_vs_median_baseline": -0.782746,
+                "mean_terminal_edge_vs_median_baseline": 0.23878,
                 "n": 8,
                 "terminal_win_rate_vs_median_baseline": 0.875,
-                "worst_cost_edge_vs_median_baseline": 0.145828,
-                "worst_terminal_edge_vs_median_baseline": -0.022912
+                "worst_cost_edge_vs_median_baseline": 0.148104,
+                "worst_terminal_edge_vs_median_baseline": -0.017668
               },
-              "terminal_ratio_shift": 0.093756,
+              "terminal_ratio_shift": 0.063211,
               "worst_heldout_deterioration_row": {
                 "asset": "ETH",
-                "cell_heldout_terminal_edge": 0.172733,
+                "cell_heldout_terminal_edge": 0.195501,
                 "delta_vs_live": 0.0,
                 "episode": "2018 bear (single low)",
-                "live_heldout_terminal_edge": 0.172733
+                "live_heldout_terminal_edge": 0.195501
               },
               "worst_terminal_ratio_shift_row": {
                 "asset": "BTC",
-                "cell_terminal_value": 1.309506,
+                "cell_terminal_value": 1.378297,
                 "episode": "2018 bear (single low)",
-                "live_terminal_value": 1.197256,
-                "terminal_ratio_shift": 0.093756
+                "live_terminal_value": 1.296353,
+                "terminal_ratio_shift": 0.063211
               }
             },
             {
@@ -467,7 +468,7 @@
               "failures": [
                 "held-out terminal edge deterioration above 5pp"
               ],
-              "heldout_terminal_edge_delta_vs_live": -0.232784,
+              "heldout_terminal_edge_delta_vs_live": -0.09802,
               "name": "gamma_1.00|deep_anchor_m_1.00|reserve_floor_1.00|floor_w_1.25|max_horizon_weeks_1.00",
               "params": {
                 "deep_anchor_m": 0.6,
@@ -482,27 +483,27 @@
               "status": "FAIL",
               "summary": {
                 "cost_win_rate_vs_median_baseline": 0.75,
-                "mean_cost_edge_vs_median_baseline": -0.657886,
-                "mean_terminal_edge_vs_median_baseline": 0.13954,
+                "mean_cost_edge_vs_median_baseline": -0.740005,
+                "mean_terminal_edge_vs_median_baseline": 0.201205,
                 "n": 8,
                 "terminal_win_rate_vs_median_baseline": 0.875,
-                "worst_cost_edge_vs_median_baseline": 0.145828,
-                "worst_terminal_edge_vs_median_baseline": -0.022912
+                "worst_cost_edge_vs_median_baseline": 0.148104,
+                "worst_terminal_edge_vs_median_baseline": -0.017668
               },
-              "terminal_ratio_shift": 0.141068,
+              "terminal_ratio_shift": 0.075612,
               "worst_heldout_deterioration_row": {
                 "asset": "BTC",
-                "cell_heldout_terminal_edge": 0.297261,
-                "delta_vs_live": -0.232784,
-                "episode": "2022 bear (DOUBLE bottom)",
-                "live_heldout_terminal_edge": 0.530045
+                "cell_heldout_terminal_edge": 0.279023,
+                "delta_vs_live": -0.09802,
+                "episode": "2018 bear (single low)",
+                "live_heldout_terminal_edge": 0.377043
               },
               "worst_terminal_ratio_shift_row": {
                 "asset": "BTC",
-                "cell_terminal_value": 1.028361,
+                "cell_terminal_value": 1.198333,
                 "episode": "2018 bear (single low)",
-                "live_terminal_value": 1.197256,
-                "terminal_ratio_shift": 0.141068
+                "live_terminal_value": 1.296353,
+                "terminal_ratio_shift": 0.075612
               }
             },
             {
@@ -514,10 +515,9 @@
                 "reserve_floor": 1.0
               },
               "failures": [
-                "terminal-ratio shift above 15%",
                 "held-out terminal edge deterioration above 5pp"
               ],
-              "heldout_terminal_edge_delta_vs_live": -0.26184,
+              "heldout_terminal_edge_delta_vs_live": -0.12907,
               "name": "gamma_1.00|deep_anchor_m_1.00|reserve_floor_1.00|floor_w_1.00|max_horizon_weeks_0.75",
               "params": {
                 "deep_anchor_m": 0.6,
@@ -532,27 +532,27 @@
               "status": "FAIL",
               "summary": {
                 "cost_win_rate_vs_median_baseline": 0.75,
-                "mean_cost_edge_vs_median_baseline": -0.639677,
-                "mean_terminal_edge_vs_median_baseline": 0.130157,
+                "mean_cost_edge_vs_median_baseline": -0.728652,
+                "mean_terminal_edge_vs_median_baseline": 0.191298,
                 "n": 8,
                 "terminal_win_rate_vs_median_baseline": 0.875,
-                "worst_cost_edge_vs_median_baseline": 0.145828,
-                "worst_terminal_edge_vs_median_baseline": -0.014696
+                "worst_cost_edge_vs_median_baseline": 0.148104,
+                "worst_terminal_edge_vs_median_baseline": -0.017668
               },
-              "terminal_ratio_shift": 0.162806,
+              "terminal_ratio_shift": 0.099563,
               "worst_heldout_deterioration_row": {
                 "asset": "BTC",
-                "cell_heldout_terminal_edge": 0.268205,
-                "delta_vs_live": -0.26184,
-                "episode": "2022 bear (DOUBLE bottom)",
-                "live_heldout_terminal_edge": 0.530045
+                "cell_heldout_terminal_edge": 0.247973,
+                "delta_vs_live": -0.12907,
+                "episode": "2018 bear (single low)",
+                "live_heldout_terminal_edge": 0.377043
               },
               "worst_terminal_ratio_shift_row": {
                 "asset": "BTC",
-                "cell_terminal_value": 1.002335,
+                "cell_terminal_value": 1.167284,
                 "episode": "2018 bear (single low)",
-                "live_terminal_value": 1.197256,
-                "terminal_ratio_shift": 0.162806
+                "live_terminal_value": 1.296353,
+                "terminal_ratio_shift": 0.099563
               }
             },
             {
@@ -579,27 +579,27 @@
               "status": "PASS",
               "summary": {
                 "cost_win_rate_vs_median_baseline": 0.75,
-                "mean_cost_edge_vs_median_baseline": -0.756575,
-                "mean_terminal_edge_vs_median_baseline": 0.22097,
+                "mean_cost_edge_vs_median_baseline": -0.781038,
+                "mean_terminal_edge_vs_median_baseline": 0.237169,
                 "n": 8,
                 "terminal_win_rate_vs_median_baseline": 0.875,
-                "worst_cost_edge_vs_median_baseline": 0.145828,
-                "worst_terminal_edge_vs_median_baseline": -0.022912
+                "worst_cost_edge_vs_median_baseline": 0.148104,
+                "worst_terminal_edge_vs_median_baseline": -0.017668
               },
-              "terminal_ratio_shift": 0.079269,
+              "terminal_ratio_shift": 0.05681,
               "worst_heldout_deterioration_row": {
                 "asset": "ETH",
-                "cell_heldout_terminal_edge": 0.172733,
+                "cell_heldout_terminal_edge": 0.195501,
                 "delta_vs_live": 0.0,
                 "episode": "2018 bear (single low)",
-                "live_heldout_terminal_edge": 0.172733
+                "live_heldout_terminal_edge": 0.195501
               },
               "worst_terminal_ratio_shift_row": {
                 "asset": "BTC",
-                "cell_terminal_value": 1.292161,
+                "cell_terminal_value": 1.369999,
                 "episode": "2018 bear (single low)",
-                "live_terminal_value": 1.197256,
-                "terminal_ratio_shift": 0.079269
+                "live_terminal_value": 1.296353,
+                "terminal_ratio_shift": 0.05681
               }
             }
           ],
@@ -611,6 +611,21 @@
           "failing_cells": [
             {
               "factors": {
+                "deep_anchor_m": 0.75,
+                "floor_w": 1.0,
+                "gamma": 1.0,
+                "max_horizon_weeks": 1.0,
+                "reserve_floor": 1.0
+              },
+              "failures": [
+                "held-out terminal edge deterioration above 5pp"
+              ],
+              "heldout_terminal_edge_delta_vs_live": -0.087094,
+              "name": "gamma_1.00|deep_anchor_m_0.75|reserve_floor_1.00|floor_w_1.00|max_horizon_weeks_1.00",
+              "terminal_ratio_shift": 0.080058
+            },
+            {
+              "factors": {
                 "deep_anchor_m": 1.25,
                 "floor_w": 1.0,
                 "gamma": 1.0,
@@ -618,12 +633,11 @@
                 "reserve_floor": 1.0
               },
               "failures": [
-                "terminal-ratio shift above 15%",
                 "held-out terminal edge deterioration above 5pp"
               ],
-              "heldout_terminal_edge_delta_vs_live": -0.099069,
+              "heldout_terminal_edge_delta_vs_live": -0.050561,
               "name": "gamma_1.00|deep_anchor_m_1.25|reserve_floor_1.00|floor_w_1.00|max_horizon_weeks_1.00",
-              "terminal_ratio_shift": 0.182173
+              "terminal_ratio_shift": 0.074078
             },
             {
               "factors": {
@@ -636,9 +650,9 @@
               "failures": [
                 "held-out terminal edge deterioration above 5pp"
               ],
-              "heldout_terminal_edge_delta_vs_live": -0.232784,
+              "heldout_terminal_edge_delta_vs_live": -0.09802,
               "name": "gamma_1.00|deep_anchor_m_1.00|reserve_floor_1.00|floor_w_1.25|max_horizon_weeks_1.00",
-              "terminal_ratio_shift": 0.141068
+              "terminal_ratio_shift": 0.075612
             },
             {
               "factors": {
@@ -649,12 +663,11 @@
                 "reserve_floor": 1.0
               },
               "failures": [
-                "terminal-ratio shift above 15%",
                 "held-out terminal edge deterioration above 5pp"
               ],
-              "heldout_terminal_edge_delta_vs_live": -0.26184,
+              "heldout_terminal_edge_delta_vs_live": -0.12907,
               "name": "gamma_1.00|deep_anchor_m_1.00|reserve_floor_1.00|floor_w_1.00|max_horizon_weeks_0.75",
-              "terminal_ratio_shift": 0.162806
+              "terminal_ratio_shift": 0.099563
             }
           ],
           "not_yet_parameterized": [
@@ -673,12 +686,12 @@
           "status": "FAIL",
           "summary": {
             "cells": 11,
-            "failing_cells": 3,
-            "passing_cells": 8,
+            "failing_cells": 4,
+            "passing_cells": 7,
             "worst_heldout_deterioration_cell": "gamma_1.00|deep_anchor_m_1.00|reserve_floor_1.00|floor_w_1.00|max_horizon_weeks_0.75",
-            "worst_heldout_terminal_edge_delta_vs_live": -0.26184,
-            "worst_terminal_ratio_shift": 0.182173,
-            "worst_terminal_ratio_shift_cell": "gamma_1.00|deep_anchor_m_1.25|reserve_floor_1.00|floor_w_1.00|max_horizon_weeks_1.00"
+            "worst_heldout_terminal_edge_delta_vs_live": -0.12907,
+            "worst_terminal_ratio_shift": 0.099563,
+            "worst_terminal_ratio_shift_cell": "gamma_1.00|deep_anchor_m_1.00|reserve_floor_1.00|floor_w_1.00|max_horizon_weeks_0.75"
           },
           "test_design": "+/-25% one-at-a-time full-stack perturbations plus the live cell",
           "tested_parameters": [
@@ -736,28 +749,28 @@
                 }
               },
               "model": {
-                "avg_cost": 58.251,
-                "avg_cost_premium_to_low": 0.820345,
-                "dry": 0.07033,
-                "dry_at_low": 0.2,
+                "avg_cost": 55.4754,
+                "avg_cost_premium_to_low": 0.733606,
+                "dry": 0.054321,
+                "dry_at_low": 0.320125,
                 "early_exhaustion_before_low": false,
                 "max_4w_spent_increase": 0.214821,
-                "max_portfolio_drawdown": 0.375025,
-                "max_spent_before_low": 0.8,
-                "min_dry_before_low": 0.2,
-                "pool_return": -0.004006,
+                "max_portfolio_drawdown": 0.309122,
+                "max_spent_before_low": 0.668083,
+                "min_dry_before_low": 0.331917,
+                "pool_return": 0.043037,
                 "reserve_frac": 0.2,
-                "spent": 0.92967,
-                "spent_by_low": 0.8,
-                "terminal_ratio_vs_dca18": 1.229883,
-                "terminal_ratio_vs_dca52": 1.017249,
-                "terminal_value": 0.995994,
-                "units": 0.0159597095
+                "spent": 0.945679,
+                "spent_by_low": 0.679875,
+                "terminal_ratio_vs_dca18": 1.287973,
+                "terminal_ratio_vs_dca52": 1.065296,
+                "terminal_value": 1.043037,
+                "units": 0.0170468141
               },
               "end_price": 58.0,
               "failures": [],
               "id": "delayed_lower_low",
-              "min_dry_first_two_thirds": 0.215385,
+              "min_dry_first_two_thirds": 0.365769,
               "pred_dd": 0.55,
               "realized_low": 32.0,
               "realized_low_week": 56,
@@ -770,8 +783,8 @@
           "summary": {
             "failing_ids": [],
             "failing_paths": 0,
-            "min_terminal_ratio_vs_dca18": 1.229883,
-            "min_terminal_ratio_vs_dca52": 1.017249,
+            "min_terminal_ratio_vs_dca18": 1.287973,
+            "min_terminal_ratio_vs_dca52": 1.065296,
             "paths": 1
           }
         },
@@ -822,28 +835,28 @@
                 }
               },
               "model": {
-                "avg_cost": 56.5295,
-                "avg_cost_premium_to_low": 1.261181,
-                "dry": 0.094248,
-                "dry_at_low": 0.156845,
-                "early_exhaustion_before_low": true,
+                "avg_cost": 52.2531,
+                "avg_cost_premium_to_low": 1.090124,
+                "dry": 0.184,
+                "dry_at_low": 0.184,
+                "early_exhaustion_before_low": false,
                 "max_4w_spent_increase": 0.225958,
-                "max_portfolio_drawdown": 0.484543,
-                "max_spent_before_low": 0.82658,
-                "min_dry_before_low": 0.17342,
-                "pool_return": -0.280869,
+                "max_portfolio_drawdown": 0.425593,
+                "max_spent_before_low": 0.816,
+                "min_dry_before_low": 0.184,
+                "pool_return": -0.206964,
                 "reserve_frac": 0.2,
-                "spent": 0.905752,
-                "spent_by_low": 0.843155,
-                "terminal_ratio_vs_dca18": 1.301719,
-                "terminal_ratio_vs_dca52": 1.128024,
-                "terminal_value": 0.719131,
-                "units": 0.0160226469
+                "spent": 0.816,
+                "spent_by_low": 0.816,
+                "terminal_ratio_vs_dca18": 1.435497,
+                "terminal_ratio_vs_dca52": 1.243951,
+                "terminal_value": 0.793036,
+                "units": 0.0156162969
               },
               "end_price": 39.0,
               "failures": [],
               "id": "false_bottom_continued_grind",
-              "min_dry_first_two_thirds": 0.2,
+              "min_dry_first_two_thirds": 0.320128,
               "pred_dd": 0.55,
               "realized_low": 25.0,
               "realized_low_week": 76,
@@ -856,8 +869,8 @@
           "summary": {
             "failing_ids": [],
             "failing_paths": 0,
-            "min_terminal_ratio_vs_dca18": 1.301719,
-            "min_terminal_ratio_vs_dca52": 1.128024,
+            "min_terminal_ratio_vs_dca18": 1.435497,
+            "min_terminal_ratio_vs_dca52": 1.243951,
             "paths": 1
           }
         },
@@ -907,28 +920,28 @@
                 }
               },
               "model": {
-                "avg_cost": 67.9809,
-                "avg_cost_premium_to_low": 0.307325,
-                "dry": 0.122835,
+                "avg_cost": 68.1885,
+                "avg_cost_premium_to_low": 0.311317,
+                "dry": 0.108372,
                 "dry_at_low": 0.490901,
                 "early_exhaustion_before_low": false,
                 "max_4w_spent_increase": 0.550692,
                 "max_portfolio_drawdown": 0.089361,
                 "max_spent_before_low": 0.294055,
                 "min_dry_before_low": 0.705945,
-                "pool_return": 0.619595,
+                "pool_return": 0.62518,
                 "reserve_frac": 0.2,
-                "spent": 0.877165,
+                "spent": 0.891628,
                 "spent_by_low": 0.509099,
-                "terminal_ratio_vs_dca18": 1.029854,
-                "terminal_ratio_vs_dca52": 1.160674,
-                "terminal_value": 1.619595,
-                "units": 0.0129031103
+                "terminal_ratio_vs_dca18": 1.033405,
+                "terminal_ratio_vs_dca52": 1.164676,
+                "terminal_value": 1.62518,
+                "units": 0.0130759333
               },
               "end_price": 116.0,
               "failures": [],
               "id": "fast_v",
-              "min_dry_first_two_thirds": 0.239152,
+              "min_dry_first_two_thirds": 0.219409,
               "pred_dd": 0.5,
               "realized_low": 52.0,
               "realized_low_week": 4,
@@ -941,8 +954,8 @@
           "summary": {
             "failing_ids": [],
             "failing_paths": 0,
-            "min_terminal_ratio_vs_dca18": 1.029854,
-            "min_terminal_ratio_vs_dca52": 1.160674,
+            "min_terminal_ratio_vs_dca18": 1.033405,
+            "min_terminal_ratio_vs_dca52": 1.164676,
             "paths": 1
           }
         },
@@ -992,28 +1005,28 @@
                 }
               },
               "model": {
-                "avg_cost": 96.7211,
-                "avg_cost_premium_to_low": 0.343349,
+                "avg_cost": 97.52,
+                "avg_cost_premium_to_low": 0.354444,
                 "dry": 0.0,
                 "dry_at_low": 0.751969,
                 "early_exhaustion_before_low": false,
-                "max_4w_spent_increase": 0.239988,
+                "max_4w_spent_increase": 0.286027,
                 "max_portfolio_drawdown": 0.033869,
                 "max_spent_before_low": 0.214357,
                 "min_dry_before_low": 0.785643,
-                "pool_return": 0.261358,
+                "pool_return": 0.251026,
                 "reserve_frac": 0.2,
                 "spent": 1.0,
                 "spent_by_low": 0.248031,
-                "terminal_ratio_vs_dca18": 0.85128,
-                "terminal_ratio_vs_dca52": 0.961831,
-                "terminal_value": 1.261358,
-                "units": 0.0103390014
+                "terminal_ratio_vs_dca18": 0.844307,
+                "terminal_ratio_vs_dca52": 0.953953,
+                "terminal_value": 1.251026,
+                "units": 0.0102543107
               },
               "end_price": 122.0,
               "failures": [],
               "id": "shallow_recover",
-              "min_dry_first_two_thirds": 0.391382,
+              "min_dry_first_two_thirds": 0.406532,
               "pred_dd": 0.5,
               "realized_low": 72.0,
               "realized_low_week": 10,
@@ -1026,8 +1039,8 @@
           "summary": {
             "failing_ids": [],
             "failing_paths": 0,
-            "min_terminal_ratio_vs_dca18": 0.85128,
-            "min_terminal_ratio_vs_dca52": 0.961831,
+            "min_terminal_ratio_vs_dca18": 0.844307,
+            "min_terminal_ratio_vs_dca52": 0.953953,
             "paths": 1
           }
         },
@@ -1046,25 +1059,18 @@
             {
               "asset": "ETH",
               "episode": "2018 bear (single low)",
-              "min_dry_before_low": 0.0,
+              "min_dry_before_low": 0.276,
               "reserve_frac": 0.3,
-              "spent_by_low": 1.0
+              "spent_by_low": 0.724
             }
           ],
           "scope": "historical_and_synthetic_full_stack",
           "status": "FAIL",
           "summary": {
             "historical_flags": 1,
-            "synthetic_flags": 1
+            "synthetic_flags": 0
           },
-          "synthetic_flags": [
-            {
-              "id": "false_bottom_continued_grind",
-              "min_dry_before_low": 0.17342,
-              "reserve_frac": 0.2,
-              "spent_by_low": 0.843155
-            }
-          ]
+          "synthetic_flags": []
         },
         "status": "FAIL"
       }
@@ -1090,7 +1096,7 @@
     "relationship_to_current_verdict": {
       "common_exam_status": "FAIL",
       "current_utility_audit_artifact": "reports/robust_evaluation.json",
-      "current_utility_audit_status": "PASS",
+      "current_utility_audit_status": "WATCH",
       "reason": "The existing PASS covers utility, historical replay, jitter, target 90/110/lagged perturbations, leave-one-episode-out, and chronological holdout. The common exam below is a stricter promotion layer and should be read separately from the current utility verdict and from the Fable 2026-07-05 core-only cross-audit."
     },
     "schema_version": 1,
@@ -1113,21 +1119,21 @@
       {
         "asset": "BTC",
         "avg_sell_pct_of_peak": 0.913,
-        "end_value_vs_hold": 1.5106,
+        "end_value_vs_hold": 1.4732,
         "max_portfolio_drawdown": 0.2409,
         "sold_fraction": 0.7718,
         "top": "2025-10-06",
-        "utility": 0.970122,
+        "utility": 0.958889,
         "value_at_low_vs_hold": 1.5128
       },
       {
         "asset": "ETH",
         "avg_sell_pct_of_peak": 0.9269,
-        "end_value_vs_hold": 2.3859,
+        "end_value_vs_hold": 2.1806,
         "max_portfolio_drawdown": 0.6088,
         "sold_fraction": 0.7785,
         "top": "2025-08-22",
-        "utility": 0.573382,
+        "utility": 0.511813,
         "value_at_low_vs_hold": 2.433
       }
     ],
@@ -1146,11 +1152,11 @@
       {
         "asset": "BTC",
         "avg_sell_pct_of_peak": 0.913,
-        "end_value_vs_hold": 1.5106,
+        "end_value_vs_hold": 1.4732,
         "max_portfolio_drawdown": 0.2409,
         "sold_fraction": 0.7718,
         "top": "2025-10-06",
-        "utility": 0.970122,
+        "utility": 0.958889,
         "value_at_low_vs_hold": 1.5128
       },
       {
@@ -1178,11 +1184,11 @@
       {
         "asset": "BTC",
         "avg_sell_pct_of_peak": 0.913,
-        "end_value_vs_hold": 1.5106,
+        "end_value_vs_hold": 1.4732,
         "max_portfolio_drawdown": 0.2409,
         "sold_fraction": 0.7718,
         "top": "2025-10-06",
-        "utility": 0.970122,
+        "utility": 0.958889,
         "value_at_low_vs_hold": 1.5128
       },
       {
@@ -1226,29 +1232,29 @@
     ],
     "status": "CORE_FAILED_STRICTER_GATES"
   },
-  "generated_at": "2026-07-05T15:30:23-04:00",
+  "generated_at": "2026-07-05T16:00:22-04:00",
   "ledger": {
-    "count": 10,
+    "count": 11,
     "last": {
       "data_age_days": 0,
       "data_as_of": "2026-07-05",
-      "generated_at": "2026-07-05T15:30:22",
-      "key": "live|2026-07-05|2026-07-05T15:30",
+      "generated_at": "2026-07-05T16:00:20",
+      "key": "live|2026-07-05|2026-07-05T16:00",
       "material": true,
       "run_date": "2026-07-05",
       "run_kind": "live",
       "schema_version": 1,
       "signals": {
         "BTC": {
-          "action": "BUY_RAISE_TARGET",
+          "action": "OPTIONAL_CATCHUP_ONLY",
           "flags": [
             "policy above today-only posterior"
           ],
-          "full_policy_target": 0.3385,
-          "price": 62704.0,
+          "full_policy_target": 0.2736,
+          "price": 62723.0,
           "prior_close_target": 0.2654,
-          "raw_policy_gap": 0.1287,
-          "raw_posterior_target": 0.2098,
+          "raw_policy_gap": 0.1029,
+          "raw_posterior_target": 0.1707,
           "top_keep": 1.0,
           "top_phase": "inactive",
           "top_risk": 0.2944
@@ -1257,7 +1263,7 @@
           "action": "HOLD",
           "flags": [],
           "full_policy_target": 0.353,
-          "price": 1777.5,
+          "price": 1779.46,
           "prior_close_target": 0.353,
           "raw_policy_gap": 0.0018,
           "raw_posterior_target": 0.3512,
@@ -1268,15 +1274,6 @@
       }
     },
     "open_material_signals": [
-      {
-        "action": "BUY_RAISE_TARGET",
-        "asset": "BTC",
-        "flags": [
-          "policy above today-only posterior"
-        ],
-        "gap": 0.1285,
-        "generated_at": "2026-07-05T12:30:22"
-      },
       {
         "action": "BUY_RAISE_TARGET",
         "asset": "BTC",
@@ -1339,29 +1336,38 @@
         ],
         "gap": 0.1287,
         "generated_at": "2026-07-05T15:30:22"
+      },
+      {
+        "action": "OPTIONAL_CATCHUP_ONLY",
+        "asset": "BTC",
+        "flags": [
+          "policy above today-only posterior"
+        ],
+        "gap": 0.1029,
+        "generated_at": "2026-07-05T16:00:20"
       }
     ]
   },
   "live_record": {
     "data_age_days": 0,
     "data_as_of": "2026-07-05",
-    "generated_at": "2026-07-05T15:30:22",
-    "key": "live|2026-07-05|2026-07-05T15:30",
+    "generated_at": "2026-07-05T16:00:20",
+    "key": "live|2026-07-05|2026-07-05T16:00",
     "material": true,
     "run_date": "2026-07-05",
     "run_kind": "live",
     "schema_version": 1,
     "signals": {
       "BTC": {
-        "action": "BUY_RAISE_TARGET",
+        "action": "OPTIONAL_CATCHUP_ONLY",
         "flags": [
           "policy above today-only posterior"
         ],
-        "full_policy_target": 0.3385,
-        "price": 62704.0,
+        "full_policy_target": 0.2736,
+        "price": 62723.0,
         "prior_close_target": 0.2654,
-        "raw_policy_gap": 0.1287,
-        "raw_posterior_target": 0.2098,
+        "raw_policy_gap": 0.1029,
+        "raw_posterior_target": 0.1707,
         "top_keep": 1.0,
         "top_phase": "inactive",
         "top_risk": 0.2944
@@ -1370,7 +1376,7 @@
         "action": "HOLD",
         "flags": [],
         "full_policy_target": 0.353,
-        "price": 1777.5,
+        "price": 1779.46,
         "prior_close_target": 0.353,
         "raw_policy_gap": 0.0018,
         "raw_posterior_target": 0.3512,
@@ -1403,15 +1409,15 @@
   "schema_version": 1,
   "watchdog": {
     "data_age_days": 0.0,
-    "expected_latest_slot_et": "2026-07-05T15:30-04:00",
+    "expected_latest_slot_et": "2026-07-05T16:00-04:00",
     "last_close_log_done": "2026-07-04 20:30:41",
-    "last_live_log_done": "2026-07-05 15:01:32",
+    "last_live_log_done": "2026-07-05 15:33:18",
     "minutes_behind_expected": 0.0,
     "reasons": [
       "refresh cadence healthy"
     ],
-    "site_index_mtime_et": "2026-07-05T15:00:28-04:00",
-    "snapshot_generated_at_et": "2026-07-05T15:30-04:00",
+    "site_index_mtime_et": "2026-07-05T15:30:26-04:00",
+    "snapshot_generated_at_et": "2026-07-05T16:00-04:00",
     "status": "PASS"
   }
 }
