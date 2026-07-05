@@ -1,20 +1,26 @@
 # Robust Evaluation
 
-Generated: 2026-06-30T19:14:36.088362+00:00
-Verdict: **PASS (current utility suite only)**
+Generated: 2026-07-05T16:49:00.592364+00:00
+Verdict: **PASS_CURRENT_UTILITY_AUDIT**
 
 Reasons:
-- all promotion gates passed
+- all current utility promotion gates passed
+- common-exam plateau and synthetic adverse-path gates are reported separately and are not included in this scoped verdict
 
-Scope caveat added 2026-07-05:
-- This PASS is limited to the dashboard's current utility-style promotion suite.
-- The stricter common exam is **NOT PASSED**: +/-25% parameter-plateau,
-  delayed-lower-low, fast-V, shallow-recover and early-exhaustion stress gates
-  are not accepted here yet.
-- Fable's external core-only port of the convex shape found real LOCO merit, but
-  failed the plateau and synthetic-stress checks. The dashboard full stack
-  still needs to replay those shapes with reserve release, redeploy and re-arm
-  before any robustness claim is promoted.
+Boundary:
+- This verdict covers the historical utility audit, replay/jitter/target perturbation checks, leave-one-episode-out, and chronological holdout shown below.
+- The stricter common exam is computed separately in `reports/common_exam_audit.md` and is not part of this scoped utility verdict.
+- Fable's 2026-07-05 external core-only port found real LOCO merit but failed plateau and synthetic-stress checks; use the common exam below as the dashboard full-stack promotion gate.
+
+## Common Exam
+
+- Status: **FAIL**
+- parameter_plateau_25pct: FAIL (cells=11, failing=3, worst shift=18.2%)
+- synthetic_delayed_lower_low: PASS (paths=1, failing=0, min DCA18 ratio=1.229883)
+- synthetic_false_bottom_continued_grind: PASS (paths=1, failing=0, min DCA18 ratio=1.301719)
+- synthetic_fast_v_participation: PASS (paths=1, failing=0, min DCA18 ratio=1.029854)
+- synthetic_shallow_recover: PASS (paths=1, failing=0, min DCA18 ratio=0.85128)
+- early_exhaustion_guard: FAIL (historical flags=1, synthetic flags=1)
 
 ## Forecast Calibration
 
@@ -34,53 +40,98 @@ Scope caveat added 2026-07-05:
 
 | Asset | Status | Accum eps | Dist windows | Acc utility | Dist utility | Bottom MAE | Top MAE | Reasons |
 |---|---:|---:|---:|---:|---:|---:|---:|---|
-| BTC | PASS | 4 | 4 | 0.331715 | 7.086513 | 0.16381 | 0.11455 | asset gate passed |
-| ETH | PASS | 4 | 3 | 0.063737 | 9.590683 | 0.14996 | 0.16266 | asset gate passed |
+| BTC | PASS | 4 | 4 | 0.261337 | 7.086513 | 0.16381 | 0.11455 | current utility asset gate passed |
+| ETH | PASS | 4 | 3 | 0.034189 | 9.590683 | 0.14996 | 0.16266 | current utility asset gate passed |
 
 ## Accumulation Policy
 
 - Episodes: 8
 - Terminal win-rate vs median simple baseline: 88%
-- Avg-cost win-rate vs median simple baseline: 62%
-- Worst terminal edge vs median baseline: -2.1%
-- Mean terminal edge vs median baseline: 23.3%
+- Avg-cost win-rate vs median simple baseline: 75%
+- Worst terminal edge vs median baseline: -2.3%
+- Mean terminal edge vs median baseline: 19.8%
 
 | Asset | Episode | Policy terminal | Edge vs median | Avg/low | Cost edge | Utility |
 |---|---:|---:|---:|---:|---:|---:|
-| BTC | 2018 bear (single low) | 1.37 | 45.0% | 64.1% | -89.1% | 0.104855 |
-| ETH | 2018 bear (single low) | 0.55 | 17.6% | 175.6% | -432.7% | -1.11468 |
-| BTC | 2022 bear (DOUBLE bottom) | 1.92 | 59.0% | 32.5% | -50.1% | 0.792915 |
-| ETH | 2022 bear (DOUBLE bottom) | 1.59 | 49.4% | 36.3% | -60.3% | 0.457078 |
-| BTC | 2019 H2 correction (mid-cycle) | 1.13 | 0.9% | 16.0% | -3.9% | 0.084797 |
-| ETH | 2019 H2 correction (mid-cycle) | 1.33 | -2.1% | 43.8% | 2.3% | 0.194 |
-| BTC | 2020 COVID crash (fast V) | 1.44 | 6.7% | 27.9% | 0.5% | 0.344293 |
-| ETH | 2020 COVID crash (fast V) | 1.83 | 9.8% | 33.6% | 14.8% | 0.718551 |
+| BTC | 2018 bear (single low) | 1.20 | 27.8% | 87.8% | -65.5% | -0.138675 |
+| ETH | 2018 bear (single low) | 0.54 | 17.3% | 177.5% | -430.9% | -1.12436 |
+| BTC | 2022 bear (DOUBLE bottom) | 1.86 | 53.0% | 36.8% | -45.8% | 0.710802 |
+| ETH | 2022 bear (DOUBLE bottom) | 1.51 | 41.0% | 43.8% | -52.7% | 0.345412 |
+| BTC | 2019 H2 correction (mid-cycle) | 1.13 | 1.0% | 15.8% | -4.1% | 0.08714 |
+| ETH | 2019 H2 correction (mid-cycle) | 1.33 | -2.3% | 43.8% | 2.3% | 0.192774 |
+| BTC | 2020 COVID crash (fast V) | 1.48 | 10.2% | 25.6% | -1.9% | 0.386079 |
+| ETH | 2020 COVID crash (fast V) | 1.83 | 10.2% | 33.3% | 14.6% | 0.722931 |
+
+### Expected-Regret Candidate
+
+- Research-only reference-style expected-regret sizing ported into the Model accumulation harness.
+- Terminal win-rate vs Model live: 50%
+- Avg-cost win-rate vs Model live: 75%
+- Mean terminal delta vs Model: -0.5%
+- Mean avg-cost premium delta vs Model: -10.3%
+- Worst terminal delta vs Model: -52.0%
+
+| Asset | Episode | Policy terminal | Exp-reg terminal | Delta | Model avg/low | Exp-reg avg/low | Model spent@low | Exp-reg spent@low |
+|---|---|---:|---:|---:|---:|---:|---:|---:|
+| BTC | 2018 bear (single low) | 1.197 | 1.909 | 71.2% | 87.8% | 17.8% | 80% | 40% |
+| ETH | 2018 bear (single low) | 0.544 | 0.579 | 3.5% | 177.5% | 160.5% | 100% | 76% |
+| BTC | 2022 bear (DOUBLE bottom) | 1.863 | 1.926 | 6.2% | 36.8% | 32.3% | 80% | 86% |
+| ETH | 2022 bear (DOUBLE bottom) | 1.509 | 1.607 | 9.8% | 43.8% | 35.1% | 47% | 1% |
+| BTC | 2019 H2 correction (mid-cycle) | 1.130 | 1.019 | -11.1% | 15.8% | 5.2% | 47% | 5% |
+| ETH | 2019 H2 correction (mid-cycle) | 1.331 | 1.062 | -26.9% | 43.8% | 43.0% | 49% | 3% |
+| BTC | 2020 COVID crash (fast V) | 1.477 | 1.425 | -5.1% | 25.6% | 32.5% | 17% | 11% |
+| ETH | 2020 COVID crash (fast V) | 1.833 | 1.313 | -52.0% | 33.3% | 55.6% | 38% | 3% |
+
+### Cap-Regime Switch Candidate
+
+- Research-only hybrid: expected-regret sizing in mature/deep bears, Model full-policy cumulative target in causal fast-shock/shallow-correction regimes.
+- Terminal win-rate vs Model live: 62%
+- Avg-cost win-rate vs Model live: 62%
+- Mean terminal delta vs Model: 11.4%
+- Mean avg-cost premium delta vs Model: -12.6%
+- Worst terminal delta vs Model: 0.0%
+- Mean weeks using Model regime: 50%
+
+| Asset | Episode | Policy terminal | Exp-reg terminal | Cap-switch terminal | Cap delta | Model avg/low | Exp-reg avg/low | Cap avg/low | Cap spent@low | Model-regime weeks |
+|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| BTC | 2018 bear (single low) | 1.197 | 1.909 | 1.909 | 71.2% | 87.8% | 17.8% | 17.8% | 40% | 1% |
+| ETH | 2018 bear (single low) | 0.544 | 0.579 | 0.579 | 3.5% | 177.5% | 160.5% | 160.5% | 76% | 0% |
+| BTC | 2022 bear (DOUBLE bottom) | 1.863 | 1.926 | 1.926 | 6.2% | 36.8% | 32.3% | 32.3% | 86% | 0% |
+| ETH | 2022 bear (DOUBLE bottom) | 1.509 | 1.607 | 1.607 | 9.8% | 43.8% | 35.1% | 35.1% | 1% | 0% |
+| BTC | 2019 H2 correction (mid-cycle) | 1.130 | 1.019 | 1.130 | 0.0% | 15.8% | 5.2% | 15.8% | 47% | 100% |
+| ETH | 2019 H2 correction (mid-cycle) | 1.331 | 1.062 | 1.333 | 0.2% | 43.8% | 43.0% | 43.4% | 49% | 97% |
+| BTC | 2020 COVID crash (fast V) | 1.477 | 1.425 | 1.477 | 0.0% | 25.6% | 32.5% | 25.6% | 17% | 100% |
+| ETH | 2020 COVID crash (fast V) | 1.833 | 1.313 | 1.833 | 0.0% | 33.3% | 55.6% | 33.3% | 38% | 100% |
 
 Parameter stability:
-- live: terminal win-rate 88%, worst edge -2.1%, mean edge 23.3%
-- shallower_faster: terminal win-rate 88%, worst edge -4.1%, mean edge 22.0%
-- deeper_more_reserve: terminal win-rate 88%, worst edge -1.1%, mean edge 22.9%
+- live: terminal win-rate 88%, worst edge -2.3%, mean edge 19.8%
+- shallower_faster: terminal win-rate 88%, worst edge -4.4%, mean edge 18.8%
+- deeper_more_reserve: terminal win-rate 88%, worst edge -1.3%, mean edge 20.7%
 
 Accumulation anti-overfit checks:
-- Window jitter: min terminal win-rate 62%, min cost win-rate 62%, worst terminal edge -11.2%
-- Target perturbations: min terminal win-rate 75%, min cost win-rate 62%, worst terminal edge -2.9%
-- Leave-one-episode-out: worst held-out terminal edge -2.1%, worst held-out cost edge 14.8%
-- Chronological holdout since 2020-01-01: terminal win-rate 100%, worst terminal edge 6.7%
+- Window jitter: min terminal win-rate 75%, min cost win-rate 62%, worst terminal edge -11.4%
+- Target perturbations: min terminal win-rate 75%, min cost win-rate 62%, worst terminal edge -3.1%
+- Leave-one-episode-out: worst held-out terminal edge -2.3%, worst held-out cost edge 14.6%
+- Chronological holdout since 2020-01-01: terminal win-rate 100%, worst terminal edge 10.2%
+- Cap-switch window jitter vs Model: min terminal win-rate 50%, worst terminal delta -16.2%, worst cost delta 117.3%
+- Cap-switch target perturbation vs Model: min terminal win-rate 62%, worst terminal delta 0.0%, worst cost delta 0.0%
+- Cap-switch leave-one-episode-out vs Model: min remaining terminal win-rate 57%, worst held-out terminal delta 0.0%, worst held-out cost delta 0.0%
+- Cap-switch chronological holdout since 2020-01-01: terminal win-rate 50%, worst terminal delta 0.0%
 
 | Window jitter | Episodes | Terminal win | Cost win | Worst terminal edge | Worst cost edge |
 |---|---:|---:|---:|---:|---:|
-| start -30d / end 0d | 8 | 88% | 88% | -1.4% | 8.9% |
-| start 0d / end -30d | 8 | 100% | 88% | 5.0% | 8.5% |
-| start 0d / end 0d | 8 | 88% | 62% | -2.1% | 14.8% |
-| start 0d / end 30d | 8 | 100% | 62% | 2.5% | 21.4% |
-| start 30d / end 0d | 8 | 62% | 62% | -11.2% | 26.1% |
+| start -30d / end 0d | 8 | 88% | 88% | -1.5% | 11.7% |
+| start 0d / end -30d | 8 | 100% | 88% | 5.1% | 8.3% |
+| start 0d / end 0d | 8 | 88% | 75% | -2.3% | 14.6% |
+| start 0d / end 30d | 8 | 100% | 62% | 2.6% | 21.1% |
+| start 30d / end 0d | 8 | 75% | 62% | -11.4% | 23.5% |
 
 | Target perturbation | Episodes | Terminal win | Cost win | Worst terminal edge | Worst cost edge |
 |---|---:|---:|---:|---:|---:|
-| live | 8 | 88% | 62% | -2.1% | 14.8% |
-| conservative_90 | 8 | 75% | 62% | -2.9% | 18.5% |
-| aggressive_110 | 8 | 88% | 75% | -1.5% | 11.4% |
-| lagged_14d | 8 | 88% | 62% | -2.2% | 15.8% |
+| live | 8 | 88% | 75% | -2.3% | 14.6% |
+| conservative_90 | 8 | 75% | 62% | -3.1% | 18.5% |
+| aggressive_110 | 8 | 88% | 75% | -1.6% | 11.0% |
+| lagged_14d | 8 | 88% | 62% | -2.4% | 14.0% |
 
 ## Distribution Policy
 
