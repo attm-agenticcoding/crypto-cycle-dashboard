@@ -1,10 +1,20 @@
 # Robust Evaluation
 
 Generated: 2026-06-30T19:14:36.088362+00:00
-Verdict: **PASS**
+Verdict: **PASS (current utility suite only)**
 
 Reasons:
 - all promotion gates passed
+
+Scope caveat added 2026-07-05:
+- This PASS is limited to the dashboard's current utility-style promotion suite.
+- The stricter common exam is **NOT PASSED**: +/-25% parameter-plateau,
+  delayed-lower-low, fast-V, shallow-recover and early-exhaustion stress gates
+  are not accepted here yet.
+- Fable's external core-only port of the convex shape found real LOCO merit, but
+  failed the plateau and synthetic-stress checks. The dashboard full stack
+  still needs to replay those shapes with reserve release, redeploy and re-arm
+  before any robustness claim is promoted.
 
 ## Forecast Calibration
 

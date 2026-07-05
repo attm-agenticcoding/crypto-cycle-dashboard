@@ -29,7 +29,7 @@
     "artifact": "reports/common_exam_audit.json",
     "reasons": [
       "plus/minus 25% parameter plateau is not part of the current utility audit",
-      "synthetic delayed-lower-low, false-bottom/continued-grind, and early-exhaustion stress gates are not yet run"
+      "Fable external core-only port failed the plateau and synthetic-shape stress checks; dashboard full-stack reserve/re-arm replay is still pending"
     ],
     "scope": "STRICTER_PROMOTION_GATES",
     "status": "NOT_PASSED"
@@ -133,7 +133,36 @@
       }
     ]
   },
-  "generated_at": "2026-07-05T10:00:28-04:00",
+  "external_cross_audit": {
+    "auditor": "Fable",
+    "failure_findings": [
+      "Worst +/-25% parameter perturbation shift was 0.292 at MAX_HORIZON_WEEKS x0.75, above the 0.15 band.",
+      "FLOOR_W x1.25 produced a 0.250 shift, with min LOCO ratio collapsing to roughly 0.58-0.62.",
+      "Delayed-lower-low synthetic stress ended at terminal value 0.546 vs 0.762 for DCA-18 in the audited core port.",
+      "One fast-V synthetic row landed below the 30% deployed-at-low floor."
+    ],
+    "memo_date": "2026-07-05",
+    "positive_findings": [
+      "Held-out LOCO median terminal-value ratio beat DCA-18 in Fable's core port: 1.038 vs 1.012.",
+      "Convex depth back-load direction remains a candidate worth preserving."
+    ],
+    "required_followups": [
+      "Add parameter-perturbation plateau gates before policy promotion.",
+      "Replay delayed-lower-low, fast-V and shallow-recover synthetic shapes through the dashboard full stack.",
+      "Derive the clock floor from an episode-duration distribution or mixture rather than a single 52w tuned point.",
+      "Make last-tranche reserve release depend on a non-forecast trigger.",
+      "Run held-out LOCO log-loss and coverage checks for the bottom posterior probabilities."
+    ],
+    "scope": "Core convex shape port only; excludes dashboard hard-reserve release, redeploy and re-arm legs.",
+    "source_receipts": [
+      "../crypto-cycle-detection-fable/reports/HYPOTHESIS_CODEX_CONVEX_CROSS_AUDIT.md",
+      "../crypto-cycle-detection-fable/reports/model_cross_audit.json",
+      "../crypto-cycle-detection-fable/reports/model_cross_audit.log",
+      "../crypto-cycle-detection-fable/NOTES.md 2026-07-04"
+    ],
+    "status": "CORE_FAILED_STRICTER_GATES"
+  },
+  "generated_at": "2026-07-05T10:30:27-04:00",
   "ledger": {
     "count": 2,
     "last": {
@@ -177,8 +206,8 @@
   "live_record": {
     "data_age_days": 0,
     "data_as_of": "2026-07-05",
-    "generated_at": "2026-07-05T10:00:26",
-    "key": "live|2026-07-05|2026-07-05T10:00",
+    "generated_at": "2026-07-05T10:30:25",
+    "key": "live|2026-07-05|2026-07-05T10:30",
     "material": false,
     "run_date": "2026-07-05",
     "run_kind": "live",
@@ -188,19 +217,19 @@
         "action": "HOLD",
         "flags": [],
         "full_policy_target": 0.2654,
-        "price": 62735.0,
+        "price": 62662.0,
         "prior_close_target": 0.2654,
-        "raw_policy_gap": 0.0556,
-        "raw_posterior_target": 0.2098,
+        "raw_policy_gap": 0.0555,
+        "raw_posterior_target": 0.2099,
         "top_keep": 1.0,
         "top_phase": "inactive",
-        "top_risk": 0.2944
+        "top_risk": 0.2943
       },
       "ETH": {
         "action": "HOLD",
         "flags": [],
         "full_policy_target": 0.353,
-        "price": 1764.48,
+        "price": 1765.59,
         "prior_close_target": 0.353,
         "raw_policy_gap": 0.0024,
         "raw_posterior_target": 0.3506,
@@ -233,15 +262,15 @@
   "schema_version": 1,
   "watchdog": {
     "data_age_days": 0.0,
-    "expected_latest_slot_et": "2026-07-05T10:00-04:00",
+    "expected_latest_slot_et": "2026-07-05T10:30-04:00",
     "last_close_log_done": "2026-07-04 20:30:41",
-    "last_live_log_done": "2026-07-05 09:31:32",
+    "last_live_log_done": "2026-07-05 10:08:48",
     "minutes_behind_expected": 0.0,
     "reasons": [
       "refresh cadence healthy"
     ],
-    "site_index_mtime_et": "2026-07-05T09:30:28-04:00",
-    "snapshot_generated_at_et": "2026-07-05T10:00-04:00",
+    "site_index_mtime_et": "2026-07-05T10:00:31-04:00",
+    "snapshot_generated_at_et": "2026-07-05T10:30-04:00",
     "status": "PASS"
   }
 }
