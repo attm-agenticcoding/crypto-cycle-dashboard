@@ -1,6 +1,6 @@
 # Common Exam Audit
 
-Generated: 2026-07-06T15:54:17.806915+00:00
+Generated: 2026-07-06T16:12:38.075128+00:00
 Verdict: **FAIL**
 
 The current dashboard verdict is scoped to the historical utility audit. The stricter common-exam gates now replay parameter plateau and synthetic adverse paths through the dashboard full stack. Fable's external core-only cross-audit remains recorded as a separate warning because it failed the convex core on plateau and synthetic-shape stress.
@@ -94,6 +94,26 @@ The current dashboard verdict is scoped to the historical utility audit. The str
 |---|---:|---:|---:|---:|---:|---:|---:|
 | rate_limited_fast_bypass | REJECTED_SYNTHETIC_GATES | 0.125445 | 72.5% | 16.0% | 94.7% | 62% | -7.3% |
 | zero_posterior_lower_bound | REJECTED_SYNTHETIC_GATES | 0.063994 | 66.4% | 8.3% | 91.2% | 25% | -14.3% |
+
+## Delayed-Premium Gate Attainability (cross-round synthesis)
+
+- Gate: delayed-lower-low avg entry premium <= 60%; attainable without historical-utility loss: **False**; review status: **THRESHOLD_REVIEW_REQUIRED**
+- Minimum threshold for any tested lever: 54.5%; for a utility-preserving tested lever: 73.4%
+
+| Lever | Delayed avg premium | Gate pass | Historical utility preserved |
+|---|---:|---:|---:|
+| live_policy | 73.4% | False | True |
+| posterior_target_zero_lower_bound | 66.4% | False | False |
+| release_hardening_target_and_depth_floor_throttle | 54.5% | True | False |
+
+| Review threshold | Passing levers | Utility-preserving passing levers | Interpretation |
+|---:|---|---|---|
+| 60% | release_hardening_target_and_depth_floor_throttle | none | only_non_utility_preserving_or_unscored_levers_pass |
+| 65% | release_hardening_target_and_depth_floor_throttle | none | only_non_utility_preserving_or_unscored_levers_pass |
+| 70% | posterior_target_zero_lower_bound, release_hardening_target_and_depth_floor_throttle | none | only_non_utility_preserving_or_unscored_levers_pass |
+| 75% | live_policy, posterior_target_zero_lower_bound, release_hardening_target_and_depth_floor_throttle | live_policy | at_least_one_utility_preserving_tested_lever_passes |
+
+- Across every tested lever the delayed-lower-low average entry premium gate (<= 60%) is reachable only by throttling first-decline depth-floor deployment (the release-hardening lever), which the historical-utility audit rejects on prolonged 2018-style bears. Governing the posterior target alone floors at roughly 66% because the duration-CDF depth floor independently deploys the working bucket at first-decline prices. No tested lever reaches the gate while preserving historical utility, so within the current policy architecture this gate appears unattainable without historical-utility loss. Per the governance point, the next round should either accept this as the documented trade-off of record, or review whether the 60% threshold is attainable and correctly specified, keeping the current value as a sensitivity row and justifying any change with this frontier rather than tuning to pass.
 
 ## Promotion Rule
 

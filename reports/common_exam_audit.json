@@ -4973,7 +4973,104 @@
     "synthetic_pass": false,
     "verdict": "REJECTED_SYNTHETIC_GATES"
   },
-  "generated_at": "2026-07-06T15:54:17.806915+00:00",
+  "delayed_premium_gate_attainability": {
+    "attainable_without_historical_loss": false,
+    "conclusion": "Across every tested lever the delayed-lower-low average entry premium gate (<= 60%) is reachable only by throttling first-decline depth-floor deployment (the release-hardening lever), which the historical-utility audit rejects on prolonged 2018-style bears. Governing the posterior target alone floors at roughly 66% because the duration-CDF depth floor independently deploys the working bucket at first-decline prices. No tested lever reaches the gate while preserving historical utility, so within the current policy architecture this gate appears unattainable without historical-utility loss. Per the governance point, the next round should either accept this as the documented trade-off of record, or review whether the 60% threshold is attainable and correctly specified, keeping the current value as a sensitivity row and justifying any change with this frontier rather than tuning to pass.",
+    "frontier": [
+      {
+        "delayed_avg_premium": 0.733606,
+        "gate_pass": false,
+        "historical_utility_preserved": true,
+        "lever": "live_policy",
+        "note": "Current production policy; fails the delayed-premium gate."
+      },
+      {
+        "delayed_avg_premium": 0.663994,
+        "gate_pass": false,
+        "historical_utility_preserved": false,
+        "lever": "posterior_target_zero_lower_bound",
+        "note": "model_target set to zero (lower bound for the target-only lever). The duration-CDF depth floor still deploys the working bucket during the first decline, so the gate is still not met."
+      },
+      {
+        "delayed_avg_premium": 0.545428,
+        "gate_pass": true,
+        "historical_utility_preserved": false,
+        "lever": "release_hardening_target_and_depth_floor_throttle",
+        "note": "Throttles first-decline depth-floor deployment and holds a late reserve; reaches the gate but the historical-utility audit rejects it (REJECTED_HISTORICAL_UTILITY)."
+      }
+    ],
+    "gate": "delayed_lower_low_avg_entry_premium",
+    "gate_threshold": 0.6,
+    "minimum_threshold_for_any_tested_lever": 0.545428,
+    "minimum_threshold_for_utility_preserving_tested_lever": 0.733606,
+    "review_status": "THRESHOLD_REVIEW_REQUIRED",
+    "review_thresholds": [
+      0.6,
+      0.65,
+      0.7,
+      0.75
+    ],
+    "scope": "research_only_cross_round_synthesis",
+    "target_only_floor_premium": 0.663994,
+    "threshold_sensitivity": [
+      {
+        "interpretation": "only_non_utility_preserving_or_unscored_levers_pass",
+        "passing_levers": [
+          "release_hardening_target_and_depth_floor_throttle"
+        ],
+        "threshold": 0.6,
+        "utility_preserving_passing_levers": [],
+        "utility_rejected_passing_levers": [
+          "release_hardening_target_and_depth_floor_throttle"
+        ],
+        "utility_unscored_passing_levers": []
+      },
+      {
+        "interpretation": "only_non_utility_preserving_or_unscored_levers_pass",
+        "passing_levers": [
+          "release_hardening_target_and_depth_floor_throttle"
+        ],
+        "threshold": 0.65,
+        "utility_preserving_passing_levers": [],
+        "utility_rejected_passing_levers": [
+          "release_hardening_target_and_depth_floor_throttle"
+        ],
+        "utility_unscored_passing_levers": []
+      },
+      {
+        "interpretation": "only_non_utility_preserving_or_unscored_levers_pass",
+        "passing_levers": [
+          "posterior_target_zero_lower_bound",
+          "release_hardening_target_and_depth_floor_throttle"
+        ],
+        "threshold": 0.7,
+        "utility_preserving_passing_levers": [],
+        "utility_rejected_passing_levers": [
+          "posterior_target_zero_lower_bound",
+          "release_hardening_target_and_depth_floor_throttle"
+        ],
+        "utility_unscored_passing_levers": []
+      },
+      {
+        "interpretation": "at_least_one_utility_preserving_tested_lever_passes",
+        "passing_levers": [
+          "live_policy",
+          "posterior_target_zero_lower_bound",
+          "release_hardening_target_and_depth_floor_throttle"
+        ],
+        "threshold": 0.75,
+        "utility_preserving_passing_levers": [
+          "live_policy"
+        ],
+        "utility_rejected_passing_levers": [
+          "posterior_target_zero_lower_bound",
+          "release_hardening_target_and_depth_floor_throttle"
+        ],
+        "utility_unscored_passing_levers": []
+      }
+    ]
+  },
+  "generated_at": "2026-07-06T16:12:38.075128+00:00",
   "known_risks": [
     {
       "evidence": "The live policy now uses deploy_duration_cdf_floor() with horizon multipliers (1.0, 1.5, 2.0) instead of a single linear 52-week clock.",

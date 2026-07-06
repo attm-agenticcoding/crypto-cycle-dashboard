@@ -5000,7 +5000,104 @@
       "synthetic_pass": false,
       "verdict": "REJECTED_SYNTHETIC_GATES"
     },
-    "generated_at": "2026-07-06T15:54:17.806915+00:00",
+    "delayed_premium_gate_attainability": {
+      "attainable_without_historical_loss": false,
+      "conclusion": "Across every tested lever the delayed-lower-low average entry premium gate (<= 60%) is reachable only by throttling first-decline depth-floor deployment (the release-hardening lever), which the historical-utility audit rejects on prolonged 2018-style bears. Governing the posterior target alone floors at roughly 66% because the duration-CDF depth floor independently deploys the working bucket at first-decline prices. No tested lever reaches the gate while preserving historical utility, so within the current policy architecture this gate appears unattainable without historical-utility loss. Per the governance point, the next round should either accept this as the documented trade-off of record, or review whether the 60% threshold is attainable and correctly specified, keeping the current value as a sensitivity row and justifying any change with this frontier rather than tuning to pass.",
+      "frontier": [
+        {
+          "delayed_avg_premium": 0.733606,
+          "gate_pass": false,
+          "historical_utility_preserved": true,
+          "lever": "live_policy",
+          "note": "Current production policy; fails the delayed-premium gate."
+        },
+        {
+          "delayed_avg_premium": 0.663994,
+          "gate_pass": false,
+          "historical_utility_preserved": false,
+          "lever": "posterior_target_zero_lower_bound",
+          "note": "model_target set to zero (lower bound for the target-only lever). The duration-CDF depth floor still deploys the working bucket during the first decline, so the gate is still not met."
+        },
+        {
+          "delayed_avg_premium": 0.545428,
+          "gate_pass": true,
+          "historical_utility_preserved": false,
+          "lever": "release_hardening_target_and_depth_floor_throttle",
+          "note": "Throttles first-decline depth-floor deployment and holds a late reserve; reaches the gate but the historical-utility audit rejects it (REJECTED_HISTORICAL_UTILITY)."
+        }
+      ],
+      "gate": "delayed_lower_low_avg_entry_premium",
+      "gate_threshold": 0.6,
+      "minimum_threshold_for_any_tested_lever": 0.545428,
+      "minimum_threshold_for_utility_preserving_tested_lever": 0.733606,
+      "review_status": "THRESHOLD_REVIEW_REQUIRED",
+      "review_thresholds": [
+        0.6,
+        0.65,
+        0.7,
+        0.75
+      ],
+      "scope": "research_only_cross_round_synthesis",
+      "target_only_floor_premium": 0.663994,
+      "threshold_sensitivity": [
+        {
+          "interpretation": "only_non_utility_preserving_or_unscored_levers_pass",
+          "passing_levers": [
+            "release_hardening_target_and_depth_floor_throttle"
+          ],
+          "threshold": 0.6,
+          "utility_preserving_passing_levers": [],
+          "utility_rejected_passing_levers": [
+            "release_hardening_target_and_depth_floor_throttle"
+          ],
+          "utility_unscored_passing_levers": []
+        },
+        {
+          "interpretation": "only_non_utility_preserving_or_unscored_levers_pass",
+          "passing_levers": [
+            "release_hardening_target_and_depth_floor_throttle"
+          ],
+          "threshold": 0.65,
+          "utility_preserving_passing_levers": [],
+          "utility_rejected_passing_levers": [
+            "release_hardening_target_and_depth_floor_throttle"
+          ],
+          "utility_unscored_passing_levers": []
+        },
+        {
+          "interpretation": "only_non_utility_preserving_or_unscored_levers_pass",
+          "passing_levers": [
+            "posterior_target_zero_lower_bound",
+            "release_hardening_target_and_depth_floor_throttle"
+          ],
+          "threshold": 0.7,
+          "utility_preserving_passing_levers": [],
+          "utility_rejected_passing_levers": [
+            "posterior_target_zero_lower_bound",
+            "release_hardening_target_and_depth_floor_throttle"
+          ],
+          "utility_unscored_passing_levers": []
+        },
+        {
+          "interpretation": "at_least_one_utility_preserving_tested_lever_passes",
+          "passing_levers": [
+            "live_policy",
+            "posterior_target_zero_lower_bound",
+            "release_hardening_target_and_depth_floor_throttle"
+          ],
+          "threshold": 0.75,
+          "utility_preserving_passing_levers": [
+            "live_policy"
+          ],
+          "utility_rejected_passing_levers": [
+            "posterior_target_zero_lower_bound",
+            "release_hardening_target_and_depth_floor_throttle"
+          ],
+          "utility_unscored_passing_levers": []
+        }
+      ]
+    },
+    "generated_at": "2026-07-06T16:12:38.075128+00:00",
     "known_risks": [
       {
         "evidence": "The live policy now uses deploy_duration_cdf_floor() with horizon multipliers (1.0, 1.5, 2.0) instead of a single linear 52-week clock.",
@@ -8838,7 +8935,7 @@
     ],
     "status": "CORE_FAILED_STRICTER_GATES"
   },
-  "generated_at": "2026-07-06T12:00:25-04:00",
+  "generated_at": "2026-07-06T12:30:25-04:00",
   "ledger": {
     "count": 15,
     "last": {
@@ -8957,8 +9054,8 @@
   "live_record": {
     "data_age_days": 0,
     "data_as_of": "2026-07-06",
-    "generated_at": "2026-07-06T12:00:23",
-    "key": "live|2026-07-06|2026-07-06T12:00",
+    "generated_at": "2026-07-06T12:30:24",
+    "key": "live|2026-07-06|2026-07-06T12:30",
     "material": false,
     "run_date": "2026-07-06",
     "run_kind": "live",
@@ -8968,7 +9065,7 @@
         "action": "HOLD",
         "flags": [],
         "full_policy_target": 0.2736,
-        "price": 63413.0,
+        "price": 63400.0,
         "prior_close_target": 0.2736,
         "raw_policy_gap": 0.0915,
         "raw_posterior_target": 0.1821,
@@ -8980,10 +9077,10 @@
         "action": "HOLD",
         "flags": [],
         "full_policy_target": 0.353,
-        "price": 1785.48,
+        "price": 1786.39,
         "prior_close_target": 0.353,
-        "raw_policy_gap": 0.0005,
-        "raw_posterior_target": 0.3525,
+        "raw_policy_gap": 0.0004,
+        "raw_posterior_target": 0.3526,
         "top_keep": 1.0,
         "top_phase": "inactive",
         "top_risk": 0.3342
@@ -9013,15 +9110,15 @@
   "schema_version": 1,
   "watchdog": {
     "data_age_days": 0.0,
-    "expected_latest_slot_et": "2026-07-06T12:00-04:00",
+    "expected_latest_slot_et": "2026-07-06T12:30-04:00",
     "last_close_log_done": "2026-07-05 20:32:30",
-    "last_live_log_done": "2026-07-06 11:31:33",
+    "last_live_log_done": "2026-07-06 12:05:26",
     "minutes_behind_expected": 0.0,
     "reasons": [
       "refresh cadence healthy"
     ],
-    "site_index_mtime_et": "2026-07-06T11:30:28-04:00",
-    "snapshot_generated_at_et": "2026-07-06T12:00-04:00",
+    "site_index_mtime_et": "2026-07-06T12:00:28-04:00",
+    "snapshot_generated_at_et": "2026-07-06T12:30-04:00",
     "status": "PASS"
   }
 }
