@@ -1382,7 +1382,3598 @@
     "parameter_plateau_status": "FAIL",
     "synthetic_stress_status": "FAIL"
   },
-  "generated_at": "2026-07-06T01:44:29.362640+00:00",
+  "decoupled_deep_anchor_candidate": {
+    "acceptance_thresholds": {
+      "max_terminal_deterioration_vs_live": 0.15,
+      "min_terminal_win_rate_vs_live": 0.6,
+      "new_early_exhaustion_episodes": 0,
+      "synthetic_common_exam": "all synthetic gates PASS"
+    },
+    "best_recipe_id": "library_p75_blend_50",
+    "historical_pass": true,
+    "id": "decoupled_deep_anchor",
+    "interpretation": "The decoupled-deep-anchor sweep tests whether replacing the fixed forecast multiplier with asset-library support can solve the open synthetic gates without touching release mechanics. A rejected result means the remaining failure is not explained by the deep anchor alone; the evidence should be used before proposing a broader production policy change.",
+    "recipes_tested": [
+      {
+        "drawdown_quantile": 0.5,
+        "id": "library_median_blend_50",
+        "support_weight": 0.5
+      },
+      {
+        "drawdown_quantile": 0.75,
+        "id": "library_p75_blend_50",
+        "support_weight": 0.5
+      },
+      {
+        "drawdown_quantile": 1.0,
+        "id": "library_max_blend_35",
+        "support_weight": 0.35
+      },
+      {
+        "drawdown_quantile": 1.0,
+        "id": "library_max_blend_50",
+        "support_weight": 0.5
+      }
+    ],
+    "results": [
+      {
+        "historical": {
+          "cost_win_rate_vs_live": 0.625,
+          "episodes": [
+            {
+              "anchor_diag": {
+                "anchor": 3304.906302,
+                "forecast_anchor": 3228.807201,
+                "implied_anchor_m": 0.614141,
+                "pred_bottom": 5381.345335,
+                "recipe_id": "library_median_blend_50",
+                "support_anchor": 3382.798968,
+                "support_drawdown": 0.8265,
+                "support_weight": 0.5
+              },
+              "asset": "BTC",
+              "avg_cost_premium_delta_vs_live": -0.010119,
+              "candidate_avg_cost_premium_to_low": 0.724211,
+              "candidate_early_exhaustion": false,
+              "candidate_spent_by_low": 0.81,
+              "candidate_terminal": 1.30396,
+              "episode": "2018 bear (single low)",
+              "live_avg_cost_premium_to_low": 0.73433,
+              "live_spent_by_low": 0.796243,
+              "live_terminal": 1.296353,
+              "terminal_delta_vs_live": 0.005868
+            },
+            {
+              "anchor_diag": {
+                "anchor": 175.082341,
+                "forecast_anchor": 167.570405,
+                "implied_anchor_m": 0.626897,
+                "pred_bottom": 279.284009,
+                "recipe_id": "library_median_blend_50",
+                "support_anchor": 182.931026,
+                "support_drawdown": 0.869,
+                "support_weight": 0.5
+              },
+              "asset": "ETH",
+              "avg_cost_premium_delta_vs_live": 0.059262,
+              "candidate_avg_cost_premium_to_low": 1.726224,
+              "candidate_early_exhaustion": false,
+              "candidate_spent_by_low": 0.715,
+              "candidate_terminal": 0.553484,
+              "episode": "2018 bear (single low)",
+              "live_avg_cost_premium_to_low": 1.666962,
+              "live_spent_by_low": 0.715,
+              "live_terminal": 0.565783,
+              "terminal_delta_vs_live": -0.021738
+            },
+            {
+              "anchor_diag": {
+                "anchor": 10488.934166,
+                "forecast_anchor": 9384.901271,
+                "implied_anchor_m": 0.670584,
+                "pred_bottom": 15641.502119,
+                "recipe_id": "library_median_blend_50",
+                "support_anchor": 11722.84468,
+                "support_drawdown": 0.8265,
+                "support_weight": 0.5
+              },
+              "asset": "BTC",
+              "avg_cost_premium_delta_vs_live": -0.002037,
+              "candidate_avg_cost_premium_to_low": 0.392908,
+              "candidate_early_exhaustion": false,
+              "candidate_spent_by_low": 0.744,
+              "candidate_terminal": 1.829343,
+              "episode": "2022 bear (DOUBLE bottom)",
+              "live_avg_cost_premium_to_low": 0.394945,
+              "live_spent_by_low": 0.744,
+              "live_terminal": 1.826671,
+              "terminal_delta_vs_live": 0.001463
+            },
+            {
+              "anchor_diag": {
+                "anchor": 458.286402,
+                "forecast_anchor": 333.172494,
+                "implied_anchor_m": 0.825314,
+                "pred_bottom": 555.28749,
+                "recipe_id": "library_median_blend_50",
+                "support_anchor": 630.38345,
+                "support_drawdown": 0.869,
+                "support_weight": 0.5
+              },
+              "asset": "ETH",
+              "avg_cost_premium_delta_vs_live": -0.068323,
+              "candidate_avg_cost_premium_to_low": 0.282686,
+              "candidate_early_exhaustion": false,
+              "candidate_spent_by_low": 0.400377,
+              "candidate_terminal": 1.692495,
+              "episode": "2022 bear (DOUBLE bottom)",
+              "live_avg_cost_premium_to_low": 0.351009,
+              "live_spent_by_low": 0.438121,
+              "live_terminal": 1.606902,
+              "terminal_delta_vs_live": 0.053266
+            },
+            {
+              "anchor_diag": {
+                "anchor": 2020.612755,
+                "forecast_anchor": 1807.929282,
+                "implied_anchor_m": 0.670584,
+                "pred_bottom": 3013.215469,
+                "recipe_id": "library_median_blend_50",
+                "support_anchor": 2258.316156,
+                "support_drawdown": 0.8265,
+                "support_weight": 0.5
+              },
+              "asset": "BTC",
+              "avg_cost_premium_delta_vs_live": 0.000111,
+              "candidate_avg_cost_premium_to_low": 0.165957,
+              "candidate_early_exhaustion": false,
+              "candidate_spent_by_low": 0.466198,
+              "candidate_terminal": 1.130773,
+              "episode": "2019 H2 correction (mid-cycle)",
+              "live_avg_cost_premium_to_low": 0.165846,
+              "live_spent_by_low": 0.466449,
+              "live_terminal": 1.130885,
+              "terminal_delta_vs_live": -9.9e-05
+            },
+            {
+              "anchor_diag": {
+                "anchor": 32.071196,
+                "forecast_anchor": 23.315639,
+                "implied_anchor_m": 0.825314,
+                "pred_bottom": 38.859399,
+                "recipe_id": "library_median_blend_50",
+                "support_anchor": 44.114666,
+                "support_drawdown": 0.869,
+                "support_weight": 0.5
+              },
+              "asset": "ETH",
+              "avg_cost_premium_delta_vs_live": 0.085631,
+              "candidate_avg_cost_premium_to_low": 0.534768,
+              "candidate_early_exhaustion": false,
+              "candidate_spent_by_low": 0.435068,
+              "candidate_terminal": 1.25896,
+              "episode": "2019 H2 correction (mid-cycle)",
+              "live_avg_cost_premium_to_low": 0.449137,
+              "live_spent_by_low": 0.493192,
+              "live_terminal": 1.336451,
+              "terminal_delta_vs_live": -0.057983
+            },
+            {
+              "anchor_diag": {
+                "anchor": 1602.995298,
+                "forecast_anchor": 1434.268952,
+                "implied_anchor_m": 0.670584,
+                "pred_bottom": 2390.448253,
+                "recipe_id": "library_median_blend_50",
+                "support_anchor": 1791.570488,
+                "support_drawdown": 0.8265,
+                "support_weight": 0.5
+              },
+              "asset": "BTC",
+              "avg_cost_premium_delta_vs_live": 0.0,
+              "candidate_avg_cost_premium_to_low": 0.258969,
+              "candidate_early_exhaustion": false,
+              "candidate_spent_by_low": 0.17231,
+              "candidate_terminal": 1.479569,
+              "episode": "2020 COVID crash (fast V)",
+              "live_avg_cost_premium_to_low": 0.258969,
+              "live_spent_by_low": 0.17231,
+              "live_terminal": 1.479569,
+              "terminal_delta_vs_live": 0.0
+            },
+            {
+              "anchor_diag": {
+                "anchor": 27.067882,
+                "forecast_anchor": 19.678249,
+                "implied_anchor_m": 0.825314,
+                "pred_bottom": 32.797081,
+                "recipe_id": "library_median_blend_50",
+                "support_anchor": 37.232492,
+                "support_drawdown": 0.869,
+                "support_weight": 0.5
+              },
+              "asset": "ETH",
+              "avg_cost_premium_delta_vs_live": 0.0,
+              "candidate_avg_cost_premium_to_low": 0.335463,
+              "candidate_early_exhaustion": false,
+              "candidate_spent_by_low": 0.381428,
+              "candidate_terminal": 1.849287,
+              "episode": "2020 COVID crash (fast V)",
+              "live_avg_cost_premium_to_low": 0.335463,
+              "live_spent_by_low": 0.381428,
+              "live_terminal": 1.849287,
+              "terminal_delta_vs_live": 0.0
+            }
+          ],
+          "mean_cost_premium_delta_vs_live": 0.008066,
+          "mean_terminal_delta_vs_live": -0.002403,
+          "n": 8,
+          "new_early_exhaustion_episodes": 0,
+          "scope": "historical_accumulation_episodes_vs_live",
+          "terminal_win_rate_vs_live": 0.625,
+          "worst_cost_premium_delta_vs_live": 0.085631,
+          "worst_terminal_delta_vs_live": -0.057983
+        },
+        "historical_pass": true,
+        "id": "library_median_blend_50",
+        "recipe": {
+          "drawdown_quantile": 0.5,
+          "id": "library_median_blend_50",
+          "support_weight": 0.5
+        },
+        "synthetic": {
+          "early_exhaustion_guard": {
+            "historical_flags": [],
+            "scope": "historical_and_synthetic_full_stack",
+            "status": "PASS",
+            "summary": {
+              "historical_flags": 0,
+              "synthetic_flags": 0
+            },
+            "synthetic_flags": []
+          },
+          "gates": {
+            "synthetic_delayed_lower_low": {
+              "rows": [
+                {
+                  "asset": "BTC",
+                  "baselines": {
+                    "fixed_18w_dca": {
+                      "avg_cost": 71.6202,
+                      "avg_cost_premium_to_low": 1.23813,
+                      "dry": 0.0,
+                      "dry_at_low": 0.0,
+                      "max_4w_spent_increase": 0.222222,
+                      "max_portfolio_drawdown": 0.553199,
+                      "max_spent_before_low": 1.0,
+                      "min_dry_before_low": 0.0,
+                      "pool_return": -0.190172,
+                      "spent": 1.0,
+                      "spent_by_low": 1.0,
+                      "terminal_value": 0.809828,
+                      "units": 0.0139625468
+                    },
+                    "fixed_52w_dca": {
+                      "avg_cost": 59.2378,
+                      "avg_cost_premium_to_low": 0.851181,
+                      "dry": 0.0,
+                      "dry_at_low": 0.0,
+                      "max_4w_spent_increase": 0.076923,
+                      "max_portfolio_drawdown": 0.459804,
+                      "max_spent_before_low": 1.0,
+                      "min_dry_before_low": 0.0,
+                      "pool_return": -0.020895,
+                      "spent": 1.0,
+                      "spent_by_low": 1.0,
+                      "terminal_value": 0.979105,
+                      "units": 0.0168811135
+                    }
+                  },
+                  "model": {
+                    "avg_cost": 55.4754,
+                    "avg_cost_premium_to_low": 0.733606,
+                    "decoupled_anchor_diag": {
+                      "anchor": 21.643706,
+                      "forecast_anchor": 27.0,
+                      "implied_anchor_m": 0.480971,
+                      "pred_bottom": 45.0,
+                      "recipe_id": "library_median_blend_50",
+                      "support_anchor": 17.35,
+                      "support_drawdown": 0.8265,
+                      "support_weight": 0.5
+                    },
+                    "decoupled_deep_anchor": true,
+                    "dry": 0.054321,
+                    "dry_at_low": 0.320125,
+                    "early_exhaustion_before_low": false,
+                    "max_4w_spent_increase": 0.214821,
+                    "max_portfolio_drawdown": 0.309122,
+                    "max_spent_before_low": 0.668083,
+                    "min_dry_before_low": 0.331917,
+                    "pool_return": 0.043037,
+                    "reserve_frac": 0.2,
+                    "spent": 0.945679,
+                    "spent_by_low": 0.679875,
+                    "terminal_ratio_vs_dca18": 1.287973,
+                    "terminal_ratio_vs_dca52": 1.065296,
+                    "terminal_value": 1.043037,
+                    "units": 0.0170468141
+                  },
+                  "end_price": 58.0,
+                  "failures": [
+                    "average entry premium above 60%"
+                  ],
+                  "id": "delayed_lower_low",
+                  "min_dry_first_two_thirds": 0.365769,
+                  "pred_dd": 0.55,
+                  "realized_low": 32.0,
+                  "realized_low_week": 56,
+                  "status": "FAIL",
+                  "weeks": 79
+                }
+              ],
+              "scope": "full_stack_run_full_policy",
+              "status": "FAIL",
+              "summary": {
+                "failing_ids": [
+                  "delayed_lower_low"
+                ],
+                "failing_paths": 1,
+                "min_terminal_ratio_vs_dca18": 1.287973,
+                "min_terminal_ratio_vs_dca52": 1.065296,
+                "paths": 1
+              }
+            },
+            "synthetic_false_bottom_continued_grind": {
+              "rows": [
+                {
+                  "asset": "BTC",
+                  "baselines": {
+                    "fixed_18w_dca": {
+                      "avg_cost": 70.5951,
+                      "avg_cost_premium_to_low": 1.823803,
+                      "dry": 0.0,
+                      "dry_at_low": 0.0,
+                      "max_4w_spent_increase": 0.222222,
+                      "max_portfolio_drawdown": 0.645868,
+                      "max_spent_before_low": 1.0,
+                      "min_dry_before_low": 0.0,
+                      "pool_return": -0.447553,
+                      "spent": 1.0,
+                      "spent_by_low": 1.0,
+                      "terminal_value": 0.552447,
+                      "units": 0.0141652965
+                    },
+                    "fixed_52w_dca": {
+                      "avg_cost": 61.1751,
+                      "avg_cost_premium_to_low": 1.447003,
+                      "dry": 0.0,
+                      "dry_at_low": 0.0,
+                      "max_4w_spent_increase": 0.076923,
+                      "max_portfolio_drawdown": 0.593846,
+                      "max_spent_before_low": 1.0,
+                      "min_dry_before_low": 0.0,
+                      "pool_return": -0.362486,
+                      "spent": 1.0,
+                      "spent_by_low": 1.0,
+                      "terminal_value": 0.637514,
+                      "units": 0.0163465241
+                    }
+                  },
+                  "model": {
+                    "avg_cost": 54.636,
+                    "avg_cost_premium_to_low": 1.185441,
+                    "decoupled_anchor_diag": {
+                      "anchor": 21.643706,
+                      "forecast_anchor": 27.0,
+                      "implied_anchor_m": 0.480971,
+                      "pred_bottom": 45.0,
+                      "recipe_id": "library_median_blend_50",
+                      "support_anchor": 17.35,
+                      "support_drawdown": 0.8265,
+                      "support_weight": 0.5
+                    },
+                    "decoupled_deep_anchor": true,
+                    "dry": 0.217308,
+                    "dry_at_low": 0.244231,
+                    "early_exhaustion_before_low": false,
+                    "max_4w_spent_increase": 0.225958,
+                    "max_portfolio_drawdown": 0.420233,
+                    "max_spent_before_low": 0.751026,
+                    "min_dry_before_low": 0.248974,
+                    "pool_return": -0.223995,
+                    "reserve_frac": 0.2,
+                    "spent": 0.782692,
+                    "spent_by_low": 0.755769,
+                    "terminal_ratio_vs_dca18": 1.404669,
+                    "terminal_ratio_vs_dca52": 1.217236,
+                    "terminal_value": 0.776005,
+                    "units": 0.0143255701
+                  },
+                  "end_price": 39.0,
+                  "failures": [
+                    "four-week unlock above 20pp"
+                  ],
+                  "id": "false_bottom_continued_grind",
+                  "min_dry_first_two_thirds": 0.320128,
+                  "pred_dd": 0.55,
+                  "realized_low": 25.0,
+                  "realized_low_week": 76,
+                  "status": "FAIL",
+                  "weeks": 91
+                }
+              ],
+              "scope": "full_stack_run_full_policy",
+              "status": "FAIL",
+              "summary": {
+                "failing_ids": [
+                  "false_bottom_continued_grind"
+                ],
+                "failing_paths": 1,
+                "min_terminal_ratio_vs_dca18": 1.404669,
+                "min_terminal_ratio_vs_dca52": 1.217236,
+                "paths": 1
+              }
+            },
+            "synthetic_fast_v_participation": {
+              "rows": [
+                {
+                  "asset": "BTC",
+                  "baselines": {
+                    "fixed_18w_dca": {
+                      "avg_cost": 73.761,
+                      "avg_cost_premium_to_low": 0.418481,
+                      "dry": 0.0,
+                      "dry_at_low": 0.722222,
+                      "max_4w_spent_increase": 0.222222,
+                      "max_portfolio_drawdown": 0.077354,
+                      "max_spent_before_low": 0.222222,
+                      "min_dry_before_low": 0.777778,
+                      "pool_return": 0.572646,
+                      "spent": 1.0,
+                      "spent_by_low": 0.277778,
+                      "terminal_value": 1.572646,
+                      "units": 0.0135572944
+                    },
+                    "fixed_52w_dca": {
+                      "avg_cost": 83.1308,
+                      "avg_cost_premium_to_low": 0.598668,
+                      "dry": 0.0,
+                      "dry_at_low": 0.827586,
+                      "max_4w_spent_increase": 0.137931,
+                      "max_portfolio_drawdown": 0.048013,
+                      "max_spent_before_low": 0.137931,
+                      "min_dry_before_low": 0.862069,
+                      "pool_return": 0.395392,
+                      "spent": 1.0,
+                      "spent_by_low": 0.172414,
+                      "terminal_value": 1.395392,
+                      "units": 0.0120292416
+                    }
+                  },
+                  "model": {
+                    "avg_cost": 68.1885,
+                    "avg_cost_premium_to_low": 0.311317,
+                    "decoupled_anchor_diag": {
+                      "anchor": 22.814469,
+                      "forecast_anchor": 30.0,
+                      "implied_anchor_m": 0.456289,
+                      "pred_bottom": 50.0,
+                      "recipe_id": "library_median_blend_50",
+                      "support_anchor": 17.35,
+                      "support_drawdown": 0.8265,
+                      "support_weight": 0.5
+                    },
+                    "decoupled_deep_anchor": true,
+                    "dry": 0.108372,
+                    "dry_at_low": 0.490901,
+                    "early_exhaustion_before_low": false,
+                    "max_4w_spent_increase": 0.550692,
+                    "max_portfolio_drawdown": 0.089361,
+                    "max_spent_before_low": 0.294055,
+                    "min_dry_before_low": 0.705945,
+                    "pool_return": 0.62518,
+                    "reserve_frac": 0.2,
+                    "spent": 0.891628,
+                    "spent_by_low": 0.509099,
+                    "terminal_ratio_vs_dca18": 1.033405,
+                    "terminal_ratio_vs_dca52": 1.164676,
+                    "terminal_value": 1.62518,
+                    "units": 0.0130759333
+                  },
+                  "end_price": 116.0,
+                  "failures": [],
+                  "id": "fast_v",
+                  "min_dry_first_two_thirds": 0.219409,
+                  "pred_dd": 0.5,
+                  "realized_low": 52.0,
+                  "realized_low_week": 4,
+                  "status": "PASS",
+                  "weeks": 29
+                }
+              ],
+              "scope": "full_stack_run_full_policy",
+              "status": "PASS",
+              "summary": {
+                "failing_ids": [],
+                "failing_paths": 0,
+                "min_terminal_ratio_vs_dca18": 1.033405,
+                "min_terminal_ratio_vs_dca52": 1.164676,
+                "paths": 1
+              }
+            },
+            "synthetic_shallow_recover": {
+              "rows": [
+                {
+                  "asset": "BTC",
+                  "baselines": {
+                    "fixed_18w_dca": {
+                      "avg_cost": 82.3368,
+                      "avg_cost_premium_to_low": 0.143567,
+                      "dry": 0.0,
+                      "dry_at_low": 0.388889,
+                      "max_4w_spent_increase": 0.222222,
+                      "max_portfolio_drawdown": 0.093955,
+                      "max_spent_before_low": 0.555556,
+                      "min_dry_before_low": 0.444444,
+                      "pool_return": 0.481719,
+                      "spent": 1.0,
+                      "spent_by_low": 0.611111,
+                      "terminal_value": 1.481719,
+                      "units": 0.0121452377
+                    },
+                    "fixed_52w_dca": {
+                      "avg_cost": 93.0295,
+                      "avg_cost_premium_to_low": 0.292076,
+                      "dry": 0.0,
+                      "dry_at_low": 0.744186,
+                      "max_4w_spent_increase": 0.093023,
+                      "max_portfolio_drawdown": 0.03933,
+                      "max_spent_before_low": 0.232558,
+                      "min_dry_before_low": 0.767442,
+                      "pool_return": 0.311413,
+                      "spent": 1.0,
+                      "spent_by_low": 0.255814,
+                      "terminal_value": 1.311413,
+                      "units": 0.0107492832
+                    }
+                  },
+                  "model": {
+                    "avg_cost": 97.52,
+                    "avg_cost_premium_to_low": 0.354444,
+                    "decoupled_anchor_diag": {
+                      "anchor": 22.814469,
+                      "forecast_anchor": 30.0,
+                      "implied_anchor_m": 0.456289,
+                      "pred_bottom": 50.0,
+                      "recipe_id": "library_median_blend_50",
+                      "support_anchor": 17.35,
+                      "support_drawdown": 0.8265,
+                      "support_weight": 0.5
+                    },
+                    "decoupled_deep_anchor": true,
+                    "dry": 0.0,
+                    "dry_at_low": 0.751969,
+                    "early_exhaustion_before_low": false,
+                    "max_4w_spent_increase": 0.286027,
+                    "max_portfolio_drawdown": 0.033869,
+                    "max_spent_before_low": 0.214357,
+                    "min_dry_before_low": 0.785643,
+                    "pool_return": 0.251026,
+                    "reserve_frac": 0.2,
+                    "spent": 1.0,
+                    "spent_by_low": 0.248031,
+                    "terminal_ratio_vs_dca18": 0.844307,
+                    "terminal_ratio_vs_dca52": 0.953953,
+                    "terminal_value": 1.251026,
+                    "units": 0.0102543107
+                  },
+                  "end_price": 122.0,
+                  "failures": [],
+                  "id": "shallow_recover",
+                  "min_dry_first_two_thirds": 0.406532,
+                  "pred_dd": 0.5,
+                  "realized_low": 72.0,
+                  "realized_low_week": 10,
+                  "status": "PASS",
+                  "weeks": 43
+                }
+              ],
+              "scope": "full_stack_run_full_policy",
+              "status": "PASS",
+              "summary": {
+                "failing_ids": [],
+                "failing_paths": 0,
+                "min_terminal_ratio_vs_dca18": 0.844307,
+                "min_terminal_ratio_vs_dca52": 0.953953,
+                "paths": 1
+              }
+            }
+          },
+          "recipe": {
+            "drawdown_quantile": 0.5,
+            "id": "library_median_blend_50",
+            "support_weight": 0.5
+          },
+          "rows": [
+            {
+              "asset": "BTC",
+              "baselines": {
+                "fixed_18w_dca": {
+                  "avg_cost": 71.6202,
+                  "avg_cost_premium_to_low": 1.23813,
+                  "dry": 0.0,
+                  "dry_at_low": 0.0,
+                  "max_4w_spent_increase": 0.222222,
+                  "max_portfolio_drawdown": 0.553199,
+                  "max_spent_before_low": 1.0,
+                  "min_dry_before_low": 0.0,
+                  "pool_return": -0.190172,
+                  "spent": 1.0,
+                  "spent_by_low": 1.0,
+                  "terminal_value": 0.809828,
+                  "units": 0.0139625468
+                },
+                "fixed_52w_dca": {
+                  "avg_cost": 59.2378,
+                  "avg_cost_premium_to_low": 0.851181,
+                  "dry": 0.0,
+                  "dry_at_low": 0.0,
+                  "max_4w_spent_increase": 0.076923,
+                  "max_portfolio_drawdown": 0.459804,
+                  "max_spent_before_low": 1.0,
+                  "min_dry_before_low": 0.0,
+                  "pool_return": -0.020895,
+                  "spent": 1.0,
+                  "spent_by_low": 1.0,
+                  "terminal_value": 0.979105,
+                  "units": 0.0168811135
+                }
+              },
+              "model": {
+                "avg_cost": 55.4754,
+                "avg_cost_premium_to_low": 0.733606,
+                "decoupled_anchor_diag": {
+                  "anchor": 21.643706,
+                  "forecast_anchor": 27.0,
+                  "implied_anchor_m": 0.480971,
+                  "pred_bottom": 45.0,
+                  "recipe_id": "library_median_blend_50",
+                  "support_anchor": 17.35,
+                  "support_drawdown": 0.8265,
+                  "support_weight": 0.5
+                },
+                "decoupled_deep_anchor": true,
+                "dry": 0.054321,
+                "dry_at_low": 0.320125,
+                "early_exhaustion_before_low": false,
+                "max_4w_spent_increase": 0.214821,
+                "max_portfolio_drawdown": 0.309122,
+                "max_spent_before_low": 0.668083,
+                "min_dry_before_low": 0.331917,
+                "pool_return": 0.043037,
+                "reserve_frac": 0.2,
+                "spent": 0.945679,
+                "spent_by_low": 0.679875,
+                "terminal_ratio_vs_dca18": 1.287973,
+                "terminal_ratio_vs_dca52": 1.065296,
+                "terminal_value": 1.043037,
+                "units": 0.0170468141
+              },
+              "end_price": 58.0,
+              "failures": [
+                "average entry premium above 60%"
+              ],
+              "id": "delayed_lower_low",
+              "min_dry_first_two_thirds": 0.365769,
+              "pred_dd": 0.55,
+              "realized_low": 32.0,
+              "realized_low_week": 56,
+              "status": "FAIL",
+              "weeks": 79
+            },
+            {
+              "asset": "BTC",
+              "baselines": {
+                "fixed_18w_dca": {
+                  "avg_cost": 70.5951,
+                  "avg_cost_premium_to_low": 1.823803,
+                  "dry": 0.0,
+                  "dry_at_low": 0.0,
+                  "max_4w_spent_increase": 0.222222,
+                  "max_portfolio_drawdown": 0.645868,
+                  "max_spent_before_low": 1.0,
+                  "min_dry_before_low": 0.0,
+                  "pool_return": -0.447553,
+                  "spent": 1.0,
+                  "spent_by_low": 1.0,
+                  "terminal_value": 0.552447,
+                  "units": 0.0141652965
+                },
+                "fixed_52w_dca": {
+                  "avg_cost": 61.1751,
+                  "avg_cost_premium_to_low": 1.447003,
+                  "dry": 0.0,
+                  "dry_at_low": 0.0,
+                  "max_4w_spent_increase": 0.076923,
+                  "max_portfolio_drawdown": 0.593846,
+                  "max_spent_before_low": 1.0,
+                  "min_dry_before_low": 0.0,
+                  "pool_return": -0.362486,
+                  "spent": 1.0,
+                  "spent_by_low": 1.0,
+                  "terminal_value": 0.637514,
+                  "units": 0.0163465241
+                }
+              },
+              "model": {
+                "avg_cost": 54.636,
+                "avg_cost_premium_to_low": 1.185441,
+                "decoupled_anchor_diag": {
+                  "anchor": 21.643706,
+                  "forecast_anchor": 27.0,
+                  "implied_anchor_m": 0.480971,
+                  "pred_bottom": 45.0,
+                  "recipe_id": "library_median_blend_50",
+                  "support_anchor": 17.35,
+                  "support_drawdown": 0.8265,
+                  "support_weight": 0.5
+                },
+                "decoupled_deep_anchor": true,
+                "dry": 0.217308,
+                "dry_at_low": 0.244231,
+                "early_exhaustion_before_low": false,
+                "max_4w_spent_increase": 0.225958,
+                "max_portfolio_drawdown": 0.420233,
+                "max_spent_before_low": 0.751026,
+                "min_dry_before_low": 0.248974,
+                "pool_return": -0.223995,
+                "reserve_frac": 0.2,
+                "spent": 0.782692,
+                "spent_by_low": 0.755769,
+                "terminal_ratio_vs_dca18": 1.404669,
+                "terminal_ratio_vs_dca52": 1.217236,
+                "terminal_value": 0.776005,
+                "units": 0.0143255701
+              },
+              "end_price": 39.0,
+              "failures": [
+                "four-week unlock above 20pp"
+              ],
+              "id": "false_bottom_continued_grind",
+              "min_dry_first_two_thirds": 0.320128,
+              "pred_dd": 0.55,
+              "realized_low": 25.0,
+              "realized_low_week": 76,
+              "status": "FAIL",
+              "weeks": 91
+            },
+            {
+              "asset": "BTC",
+              "baselines": {
+                "fixed_18w_dca": {
+                  "avg_cost": 73.761,
+                  "avg_cost_premium_to_low": 0.418481,
+                  "dry": 0.0,
+                  "dry_at_low": 0.722222,
+                  "max_4w_spent_increase": 0.222222,
+                  "max_portfolio_drawdown": 0.077354,
+                  "max_spent_before_low": 0.222222,
+                  "min_dry_before_low": 0.777778,
+                  "pool_return": 0.572646,
+                  "spent": 1.0,
+                  "spent_by_low": 0.277778,
+                  "terminal_value": 1.572646,
+                  "units": 0.0135572944
+                },
+                "fixed_52w_dca": {
+                  "avg_cost": 83.1308,
+                  "avg_cost_premium_to_low": 0.598668,
+                  "dry": 0.0,
+                  "dry_at_low": 0.827586,
+                  "max_4w_spent_increase": 0.137931,
+                  "max_portfolio_drawdown": 0.048013,
+                  "max_spent_before_low": 0.137931,
+                  "min_dry_before_low": 0.862069,
+                  "pool_return": 0.395392,
+                  "spent": 1.0,
+                  "spent_by_low": 0.172414,
+                  "terminal_value": 1.395392,
+                  "units": 0.0120292416
+                }
+              },
+              "model": {
+                "avg_cost": 68.1885,
+                "avg_cost_premium_to_low": 0.311317,
+                "decoupled_anchor_diag": {
+                  "anchor": 22.814469,
+                  "forecast_anchor": 30.0,
+                  "implied_anchor_m": 0.456289,
+                  "pred_bottom": 50.0,
+                  "recipe_id": "library_median_blend_50",
+                  "support_anchor": 17.35,
+                  "support_drawdown": 0.8265,
+                  "support_weight": 0.5
+                },
+                "decoupled_deep_anchor": true,
+                "dry": 0.108372,
+                "dry_at_low": 0.490901,
+                "early_exhaustion_before_low": false,
+                "max_4w_spent_increase": 0.550692,
+                "max_portfolio_drawdown": 0.089361,
+                "max_spent_before_low": 0.294055,
+                "min_dry_before_low": 0.705945,
+                "pool_return": 0.62518,
+                "reserve_frac": 0.2,
+                "spent": 0.891628,
+                "spent_by_low": 0.509099,
+                "terminal_ratio_vs_dca18": 1.033405,
+                "terminal_ratio_vs_dca52": 1.164676,
+                "terminal_value": 1.62518,
+                "units": 0.0130759333
+              },
+              "end_price": 116.0,
+              "failures": [],
+              "id": "fast_v",
+              "min_dry_first_two_thirds": 0.219409,
+              "pred_dd": 0.5,
+              "realized_low": 52.0,
+              "realized_low_week": 4,
+              "status": "PASS",
+              "weeks": 29
+            },
+            {
+              "asset": "BTC",
+              "baselines": {
+                "fixed_18w_dca": {
+                  "avg_cost": 82.3368,
+                  "avg_cost_premium_to_low": 0.143567,
+                  "dry": 0.0,
+                  "dry_at_low": 0.388889,
+                  "max_4w_spent_increase": 0.222222,
+                  "max_portfolio_drawdown": 0.093955,
+                  "max_spent_before_low": 0.555556,
+                  "min_dry_before_low": 0.444444,
+                  "pool_return": 0.481719,
+                  "spent": 1.0,
+                  "spent_by_low": 0.611111,
+                  "terminal_value": 1.481719,
+                  "units": 0.0121452377
+                },
+                "fixed_52w_dca": {
+                  "avg_cost": 93.0295,
+                  "avg_cost_premium_to_low": 0.292076,
+                  "dry": 0.0,
+                  "dry_at_low": 0.744186,
+                  "max_4w_spent_increase": 0.093023,
+                  "max_portfolio_drawdown": 0.03933,
+                  "max_spent_before_low": 0.232558,
+                  "min_dry_before_low": 0.767442,
+                  "pool_return": 0.311413,
+                  "spent": 1.0,
+                  "spent_by_low": 0.255814,
+                  "terminal_value": 1.311413,
+                  "units": 0.0107492832
+                }
+              },
+              "model": {
+                "avg_cost": 97.52,
+                "avg_cost_premium_to_low": 0.354444,
+                "decoupled_anchor_diag": {
+                  "anchor": 22.814469,
+                  "forecast_anchor": 30.0,
+                  "implied_anchor_m": 0.456289,
+                  "pred_bottom": 50.0,
+                  "recipe_id": "library_median_blend_50",
+                  "support_anchor": 17.35,
+                  "support_drawdown": 0.8265,
+                  "support_weight": 0.5
+                },
+                "decoupled_deep_anchor": true,
+                "dry": 0.0,
+                "dry_at_low": 0.751969,
+                "early_exhaustion_before_low": false,
+                "max_4w_spent_increase": 0.286027,
+                "max_portfolio_drawdown": 0.033869,
+                "max_spent_before_low": 0.214357,
+                "min_dry_before_low": 0.785643,
+                "pool_return": 0.251026,
+                "reserve_frac": 0.2,
+                "spent": 1.0,
+                "spent_by_low": 0.248031,
+                "terminal_ratio_vs_dca18": 0.844307,
+                "terminal_ratio_vs_dca52": 0.953953,
+                "terminal_value": 1.251026,
+                "units": 0.0102543107
+              },
+              "end_price": 122.0,
+              "failures": [],
+              "id": "shallow_recover",
+              "min_dry_first_two_thirds": 0.406532,
+              "pred_dd": 0.5,
+              "realized_low": 72.0,
+              "realized_low_week": 10,
+              "status": "PASS",
+              "weeks": 43
+            }
+          ],
+          "scope": "full_stack_decoupled_deep_anchor_policy",
+          "status": "FAIL"
+        },
+        "synthetic_gap": 0.159564,
+        "synthetic_pass": false,
+        "verdict": "REJECTED_SYNTHETIC_GATES"
+      },
+      {
+        "historical": {
+          "cost_win_rate_vs_live": 0.625,
+          "episodes": [
+            {
+              "anchor_diag": {
+                "anchor": 3003.009645,
+                "forecast_anchor": 3228.807201,
+                "implied_anchor_m": 0.558041,
+                "pred_bottom": 5381.345335,
+                "recipe_id": "library_p75_blend_50",
+                "support_anchor": 2793.002606,
+                "support_drawdown": 0.85675,
+                "support_weight": 0.5
+              },
+              "asset": "BTC",
+              "avg_cost_premium_delta_vs_live": 0.066839,
+              "candidate_avg_cost_premium_to_low": 0.801169,
+              "candidate_early_exhaustion": false,
+              "candidate_spent_by_low": 0.735722,
+              "candidate_terminal": 1.248247,
+              "episode": "2018 bear (single low)",
+              "live_avg_cost_premium_to_low": 0.73433,
+              "live_spent_by_low": 0.796243,
+              "live_terminal": 1.296353,
+              "terminal_delta_vs_live": -0.037109
+            },
+            {
+              "anchor_diag": {
+                "anchor": 149.488706,
+                "forecast_anchor": 167.570405,
+                "implied_anchor_m": 0.535257,
+                "pred_bottom": 279.284009,
+                "recipe_id": "library_p75_blend_50",
+                "support_anchor": 133.358114,
+                "support_drawdown": 0.9045,
+                "support_weight": 0.5
+              },
+              "asset": "ETH",
+              "avg_cost_premium_delta_vs_live": -0.125358,
+              "candidate_avg_cost_premium_to_low": 1.541604,
+              "candidate_early_exhaustion": false,
+              "candidate_spent_by_low": 0.715,
+              "candidate_terminal": 0.593689,
+              "episode": "2018 bear (single low)",
+              "live_avg_cost_premium_to_low": 1.666962,
+              "live_spent_by_low": 0.715,
+              "live_terminal": 0.565783,
+              "terminal_delta_vs_live": 0.049323
+            },
+            {
+              "anchor_diag": {
+                "anchor": 9530.790765,
+                "forecast_anchor": 9384.901271,
+                "implied_anchor_m": 0.609327,
+                "pred_bottom": 15641.502119,
+                "recipe_id": "library_p75_blend_50",
+                "support_anchor": 9678.948129,
+                "support_drawdown": 0.85675,
+                "support_weight": 0.5
+              },
+              "asset": "BTC",
+              "avg_cost_premium_delta_vs_live": -0.000149,
+              "candidate_avg_cost_premium_to_low": 0.394796,
+              "candidate_early_exhaustion": false,
+              "candidate_spent_by_low": 0.744,
+              "candidate_terminal": 1.826866,
+              "episode": "2022 bear (DOUBLE bottom)",
+              "live_avg_cost_premium_to_low": 0.394945,
+              "live_spent_by_low": 0.744,
+              "live_terminal": 1.826671,
+              "terminal_delta_vs_live": 0.000107
+            },
+            {
+              "anchor_diag": {
+                "anchor": 391.293838,
+                "forecast_anchor": 333.172494,
+                "implied_anchor_m": 0.704669,
+                "pred_bottom": 555.28749,
+                "recipe_id": "library_p75_blend_50",
+                "support_anchor": 459.554347,
+                "support_drawdown": 0.9045,
+                "support_weight": 0.5
+              },
+              "asset": "ETH",
+              "avg_cost_premium_delta_vs_live": -0.021448,
+              "candidate_avg_cost_premium_to_low": 0.329561,
+              "candidate_early_exhaustion": false,
+              "candidate_spent_by_low": 0.387869,
+              "candidate_terminal": 1.632825,
+              "episode": "2022 bear (DOUBLE bottom)",
+              "live_avg_cost_premium_to_low": 0.351009,
+              "live_spent_by_low": 0.438121,
+              "live_terminal": 1.606902,
+              "terminal_delta_vs_live": 0.016132
+            },
+            {
+              "anchor_diag": {
+                "anchor": 1836.033774,
+                "forecast_anchor": 1807.929282,
+                "implied_anchor_m": 0.609327,
+                "pred_bottom": 3013.215469,
+                "recipe_id": "library_p75_blend_50",
+                "support_anchor": 1864.575155,
+                "support_drawdown": 0.85675,
+                "support_weight": 0.5
+              },
+              "asset": "BTC",
+              "avg_cost_premium_delta_vs_live": 6e-06,
+              "candidate_avg_cost_premium_to_low": 0.165852,
+              "candidate_early_exhaustion": false,
+              "candidate_spent_by_low": 0.466434,
+              "candidate_terminal": 1.130879,
+              "episode": "2019 H2 correction (mid-cycle)",
+              "live_avg_cost_premium_to_low": 0.165846,
+              "live_spent_by_low": 0.466449,
+              "live_terminal": 1.130885,
+              "terminal_delta_vs_live": -5e-06
+            },
+            {
+              "anchor_diag": {
+                "anchor": 27.383011,
+                "forecast_anchor": 23.315639,
+                "implied_anchor_m": 0.704669,
+                "pred_bottom": 38.859399,
+                "recipe_id": "library_p75_blend_50",
+                "support_anchor": 32.159928,
+                "support_drawdown": 0.9045,
+                "support_weight": 0.5
+              },
+              "asset": "ETH",
+              "avg_cost_premium_delta_vs_live": 0.035538,
+              "candidate_avg_cost_premium_to_low": 0.484675,
+              "candidate_early_exhaustion": false,
+              "candidate_spent_by_low": 0.465724,
+              "candidate_terminal": 1.301648,
+              "episode": "2019 H2 correction (mid-cycle)",
+              "live_avg_cost_premium_to_low": 0.449137,
+              "live_spent_by_low": 0.493192,
+              "live_terminal": 1.336451,
+              "terminal_delta_vs_live": -0.026041
+            },
+            {
+              "anchor_diag": {
+                "anchor": 1456.564847,
+                "forecast_anchor": 1434.268952,
+                "implied_anchor_m": 0.609327,
+                "pred_bottom": 2390.448253,
+                "recipe_id": "library_p75_blend_50",
+                "support_anchor": 1479.207334,
+                "support_drawdown": 0.85675,
+                "support_weight": 0.5
+              },
+              "asset": "BTC",
+              "avg_cost_premium_delta_vs_live": 0.0,
+              "candidate_avg_cost_premium_to_low": 0.258969,
+              "candidate_early_exhaustion": false,
+              "candidate_spent_by_low": 0.17231,
+              "candidate_terminal": 1.479569,
+              "episode": "2020 COVID crash (fast V)",
+              "live_avg_cost_premium_to_low": 0.258969,
+              "live_spent_by_low": 0.17231,
+              "live_terminal": 1.479569,
+              "terminal_delta_vs_live": 0.0
+            },
+            {
+              "anchor_diag": {
+                "anchor": 23.111084,
+                "forecast_anchor": 19.678249,
+                "implied_anchor_m": 0.704669,
+                "pred_bottom": 32.797081,
+                "recipe_id": "library_p75_blend_50",
+                "support_anchor": 27.142771,
+                "support_drawdown": 0.9045,
+                "support_weight": 0.5
+              },
+              "asset": "ETH",
+              "avg_cost_premium_delta_vs_live": 0.0,
+              "candidate_avg_cost_premium_to_low": 0.335463,
+              "candidate_early_exhaustion": false,
+              "candidate_spent_by_low": 0.381428,
+              "candidate_terminal": 1.849287,
+              "episode": "2020 COVID crash (fast V)",
+              "live_avg_cost_premium_to_low": 0.335463,
+              "live_spent_by_low": 0.381428,
+              "live_terminal": 1.849287,
+              "terminal_delta_vs_live": 0.0
+            }
+          ],
+          "mean_cost_premium_delta_vs_live": -0.005571,
+          "mean_terminal_delta_vs_live": 0.000301,
+          "n": 8,
+          "new_early_exhaustion_episodes": 0,
+          "scope": "historical_accumulation_episodes_vs_live",
+          "terminal_win_rate_vs_live": 0.625,
+          "worst_cost_premium_delta_vs_live": 0.066839,
+          "worst_terminal_delta_vs_live": -0.037109
+        },
+        "historical_pass": true,
+        "id": "library_p75_blend_50",
+        "recipe": {
+          "drawdown_quantile": 0.75,
+          "id": "library_p75_blend_50",
+          "support_weight": 0.5
+        },
+        "synthetic": {
+          "early_exhaustion_guard": {
+            "historical_flags": [],
+            "scope": "historical_and_synthetic_full_stack",
+            "status": "PASS",
+            "summary": {
+              "historical_flags": 0,
+              "synthetic_flags": 0
+            },
+            "synthetic_flags": []
+          },
+          "gates": {
+            "synthetic_delayed_lower_low": {
+              "rows": [
+                {
+                  "asset": "BTC",
+                  "baselines": {
+                    "fixed_18w_dca": {
+                      "avg_cost": 71.6202,
+                      "avg_cost_premium_to_low": 1.23813,
+                      "dry": 0.0,
+                      "dry_at_low": 0.0,
+                      "max_4w_spent_increase": 0.222222,
+                      "max_portfolio_drawdown": 0.553199,
+                      "max_spent_before_low": 1.0,
+                      "min_dry_before_low": 0.0,
+                      "pool_return": -0.190172,
+                      "spent": 1.0,
+                      "spent_by_low": 1.0,
+                      "terminal_value": 0.809828,
+                      "units": 0.0139625468
+                    },
+                    "fixed_52w_dca": {
+                      "avg_cost": 59.2378,
+                      "avg_cost_premium_to_low": 0.851181,
+                      "dry": 0.0,
+                      "dry_at_low": 0.0,
+                      "max_4w_spent_increase": 0.076923,
+                      "max_portfolio_drawdown": 0.459804,
+                      "max_spent_before_low": 1.0,
+                      "min_dry_before_low": 0.0,
+                      "pool_return": -0.020895,
+                      "spent": 1.0,
+                      "spent_by_low": 1.0,
+                      "terminal_value": 0.979105,
+                      "units": 0.0168811135
+                    }
+                  },
+                  "model": {
+                    "avg_cost": 55.4754,
+                    "avg_cost_premium_to_low": 0.733606,
+                    "decoupled_anchor_diag": {
+                      "anchor": 19.666596,
+                      "forecast_anchor": 27.0,
+                      "implied_anchor_m": 0.437035,
+                      "pred_bottom": 45.0,
+                      "recipe_id": "library_p75_blend_50",
+                      "support_anchor": 14.325,
+                      "support_drawdown": 0.85675,
+                      "support_weight": 0.5
+                    },
+                    "decoupled_deep_anchor": true,
+                    "dry": 0.054321,
+                    "dry_at_low": 0.320125,
+                    "early_exhaustion_before_low": false,
+                    "max_4w_spent_increase": 0.214821,
+                    "max_portfolio_drawdown": 0.309122,
+                    "max_spent_before_low": 0.668083,
+                    "min_dry_before_low": 0.331917,
+                    "pool_return": 0.043037,
+                    "reserve_frac": 0.2,
+                    "spent": 0.945679,
+                    "spent_by_low": 0.679875,
+                    "terminal_ratio_vs_dca18": 1.287973,
+                    "terminal_ratio_vs_dca52": 1.065296,
+                    "terminal_value": 1.043037,
+                    "units": 0.0170468141
+                  },
+                  "end_price": 58.0,
+                  "failures": [
+                    "average entry premium above 60%"
+                  ],
+                  "id": "delayed_lower_low",
+                  "min_dry_first_two_thirds": 0.365769,
+                  "pred_dd": 0.55,
+                  "realized_low": 32.0,
+                  "realized_low_week": 56,
+                  "status": "FAIL",
+                  "weeks": 79
+                }
+              ],
+              "scope": "full_stack_run_full_policy",
+              "status": "FAIL",
+              "summary": {
+                "failing_ids": [
+                  "delayed_lower_low"
+                ],
+                "failing_paths": 1,
+                "min_terminal_ratio_vs_dca18": 1.287973,
+                "min_terminal_ratio_vs_dca52": 1.065296,
+                "paths": 1
+              }
+            },
+            "synthetic_false_bottom_continued_grind": {
+              "rows": [
+                {
+                  "asset": "BTC",
+                  "baselines": {
+                    "fixed_18w_dca": {
+                      "avg_cost": 70.5951,
+                      "avg_cost_premium_to_low": 1.823803,
+                      "dry": 0.0,
+                      "dry_at_low": 0.0,
+                      "max_4w_spent_increase": 0.222222,
+                      "max_portfolio_drawdown": 0.645868,
+                      "max_spent_before_low": 1.0,
+                      "min_dry_before_low": 0.0,
+                      "pool_return": -0.447553,
+                      "spent": 1.0,
+                      "spent_by_low": 1.0,
+                      "terminal_value": 0.552447,
+                      "units": 0.0141652965
+                    },
+                    "fixed_52w_dca": {
+                      "avg_cost": 61.1751,
+                      "avg_cost_premium_to_low": 1.447003,
+                      "dry": 0.0,
+                      "dry_at_low": 0.0,
+                      "max_4w_spent_increase": 0.076923,
+                      "max_portfolio_drawdown": 0.593846,
+                      "max_spent_before_low": 1.0,
+                      "min_dry_before_low": 0.0,
+                      "pool_return": -0.362486,
+                      "spent": 1.0,
+                      "spent_by_low": 1.0,
+                      "terminal_value": 0.637514,
+                      "units": 0.0163465241
+                    }
+                  },
+                  "model": {
+                    "avg_cost": 54.636,
+                    "avg_cost_premium_to_low": 1.185441,
+                    "decoupled_anchor_diag": {
+                      "anchor": 19.666596,
+                      "forecast_anchor": 27.0,
+                      "implied_anchor_m": 0.437035,
+                      "pred_bottom": 45.0,
+                      "recipe_id": "library_p75_blend_50",
+                      "support_anchor": 14.325,
+                      "support_drawdown": 0.85675,
+                      "support_weight": 0.5
+                    },
+                    "decoupled_deep_anchor": true,
+                    "dry": 0.217308,
+                    "dry_at_low": 0.244231,
+                    "early_exhaustion_before_low": false,
+                    "max_4w_spent_increase": 0.225958,
+                    "max_portfolio_drawdown": 0.420233,
+                    "max_spent_before_low": 0.751026,
+                    "min_dry_before_low": 0.248974,
+                    "pool_return": -0.223995,
+                    "reserve_frac": 0.2,
+                    "spent": 0.782692,
+                    "spent_by_low": 0.755769,
+                    "terminal_ratio_vs_dca18": 1.404669,
+                    "terminal_ratio_vs_dca52": 1.217236,
+                    "terminal_value": 0.776005,
+                    "units": 0.0143255701
+                  },
+                  "end_price": 39.0,
+                  "failures": [
+                    "four-week unlock above 20pp"
+                  ],
+                  "id": "false_bottom_continued_grind",
+                  "min_dry_first_two_thirds": 0.320128,
+                  "pred_dd": 0.55,
+                  "realized_low": 25.0,
+                  "realized_low_week": 76,
+                  "status": "FAIL",
+                  "weeks": 91
+                }
+              ],
+              "scope": "full_stack_run_full_policy",
+              "status": "FAIL",
+              "summary": {
+                "failing_ids": [
+                  "false_bottom_continued_grind"
+                ],
+                "failing_paths": 1,
+                "min_terminal_ratio_vs_dca18": 1.404669,
+                "min_terminal_ratio_vs_dca52": 1.217236,
+                "paths": 1
+              }
+            },
+            "synthetic_fast_v_participation": {
+              "rows": [
+                {
+                  "asset": "BTC",
+                  "baselines": {
+                    "fixed_18w_dca": {
+                      "avg_cost": 73.761,
+                      "avg_cost_premium_to_low": 0.418481,
+                      "dry": 0.0,
+                      "dry_at_low": 0.722222,
+                      "max_4w_spent_increase": 0.222222,
+                      "max_portfolio_drawdown": 0.077354,
+                      "max_spent_before_low": 0.222222,
+                      "min_dry_before_low": 0.777778,
+                      "pool_return": 0.572646,
+                      "spent": 1.0,
+                      "spent_by_low": 0.277778,
+                      "terminal_value": 1.572646,
+                      "units": 0.0135572944
+                    },
+                    "fixed_52w_dca": {
+                      "avg_cost": 83.1308,
+                      "avg_cost_premium_to_low": 0.598668,
+                      "dry": 0.0,
+                      "dry_at_low": 0.827586,
+                      "max_4w_spent_increase": 0.137931,
+                      "max_portfolio_drawdown": 0.048013,
+                      "max_spent_before_low": 0.137931,
+                      "min_dry_before_low": 0.862069,
+                      "pool_return": 0.395392,
+                      "spent": 1.0,
+                      "spent_by_low": 0.172414,
+                      "terminal_value": 1.395392,
+                      "units": 0.0120292416
+                    }
+                  },
+                  "model": {
+                    "avg_cost": 68.1885,
+                    "avg_cost_premium_to_low": 0.311317,
+                    "decoupled_anchor_diag": {
+                      "anchor": 20.730412,
+                      "forecast_anchor": 30.0,
+                      "implied_anchor_m": 0.414608,
+                      "pred_bottom": 50.0,
+                      "recipe_id": "library_p75_blend_50",
+                      "support_anchor": 14.325,
+                      "support_drawdown": 0.85675,
+                      "support_weight": 0.5
+                    },
+                    "decoupled_deep_anchor": true,
+                    "dry": 0.108372,
+                    "dry_at_low": 0.490901,
+                    "early_exhaustion_before_low": false,
+                    "max_4w_spent_increase": 0.550692,
+                    "max_portfolio_drawdown": 0.089361,
+                    "max_spent_before_low": 0.294055,
+                    "min_dry_before_low": 0.705945,
+                    "pool_return": 0.62518,
+                    "reserve_frac": 0.2,
+                    "spent": 0.891628,
+                    "spent_by_low": 0.509099,
+                    "terminal_ratio_vs_dca18": 1.033405,
+                    "terminal_ratio_vs_dca52": 1.164676,
+                    "terminal_value": 1.62518,
+                    "units": 0.0130759333
+                  },
+                  "end_price": 116.0,
+                  "failures": [],
+                  "id": "fast_v",
+                  "min_dry_first_two_thirds": 0.219409,
+                  "pred_dd": 0.5,
+                  "realized_low": 52.0,
+                  "realized_low_week": 4,
+                  "status": "PASS",
+                  "weeks": 29
+                }
+              ],
+              "scope": "full_stack_run_full_policy",
+              "status": "PASS",
+              "summary": {
+                "failing_ids": [],
+                "failing_paths": 0,
+                "min_terminal_ratio_vs_dca18": 1.033405,
+                "min_terminal_ratio_vs_dca52": 1.164676,
+                "paths": 1
+              }
+            },
+            "synthetic_shallow_recover": {
+              "rows": [
+                {
+                  "asset": "BTC",
+                  "baselines": {
+                    "fixed_18w_dca": {
+                      "avg_cost": 82.3368,
+                      "avg_cost_premium_to_low": 0.143567,
+                      "dry": 0.0,
+                      "dry_at_low": 0.388889,
+                      "max_4w_spent_increase": 0.222222,
+                      "max_portfolio_drawdown": 0.093955,
+                      "max_spent_before_low": 0.555556,
+                      "min_dry_before_low": 0.444444,
+                      "pool_return": 0.481719,
+                      "spent": 1.0,
+                      "spent_by_low": 0.611111,
+                      "terminal_value": 1.481719,
+                      "units": 0.0121452377
+                    },
+                    "fixed_52w_dca": {
+                      "avg_cost": 93.0295,
+                      "avg_cost_premium_to_low": 0.292076,
+                      "dry": 0.0,
+                      "dry_at_low": 0.744186,
+                      "max_4w_spent_increase": 0.093023,
+                      "max_portfolio_drawdown": 0.03933,
+                      "max_spent_before_low": 0.232558,
+                      "min_dry_before_low": 0.767442,
+                      "pool_return": 0.311413,
+                      "spent": 1.0,
+                      "spent_by_low": 0.255814,
+                      "terminal_value": 1.311413,
+                      "units": 0.0107492832
+                    }
+                  },
+                  "model": {
+                    "avg_cost": 97.52,
+                    "avg_cost_premium_to_low": 0.354444,
+                    "decoupled_anchor_diag": {
+                      "anchor": 20.730412,
+                      "forecast_anchor": 30.0,
+                      "implied_anchor_m": 0.414608,
+                      "pred_bottom": 50.0,
+                      "recipe_id": "library_p75_blend_50",
+                      "support_anchor": 14.325,
+                      "support_drawdown": 0.85675,
+                      "support_weight": 0.5
+                    },
+                    "decoupled_deep_anchor": true,
+                    "dry": 0.0,
+                    "dry_at_low": 0.751969,
+                    "early_exhaustion_before_low": false,
+                    "max_4w_spent_increase": 0.286027,
+                    "max_portfolio_drawdown": 0.033869,
+                    "max_spent_before_low": 0.214357,
+                    "min_dry_before_low": 0.785643,
+                    "pool_return": 0.251026,
+                    "reserve_frac": 0.2,
+                    "spent": 1.0,
+                    "spent_by_low": 0.248031,
+                    "terminal_ratio_vs_dca18": 0.844307,
+                    "terminal_ratio_vs_dca52": 0.953953,
+                    "terminal_value": 1.251026,
+                    "units": 0.0102543107
+                  },
+                  "end_price": 122.0,
+                  "failures": [],
+                  "id": "shallow_recover",
+                  "min_dry_first_two_thirds": 0.406532,
+                  "pred_dd": 0.5,
+                  "realized_low": 72.0,
+                  "realized_low_week": 10,
+                  "status": "PASS",
+                  "weeks": 43
+                }
+              ],
+              "scope": "full_stack_run_full_policy",
+              "status": "PASS",
+              "summary": {
+                "failing_ids": [],
+                "failing_paths": 0,
+                "min_terminal_ratio_vs_dca18": 0.844307,
+                "min_terminal_ratio_vs_dca52": 0.953953,
+                "paths": 1
+              }
+            }
+          },
+          "recipe": {
+            "drawdown_quantile": 0.75,
+            "id": "library_p75_blend_50",
+            "support_weight": 0.5
+          },
+          "rows": [
+            {
+              "asset": "BTC",
+              "baselines": {
+                "fixed_18w_dca": {
+                  "avg_cost": 71.6202,
+                  "avg_cost_premium_to_low": 1.23813,
+                  "dry": 0.0,
+                  "dry_at_low": 0.0,
+                  "max_4w_spent_increase": 0.222222,
+                  "max_portfolio_drawdown": 0.553199,
+                  "max_spent_before_low": 1.0,
+                  "min_dry_before_low": 0.0,
+                  "pool_return": -0.190172,
+                  "spent": 1.0,
+                  "spent_by_low": 1.0,
+                  "terminal_value": 0.809828,
+                  "units": 0.0139625468
+                },
+                "fixed_52w_dca": {
+                  "avg_cost": 59.2378,
+                  "avg_cost_premium_to_low": 0.851181,
+                  "dry": 0.0,
+                  "dry_at_low": 0.0,
+                  "max_4w_spent_increase": 0.076923,
+                  "max_portfolio_drawdown": 0.459804,
+                  "max_spent_before_low": 1.0,
+                  "min_dry_before_low": 0.0,
+                  "pool_return": -0.020895,
+                  "spent": 1.0,
+                  "spent_by_low": 1.0,
+                  "terminal_value": 0.979105,
+                  "units": 0.0168811135
+                }
+              },
+              "model": {
+                "avg_cost": 55.4754,
+                "avg_cost_premium_to_low": 0.733606,
+                "decoupled_anchor_diag": {
+                  "anchor": 19.666596,
+                  "forecast_anchor": 27.0,
+                  "implied_anchor_m": 0.437035,
+                  "pred_bottom": 45.0,
+                  "recipe_id": "library_p75_blend_50",
+                  "support_anchor": 14.325,
+                  "support_drawdown": 0.85675,
+                  "support_weight": 0.5
+                },
+                "decoupled_deep_anchor": true,
+                "dry": 0.054321,
+                "dry_at_low": 0.320125,
+                "early_exhaustion_before_low": false,
+                "max_4w_spent_increase": 0.214821,
+                "max_portfolio_drawdown": 0.309122,
+                "max_spent_before_low": 0.668083,
+                "min_dry_before_low": 0.331917,
+                "pool_return": 0.043037,
+                "reserve_frac": 0.2,
+                "spent": 0.945679,
+                "spent_by_low": 0.679875,
+                "terminal_ratio_vs_dca18": 1.287973,
+                "terminal_ratio_vs_dca52": 1.065296,
+                "terminal_value": 1.043037,
+                "units": 0.0170468141
+              },
+              "end_price": 58.0,
+              "failures": [
+                "average entry premium above 60%"
+              ],
+              "id": "delayed_lower_low",
+              "min_dry_first_two_thirds": 0.365769,
+              "pred_dd": 0.55,
+              "realized_low": 32.0,
+              "realized_low_week": 56,
+              "status": "FAIL",
+              "weeks": 79
+            },
+            {
+              "asset": "BTC",
+              "baselines": {
+                "fixed_18w_dca": {
+                  "avg_cost": 70.5951,
+                  "avg_cost_premium_to_low": 1.823803,
+                  "dry": 0.0,
+                  "dry_at_low": 0.0,
+                  "max_4w_spent_increase": 0.222222,
+                  "max_portfolio_drawdown": 0.645868,
+                  "max_spent_before_low": 1.0,
+                  "min_dry_before_low": 0.0,
+                  "pool_return": -0.447553,
+                  "spent": 1.0,
+                  "spent_by_low": 1.0,
+                  "terminal_value": 0.552447,
+                  "units": 0.0141652965
+                },
+                "fixed_52w_dca": {
+                  "avg_cost": 61.1751,
+                  "avg_cost_premium_to_low": 1.447003,
+                  "dry": 0.0,
+                  "dry_at_low": 0.0,
+                  "max_4w_spent_increase": 0.076923,
+                  "max_portfolio_drawdown": 0.593846,
+                  "max_spent_before_low": 1.0,
+                  "min_dry_before_low": 0.0,
+                  "pool_return": -0.362486,
+                  "spent": 1.0,
+                  "spent_by_low": 1.0,
+                  "terminal_value": 0.637514,
+                  "units": 0.0163465241
+                }
+              },
+              "model": {
+                "avg_cost": 54.636,
+                "avg_cost_premium_to_low": 1.185441,
+                "decoupled_anchor_diag": {
+                  "anchor": 19.666596,
+                  "forecast_anchor": 27.0,
+                  "implied_anchor_m": 0.437035,
+                  "pred_bottom": 45.0,
+                  "recipe_id": "library_p75_blend_50",
+                  "support_anchor": 14.325,
+                  "support_drawdown": 0.85675,
+                  "support_weight": 0.5
+                },
+                "decoupled_deep_anchor": true,
+                "dry": 0.217308,
+                "dry_at_low": 0.244231,
+                "early_exhaustion_before_low": false,
+                "max_4w_spent_increase": 0.225958,
+                "max_portfolio_drawdown": 0.420233,
+                "max_spent_before_low": 0.751026,
+                "min_dry_before_low": 0.248974,
+                "pool_return": -0.223995,
+                "reserve_frac": 0.2,
+                "spent": 0.782692,
+                "spent_by_low": 0.755769,
+                "terminal_ratio_vs_dca18": 1.404669,
+                "terminal_ratio_vs_dca52": 1.217236,
+                "terminal_value": 0.776005,
+                "units": 0.0143255701
+              },
+              "end_price": 39.0,
+              "failures": [
+                "four-week unlock above 20pp"
+              ],
+              "id": "false_bottom_continued_grind",
+              "min_dry_first_two_thirds": 0.320128,
+              "pred_dd": 0.55,
+              "realized_low": 25.0,
+              "realized_low_week": 76,
+              "status": "FAIL",
+              "weeks": 91
+            },
+            {
+              "asset": "BTC",
+              "baselines": {
+                "fixed_18w_dca": {
+                  "avg_cost": 73.761,
+                  "avg_cost_premium_to_low": 0.418481,
+                  "dry": 0.0,
+                  "dry_at_low": 0.722222,
+                  "max_4w_spent_increase": 0.222222,
+                  "max_portfolio_drawdown": 0.077354,
+                  "max_spent_before_low": 0.222222,
+                  "min_dry_before_low": 0.777778,
+                  "pool_return": 0.572646,
+                  "spent": 1.0,
+                  "spent_by_low": 0.277778,
+                  "terminal_value": 1.572646,
+                  "units": 0.0135572944
+                },
+                "fixed_52w_dca": {
+                  "avg_cost": 83.1308,
+                  "avg_cost_premium_to_low": 0.598668,
+                  "dry": 0.0,
+                  "dry_at_low": 0.827586,
+                  "max_4w_spent_increase": 0.137931,
+                  "max_portfolio_drawdown": 0.048013,
+                  "max_spent_before_low": 0.137931,
+                  "min_dry_before_low": 0.862069,
+                  "pool_return": 0.395392,
+                  "spent": 1.0,
+                  "spent_by_low": 0.172414,
+                  "terminal_value": 1.395392,
+                  "units": 0.0120292416
+                }
+              },
+              "model": {
+                "avg_cost": 68.1885,
+                "avg_cost_premium_to_low": 0.311317,
+                "decoupled_anchor_diag": {
+                  "anchor": 20.730412,
+                  "forecast_anchor": 30.0,
+                  "implied_anchor_m": 0.414608,
+                  "pred_bottom": 50.0,
+                  "recipe_id": "library_p75_blend_50",
+                  "support_anchor": 14.325,
+                  "support_drawdown": 0.85675,
+                  "support_weight": 0.5
+                },
+                "decoupled_deep_anchor": true,
+                "dry": 0.108372,
+                "dry_at_low": 0.490901,
+                "early_exhaustion_before_low": false,
+                "max_4w_spent_increase": 0.550692,
+                "max_portfolio_drawdown": 0.089361,
+                "max_spent_before_low": 0.294055,
+                "min_dry_before_low": 0.705945,
+                "pool_return": 0.62518,
+                "reserve_frac": 0.2,
+                "spent": 0.891628,
+                "spent_by_low": 0.509099,
+                "terminal_ratio_vs_dca18": 1.033405,
+                "terminal_ratio_vs_dca52": 1.164676,
+                "terminal_value": 1.62518,
+                "units": 0.0130759333
+              },
+              "end_price": 116.0,
+              "failures": [],
+              "id": "fast_v",
+              "min_dry_first_two_thirds": 0.219409,
+              "pred_dd": 0.5,
+              "realized_low": 52.0,
+              "realized_low_week": 4,
+              "status": "PASS",
+              "weeks": 29
+            },
+            {
+              "asset": "BTC",
+              "baselines": {
+                "fixed_18w_dca": {
+                  "avg_cost": 82.3368,
+                  "avg_cost_premium_to_low": 0.143567,
+                  "dry": 0.0,
+                  "dry_at_low": 0.388889,
+                  "max_4w_spent_increase": 0.222222,
+                  "max_portfolio_drawdown": 0.093955,
+                  "max_spent_before_low": 0.555556,
+                  "min_dry_before_low": 0.444444,
+                  "pool_return": 0.481719,
+                  "spent": 1.0,
+                  "spent_by_low": 0.611111,
+                  "terminal_value": 1.481719,
+                  "units": 0.0121452377
+                },
+                "fixed_52w_dca": {
+                  "avg_cost": 93.0295,
+                  "avg_cost_premium_to_low": 0.292076,
+                  "dry": 0.0,
+                  "dry_at_low": 0.744186,
+                  "max_4w_spent_increase": 0.093023,
+                  "max_portfolio_drawdown": 0.03933,
+                  "max_spent_before_low": 0.232558,
+                  "min_dry_before_low": 0.767442,
+                  "pool_return": 0.311413,
+                  "spent": 1.0,
+                  "spent_by_low": 0.255814,
+                  "terminal_value": 1.311413,
+                  "units": 0.0107492832
+                }
+              },
+              "model": {
+                "avg_cost": 97.52,
+                "avg_cost_premium_to_low": 0.354444,
+                "decoupled_anchor_diag": {
+                  "anchor": 20.730412,
+                  "forecast_anchor": 30.0,
+                  "implied_anchor_m": 0.414608,
+                  "pred_bottom": 50.0,
+                  "recipe_id": "library_p75_blend_50",
+                  "support_anchor": 14.325,
+                  "support_drawdown": 0.85675,
+                  "support_weight": 0.5
+                },
+                "decoupled_deep_anchor": true,
+                "dry": 0.0,
+                "dry_at_low": 0.751969,
+                "early_exhaustion_before_low": false,
+                "max_4w_spent_increase": 0.286027,
+                "max_portfolio_drawdown": 0.033869,
+                "max_spent_before_low": 0.214357,
+                "min_dry_before_low": 0.785643,
+                "pool_return": 0.251026,
+                "reserve_frac": 0.2,
+                "spent": 1.0,
+                "spent_by_low": 0.248031,
+                "terminal_ratio_vs_dca18": 0.844307,
+                "terminal_ratio_vs_dca52": 0.953953,
+                "terminal_value": 1.251026,
+                "units": 0.0102543107
+              },
+              "end_price": 122.0,
+              "failures": [],
+              "id": "shallow_recover",
+              "min_dry_first_two_thirds": 0.406532,
+              "pred_dd": 0.5,
+              "realized_low": 72.0,
+              "realized_low_week": 10,
+              "status": "PASS",
+              "weeks": 43
+            }
+          ],
+          "scope": "full_stack_decoupled_deep_anchor_policy",
+          "status": "FAIL"
+        },
+        "synthetic_gap": 0.159564,
+        "synthetic_pass": false,
+        "verdict": "REJECTED_SYNTHETIC_GATES"
+      },
+      {
+        "historical": {
+          "cost_win_rate_vs_live": 0.625,
+          "episodes": [
+            {
+              "anchor_diag": {
+                "anchor": 2376.656426,
+                "forecast_anchor": 3228.807201,
+                "implied_anchor_m": 0.441647,
+                "pred_bottom": 5381.345335,
+                "recipe_id": "library_max_blend_35",
+                "support_anchor": 1345.320627,
+                "support_drawdown": 0.931,
+                "support_weight": 0.35
+              },
+              "asset": "BTC",
+              "avg_cost_premium_delta_vs_live": 0.127426,
+              "candidate_avg_cost_premium_to_low": 0.861756,
+              "candidate_early_exhaustion": false,
+              "candidate_spent_by_low": 0.581263,
+              "candidate_terminal": 1.207625,
+              "episode": "2018 bear (single low)",
+              "live_avg_cost_premium_to_low": 0.73433,
+              "live_spent_by_low": 0.796243,
+              "live_terminal": 1.296353,
+              "terminal_delta_vs_live": -0.068444
+            },
+            {
+              "anchor_diag": {
+                "anchor": 131.473075,
+                "forecast_anchor": 167.570405,
+                "implied_anchor_m": 0.47075,
+                "pred_bottom": 279.284009,
+                "recipe_id": "library_max_blend_35",
+                "support_anchor": 83.785203,
+                "support_drawdown": 0.94,
+                "support_weight": 0.35
+              },
+              "asset": "ETH",
+              "avg_cost_premium_delta_vs_live": -0.194648,
+              "candidate_avg_cost_premium_to_low": 1.472314,
+              "candidate_early_exhaustion": false,
+              "candidate_spent_by_low": 0.715,
+              "candidate_terminal": 0.610328,
+              "episode": "2018 bear (single low)",
+              "live_avg_cost_premium_to_low": 1.666962,
+              "live_spent_by_low": 0.715,
+              "live_terminal": 0.565783,
+              "terminal_delta_vs_live": 0.078732
+            },
+            {
+              "anchor_diag": {
+                "anchor": 7346.546439,
+                "forecast_anchor": 9384.901271,
+                "implied_anchor_m": 0.469683,
+                "pred_bottom": 15641.502119,
+                "recipe_id": "library_max_blend_35",
+                "support_anchor": 4662.111141,
+                "support_drawdown": 0.931,
+                "support_weight": 0.35
+              },
+              "asset": "BTC",
+              "avg_cost_premium_delta_vs_live": 0.002048,
+              "candidate_avg_cost_premium_to_low": 0.396993,
+              "candidate_early_exhaustion": false,
+              "candidate_spent_by_low": 0.744,
+              "candidate_terminal": 1.823993,
+              "episode": "2022 bear (DOUBLE bottom)",
+              "live_avg_cost_premium_to_low": 0.394945,
+              "live_spent_by_low": 0.744,
+              "live_terminal": 1.826671,
+              "terminal_delta_vs_live": -0.001466
+            },
+            {
+              "anchor_diag": {
+                "anchor": 316.887134,
+                "forecast_anchor": 333.172494,
+                "implied_anchor_m": 0.570672,
+                "pred_bottom": 555.28749,
+                "recipe_id": "library_max_blend_35",
+                "support_anchor": 288.725244,
+                "support_drawdown": 0.94,
+                "support_weight": 0.35
+              },
+              "asset": "ETH",
+              "avg_cost_premium_delta_vs_live": 0.007559,
+              "candidate_avg_cost_premium_to_low": 0.358568,
+              "candidate_early_exhaustion": false,
+              "candidate_spent_by_low": 0.450698,
+              "candidate_terminal": 1.597962,
+              "episode": "2022 bear (DOUBLE bottom)",
+              "live_avg_cost_premium_to_low": 0.351009,
+              "live_spent_by_low": 0.438121,
+              "live_terminal": 1.606902,
+              "terminal_delta_vs_live": -0.005564
+            },
+            {
+              "anchor_diag": {
+                "anchor": 1415.25585,
+                "forecast_anchor": 1807.929282,
+                "implied_anchor_m": 0.469683,
+                "pred_bottom": 3013.215469,
+                "recipe_id": "library_max_blend_35",
+                "support_anchor": 898.11997,
+                "support_drawdown": 0.931,
+                "support_weight": 0.35
+              },
+              "asset": "BTC",
+              "avg_cost_premium_delta_vs_live": 0.0,
+              "candidate_avg_cost_premium_to_low": 0.165846,
+              "candidate_early_exhaustion": false,
+              "candidate_spent_by_low": 0.466449,
+              "candidate_terminal": 1.130885,
+              "episode": "2019 H2 correction (mid-cycle)",
+              "live_avg_cost_premium_to_low": 0.165846,
+              "live_spent_by_low": 0.466449,
+              "live_terminal": 1.130885,
+              "terminal_delta_vs_live": 0.0
+            },
+            {
+              "anchor_diag": {
+                "anchor": 22.175979,
+                "forecast_anchor": 23.315639,
+                "implied_anchor_m": 0.570672,
+                "pred_bottom": 38.859399,
+                "recipe_id": "library_max_blend_35",
+                "support_anchor": 20.20519,
+                "support_drawdown": 0.94,
+                "support_weight": 0.35
+              },
+              "asset": "ETH",
+              "avg_cost_premium_delta_vs_live": -0.008526,
+              "candidate_avg_cost_premium_to_low": 0.440611,
+              "candidate_early_exhaustion": false,
+              "candidate_spent_by_low": 0.501089,
+              "candidate_terminal": 1.345418,
+              "episode": "2019 H2 correction (mid-cycle)",
+              "live_avg_cost_premium_to_low": 0.449137,
+              "live_spent_by_low": 0.493192,
+              "live_terminal": 1.336451,
+              "terminal_delta_vs_live": 0.00671
+            },
+            {
+              "anchor_diag": {
+                "anchor": 1122.752724,
+                "forecast_anchor": 1434.268952,
+                "implied_anchor_m": 0.469683,
+                "pred_bottom": 2390.448253,
+                "recipe_id": "library_max_blend_35",
+                "support_anchor": 712.497773,
+                "support_drawdown": 0.931,
+                "support_weight": 0.35
+              },
+              "asset": "BTC",
+              "avg_cost_premium_delta_vs_live": 0.0,
+              "candidate_avg_cost_premium_to_low": 0.258969,
+              "candidate_early_exhaustion": false,
+              "candidate_spent_by_low": 0.17231,
+              "candidate_terminal": 1.479569,
+              "episode": "2020 COVID crash (fast V)",
+              "live_avg_cost_premium_to_low": 0.258969,
+              "live_spent_by_low": 0.17231,
+              "live_terminal": 1.479569,
+              "terminal_delta_vs_live": 0.0
+            },
+            {
+              "anchor_diag": {
+                "anchor": 18.716383,
+                "forecast_anchor": 19.678249,
+                "implied_anchor_m": 0.570672,
+                "pred_bottom": 32.797081,
+                "recipe_id": "library_max_blend_35",
+                "support_anchor": 17.05305,
+                "support_drawdown": 0.94,
+                "support_weight": 0.35
+              },
+              "asset": "ETH",
+              "avg_cost_premium_delta_vs_live": 0.0,
+              "candidate_avg_cost_premium_to_low": 0.335463,
+              "candidate_early_exhaustion": false,
+              "candidate_spent_by_low": 0.381428,
+              "candidate_terminal": 1.849287,
+              "episode": "2020 COVID crash (fast V)",
+              "live_avg_cost_premium_to_low": 0.335463,
+              "live_spent_by_low": 0.381428,
+              "live_terminal": 1.849287,
+              "terminal_delta_vs_live": 0.0
+            }
+          ],
+          "mean_cost_premium_delta_vs_live": -0.008268,
+          "mean_terminal_delta_vs_live": 0.001246,
+          "n": 8,
+          "new_early_exhaustion_episodes": 0,
+          "scope": "historical_accumulation_episodes_vs_live",
+          "terminal_win_rate_vs_live": 0.625,
+          "worst_cost_premium_delta_vs_live": 0.127426,
+          "worst_terminal_delta_vs_live": -0.068444
+        },
+        "historical_pass": true,
+        "id": "library_max_blend_35",
+        "recipe": {
+          "drawdown_quantile": 1.0,
+          "id": "library_max_blend_35",
+          "support_weight": 0.35
+        },
+        "synthetic": {
+          "early_exhaustion_guard": {
+            "historical_flags": [],
+            "scope": "historical_and_synthetic_full_stack",
+            "status": "PASS",
+            "summary": {
+              "historical_flags": 0,
+              "synthetic_flags": 0
+            },
+            "synthetic_flags": []
+          },
+          "gates": {
+            "synthetic_delayed_lower_low": {
+              "rows": [
+                {
+                  "asset": "BTC",
+                  "baselines": {
+                    "fixed_18w_dca": {
+                      "avg_cost": 71.6202,
+                      "avg_cost_premium_to_low": 1.23813,
+                      "dry": 0.0,
+                      "dry_at_low": 0.0,
+                      "max_4w_spent_increase": 0.222222,
+                      "max_portfolio_drawdown": 0.553199,
+                      "max_spent_before_low": 1.0,
+                      "min_dry_before_low": 0.0,
+                      "pool_return": -0.190172,
+                      "spent": 1.0,
+                      "spent_by_low": 1.0,
+                      "terminal_value": 0.809828,
+                      "units": 0.0139625468
+                    },
+                    "fixed_52w_dca": {
+                      "avg_cost": 59.2378,
+                      "avg_cost_premium_to_low": 0.851181,
+                      "dry": 0.0,
+                      "dry_at_low": 0.0,
+                      "max_4w_spent_increase": 0.076923,
+                      "max_portfolio_drawdown": 0.459804,
+                      "max_spent_before_low": 1.0,
+                      "min_dry_before_low": 0.0,
+                      "pool_return": -0.020895,
+                      "spent": 1.0,
+                      "spent_by_low": 1.0,
+                      "terminal_value": 0.979105,
+                      "units": 0.0168811135
+                    }
+                  },
+                  "model": {
+                    "avg_cost": 55.4754,
+                    "avg_cost_premium_to_low": 0.733606,
+                    "decoupled_anchor_diag": {
+                      "anchor": 16.748797,
+                      "forecast_anchor": 27.0,
+                      "implied_anchor_m": 0.372195,
+                      "pred_bottom": 45.0,
+                      "recipe_id": "library_max_blend_35",
+                      "support_anchor": 6.9,
+                      "support_drawdown": 0.931,
+                      "support_weight": 0.35
+                    },
+                    "decoupled_deep_anchor": true,
+                    "dry": 0.054321,
+                    "dry_at_low": 0.320125,
+                    "early_exhaustion_before_low": false,
+                    "max_4w_spent_increase": 0.214821,
+                    "max_portfolio_drawdown": 0.309122,
+                    "max_spent_before_low": 0.668083,
+                    "min_dry_before_low": 0.331917,
+                    "pool_return": 0.043037,
+                    "reserve_frac": 0.2,
+                    "spent": 0.945679,
+                    "spent_by_low": 0.679875,
+                    "terminal_ratio_vs_dca18": 1.287973,
+                    "terminal_ratio_vs_dca52": 1.065296,
+                    "terminal_value": 1.043037,
+                    "units": 0.0170468141
+                  },
+                  "end_price": 58.0,
+                  "failures": [
+                    "average entry premium above 60%"
+                  ],
+                  "id": "delayed_lower_low",
+                  "min_dry_first_two_thirds": 0.365769,
+                  "pred_dd": 0.55,
+                  "realized_low": 32.0,
+                  "realized_low_week": 56,
+                  "status": "FAIL",
+                  "weeks": 79
+                }
+              ],
+              "scope": "full_stack_run_full_policy",
+              "status": "FAIL",
+              "summary": {
+                "failing_ids": [
+                  "delayed_lower_low"
+                ],
+                "failing_paths": 1,
+                "min_terminal_ratio_vs_dca18": 1.287973,
+                "min_terminal_ratio_vs_dca52": 1.065296,
+                "paths": 1
+              }
+            },
+            "synthetic_false_bottom_continued_grind": {
+              "rows": [
+                {
+                  "asset": "BTC",
+                  "baselines": {
+                    "fixed_18w_dca": {
+                      "avg_cost": 70.5951,
+                      "avg_cost_premium_to_low": 1.823803,
+                      "dry": 0.0,
+                      "dry_at_low": 0.0,
+                      "max_4w_spent_increase": 0.222222,
+                      "max_portfolio_drawdown": 0.645868,
+                      "max_spent_before_low": 1.0,
+                      "min_dry_before_low": 0.0,
+                      "pool_return": -0.447553,
+                      "spent": 1.0,
+                      "spent_by_low": 1.0,
+                      "terminal_value": 0.552447,
+                      "units": 0.0141652965
+                    },
+                    "fixed_52w_dca": {
+                      "avg_cost": 61.1751,
+                      "avg_cost_premium_to_low": 1.447003,
+                      "dry": 0.0,
+                      "dry_at_low": 0.0,
+                      "max_4w_spent_increase": 0.076923,
+                      "max_portfolio_drawdown": 0.593846,
+                      "max_spent_before_low": 1.0,
+                      "min_dry_before_low": 0.0,
+                      "pool_return": -0.362486,
+                      "spent": 1.0,
+                      "spent_by_low": 1.0,
+                      "terminal_value": 0.637514,
+                      "units": 0.0163465241
+                    }
+                  },
+                  "model": {
+                    "avg_cost": 54.636,
+                    "avg_cost_premium_to_low": 1.185441,
+                    "decoupled_anchor_diag": {
+                      "anchor": 16.748797,
+                      "forecast_anchor": 27.0,
+                      "implied_anchor_m": 0.372195,
+                      "pred_bottom": 45.0,
+                      "recipe_id": "library_max_blend_35",
+                      "support_anchor": 6.9,
+                      "support_drawdown": 0.931,
+                      "support_weight": 0.35
+                    },
+                    "decoupled_deep_anchor": true,
+                    "dry": 0.217308,
+                    "dry_at_low": 0.244231,
+                    "early_exhaustion_before_low": false,
+                    "max_4w_spent_increase": 0.225958,
+                    "max_portfolio_drawdown": 0.420233,
+                    "max_spent_before_low": 0.751026,
+                    "min_dry_before_low": 0.248974,
+                    "pool_return": -0.223995,
+                    "reserve_frac": 0.2,
+                    "spent": 0.782692,
+                    "spent_by_low": 0.755769,
+                    "terminal_ratio_vs_dca18": 1.404669,
+                    "terminal_ratio_vs_dca52": 1.217236,
+                    "terminal_value": 0.776005,
+                    "units": 0.0143255701
+                  },
+                  "end_price": 39.0,
+                  "failures": [
+                    "four-week unlock above 20pp"
+                  ],
+                  "id": "false_bottom_continued_grind",
+                  "min_dry_first_two_thirds": 0.320128,
+                  "pred_dd": 0.55,
+                  "realized_low": 25.0,
+                  "realized_low_week": 76,
+                  "status": "FAIL",
+                  "weeks": 91
+                }
+              ],
+              "scope": "full_stack_run_full_policy",
+              "status": "FAIL",
+              "summary": {
+                "failing_ids": [
+                  "false_bottom_continued_grind"
+                ],
+                "failing_paths": 1,
+                "min_terminal_ratio_vs_dca18": 1.404669,
+                "min_terminal_ratio_vs_dca52": 1.217236,
+                "paths": 1
+              }
+            },
+            "synthetic_fast_v_participation": {
+              "rows": [
+                {
+                  "asset": "BTC",
+                  "baselines": {
+                    "fixed_18w_dca": {
+                      "avg_cost": 73.761,
+                      "avg_cost_premium_to_low": 0.418481,
+                      "dry": 0.0,
+                      "dry_at_low": 0.722222,
+                      "max_4w_spent_increase": 0.222222,
+                      "max_portfolio_drawdown": 0.077354,
+                      "max_spent_before_low": 0.222222,
+                      "min_dry_before_low": 0.777778,
+                      "pool_return": 0.572646,
+                      "spent": 1.0,
+                      "spent_by_low": 0.277778,
+                      "terminal_value": 1.572646,
+                      "units": 0.0135572944
+                    },
+                    "fixed_52w_dca": {
+                      "avg_cost": 83.1308,
+                      "avg_cost_premium_to_low": 0.598668,
+                      "dry": 0.0,
+                      "dry_at_low": 0.827586,
+                      "max_4w_spent_increase": 0.137931,
+                      "max_portfolio_drawdown": 0.048013,
+                      "max_spent_before_low": 0.137931,
+                      "min_dry_before_low": 0.862069,
+                      "pool_return": 0.395392,
+                      "spent": 1.0,
+                      "spent_by_low": 0.172414,
+                      "terminal_value": 1.395392,
+                      "units": 0.0120292416
+                    }
+                  },
+                  "model": {
+                    "avg_cost": 68.1885,
+                    "avg_cost_premium_to_low": 0.311317,
+                    "decoupled_anchor_diag": {
+                      "anchor": 17.936017,
+                      "forecast_anchor": 30.0,
+                      "implied_anchor_m": 0.35872,
+                      "pred_bottom": 50.0,
+                      "recipe_id": "library_max_blend_35",
+                      "support_anchor": 6.9,
+                      "support_drawdown": 0.931,
+                      "support_weight": 0.35
+                    },
+                    "decoupled_deep_anchor": true,
+                    "dry": 0.108372,
+                    "dry_at_low": 0.490901,
+                    "early_exhaustion_before_low": false,
+                    "max_4w_spent_increase": 0.550692,
+                    "max_portfolio_drawdown": 0.089361,
+                    "max_spent_before_low": 0.294055,
+                    "min_dry_before_low": 0.705945,
+                    "pool_return": 0.62518,
+                    "reserve_frac": 0.2,
+                    "spent": 0.891628,
+                    "spent_by_low": 0.509099,
+                    "terminal_ratio_vs_dca18": 1.033405,
+                    "terminal_ratio_vs_dca52": 1.164676,
+                    "terminal_value": 1.62518,
+                    "units": 0.0130759333
+                  },
+                  "end_price": 116.0,
+                  "failures": [],
+                  "id": "fast_v",
+                  "min_dry_first_two_thirds": 0.219409,
+                  "pred_dd": 0.5,
+                  "realized_low": 52.0,
+                  "realized_low_week": 4,
+                  "status": "PASS",
+                  "weeks": 29
+                }
+              ],
+              "scope": "full_stack_run_full_policy",
+              "status": "PASS",
+              "summary": {
+                "failing_ids": [],
+                "failing_paths": 0,
+                "min_terminal_ratio_vs_dca18": 1.033405,
+                "min_terminal_ratio_vs_dca52": 1.164676,
+                "paths": 1
+              }
+            },
+            "synthetic_shallow_recover": {
+              "rows": [
+                {
+                  "asset": "BTC",
+                  "baselines": {
+                    "fixed_18w_dca": {
+                      "avg_cost": 82.3368,
+                      "avg_cost_premium_to_low": 0.143567,
+                      "dry": 0.0,
+                      "dry_at_low": 0.388889,
+                      "max_4w_spent_increase": 0.222222,
+                      "max_portfolio_drawdown": 0.093955,
+                      "max_spent_before_low": 0.555556,
+                      "min_dry_before_low": 0.444444,
+                      "pool_return": 0.481719,
+                      "spent": 1.0,
+                      "spent_by_low": 0.611111,
+                      "terminal_value": 1.481719,
+                      "units": 0.0121452377
+                    },
+                    "fixed_52w_dca": {
+                      "avg_cost": 93.0295,
+                      "avg_cost_premium_to_low": 0.292076,
+                      "dry": 0.0,
+                      "dry_at_low": 0.744186,
+                      "max_4w_spent_increase": 0.093023,
+                      "max_portfolio_drawdown": 0.03933,
+                      "max_spent_before_low": 0.232558,
+                      "min_dry_before_low": 0.767442,
+                      "pool_return": 0.311413,
+                      "spent": 1.0,
+                      "spent_by_low": 0.255814,
+                      "terminal_value": 1.311413,
+                      "units": 0.0107492832
+                    }
+                  },
+                  "model": {
+                    "avg_cost": 97.52,
+                    "avg_cost_premium_to_low": 0.354444,
+                    "decoupled_anchor_diag": {
+                      "anchor": 17.936017,
+                      "forecast_anchor": 30.0,
+                      "implied_anchor_m": 0.35872,
+                      "pred_bottom": 50.0,
+                      "recipe_id": "library_max_blend_35",
+                      "support_anchor": 6.9,
+                      "support_drawdown": 0.931,
+                      "support_weight": 0.35
+                    },
+                    "decoupled_deep_anchor": true,
+                    "dry": 0.0,
+                    "dry_at_low": 0.751969,
+                    "early_exhaustion_before_low": false,
+                    "max_4w_spent_increase": 0.286027,
+                    "max_portfolio_drawdown": 0.033869,
+                    "max_spent_before_low": 0.214357,
+                    "min_dry_before_low": 0.785643,
+                    "pool_return": 0.251026,
+                    "reserve_frac": 0.2,
+                    "spent": 1.0,
+                    "spent_by_low": 0.248031,
+                    "terminal_ratio_vs_dca18": 0.844307,
+                    "terminal_ratio_vs_dca52": 0.953953,
+                    "terminal_value": 1.251026,
+                    "units": 0.0102543107
+                  },
+                  "end_price": 122.0,
+                  "failures": [],
+                  "id": "shallow_recover",
+                  "min_dry_first_two_thirds": 0.406532,
+                  "pred_dd": 0.5,
+                  "realized_low": 72.0,
+                  "realized_low_week": 10,
+                  "status": "PASS",
+                  "weeks": 43
+                }
+              ],
+              "scope": "full_stack_run_full_policy",
+              "status": "PASS",
+              "summary": {
+                "failing_ids": [],
+                "failing_paths": 0,
+                "min_terminal_ratio_vs_dca18": 0.844307,
+                "min_terminal_ratio_vs_dca52": 0.953953,
+                "paths": 1
+              }
+            }
+          },
+          "recipe": {
+            "drawdown_quantile": 1.0,
+            "id": "library_max_blend_35",
+            "support_weight": 0.35
+          },
+          "rows": [
+            {
+              "asset": "BTC",
+              "baselines": {
+                "fixed_18w_dca": {
+                  "avg_cost": 71.6202,
+                  "avg_cost_premium_to_low": 1.23813,
+                  "dry": 0.0,
+                  "dry_at_low": 0.0,
+                  "max_4w_spent_increase": 0.222222,
+                  "max_portfolio_drawdown": 0.553199,
+                  "max_spent_before_low": 1.0,
+                  "min_dry_before_low": 0.0,
+                  "pool_return": -0.190172,
+                  "spent": 1.0,
+                  "spent_by_low": 1.0,
+                  "terminal_value": 0.809828,
+                  "units": 0.0139625468
+                },
+                "fixed_52w_dca": {
+                  "avg_cost": 59.2378,
+                  "avg_cost_premium_to_low": 0.851181,
+                  "dry": 0.0,
+                  "dry_at_low": 0.0,
+                  "max_4w_spent_increase": 0.076923,
+                  "max_portfolio_drawdown": 0.459804,
+                  "max_spent_before_low": 1.0,
+                  "min_dry_before_low": 0.0,
+                  "pool_return": -0.020895,
+                  "spent": 1.0,
+                  "spent_by_low": 1.0,
+                  "terminal_value": 0.979105,
+                  "units": 0.0168811135
+                }
+              },
+              "model": {
+                "avg_cost": 55.4754,
+                "avg_cost_premium_to_low": 0.733606,
+                "decoupled_anchor_diag": {
+                  "anchor": 16.748797,
+                  "forecast_anchor": 27.0,
+                  "implied_anchor_m": 0.372195,
+                  "pred_bottom": 45.0,
+                  "recipe_id": "library_max_blend_35",
+                  "support_anchor": 6.9,
+                  "support_drawdown": 0.931,
+                  "support_weight": 0.35
+                },
+                "decoupled_deep_anchor": true,
+                "dry": 0.054321,
+                "dry_at_low": 0.320125,
+                "early_exhaustion_before_low": false,
+                "max_4w_spent_increase": 0.214821,
+                "max_portfolio_drawdown": 0.309122,
+                "max_spent_before_low": 0.668083,
+                "min_dry_before_low": 0.331917,
+                "pool_return": 0.043037,
+                "reserve_frac": 0.2,
+                "spent": 0.945679,
+                "spent_by_low": 0.679875,
+                "terminal_ratio_vs_dca18": 1.287973,
+                "terminal_ratio_vs_dca52": 1.065296,
+                "terminal_value": 1.043037,
+                "units": 0.0170468141
+              },
+              "end_price": 58.0,
+              "failures": [
+                "average entry premium above 60%"
+              ],
+              "id": "delayed_lower_low",
+              "min_dry_first_two_thirds": 0.365769,
+              "pred_dd": 0.55,
+              "realized_low": 32.0,
+              "realized_low_week": 56,
+              "status": "FAIL",
+              "weeks": 79
+            },
+            {
+              "asset": "BTC",
+              "baselines": {
+                "fixed_18w_dca": {
+                  "avg_cost": 70.5951,
+                  "avg_cost_premium_to_low": 1.823803,
+                  "dry": 0.0,
+                  "dry_at_low": 0.0,
+                  "max_4w_spent_increase": 0.222222,
+                  "max_portfolio_drawdown": 0.645868,
+                  "max_spent_before_low": 1.0,
+                  "min_dry_before_low": 0.0,
+                  "pool_return": -0.447553,
+                  "spent": 1.0,
+                  "spent_by_low": 1.0,
+                  "terminal_value": 0.552447,
+                  "units": 0.0141652965
+                },
+                "fixed_52w_dca": {
+                  "avg_cost": 61.1751,
+                  "avg_cost_premium_to_low": 1.447003,
+                  "dry": 0.0,
+                  "dry_at_low": 0.0,
+                  "max_4w_spent_increase": 0.076923,
+                  "max_portfolio_drawdown": 0.593846,
+                  "max_spent_before_low": 1.0,
+                  "min_dry_before_low": 0.0,
+                  "pool_return": -0.362486,
+                  "spent": 1.0,
+                  "spent_by_low": 1.0,
+                  "terminal_value": 0.637514,
+                  "units": 0.0163465241
+                }
+              },
+              "model": {
+                "avg_cost": 54.636,
+                "avg_cost_premium_to_low": 1.185441,
+                "decoupled_anchor_diag": {
+                  "anchor": 16.748797,
+                  "forecast_anchor": 27.0,
+                  "implied_anchor_m": 0.372195,
+                  "pred_bottom": 45.0,
+                  "recipe_id": "library_max_blend_35",
+                  "support_anchor": 6.9,
+                  "support_drawdown": 0.931,
+                  "support_weight": 0.35
+                },
+                "decoupled_deep_anchor": true,
+                "dry": 0.217308,
+                "dry_at_low": 0.244231,
+                "early_exhaustion_before_low": false,
+                "max_4w_spent_increase": 0.225958,
+                "max_portfolio_drawdown": 0.420233,
+                "max_spent_before_low": 0.751026,
+                "min_dry_before_low": 0.248974,
+                "pool_return": -0.223995,
+                "reserve_frac": 0.2,
+                "spent": 0.782692,
+                "spent_by_low": 0.755769,
+                "terminal_ratio_vs_dca18": 1.404669,
+                "terminal_ratio_vs_dca52": 1.217236,
+                "terminal_value": 0.776005,
+                "units": 0.0143255701
+              },
+              "end_price": 39.0,
+              "failures": [
+                "four-week unlock above 20pp"
+              ],
+              "id": "false_bottom_continued_grind",
+              "min_dry_first_two_thirds": 0.320128,
+              "pred_dd": 0.55,
+              "realized_low": 25.0,
+              "realized_low_week": 76,
+              "status": "FAIL",
+              "weeks": 91
+            },
+            {
+              "asset": "BTC",
+              "baselines": {
+                "fixed_18w_dca": {
+                  "avg_cost": 73.761,
+                  "avg_cost_premium_to_low": 0.418481,
+                  "dry": 0.0,
+                  "dry_at_low": 0.722222,
+                  "max_4w_spent_increase": 0.222222,
+                  "max_portfolio_drawdown": 0.077354,
+                  "max_spent_before_low": 0.222222,
+                  "min_dry_before_low": 0.777778,
+                  "pool_return": 0.572646,
+                  "spent": 1.0,
+                  "spent_by_low": 0.277778,
+                  "terminal_value": 1.572646,
+                  "units": 0.0135572944
+                },
+                "fixed_52w_dca": {
+                  "avg_cost": 83.1308,
+                  "avg_cost_premium_to_low": 0.598668,
+                  "dry": 0.0,
+                  "dry_at_low": 0.827586,
+                  "max_4w_spent_increase": 0.137931,
+                  "max_portfolio_drawdown": 0.048013,
+                  "max_spent_before_low": 0.137931,
+                  "min_dry_before_low": 0.862069,
+                  "pool_return": 0.395392,
+                  "spent": 1.0,
+                  "spent_by_low": 0.172414,
+                  "terminal_value": 1.395392,
+                  "units": 0.0120292416
+                }
+              },
+              "model": {
+                "avg_cost": 68.1885,
+                "avg_cost_premium_to_low": 0.311317,
+                "decoupled_anchor_diag": {
+                  "anchor": 17.936017,
+                  "forecast_anchor": 30.0,
+                  "implied_anchor_m": 0.35872,
+                  "pred_bottom": 50.0,
+                  "recipe_id": "library_max_blend_35",
+                  "support_anchor": 6.9,
+                  "support_drawdown": 0.931,
+                  "support_weight": 0.35
+                },
+                "decoupled_deep_anchor": true,
+                "dry": 0.108372,
+                "dry_at_low": 0.490901,
+                "early_exhaustion_before_low": false,
+                "max_4w_spent_increase": 0.550692,
+                "max_portfolio_drawdown": 0.089361,
+                "max_spent_before_low": 0.294055,
+                "min_dry_before_low": 0.705945,
+                "pool_return": 0.62518,
+                "reserve_frac": 0.2,
+                "spent": 0.891628,
+                "spent_by_low": 0.509099,
+                "terminal_ratio_vs_dca18": 1.033405,
+                "terminal_ratio_vs_dca52": 1.164676,
+                "terminal_value": 1.62518,
+                "units": 0.0130759333
+              },
+              "end_price": 116.0,
+              "failures": [],
+              "id": "fast_v",
+              "min_dry_first_two_thirds": 0.219409,
+              "pred_dd": 0.5,
+              "realized_low": 52.0,
+              "realized_low_week": 4,
+              "status": "PASS",
+              "weeks": 29
+            },
+            {
+              "asset": "BTC",
+              "baselines": {
+                "fixed_18w_dca": {
+                  "avg_cost": 82.3368,
+                  "avg_cost_premium_to_low": 0.143567,
+                  "dry": 0.0,
+                  "dry_at_low": 0.388889,
+                  "max_4w_spent_increase": 0.222222,
+                  "max_portfolio_drawdown": 0.093955,
+                  "max_spent_before_low": 0.555556,
+                  "min_dry_before_low": 0.444444,
+                  "pool_return": 0.481719,
+                  "spent": 1.0,
+                  "spent_by_low": 0.611111,
+                  "terminal_value": 1.481719,
+                  "units": 0.0121452377
+                },
+                "fixed_52w_dca": {
+                  "avg_cost": 93.0295,
+                  "avg_cost_premium_to_low": 0.292076,
+                  "dry": 0.0,
+                  "dry_at_low": 0.744186,
+                  "max_4w_spent_increase": 0.093023,
+                  "max_portfolio_drawdown": 0.03933,
+                  "max_spent_before_low": 0.232558,
+                  "min_dry_before_low": 0.767442,
+                  "pool_return": 0.311413,
+                  "spent": 1.0,
+                  "spent_by_low": 0.255814,
+                  "terminal_value": 1.311413,
+                  "units": 0.0107492832
+                }
+              },
+              "model": {
+                "avg_cost": 97.52,
+                "avg_cost_premium_to_low": 0.354444,
+                "decoupled_anchor_diag": {
+                  "anchor": 17.936017,
+                  "forecast_anchor": 30.0,
+                  "implied_anchor_m": 0.35872,
+                  "pred_bottom": 50.0,
+                  "recipe_id": "library_max_blend_35",
+                  "support_anchor": 6.9,
+                  "support_drawdown": 0.931,
+                  "support_weight": 0.35
+                },
+                "decoupled_deep_anchor": true,
+                "dry": 0.0,
+                "dry_at_low": 0.751969,
+                "early_exhaustion_before_low": false,
+                "max_4w_spent_increase": 0.286027,
+                "max_portfolio_drawdown": 0.033869,
+                "max_spent_before_low": 0.214357,
+                "min_dry_before_low": 0.785643,
+                "pool_return": 0.251026,
+                "reserve_frac": 0.2,
+                "spent": 1.0,
+                "spent_by_low": 0.248031,
+                "terminal_ratio_vs_dca18": 0.844307,
+                "terminal_ratio_vs_dca52": 0.953953,
+                "terminal_value": 1.251026,
+                "units": 0.0102543107
+              },
+              "end_price": 122.0,
+              "failures": [],
+              "id": "shallow_recover",
+              "min_dry_first_two_thirds": 0.406532,
+              "pred_dd": 0.5,
+              "realized_low": 72.0,
+              "realized_low_week": 10,
+              "status": "PASS",
+              "weeks": 43
+            }
+          ],
+          "scope": "full_stack_decoupled_deep_anchor_policy",
+          "status": "FAIL"
+        },
+        "synthetic_gap": 0.159564,
+        "synthetic_pass": false,
+        "verdict": "REJECTED_SYNTHETIC_GATES"
+      },
+      {
+        "historical": {
+          "cost_win_rate_vs_live": 0.625,
+          "episodes": [
+            {
+              "anchor_diag": {
+                "anchor": 2084.17392,
+                "forecast_anchor": 3228.807201,
+                "implied_anchor_m": 0.387296,
+                "pred_bottom": 5381.345335,
+                "recipe_id": "library_max_blend_50",
+                "support_anchor": 1345.320627,
+                "support_drawdown": 0.931,
+                "support_weight": 0.5
+              },
+              "asset": "BTC",
+              "avg_cost_premium_delta_vs_live": 0.1418,
+              "candidate_avg_cost_premium_to_low": 0.87613,
+              "candidate_early_exhaustion": false,
+              "candidate_spent_by_low": 0.547179,
+              "candidate_terminal": 1.198373,
+              "episode": "2018 bear (single low)",
+              "live_avg_cost_premium_to_low": 0.73433,
+              "live_spent_by_low": 0.796243,
+              "live_terminal": 1.296353,
+              "terminal_delta_vs_live": -0.075581
+            },
+            {
+              "anchor_diag": {
+                "anchor": 118.49017,
+                "forecast_anchor": 167.570405,
+                "implied_anchor_m": 0.424264,
+                "pred_bottom": 279.284009,
+                "recipe_id": "library_max_blend_50",
+                "support_anchor": 83.785203,
+                "support_drawdown": 0.94,
+                "support_weight": 0.5
+              },
+              "asset": "ETH",
+              "avg_cost_premium_delta_vs_live": -0.194506,
+              "candidate_avg_cost_premium_to_low": 1.472456,
+              "candidate_early_exhaustion": false,
+              "candidate_spent_by_low": 0.715,
+              "candidate_terminal": 0.610293,
+              "episode": "2018 bear (single low)",
+              "live_avg_cost_premium_to_low": 1.666962,
+              "live_spent_by_low": 0.715,
+              "live_terminal": 0.565783,
+              "terminal_delta_vs_live": 0.07867
+            },
+            {
+              "anchor_diag": {
+                "anchor": 6614.639277,
+                "forecast_anchor": 9384.901271,
+                "implied_anchor_m": 0.42289,
+                "pred_bottom": 15641.502119,
+                "recipe_id": "library_max_blend_50",
+                "support_anchor": 4662.111141,
+                "support_drawdown": 0.931,
+                "support_weight": 0.5
+              },
+              "asset": "BTC",
+              "avg_cost_premium_delta_vs_live": 0.002767,
+              "candidate_avg_cost_premium_to_low": 0.397712,
+              "candidate_early_exhaustion": false,
+              "candidate_spent_by_low": 0.744,
+              "candidate_terminal": 1.823055,
+              "episode": "2022 bear (DOUBLE bottom)",
+              "live_avg_cost_premium_to_low": 0.394945,
+              "live_spent_by_low": 0.744,
+              "live_terminal": 1.826671,
+              "terminal_delta_vs_live": -0.00198
+            },
+            {
+              "anchor_diag": {
+                "anchor": 310.153687,
+                "forecast_anchor": 333.172494,
+                "implied_anchor_m": 0.558546,
+                "pred_bottom": 555.28749,
+                "recipe_id": "library_max_blend_50",
+                "support_anchor": 288.725244,
+                "support_drawdown": 0.94,
+                "support_weight": 0.5
+              },
+              "asset": "ETH",
+              "avg_cost_premium_delta_vs_live": 0.01064,
+              "candidate_avg_cost_premium_to_low": 0.361649,
+              "candidate_early_exhaustion": false,
+              "candidate_spent_by_low": 0.455742,
+              "candidate_terminal": 1.594346,
+              "episode": "2022 bear (DOUBLE bottom)",
+              "live_avg_cost_premium_to_low": 0.351009,
+              "live_spent_by_low": 0.438121,
+              "live_terminal": 1.606902,
+              "terminal_delta_vs_live": -0.007814
+            },
+            {
+              "anchor_diag": {
+                "anchor": 1274.259546,
+                "forecast_anchor": 1807.929282,
+                "implied_anchor_m": 0.42289,
+                "pred_bottom": 3013.215469,
+                "recipe_id": "library_max_blend_50",
+                "support_anchor": 898.11997,
+                "support_drawdown": 0.931,
+                "support_weight": 0.5
+              },
+              "asset": "BTC",
+              "avg_cost_premium_delta_vs_live": 0.0,
+              "candidate_avg_cost_premium_to_low": 0.165846,
+              "candidate_early_exhaustion": false,
+              "candidate_spent_by_low": 0.466449,
+              "candidate_terminal": 1.130885,
+              "episode": "2019 H2 correction (mid-cycle)",
+              "live_avg_cost_premium_to_low": 0.165846,
+              "live_spent_by_low": 0.466449,
+              "live_terminal": 1.130885,
+              "terminal_delta_vs_live": 0.0
+            },
+            {
+              "anchor_diag": {
+                "anchor": 21.704768,
+                "forecast_anchor": 23.315639,
+                "implied_anchor_m": 0.558546,
+                "pred_bottom": 38.859399,
+                "recipe_id": "library_max_blend_50",
+                "support_anchor": 20.20519,
+                "support_drawdown": 0.94,
+                "support_weight": 0.5
+              },
+              "asset": "ETH",
+              "avg_cost_premium_delta_vs_live": -0.012021,
+              "candidate_avg_cost_premium_to_low": 0.437116,
+              "candidate_early_exhaustion": false,
+              "candidate_spent_by_low": 0.504385,
+              "candidate_terminal": 1.349145,
+              "episode": "2019 H2 correction (mid-cycle)",
+              "live_avg_cost_premium_to_low": 0.449137,
+              "live_spent_by_low": 0.493192,
+              "live_terminal": 1.336451,
+              "terminal_delta_vs_live": 0.009498
+            },
+            {
+              "anchor_diag": {
+                "anchor": 1010.897341,
+                "forecast_anchor": 1434.268952,
+                "implied_anchor_m": 0.42289,
+                "pred_bottom": 2390.448253,
+                "recipe_id": "library_max_blend_50",
+                "support_anchor": 712.497773,
+                "support_drawdown": 0.931,
+                "support_weight": 0.5
+              },
+              "asset": "BTC",
+              "avg_cost_premium_delta_vs_live": 0.0,
+              "candidate_avg_cost_premium_to_low": 0.258969,
+              "candidate_early_exhaustion": false,
+              "candidate_spent_by_low": 0.17231,
+              "candidate_terminal": 1.479569,
+              "episode": "2020 COVID crash (fast V)",
+              "live_avg_cost_premium_to_low": 0.258969,
+              "live_spent_by_low": 0.17231,
+              "live_terminal": 1.479569,
+              "terminal_delta_vs_live": 0.0
+            },
+            {
+              "anchor_diag": {
+                "anchor": 18.318683,
+                "forecast_anchor": 19.678249,
+                "implied_anchor_m": 0.558546,
+                "pred_bottom": 32.797081,
+                "recipe_id": "library_max_blend_50",
+                "support_anchor": 17.05305,
+                "support_drawdown": 0.94,
+                "support_weight": 0.5
+              },
+              "asset": "ETH",
+              "avg_cost_premium_delta_vs_live": 0.0,
+              "candidate_avg_cost_premium_to_low": 0.335463,
+              "candidate_early_exhaustion": false,
+              "candidate_spent_by_low": 0.381428,
+              "candidate_terminal": 1.849287,
+              "episode": "2020 COVID crash (fast V)",
+              "live_avg_cost_premium_to_low": 0.335463,
+              "live_spent_by_low": 0.381428,
+              "live_terminal": 1.849287,
+              "terminal_delta_vs_live": 0.0
+            }
+          ],
+          "mean_cost_premium_delta_vs_live": -0.006415,
+          "mean_terminal_delta_vs_live": 0.000349,
+          "n": 8,
+          "new_early_exhaustion_episodes": 0,
+          "scope": "historical_accumulation_episodes_vs_live",
+          "terminal_win_rate_vs_live": 0.625,
+          "worst_cost_premium_delta_vs_live": 0.1418,
+          "worst_terminal_delta_vs_live": -0.075581
+        },
+        "historical_pass": true,
+        "id": "library_max_blend_50",
+        "recipe": {
+          "drawdown_quantile": 1.0,
+          "id": "library_max_blend_50",
+          "support_weight": 0.5
+        },
+        "synthetic": {
+          "early_exhaustion_guard": {
+            "historical_flags": [],
+            "scope": "historical_and_synthetic_full_stack",
+            "status": "PASS",
+            "summary": {
+              "historical_flags": 0,
+              "synthetic_flags": 0
+            },
+            "synthetic_flags": []
+          },
+          "gates": {
+            "synthetic_delayed_lower_low": {
+              "rows": [
+                {
+                  "asset": "BTC",
+                  "baselines": {
+                    "fixed_18w_dca": {
+                      "avg_cost": 71.6202,
+                      "avg_cost_premium_to_low": 1.23813,
+                      "dry": 0.0,
+                      "dry_at_low": 0.0,
+                      "max_4w_spent_increase": 0.222222,
+                      "max_portfolio_drawdown": 0.553199,
+                      "max_spent_before_low": 1.0,
+                      "min_dry_before_low": 0.0,
+                      "pool_return": -0.190172,
+                      "spent": 1.0,
+                      "spent_by_low": 1.0,
+                      "terminal_value": 0.809828,
+                      "units": 0.0139625468
+                    },
+                    "fixed_52w_dca": {
+                      "avg_cost": 59.2378,
+                      "avg_cost_premium_to_low": 0.851181,
+                      "dry": 0.0,
+                      "dry_at_low": 0.0,
+                      "max_4w_spent_increase": 0.076923,
+                      "max_portfolio_drawdown": 0.459804,
+                      "max_spent_before_low": 1.0,
+                      "min_dry_before_low": 0.0,
+                      "pool_return": -0.020895,
+                      "spent": 1.0,
+                      "spent_by_low": 1.0,
+                      "terminal_value": 0.979105,
+                      "units": 0.0168811135
+                    }
+                  },
+                  "model": {
+                    "avg_cost": 55.4754,
+                    "avg_cost_premium_to_low": 0.733606,
+                    "decoupled_anchor_diag": {
+                      "anchor": 13.649176,
+                      "forecast_anchor": 27.0,
+                      "implied_anchor_m": 0.303315,
+                      "pred_bottom": 45.0,
+                      "recipe_id": "library_max_blend_50",
+                      "support_anchor": 6.9,
+                      "support_drawdown": 0.931,
+                      "support_weight": 0.5
+                    },
+                    "decoupled_deep_anchor": true,
+                    "dry": 0.054321,
+                    "dry_at_low": 0.320125,
+                    "early_exhaustion_before_low": false,
+                    "max_4w_spent_increase": 0.214821,
+                    "max_portfolio_drawdown": 0.309122,
+                    "max_spent_before_low": 0.668083,
+                    "min_dry_before_low": 0.331917,
+                    "pool_return": 0.043037,
+                    "reserve_frac": 0.2,
+                    "spent": 0.945679,
+                    "spent_by_low": 0.679875,
+                    "terminal_ratio_vs_dca18": 1.287973,
+                    "terminal_ratio_vs_dca52": 1.065296,
+                    "terminal_value": 1.043037,
+                    "units": 0.0170468141
+                  },
+                  "end_price": 58.0,
+                  "failures": [
+                    "average entry premium above 60%"
+                  ],
+                  "id": "delayed_lower_low",
+                  "min_dry_first_two_thirds": 0.365769,
+                  "pred_dd": 0.55,
+                  "realized_low": 32.0,
+                  "realized_low_week": 56,
+                  "status": "FAIL",
+                  "weeks": 79
+                }
+              ],
+              "scope": "full_stack_run_full_policy",
+              "status": "FAIL",
+              "summary": {
+                "failing_ids": [
+                  "delayed_lower_low"
+                ],
+                "failing_paths": 1,
+                "min_terminal_ratio_vs_dca18": 1.287973,
+                "min_terminal_ratio_vs_dca52": 1.065296,
+                "paths": 1
+              }
+            },
+            "synthetic_false_bottom_continued_grind": {
+              "rows": [
+                {
+                  "asset": "BTC",
+                  "baselines": {
+                    "fixed_18w_dca": {
+                      "avg_cost": 70.5951,
+                      "avg_cost_premium_to_low": 1.823803,
+                      "dry": 0.0,
+                      "dry_at_low": 0.0,
+                      "max_4w_spent_increase": 0.222222,
+                      "max_portfolio_drawdown": 0.645868,
+                      "max_spent_before_low": 1.0,
+                      "min_dry_before_low": 0.0,
+                      "pool_return": -0.447553,
+                      "spent": 1.0,
+                      "spent_by_low": 1.0,
+                      "terminal_value": 0.552447,
+                      "units": 0.0141652965
+                    },
+                    "fixed_52w_dca": {
+                      "avg_cost": 61.1751,
+                      "avg_cost_premium_to_low": 1.447003,
+                      "dry": 0.0,
+                      "dry_at_low": 0.0,
+                      "max_4w_spent_increase": 0.076923,
+                      "max_portfolio_drawdown": 0.593846,
+                      "max_spent_before_low": 1.0,
+                      "min_dry_before_low": 0.0,
+                      "pool_return": -0.362486,
+                      "spent": 1.0,
+                      "spent_by_low": 1.0,
+                      "terminal_value": 0.637514,
+                      "units": 0.0163465241
+                    }
+                  },
+                  "model": {
+                    "avg_cost": 54.636,
+                    "avg_cost_premium_to_low": 1.185441,
+                    "decoupled_anchor_diag": {
+                      "anchor": 13.649176,
+                      "forecast_anchor": 27.0,
+                      "implied_anchor_m": 0.303315,
+                      "pred_bottom": 45.0,
+                      "recipe_id": "library_max_blend_50",
+                      "support_anchor": 6.9,
+                      "support_drawdown": 0.931,
+                      "support_weight": 0.5
+                    },
+                    "decoupled_deep_anchor": true,
+                    "dry": 0.217308,
+                    "dry_at_low": 0.244231,
+                    "early_exhaustion_before_low": false,
+                    "max_4w_spent_increase": 0.225958,
+                    "max_portfolio_drawdown": 0.420233,
+                    "max_spent_before_low": 0.751026,
+                    "min_dry_before_low": 0.248974,
+                    "pool_return": -0.223995,
+                    "reserve_frac": 0.2,
+                    "spent": 0.782692,
+                    "spent_by_low": 0.755769,
+                    "terminal_ratio_vs_dca18": 1.404669,
+                    "terminal_ratio_vs_dca52": 1.217236,
+                    "terminal_value": 0.776005,
+                    "units": 0.0143255701
+                  },
+                  "end_price": 39.0,
+                  "failures": [
+                    "four-week unlock above 20pp"
+                  ],
+                  "id": "false_bottom_continued_grind",
+                  "min_dry_first_two_thirds": 0.320128,
+                  "pred_dd": 0.55,
+                  "realized_low": 25.0,
+                  "realized_low_week": 76,
+                  "status": "FAIL",
+                  "weeks": 91
+                }
+              ],
+              "scope": "full_stack_run_full_policy",
+              "status": "FAIL",
+              "summary": {
+                "failing_ids": [
+                  "false_bottom_continued_grind"
+                ],
+                "failing_paths": 1,
+                "min_terminal_ratio_vs_dca18": 1.404669,
+                "min_terminal_ratio_vs_dca52": 1.217236,
+                "paths": 1
+              }
+            },
+            "synthetic_fast_v_participation": {
+              "rows": [
+                {
+                  "asset": "BTC",
+                  "baselines": {
+                    "fixed_18w_dca": {
+                      "avg_cost": 73.761,
+                      "avg_cost_premium_to_low": 0.418481,
+                      "dry": 0.0,
+                      "dry_at_low": 0.722222,
+                      "max_4w_spent_increase": 0.222222,
+                      "max_portfolio_drawdown": 0.077354,
+                      "max_spent_before_low": 0.222222,
+                      "min_dry_before_low": 0.777778,
+                      "pool_return": 0.572646,
+                      "spent": 1.0,
+                      "spent_by_low": 0.277778,
+                      "terminal_value": 1.572646,
+                      "units": 0.0135572944
+                    },
+                    "fixed_52w_dca": {
+                      "avg_cost": 83.1308,
+                      "avg_cost_premium_to_low": 0.598668,
+                      "dry": 0.0,
+                      "dry_at_low": 0.827586,
+                      "max_4w_spent_increase": 0.137931,
+                      "max_portfolio_drawdown": 0.048013,
+                      "max_spent_before_low": 0.137931,
+                      "min_dry_before_low": 0.862069,
+                      "pool_return": 0.395392,
+                      "spent": 1.0,
+                      "spent_by_low": 0.172414,
+                      "terminal_value": 1.395392,
+                      "units": 0.0120292416
+                    }
+                  },
+                  "model": {
+                    "avg_cost": 68.1885,
+                    "avg_cost_premium_to_low": 0.311317,
+                    "decoupled_anchor_diag": {
+                      "anchor": 14.387495,
+                      "forecast_anchor": 30.0,
+                      "implied_anchor_m": 0.28775,
+                      "pred_bottom": 50.0,
+                      "recipe_id": "library_max_blend_50",
+                      "support_anchor": 6.9,
+                      "support_drawdown": 0.931,
+                      "support_weight": 0.5
+                    },
+                    "decoupled_deep_anchor": true,
+                    "dry": 0.108372,
+                    "dry_at_low": 0.490901,
+                    "early_exhaustion_before_low": false,
+                    "max_4w_spent_increase": 0.550692,
+                    "max_portfolio_drawdown": 0.089361,
+                    "max_spent_before_low": 0.294055,
+                    "min_dry_before_low": 0.705945,
+                    "pool_return": 0.62518,
+                    "reserve_frac": 0.2,
+                    "spent": 0.891628,
+                    "spent_by_low": 0.509099,
+                    "terminal_ratio_vs_dca18": 1.033405,
+                    "terminal_ratio_vs_dca52": 1.164676,
+                    "terminal_value": 1.62518,
+                    "units": 0.0130759333
+                  },
+                  "end_price": 116.0,
+                  "failures": [],
+                  "id": "fast_v",
+                  "min_dry_first_two_thirds": 0.219409,
+                  "pred_dd": 0.5,
+                  "realized_low": 52.0,
+                  "realized_low_week": 4,
+                  "status": "PASS",
+                  "weeks": 29
+                }
+              ],
+              "scope": "full_stack_run_full_policy",
+              "status": "PASS",
+              "summary": {
+                "failing_ids": [],
+                "failing_paths": 0,
+                "min_terminal_ratio_vs_dca18": 1.033405,
+                "min_terminal_ratio_vs_dca52": 1.164676,
+                "paths": 1
+              }
+            },
+            "synthetic_shallow_recover": {
+              "rows": [
+                {
+                  "asset": "BTC",
+                  "baselines": {
+                    "fixed_18w_dca": {
+                      "avg_cost": 82.3368,
+                      "avg_cost_premium_to_low": 0.143567,
+                      "dry": 0.0,
+                      "dry_at_low": 0.388889,
+                      "max_4w_spent_increase": 0.222222,
+                      "max_portfolio_drawdown": 0.093955,
+                      "max_spent_before_low": 0.555556,
+                      "min_dry_before_low": 0.444444,
+                      "pool_return": 0.481719,
+                      "spent": 1.0,
+                      "spent_by_low": 0.611111,
+                      "terminal_value": 1.481719,
+                      "units": 0.0121452377
+                    },
+                    "fixed_52w_dca": {
+                      "avg_cost": 93.0295,
+                      "avg_cost_premium_to_low": 0.292076,
+                      "dry": 0.0,
+                      "dry_at_low": 0.744186,
+                      "max_4w_spent_increase": 0.093023,
+                      "max_portfolio_drawdown": 0.03933,
+                      "max_spent_before_low": 0.232558,
+                      "min_dry_before_low": 0.767442,
+                      "pool_return": 0.311413,
+                      "spent": 1.0,
+                      "spent_by_low": 0.255814,
+                      "terminal_value": 1.311413,
+                      "units": 0.0107492832
+                    }
+                  },
+                  "model": {
+                    "avg_cost": 97.52,
+                    "avg_cost_premium_to_low": 0.354444,
+                    "decoupled_anchor_diag": {
+                      "anchor": 14.387495,
+                      "forecast_anchor": 30.0,
+                      "implied_anchor_m": 0.28775,
+                      "pred_bottom": 50.0,
+                      "recipe_id": "library_max_blend_50",
+                      "support_anchor": 6.9,
+                      "support_drawdown": 0.931,
+                      "support_weight": 0.5
+                    },
+                    "decoupled_deep_anchor": true,
+                    "dry": 0.0,
+                    "dry_at_low": 0.751969,
+                    "early_exhaustion_before_low": false,
+                    "max_4w_spent_increase": 0.286027,
+                    "max_portfolio_drawdown": 0.033869,
+                    "max_spent_before_low": 0.214357,
+                    "min_dry_before_low": 0.785643,
+                    "pool_return": 0.251026,
+                    "reserve_frac": 0.2,
+                    "spent": 1.0,
+                    "spent_by_low": 0.248031,
+                    "terminal_ratio_vs_dca18": 0.844307,
+                    "terminal_ratio_vs_dca52": 0.953953,
+                    "terminal_value": 1.251026,
+                    "units": 0.0102543107
+                  },
+                  "end_price": 122.0,
+                  "failures": [],
+                  "id": "shallow_recover",
+                  "min_dry_first_two_thirds": 0.406532,
+                  "pred_dd": 0.5,
+                  "realized_low": 72.0,
+                  "realized_low_week": 10,
+                  "status": "PASS",
+                  "weeks": 43
+                }
+              ],
+              "scope": "full_stack_run_full_policy",
+              "status": "PASS",
+              "summary": {
+                "failing_ids": [],
+                "failing_paths": 0,
+                "min_terminal_ratio_vs_dca18": 0.844307,
+                "min_terminal_ratio_vs_dca52": 0.953953,
+                "paths": 1
+              }
+            }
+          },
+          "recipe": {
+            "drawdown_quantile": 1.0,
+            "id": "library_max_blend_50",
+            "support_weight": 0.5
+          },
+          "rows": [
+            {
+              "asset": "BTC",
+              "baselines": {
+                "fixed_18w_dca": {
+                  "avg_cost": 71.6202,
+                  "avg_cost_premium_to_low": 1.23813,
+                  "dry": 0.0,
+                  "dry_at_low": 0.0,
+                  "max_4w_spent_increase": 0.222222,
+                  "max_portfolio_drawdown": 0.553199,
+                  "max_spent_before_low": 1.0,
+                  "min_dry_before_low": 0.0,
+                  "pool_return": -0.190172,
+                  "spent": 1.0,
+                  "spent_by_low": 1.0,
+                  "terminal_value": 0.809828,
+                  "units": 0.0139625468
+                },
+                "fixed_52w_dca": {
+                  "avg_cost": 59.2378,
+                  "avg_cost_premium_to_low": 0.851181,
+                  "dry": 0.0,
+                  "dry_at_low": 0.0,
+                  "max_4w_spent_increase": 0.076923,
+                  "max_portfolio_drawdown": 0.459804,
+                  "max_spent_before_low": 1.0,
+                  "min_dry_before_low": 0.0,
+                  "pool_return": -0.020895,
+                  "spent": 1.0,
+                  "spent_by_low": 1.0,
+                  "terminal_value": 0.979105,
+                  "units": 0.0168811135
+                }
+              },
+              "model": {
+                "avg_cost": 55.4754,
+                "avg_cost_premium_to_low": 0.733606,
+                "decoupled_anchor_diag": {
+                  "anchor": 13.649176,
+                  "forecast_anchor": 27.0,
+                  "implied_anchor_m": 0.303315,
+                  "pred_bottom": 45.0,
+                  "recipe_id": "library_max_blend_50",
+                  "support_anchor": 6.9,
+                  "support_drawdown": 0.931,
+                  "support_weight": 0.5
+                },
+                "decoupled_deep_anchor": true,
+                "dry": 0.054321,
+                "dry_at_low": 0.320125,
+                "early_exhaustion_before_low": false,
+                "max_4w_spent_increase": 0.214821,
+                "max_portfolio_drawdown": 0.309122,
+                "max_spent_before_low": 0.668083,
+                "min_dry_before_low": 0.331917,
+                "pool_return": 0.043037,
+                "reserve_frac": 0.2,
+                "spent": 0.945679,
+                "spent_by_low": 0.679875,
+                "terminal_ratio_vs_dca18": 1.287973,
+                "terminal_ratio_vs_dca52": 1.065296,
+                "terminal_value": 1.043037,
+                "units": 0.0170468141
+              },
+              "end_price": 58.0,
+              "failures": [
+                "average entry premium above 60%"
+              ],
+              "id": "delayed_lower_low",
+              "min_dry_first_two_thirds": 0.365769,
+              "pred_dd": 0.55,
+              "realized_low": 32.0,
+              "realized_low_week": 56,
+              "status": "FAIL",
+              "weeks": 79
+            },
+            {
+              "asset": "BTC",
+              "baselines": {
+                "fixed_18w_dca": {
+                  "avg_cost": 70.5951,
+                  "avg_cost_premium_to_low": 1.823803,
+                  "dry": 0.0,
+                  "dry_at_low": 0.0,
+                  "max_4w_spent_increase": 0.222222,
+                  "max_portfolio_drawdown": 0.645868,
+                  "max_spent_before_low": 1.0,
+                  "min_dry_before_low": 0.0,
+                  "pool_return": -0.447553,
+                  "spent": 1.0,
+                  "spent_by_low": 1.0,
+                  "terminal_value": 0.552447,
+                  "units": 0.0141652965
+                },
+                "fixed_52w_dca": {
+                  "avg_cost": 61.1751,
+                  "avg_cost_premium_to_low": 1.447003,
+                  "dry": 0.0,
+                  "dry_at_low": 0.0,
+                  "max_4w_spent_increase": 0.076923,
+                  "max_portfolio_drawdown": 0.593846,
+                  "max_spent_before_low": 1.0,
+                  "min_dry_before_low": 0.0,
+                  "pool_return": -0.362486,
+                  "spent": 1.0,
+                  "spent_by_low": 1.0,
+                  "terminal_value": 0.637514,
+                  "units": 0.0163465241
+                }
+              },
+              "model": {
+                "avg_cost": 54.636,
+                "avg_cost_premium_to_low": 1.185441,
+                "decoupled_anchor_diag": {
+                  "anchor": 13.649176,
+                  "forecast_anchor": 27.0,
+                  "implied_anchor_m": 0.303315,
+                  "pred_bottom": 45.0,
+                  "recipe_id": "library_max_blend_50",
+                  "support_anchor": 6.9,
+                  "support_drawdown": 0.931,
+                  "support_weight": 0.5
+                },
+                "decoupled_deep_anchor": true,
+                "dry": 0.217308,
+                "dry_at_low": 0.244231,
+                "early_exhaustion_before_low": false,
+                "max_4w_spent_increase": 0.225958,
+                "max_portfolio_drawdown": 0.420233,
+                "max_spent_before_low": 0.751026,
+                "min_dry_before_low": 0.248974,
+                "pool_return": -0.223995,
+                "reserve_frac": 0.2,
+                "spent": 0.782692,
+                "spent_by_low": 0.755769,
+                "terminal_ratio_vs_dca18": 1.404669,
+                "terminal_ratio_vs_dca52": 1.217236,
+                "terminal_value": 0.776005,
+                "units": 0.0143255701
+              },
+              "end_price": 39.0,
+              "failures": [
+                "four-week unlock above 20pp"
+              ],
+              "id": "false_bottom_continued_grind",
+              "min_dry_first_two_thirds": 0.320128,
+              "pred_dd": 0.55,
+              "realized_low": 25.0,
+              "realized_low_week": 76,
+              "status": "FAIL",
+              "weeks": 91
+            },
+            {
+              "asset": "BTC",
+              "baselines": {
+                "fixed_18w_dca": {
+                  "avg_cost": 73.761,
+                  "avg_cost_premium_to_low": 0.418481,
+                  "dry": 0.0,
+                  "dry_at_low": 0.722222,
+                  "max_4w_spent_increase": 0.222222,
+                  "max_portfolio_drawdown": 0.077354,
+                  "max_spent_before_low": 0.222222,
+                  "min_dry_before_low": 0.777778,
+                  "pool_return": 0.572646,
+                  "spent": 1.0,
+                  "spent_by_low": 0.277778,
+                  "terminal_value": 1.572646,
+                  "units": 0.0135572944
+                },
+                "fixed_52w_dca": {
+                  "avg_cost": 83.1308,
+                  "avg_cost_premium_to_low": 0.598668,
+                  "dry": 0.0,
+                  "dry_at_low": 0.827586,
+                  "max_4w_spent_increase": 0.137931,
+                  "max_portfolio_drawdown": 0.048013,
+                  "max_spent_before_low": 0.137931,
+                  "min_dry_before_low": 0.862069,
+                  "pool_return": 0.395392,
+                  "spent": 1.0,
+                  "spent_by_low": 0.172414,
+                  "terminal_value": 1.395392,
+                  "units": 0.0120292416
+                }
+              },
+              "model": {
+                "avg_cost": 68.1885,
+                "avg_cost_premium_to_low": 0.311317,
+                "decoupled_anchor_diag": {
+                  "anchor": 14.387495,
+                  "forecast_anchor": 30.0,
+                  "implied_anchor_m": 0.28775,
+                  "pred_bottom": 50.0,
+                  "recipe_id": "library_max_blend_50",
+                  "support_anchor": 6.9,
+                  "support_drawdown": 0.931,
+                  "support_weight": 0.5
+                },
+                "decoupled_deep_anchor": true,
+                "dry": 0.108372,
+                "dry_at_low": 0.490901,
+                "early_exhaustion_before_low": false,
+                "max_4w_spent_increase": 0.550692,
+                "max_portfolio_drawdown": 0.089361,
+                "max_spent_before_low": 0.294055,
+                "min_dry_before_low": 0.705945,
+                "pool_return": 0.62518,
+                "reserve_frac": 0.2,
+                "spent": 0.891628,
+                "spent_by_low": 0.509099,
+                "terminal_ratio_vs_dca18": 1.033405,
+                "terminal_ratio_vs_dca52": 1.164676,
+                "terminal_value": 1.62518,
+                "units": 0.0130759333
+              },
+              "end_price": 116.0,
+              "failures": [],
+              "id": "fast_v",
+              "min_dry_first_two_thirds": 0.219409,
+              "pred_dd": 0.5,
+              "realized_low": 52.0,
+              "realized_low_week": 4,
+              "status": "PASS",
+              "weeks": 29
+            },
+            {
+              "asset": "BTC",
+              "baselines": {
+                "fixed_18w_dca": {
+                  "avg_cost": 82.3368,
+                  "avg_cost_premium_to_low": 0.143567,
+                  "dry": 0.0,
+                  "dry_at_low": 0.388889,
+                  "max_4w_spent_increase": 0.222222,
+                  "max_portfolio_drawdown": 0.093955,
+                  "max_spent_before_low": 0.555556,
+                  "min_dry_before_low": 0.444444,
+                  "pool_return": 0.481719,
+                  "spent": 1.0,
+                  "spent_by_low": 0.611111,
+                  "terminal_value": 1.481719,
+                  "units": 0.0121452377
+                },
+                "fixed_52w_dca": {
+                  "avg_cost": 93.0295,
+                  "avg_cost_premium_to_low": 0.292076,
+                  "dry": 0.0,
+                  "dry_at_low": 0.744186,
+                  "max_4w_spent_increase": 0.093023,
+                  "max_portfolio_drawdown": 0.03933,
+                  "max_spent_before_low": 0.232558,
+                  "min_dry_before_low": 0.767442,
+                  "pool_return": 0.311413,
+                  "spent": 1.0,
+                  "spent_by_low": 0.255814,
+                  "terminal_value": 1.311413,
+                  "units": 0.0107492832
+                }
+              },
+              "model": {
+                "avg_cost": 97.52,
+                "avg_cost_premium_to_low": 0.354444,
+                "decoupled_anchor_diag": {
+                  "anchor": 14.387495,
+                  "forecast_anchor": 30.0,
+                  "implied_anchor_m": 0.28775,
+                  "pred_bottom": 50.0,
+                  "recipe_id": "library_max_blend_50",
+                  "support_anchor": 6.9,
+                  "support_drawdown": 0.931,
+                  "support_weight": 0.5
+                },
+                "decoupled_deep_anchor": true,
+                "dry": 0.0,
+                "dry_at_low": 0.751969,
+                "early_exhaustion_before_low": false,
+                "max_4w_spent_increase": 0.286027,
+                "max_portfolio_drawdown": 0.033869,
+                "max_spent_before_low": 0.214357,
+                "min_dry_before_low": 0.785643,
+                "pool_return": 0.251026,
+                "reserve_frac": 0.2,
+                "spent": 1.0,
+                "spent_by_low": 0.248031,
+                "terminal_ratio_vs_dca18": 0.844307,
+                "terminal_ratio_vs_dca52": 0.953953,
+                "terminal_value": 1.251026,
+                "units": 0.0102543107
+              },
+              "end_price": 122.0,
+              "failures": [],
+              "id": "shallow_recover",
+              "min_dry_first_two_thirds": 0.406532,
+              "pred_dd": 0.5,
+              "realized_low": 72.0,
+              "realized_low_week": 10,
+              "status": "PASS",
+              "weeks": 43
+            }
+          ],
+          "scope": "full_stack_decoupled_deep_anchor_policy",
+          "status": "FAIL"
+        },
+        "synthetic_gap": 0.159564,
+        "synthetic_pass": false,
+        "verdict": "REJECTED_SYNTHETIC_GATES"
+      }
+    ],
+    "scope": "research_only_not_live_default",
+    "synthetic_pass": false,
+    "verdict": "REJECTED_SYNTHETIC_GATES"
+  },
+  "generated_at": "2026-07-06T15:20:41.502005+00:00",
   "known_risks": [
     {
       "evidence": "The live policy now uses deploy_duration_cdf_floor() with horizon multipliers (1.0, 1.5, 2.0) instead of a single linear 52-week clock.",
@@ -1391,10 +4982,10 @@
       "status": "MITIGATED_RETEST_REQUIRED"
     },
     {
-      "evidence": "Deep anchor is coupled to the bottom forecast through DEPLOY_DEEP_ANCHOR_M=0.6.",
+      "evidence": "Deep anchor is coupled to the bottom forecast through DEPLOY_DEEP_ANCHOR_M=0.6; anchor-only candidate verdict=REJECTED_SYNTHETIC_GATES.",
       "id": "forecast_coupled_deep_anchor",
       "risk": "If the bottom forecast follows price lower during a delayed lower-low path, depth-floor sizing can release working capital too early; the final reserve tranche is now separately gated by non-forecast evidence.",
-      "status": "OPEN_LAST_TRANCHE_DECOUPLED"
+      "status": "TESTED_REJECTED_SYNTHETIC_GATES"
     },
     {
       "evidence": "DEPLOY_LAST_TRANCHE_FRACTION=0.95 is locked until absolute observed drawdown exceeds the historical library or recovery/resolution confirmation fires.",
@@ -2570,7 +6161,7 @@
     {
       "description": "Test an anchor partly tied to realized valuation support or prior-cycle support rather than only the current bottom forecast multiplier.",
       "id": "decoupled_deep_anchor",
-      "status": "PRE_REGISTERED"
+      "status": "TESTED_REJECTED_SYNTHETIC_GATES"
     },
     {
       "description": "Keep a larger late reserve until capitulation, time exhaustion, or recovery above a predeclared markup confirms.",

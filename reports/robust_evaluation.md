@@ -1,6 +1,6 @@
 # Robust Evaluation
 
-Generated: 2026-07-06T01:44:29.362640+00:00
+Generated: 2026-07-06T15:20:41.502005+00:00
 Verdict: **WATCH_CURRENT_UTILITY_AUDIT**
 
 Reasons:
@@ -132,6 +132,20 @@ Boundary:
 | ETH | 2019 H2 correction (mid-cycle) | 1.336 | 1.062 | 1.339 | 0.2% | 44.9% | 43.0% | 44.6% | 49% | 97% |
 | BTC | 2020 COVID crash (fast V) | 1.480 | 1.425 | 1.480 | 0.0% | 25.9% | 32.5% | 25.9% | 17% | 100% |
 | ETH | 2020 COVID crash (fast V) | 1.849 | 1.313 | 1.849 | 0.0% | 33.5% | 55.6% | 33.5% | 38% | 100% |
+
+### Decoupled Deep-Anchor Candidate
+
+- Verdict: **REJECTED_SYNTHETIC_GATES**
+- Best recipe: `library_p75_blend_50` (synthetic gates pass=False, historical utility preserved=True)
+- Best synthetic status: **FAIL**; historical terminal win-rate 62%, worst terminal delta -3.7%, new early-exhaustion episodes 0
+- The decoupled-deep-anchor sweep tests whether replacing the fixed forecast multiplier with asset-library support can solve the open synthetic gates without touching release mechanics. A rejected result means the remaining failure is not explained by the deep anchor alone; the evidence should be used before proposing a broader production policy change.
+
+| Recipe | Verdict | Synthetic gap | Delayed avg/low | False-bottom 4w unlock | Hist win | Worst hist delta |
+|---|---:|---:|---:|---:|---:|---:|
+| library_median_blend_50 | REJECTED_SYNTHETIC_GATES | 0.159564 | 73.4% | 22.6% | 62% | -5.8% |
+| library_p75_blend_50 | REJECTED_SYNTHETIC_GATES | 0.159564 | 73.4% | 22.6% | 62% | -3.7% |
+| library_max_blend_35 | REJECTED_SYNTHETIC_GATES | 0.159564 | 73.4% | 22.6% | 62% | -6.8% |
+| library_max_blend_50 | REJECTED_SYNTHETIC_GATES | 0.159564 | 73.4% | 22.6% | 62% | -7.6% |
 
 ### Release-Hardening Candidate
 

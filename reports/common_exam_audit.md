@@ -1,6 +1,6 @@
 # Common Exam Audit
 
-Generated: 2026-07-06T01:44:29.362640+00:00
+Generated: 2026-07-06T15:20:41.502005+00:00
 Verdict: **FAIL**
 
 The current dashboard verdict is scoped to the historical utility audit. The stricter common-exam gates now replay parameter plateau and synthetic adverse paths through the dashboard full stack. Fable's external core-only cross-audit remains recorded as a separate warning because it failed the convex core on plateau and synthetic-shape stress.
@@ -16,7 +16,7 @@ The current dashboard verdict is scoped to the historical utility audit. The str
 | Risk | Status | Evidence |
 |---|---:|---|
 | horizon_cliff | MITIGATED_RETEST_REQUIRED | The live policy now uses deploy_duration_cdf_floor() with horizon multipliers (1.0, 1.5, 2.0) instead of a single linear 52-week clock. |
-| forecast_coupled_deep_anchor | OPEN_LAST_TRANCHE_DECOUPLED | Deep anchor is coupled to the bottom forecast through DEPLOY_DEEP_ANCHOR_M=0.6. |
+| forecast_coupled_deep_anchor | TESTED_REJECTED_SYNTHETIC_GATES | Deep anchor is coupled to the bottom forecast through DEPLOY_DEEP_ANCHOR_M=0.6; anchor-only candidate verdict=REJECTED_SYNTHETIC_GATES. |
 | forecast_driven_last_tranche | MITIGATED_RETEST_REQUIRED | DEPLOY_LAST_TRANCHE_FRACTION=0.95 is locked until absolute observed drawdown exceeds the historical library or recovery/resolution confirmation fires. |
 | historical_left_tail_cost | OPEN | Historical replay contains left-tail cost weak spots; see accumulation episode rows for negative utility or high average-cost premium cases. |
 
@@ -60,6 +60,20 @@ The current dashboard verdict is scoped to the historical utility audit. The str
 | synthetic_shallow_recover | PASS | paths=1, failing=0, min DCA18 ratio=0.844307, min DCA52 ratio=0.953953 | Terminal value stays within 5% of fixed 52-week DCA.; The shallow governor prevents a non-violent correction from exhausting reserve early. |
 | early_exhaustion_guard | PASS | historical flags=0, synthetic flags=0 | No historical episode triggers early exhaustion.; No synthetic adverse path triggers early exhaustion.; Any policy candidate that triggers early exhaustion is blocked from dashboard promotion. |
 
+## Decoupled Deep-Anchor Candidate (research-only)
+
+- Verdict: **REJECTED_SYNTHETIC_GATES**
+- Best recipe: `library_p75_blend_50` (synthetic gates pass=False, historical utility preserved=True)
+- Best synthetic status: **FAIL**; historical terminal win-rate 62%, worst terminal delta -3.7%, new early-exhaustion episodes 0
+- The decoupled-deep-anchor sweep tests whether replacing the fixed forecast multiplier with asset-library support can solve the open synthetic gates without touching release mechanics. A rejected result means the remaining failure is not explained by the deep anchor alone; the evidence should be used before proposing a broader production policy change.
+
+| Recipe | Verdict | Synthetic gap | Delayed avg/low | False-bottom 4w unlock | Hist win | Worst hist delta |
+|---|---:|---:|---:|---:|---:|---:|
+| library_median_blend_50 | REJECTED_SYNTHETIC_GATES | 0.159564 | 73.4% | 22.6% | 62% | -5.8% |
+| library_p75_blend_50 | REJECTED_SYNTHETIC_GATES | 0.159564 | 73.4% | 22.6% | 62% | -3.7% |
+| library_max_blend_35 | REJECTED_SYNTHETIC_GATES | 0.159564 | 73.4% | 22.6% | 62% | -6.8% |
+| library_max_blend_50 | REJECTED_SYNTHETIC_GATES | 0.159564 | 73.4% | 22.6% | 62% | -7.6% |
+
 ## Release-Hardening Candidate (research-only)
 
 - Verdict: **REJECTED_HISTORICAL_UTILITY**
@@ -74,6 +88,6 @@ A future policy may be labelled fully promoted only if both the current historic
 
 ## Re-Entry Candidates
 
-- `decoupled_deep_anchor` (PRE_REGISTERED): Test an anchor partly tied to realized valuation support or prior-cycle support rather than only the current bottom forecast multiplier.
+- `decoupled_deep_anchor` (TESTED_REJECTED_SYNTHETIC_GATES): Test an anchor partly tied to realized valuation support or prior-cycle support rather than only the current bottom forecast multiplier.
 - `delayed_release_reserve` (TESTED_REJECTED_HISTORICAL_UTILITY): Keep a larger late reserve until capitulation, time exhaustion, or recovery above a predeclared markup confirms.
 - `anti_false_bottom_unlock` (TESTED_REJECTED_HISTORICAL_UTILITY): Limit catch-up and redeploy releases after shallow bounces unless final-low risk has materially decayed.
