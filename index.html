@@ -183,7 +183,7 @@ table.d tr:last-child td { border-bottom:none; }
 #histcap { width:min(1440px,calc(100vw - 64px)); max-width:calc(100vw - 64px); }
 #histwrap { width:min(1440px,calc(100vw - 64px)); max-width:calc(100vw - 64px);
             overflow-x:auto; border-radius:10px; }
-#histwrap table.d { width:100%; min-width:1320px; max-width:none; table-layout:fixed; }
+#histwrap table.d { width:100%; min-width:1360px; max-width:none; table-layout:fixed; }
 #histwrap table.d th, #histwrap table.d td { white-space:nowrap; padding-left:8px; padding-right:8px; }
 #histwrap table.d th:nth-child(1), #histwrap table.d td:nth-child(1) { width:92px; }
 #histwrap table.d th:nth-child(2), #histwrap table.d td:nth-child(2),
@@ -191,7 +191,7 @@ table.d tr:last-child td { border-bottom:none; }
 #histwrap table.d th:nth-child(3), #histwrap table.d td:nth-child(3),
 #histwrap table.d th:nth-child(9), #histwrap table.d td:nth-child(9) { width:130px; }
 #histwrap table.d th:nth-child(4), #histwrap table.d td:nth-child(4),
-#histwrap table.d th:nth-child(10), #histwrap table.d td:nth-child(10) { width:90px; }
+#histwrap table.d th:nth-child(10), #histwrap table.d td:nth-child(10) { width:112px; }
 #histwrap table.d th:nth-child(5), #histwrap table.d td:nth-child(5),
 #histwrap table.d th:nth-child(11), #histwrap table.d td:nth-child(11) { width:92px; }
 #histwrap table.d th:nth-child(6), #histwrap table.d td:nth-child(6),
@@ -404,15 +404,81 @@ recompute();
         <h3>Bottom Forecast Model <span class='sub'>(model reference)</span></h3><div class='dcard'><div class='dhead'><b>BTC</b> bottom &asymp; <b>$42,580</b> <span class='neg'>(-33%)</span> around 2026-08-30 <span class='sub'>· range $31,795–$63,580, 2026-07-05→2026-12-02</span></div><div class='sub'>Raw structural bottom input ≈ $42,580; calibrated median future-low ≈ $46,428.</div><ol class='dlist'><li><b>realized/MVRV</b> [22%]: ~$42,228 <span class='sub'>MVRV 0.82 x realized $51,468</span></li><li><b>200w-MA/Mayer</b> [45%]: ~$40,089 <span class='sub'>Mayer 0.63 x 200wMA $63,931</span></li><li><b>power-law</b> [17%]: ~$62,926 <span class='sub'>log-log support through 3 prior lows</span></li><li><b>drawdown-decay</b> [10%]: ~$35,477 <span class='sub'>cycle DD 0.72 from peak $124,753</span></li><li><b>score-state</b> [5%]: ~$58,014 <span class='sub'>bottom score 56, DD progress 0.64</span></li><li><b>Timing</b>: calendar 2026-08-21 · halving 2026-10-13 · capitulation state 25% &rarr; 2026-08-30</li><li><b>reference model</b>: $41,068 around 2026-09-07 <span class='sub'>(model delta +4%, -9d)</span></li><li><b>Uncertainty</b>: evidence quality MODERATE · 6 independent events · price band 75% · timing window 150d</li></ol></div><div class='dcard'><div class='dhead'><b>ETH</b> bottom &asymp; <b>$1,650</b> <span class='neg'>(-8%)</span> around 2026-07-19 <span class='sub'>· range $1,054–$1,784, 2026-07-05→2026-10-25</span></div><div class='sub'>Raw structural bottom input ≈ $1,650; calibrated median future-low ≈ $1,549.</div><ol class='dlist'><li><b>realized/MVRV</b> [26%]: ~$1,695 <span class='sub'>MVRV 0.88 x realized $1,932</span></li><li><b>200w-MA/Mayer</b> [10%]: ~$1,784 <span class='sub'>Mayer 0.89 x 200wMA $2,474 [capped at spot]</span></li><li><b>power-law</b> [18%]: ~$1,784 <span class='sub'>log-log support through 2 prior lows [capped at spot]</span></li><li><b>drawdown-decay</b> [31%]: ~$1,558 <span class='sub'>cycle DD 0.68 from peak $4,831</span></li><li><b>score-state</b> [15%]: ~$1,659 <span class='sub'>bottom score 52, DD progress 0.78</span></li><li><b>Timing</b>: calendar 2026-06-28 · capitulation state 86% &rarr; 2026-07-19</li><li><b>reference model</b>: $1,436 around 2026-07-29 <span class='sub'>(model delta +15%, -11d)</span></li><li><b>Uncertainty</b>: evidence quality HIGH · 9 independent events · price band 44% · timing window 112d</li></ol></div>
         <h3>Model evidence <span class='sub'>(event-level, not daily-trigger inflated)</span></h3><p class='sub' style='max-width:780px;margin:-2px 0 10px;line-height:1.55'>This table collapses adjacent daily bottom-score triggers into one independent event per bottom cluster. The daily trigger count is shown only as a diagnostic, because adjacent days in the same bear market are not independent samples.</p><div class='tablewrap'><table class='d'><tr><th>Asset</th><th>Events</th><th>Daily triggers</th><th>Win</th><th>Avg&nbsp;12m</th><th>Avg&nbsp;DD</th><th>Worst&nbsp;DD</th><th>Quality</th></tr><tr><td>BTC</td><td>6</td><td>343</td><td>67%</td><td>+177%</td><td>-28%</td><td>-59%</td><td>MODERATE</td></tr><tr><td>ETH</td><td>9</td><td>261</td><td>67%</td><td>+26%</td><td>-28%</td><td>-79%</td><td>HIGH</td></tr></table></div>
         <section class='audit'><div class='audit-head'><div><h3 style='margin:0'>Policy Audit & Live Ledger</h3><div class='sub'>Governance layer only: logs live signals, declares the utility function, checks asset-specific robustness and watches refresh freshness. It does not change the model target.</div></div><div class='sub'>watchdog <span class='badge-pass'>PASS</span><br>refresh cadence healthy</div></div><div class='audit-grid'><div class='audit-card'><b>Objective policy-utility-v1</b><div class='sub'>Deployment outcome beats prettier bottom/top predictions. Current PASS labels are scoped to this utility audit, not every stricter research gate.</div></div><div class='audit-card'><b>Common exam <span class='badge-fail'>FAIL</span></b><div class='sub'>Stricter plateau and synthetic-shape gates are replayed through the dashboard full stack in reports/common_exam_audit.md. Failed gates block promotion beyond the scoped utility audit.</div></div><div class='audit-card'><b>Fable core audit <span class='badge-fail'>CORE FAILED STRICTER GATES</span></b><div class='sub'>Worst +/-25% parameter perturbation shift was 0.292 at MAX_HORIZON_WEEKS x0.75, above the 0.15 band.</div></div><div class='audit-card'><b>BTC live ledger</b><div>HOLD</div><div class='sub'>policy 27% · raw 18% · gap +9%</div><div class='sub'>no material divergence flag</div></div><div class='audit-card'><b>ETH live ledger</b><div>HOLD</div><div class='sub'>policy 35% · raw 35% · gap +0%</div><div class='sub'>no material divergence flag</div></div><div class='audit-card'><b>BTC utility gate <span class='badge-pass'>PASS</span></b><div class='sub'>acc utility 0.288151 · dist utility 7.083705</div><div class='sub'>current utility asset gate passed</div></div><div class='audit-card'><b>ETH utility gate <span class='badge-watch'>WATCH</span></b><div class='sub'>acc utility 0.092177 · dist utility 9.57016</div><div class='sub'>bottom calibration watch</div></div><div class='audit-card'><b>Known accumulation risks</b><ul class='audit-list'><li>horizon cliff</li><li>forecast coupled deep anchor</li><li>forecast driven last tranche</li></ul></div><div class='audit-card'><b>Distribution weak spots</b><ul class='audit-list'><li>BTC 2021-04-14: low/hold 142%, end/hold 139%, sold 90%</li><li>BTC 2025-10-06: low/hold 151%, end/hold 147%, sold 77%</li><li>BTC 2021-11-10: low/hold 215%, end/hold 207%, sold 90%</li></ul></div><div class='audit-card'><b>Ledger</b><div class='sub'>11 material records · last 2026-07-05T16:00:20</div><ul class='audit-list'><li>BTC BUY_RAISE_TARGET gap +13%</li><li>BTC BUY_RAISE_TARGET gap +13%</li><li>BTC BUY_RAISE_TARGET gap +13%</li><li>BTC OPTIONAL_CATCHUP_ONLY gap +10%</li></ul></div></div></section>
-        <h3>Policy history <span class='sub'>(daily close snapshots)</span></h3><p class='sub' style='max-width:820px;margin:-2px 0 10px;line-height:1.55'><b>What this is for:</b> track how the model posterior changes across true close snapshots: closing price, target allocation, median future low, median timing, downside probability and evidence quality. Click the date field, jump by year/month, then pick a <b>start</b> and <b>end</b> date (or use a quick preset — 7d / 30d / 90d / 1y / All); defaults to the latest 7 calendar days. Closes only — provisional intraday spot snapshots are excluded.</p><div class='hctl'><div class='rangepick'><button type='button' id='hist-trig' class='htrig' onclick='calToggle(event)' aria-haspopup='dialog' aria-expanded='false' disabled><span class='hcalico'>📅</span><span id='hist-trig-txt'>Loading…</span><span class='hcar'>▾</span></button><div id='hist-pop' class='hpop' role='dialog' aria-label='Pick a date range'><div class='hjump'><select id='hist-year' onchange='calJump()' aria-label='Jump to year' disabled></select><select id='hist-month' onchange='calJump()' aria-label='Jump to month' disabled></select></div><button type='button' class='hnav prev' id='hist-prev' onclick='calNav(-1)' aria-label='Previous month'>‹</button><button type='button' class='hnav next' id='hist-next' onclick='calNav(1)' aria-label='Next month'>›</button><div id='hist-grids' class='hpop-cals'></div><div class='hpre'><button type='button' class='hchip' onclick="calPreset('latest')">Latest</button><button type='button' class='hchip' onclick="calPreset('6')">7d</button><button type='button' class='hchip' onclick="calPreset('30')">30d</button><button type='button' class='hchip' onclick="calPreset('90')">90d</button><button type='button' class='hchip' onclick="calPreset('365')">1y</button><button type='button' class='hchip' onclick="calPreset('all')">All</button><span class='hpre-sp'></span><span id='hist-sel' class='sub'></span><button type='button' class='hchip hchip-go' onclick='calClose()'>Done</button></div></div></div><input type='hidden' id='hist-from'><input type='hidden' id='hist-to'></div><div id='histcap' class='sub' style='margin:6px 0'></div><div id='histwrap' style='overflow-x:auto'><div class='sub'>Loading history…</div></div><script>
-var HIST=[];
+        <h3>Policy history <span class='sub'>(daily close snapshots)</span></h3><p class='sub' style='max-width:820px;margin:-2px 0 10px;line-height:1.55'><b>What this is for:</b> track how the model posterior changes across true close snapshots: closing price, target allocation, calibrated median future low, median timing, downside probability and evidence quality. Click the date field, jump by year/month, then pick a <b>start</b> and <b>end</b> date (or use a quick preset — 7d / 30d / 90d / 1y / All); defaults to the latest 7 calendar days. Closes only — provisional intraday spot snapshots are excluded.</p><div class='hctl'><div class='rangepick'><button type='button' id='hist-trig' class='htrig' onclick='calToggle(event)' aria-haspopup='dialog' aria-expanded='false' disabled><span class='hcalico'>📅</span><span id='hist-trig-txt'>Loading…</span><span class='hcar'>▾</span></button><div id='hist-pop' class='hpop' role='dialog' aria-label='Pick a date range'><div class='hjump'><select id='hist-year' onchange='calJump()' aria-label='Jump to year' disabled></select><select id='hist-month' onchange='calJump()' aria-label='Jump to month' disabled></select></div><button type='button' class='hnav prev' id='hist-prev' onclick='calNav(-1)' aria-label='Previous month'>‹</button><button type='button' class='hnav next' id='hist-next' onclick='calNav(1)' aria-label='Next month'>›</button><div id='hist-grids' class='hpop-cals'></div><div class='hpre'><button type='button' class='hchip' onclick="calPreset('latest')">Latest</button><button type='button' class='hchip' onclick="calPreset('6')">7d</button><button type='button' class='hchip' onclick="calPreset('30')">30d</button><button type='button' class='hchip' onclick="calPreset('90')">90d</button><button type='button' class='hchip' onclick="calPreset('365')">1y</button><button type='button' class='hchip' onclick="calPreset('all')">All</button><span class='hpre-sp'></span><span id='hist-sel' class='sub'></span><button type='button' class='hchip hchip-go' onclick='calClose()'>Done</button></div></div></div><input type='hidden' id='hist-from'><input type='hidden' id='hist-to'></div><div id='histcap' class='sub' style='margin:6px 0'></div><div id='histwrap' style='overflow-x:auto'><div class='sub'>Loading history…</div></div><script>
+var HIST=[],HIST_CAL={};
 function histFmt(x){return x==null?'—':'$'+Math.round(x).toLocaleString('en-US');}
 function histN(x){return x==null?'—':x;}
 function histPc(x){return x==null?null:Math.round(x*100)+'%';}
 function histPolicyTarget(x){return histPc(x&&x.full_target!=null?x.full_target:x&&x.target);}
+function histNum(x){var n=Number(x);return isFinite(n)?n:null;}
+function histFirstNum(xs){for(var i=0;i<xs.length;i++){var n=histNum(xs[i]);if(n!=null)return n;}return null;}
 function histQual(q){
   var c={HIGH:'#3fb950',MODERATE:'#d29922',LOW:'#f85149'}[q]||'#8b949e';
   return '<span style="color:'+c+';font-weight:700">'+(q||'—')+'</span>';
+}
+function histCurveInv(points,target){
+  var pts=(points||[]).map(function(p){return {x:histNum(p&&p.x),y:histNum(p&&p.y)};})
+    .filter(function(p){return p.x!=null&&p.y!=null;}).sort(function(a,b){return a.y-b.y;});
+  if(!pts.length)return null;
+  if(target<=pts[0].y)return pts[0].x;
+  for(var i=1;i<pts.length;i++){
+    var a=pts[i-1],b=pts[i];
+    if(target<=b.y){
+      if(b.y===a.y)return (a.x+b.x)/2;
+      return a.x+(target-a.y)*(b.x-a.x)/(b.y-a.y);
+    }
+  }
+  return pts[pts.length-1].x;
+}
+function histNormInv(p){
+  if(!(p>0&&p<1))return null;
+  var a=[-39.6968302866538,220.946098424521,-275.928510446969,138.357751867269,-30.6647980661472,2.50662827745924];
+  var b=[-54.4760987982241,161.585836858041,-155.698979859887,66.8013118877197,-13.2806815528857];
+  var c=[-0.00778489400243029,-0.322396458041136,-2.40075827716184,-2.54973253934373,4.37466414146497,2.93816398269878];
+  var d=[0.00778469570904146,0.32246712907004,2.445134137143,3.75440866190742];
+  var plow=0.02425,phigh=1-plow,q,r;
+  if(p<plow){
+    q=Math.sqrt(-2*Math.log(p));
+    return (((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5])/((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1);
+  }
+  if(p>phigh){
+    q=Math.sqrt(-2*Math.log(1-p));
+    return -(((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5])/((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1);
+  }
+  q=p-0.5;r=q*q;
+  return (((((a[0]*r+a[1])*r+a[2])*r+a[3])*r+a[4])*r+a[5])*q/(((((b[0]*r+b[1])*r+b[2])*r+b[3])*r+b[4])*r+1);
+}
+function histLognormalQuantile(x,p){
+  var q10=histNum(x&&x.low_p10),q50=histNum(x&&x.low_p50),q90=histNum(x&&x.low_p90);
+  if(q10==null||q50==null||q90==null)return null;
+  if(p<=0.1)return q10;if(p>=0.9)return q90;if(p===0.5)return q50;
+  var z=histNormInv(p),z10=histNormInv(0.1),z90=histNormInv(0.9);
+  if(z==null||z10==null||z90==null)return null;
+  if(p<0.5){
+    if(q10>0&&q50>0){return q50*Math.exp(z*Math.log(q50/q10)/(-z10));}
+    return q10+(p-0.1)*(q50-q10)/0.4;
+  }
+  if(q50>0&&q90>0){return q50*Math.exp(z*Math.log(q90/q50)/z90);}
+  return q50+(p-0.5)*(q90-q50)/0.4;
+}
+function histLoadCal(snap){
+  HIST_CAL={};
+  var mp=(snap&&snap.model_posteriors)||{},assets=(snap&&snap.assets)||{},asOf=(snap&&(snap.data_as_of||snap.run_date))||'';
+  ['BTC','ETH'].forEach(function(sym){
+    var curve=mp[sym]&&mp[sym].price_distribution_calibration&&mp[sym].price_distribution_calibration.curve;
+    var p=histCurveInv(curve&&curve.points,0.5);
+    var latest=histFirstNum([assets[sym]&&assets[sym].future_low&&assets[sym].future_low.p50,mp[sym]&&mp[sym].price_quantiles&&mp[sym].price_quantiles.p50]);
+    if(p!=null||latest!=null)HIST_CAL[sym]={rawP:p!=null?Math.max(0.001,Math.min(0.999,p)):null,latestDate:asOf,latestP50:latest};
+  });
+}
+function histMedianLow(x,sym,date){
+  var direct=histFirstNum([x&&x.cal_low_p50,x&&x.low_p50_cal,x&&x.calibrated_low_p50,x&&x.future_low&&x.future_low.p50,x&&x.price_quantiles&&x.price_quantiles.p50]);
+  if(direct!=null)return direct;
+  var meta=HIST_CAL[sym]||{};
+  if(date&&meta.latestDate&&date===meta.latestDate&&meta.latestP50!=null)return meta.latestP50;
+  var p=meta.rawP;
+  var cal=p!=null?histLognormalQuantile(x,p):null;
+  return cal!=null?cal:(x&&x.low_p50);
 }
 /* ---- flight-style range calendar: one popover, click start then end ---- */
 var DLO='',DHI='';            // selectable bounds (oldest / newest close)
@@ -533,12 +599,12 @@ function histRender(){
   var disp=rows.slice().reverse(), body='';                       // newest first
   for(var i=0;i<disp.length;i++){var r=disp[i],A=r.assets||{},B=A.BTC||{},E=A.ETH||{};
     body+='<tr><td>'+r.date+'</td>'
-      +'<td>'+histFmt(B.price)+'</td><td>'+histPolicyTarget(B)+'</td><td>'+histFmt(B.low_p50)+'</td><td>'+histN(B.date_p50)+'</td><td>'+histPc(B.down20)+'</td><td>'+histQual(B.quality)+'</td>'
-      +'<td>'+histFmt(E.price)+'</td><td>'+histPolicyTarget(E)+'</td><td>'+histFmt(E.low_p50)+'</td><td>'+histN(E.date_p50)+'</td><td>'+histPc(E.down20)+'</td><td>'+histQual(E.quality)+'</td></tr>';
+      +'<td>'+histFmt(B.price)+'</td><td>'+histPolicyTarget(B)+'</td><td>'+histFmt(histMedianLow(B,'BTC',r.date))+'</td><td>'+histN(B.date_p50)+'</td><td>'+histPc(B.down20)+'</td><td>'+histQual(B.quality)+'</td>'
+      +'<td>'+histFmt(E.price)+'</td><td>'+histPolicyTarget(E)+'</td><td>'+histFmt(histMedianLow(E,'ETH',r.date))+'</td><td>'+histN(E.date_p50)+'</td><td>'+histPc(E.down20)+'</td><td>'+histQual(E.quality)+'</td></tr>';
   }
   wrap.innerHTML='<table class="d"><tr><th>Close</th>'
-    +'<th>BTC close</th><th>BTC policy target</th><th>BTC low p50</th><th>BTC timing</th><th>BTC raw P(-20%)</th><th>BTC quality</th>'
-    +'<th>ETH close</th><th>ETH policy target</th><th>ETH low p50</th><th>ETH timing</th><th>ETH raw P(-20%)</th><th>ETH quality</th></tr>'+body+'</table>';
+    +'<th>BTC close</th><th>BTC policy target</th><th>BTC cal low p50</th><th>BTC timing</th><th>BTC raw P(-20%)</th><th>BTC quality</th>'
+    +'<th>ETH close</th><th>ETH policy target</th><th>ETH cal low p50</th><th>ETH timing</th><th>ETH raw P(-20%)</th><th>ETH quality</th></tr>'+body+'</table>';
 }
 function histLatest(){ calPreset('latest'); }                     // back-compat alias
 document.addEventListener('click',function(e){                     // click-away closes the calendar
@@ -552,7 +618,9 @@ document.addEventListener('keydown',function(e){if(e.key==='Escape')calClose();}
   g.addEventListener('click',function(e){var c=e.target.closest&&e.target.closest('.hday[data-d]');if(c)calPick(c.getAttribute('data-d'));});
   g.addEventListener('mouseover',function(e){var c=e.target.closest&&e.target.closest('.hday[data-d]');if(c)calHover(c.getAttribute('data-d'));});
 })();
-fetch('history.json').then(function(r){return r.ok?r.json():[];}).then(function(h){
+var histReq=fetch('history.json').then(function(r){if(!r.ok)throw new Error('history');return r.json();});
+var snapReq=fetch('snapshot.json').then(function(r){return r.ok?r.json():{};}).catch(function(){return {};});
+Promise.all([histReq,snapReq]).then(function(pair){var h=pair[0],snap=pair[1];histLoadCal(snap);
   HIST=(h||[]).filter(function(r){return r.edition==='model-posterior';})
               .sort(function(a,b){return a.date<b.date?-1:(a.date>b.date?1:0);});
   var tg=document.getElementById('hist-trig');
