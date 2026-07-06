@@ -1,6 +1,6 @@
 # Common Exam Audit
 
-Generated: 2026-07-06T15:20:41.502005+00:00
+Generated: 2026-07-06T15:54:17.806915+00:00
 Verdict: **FAIL**
 
 The current dashboard verdict is scoped to the historical utility audit. The stricter common-exam gates now replay parameter plateau and synthetic adverse paths through the dashboard full stack. Fable's external core-only cross-audit remains recorded as a separate warning because it failed the convex core on plateau and synthetic-shape stress.
@@ -19,6 +19,7 @@ The current dashboard verdict is scoped to the historical utility audit. The str
 | forecast_coupled_deep_anchor | TESTED_REJECTED_SYNTHETIC_GATES | Deep anchor is coupled to the bottom forecast through DEPLOY_DEEP_ANCHOR_M=0.6; anchor-only candidate verdict=REJECTED_SYNTHETIC_GATES. |
 | forecast_driven_last_tranche | MITIGATED_RETEST_REQUIRED | DEPLOY_LAST_TRANCHE_FRACTION=0.95 is locked until absolute observed drawdown exceeds the historical library or recovery/resolution confirmation fires. |
 | historical_left_tail_cost | OPEN | Historical replay contains left-tail cost weak spots; see accumulation episode rows for negative utility or high average-cost premium cases. |
+| posterior_target_front_loading | TESTED_REJECTED_SYNTHETIC_GATES | First-decline attribution identifies model_target_base as the dominant premium source; target-only governor verdict=REJECTED_SYNTHETIC_GATES. |
 
 ## Cap Rationale Audit
 
@@ -82,6 +83,18 @@ The current dashboard verdict is scoped to the historical utility audit. The str
 - Historical utility preserved: **False**
 - The release-hardening overlay clears the delayed-lower-low average entry premium and false-bottom four-week unlock synthetic gates by throttling early front-loading and holding a late reserve until a non-forecast trigger fires. On the real accumulation episodes the same deferral buys later and higher in prolonged deep bears (2018 BTC/ETH worst), so terminal value and average cost both deteriorate versus live. Under the pre-registered promotion rule (historical utility AND common exam) the candidate is not promotable; it is recorded as a REJECTED research candidate with an explicit trade-off, not a production change.
 
+## Posterior Target Governor Candidate (research-only)
+
+- Verdict: **REJECTED_SYNTHETIC_GATES**
+- Best recipe: `zero_posterior_lower_bound` (synthetic gates pass=False, historical utility preserved=False)
+- Best synthetic status: **FAIL**; historical terminal win-rate 25%, worst terminal delta -14.3%, new early-exhaustion episodes 0
+- The posterior-target governor tests the mechanism identified by first-decline attribution. The zero-posterior lower bound improves the open synthetic paths but still leaves delayed-lower-low average entry premium above the 60% gate, so model_target governance alone is insufficient; the remaining failure also involves the duration-CDF/depth-floor path.
+
+| Recipe | Verdict | Synthetic gap | Delayed avg/low | False-bottom 4w unlock | Fast-V DCA18 | Hist win | Worst hist delta |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| rate_limited_fast_bypass | REJECTED_SYNTHETIC_GATES | 0.125445 | 72.5% | 16.0% | 94.7% | 62% | -7.3% |
+| zero_posterior_lower_bound | REJECTED_SYNTHETIC_GATES | 0.063994 | 66.4% | 8.3% | 91.2% | 25% | -14.3% |
+
 ## Promotion Rule
 
 A future policy may be labelled fully promoted only if both the current historical utility audit and the common-exam gates pass. Until then, dashboard PASS labels must be scoped as current utility audit only.
@@ -91,3 +104,4 @@ A future policy may be labelled fully promoted only if both the current historic
 - `decoupled_deep_anchor` (TESTED_REJECTED_SYNTHETIC_GATES): Test an anchor partly tied to realized valuation support or prior-cycle support rather than only the current bottom forecast multiplier.
 - `delayed_release_reserve` (TESTED_REJECTED_HISTORICAL_UTILITY): Keep a larger late reserve until capitulation, time exhaustion, or recovery above a predeclared markup confirms.
 - `anti_false_bottom_unlock` (TESTED_REJECTED_HISTORICAL_UTILITY): Limit catch-up and redeploy releases after shallow bounces unless final-low risk has materially decayed.
+- `posterior_target_governor` (TESTED_REJECTED_SYNTHETIC_GATES): Govern the posterior model_target ramp before final-low risk has decayed, after first-decline attribution showed it drives the remaining synthetic premium.

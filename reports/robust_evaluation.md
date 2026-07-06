@@ -1,6 +1,6 @@
 # Robust Evaluation
 
-Generated: 2026-07-06T15:20:41.502005+00:00
+Generated: 2026-07-06T15:54:17.806915+00:00
 Verdict: **WATCH_CURRENT_UTILITY_AUDIT**
 
 Reasons:
@@ -173,6 +173,45 @@ Boundary:
 | ETH | 2020 COVID crash (fast V) | 1.849 | 1.952 | 5.5% | 33.5% | 26.0% | -7.5% |
 
 - The release-hardening overlay clears the delayed-lower-low average entry premium and false-bottom four-week unlock synthetic gates by throttling early front-loading and holding a late reserve until a non-forecast trigger fires. On the real accumulation episodes the same deferral buys later and higher in prolonged deep bears (2018 BTC/ETH worst), so terminal value and average cost both deteriorate versus live. Under the pre-registered promotion rule (historical utility AND common exam) the candidate is not promotable; it is recorded as a REJECTED research candidate with an explicit trade-off, not a production change.
+
+### Posterior Target Governor Candidate
+
+- Verdict: **REJECTED_SYNTHETIC_GATES**
+- Best recipe: `zero_posterior_lower_bound` (synthetic gates pass=False, historical utility preserved=False)
+- Best synthetic status: **FAIL**; historical terminal win-rate 25%, worst terminal delta -14.3%, new early-exhaustion episodes 0
+- The posterior-target governor tests the mechanism identified by first-decline attribution. The zero-posterior lower bound improves the open synthetic paths but still leaves delayed-lower-low average entry premium above the 60% gate, so model_target governance alone is insufficient; the remaining failure also involves the duration-CDF/depth-floor path.
+
+| Recipe | Verdict | Synthetic gap | Delayed avg/low | False-bottom 4w unlock | Fast-V DCA18 | Hist win | Worst hist delta |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| rate_limited_fast_bypass | REJECTED_SYNTHETIC_GATES | 0.125445 | 72.5% | 16.0% | 94.7% | 62% | -7.3% |
+| zero_posterior_lower_bound | REJECTED_SYNTHETIC_GATES | 0.063994 | 66.4% | 8.3% | 91.2% | 25% | -14.3% |
+
+### First-Decline-Leg Buy Attribution (research diagnostic)
+
+- Attributes every live-policy buy on the two failing synthetic paths to its deployment mechanism, so the next candidate targets the real driver.
+
+**delayed_lower_low** (low=32.0 at week 56, avg entry premium 73.4%, dominant premium source: `model_target_base`)
+
+| Source | Spent | Avg price | Premium to low | Premium $ contrib | Pre-low | Post-low |
+|---|---:|---:|---:|---:|---:|---:|
+| model_target_base | 36.2% | 71.7641 | 124.3% | 0.4504 | 36.2% | 0.0% |
+| duration_cdf_depth_floor | 40.3% | 48.2511 | 50.8% | 0.2044 | 31.7% | 8.5% |
+| price_improvement_catchup | 0.0% | 82.5 | 157.8% | 0.0004 | 0.0% | 0.0% |
+| redeploy | 18.0% | 49.4261 | 54.5% | 0.0983 | 0.0% | 18.0% |
+- Max four-week unlock 21.5% at weeks 5-8 from: model_target_base 21.5%, price_improvement_catchup 0.0%
+
+**false_bottom_continued_grind** (low=25.0 at week 76, avg entry premium 110.6%, dominant premium source: `model_target_base`)
+
+| Source | Spent | Avg price | Premium to low | Premium $ contrib | Pre-low | Post-low |
+|---|---:|---:|---:|---:|---:|---:|
+| model_target_base | 38.0% | 77.7518 | 211.0% | 0.8022 | 38.0% | 0.0% |
+| duration_cdf_depth_floor | 42.0% | 41.4851 | 65.9% | 0.2767 | 42.0% | 0.0% |
+| reserve_tail | 1.0% | 26.5 | 6.0% | 0.0006 | 1.0% | 0.0% |
+| price_improvement_catchup | 0.0% | 83.5714 | 234.3% | 0.0006 | 0.0% | 0.0% |
+| unattributed | 0.0% | n/a | n/a | n/a | n/a | n/a |
+- Max four-week unlock 22.6% at weeks 7-10 from: model_target_base 22.6%
+
+- On both open synthetic failures the model_target (posterior) schedule is the dominant dollar-premium source: it front-loads the working bucket during the first decline leg at the highest pre-low prices (avg premium +124% delayed / +211% false-bottom), while the duration-CDF depth floor and post-low redeploy buy far cheaper. The max four-week unlock is likewise a first-decline-leg working-bucket ramp. This means the deep anchor and the reserve/release mechanics are not the primary levers for these two gates; a future candidate should govern how fast the posterior target itself deploys before final-low risk has decayed.
 
 Parameter stability:
 - live: terminal win-rate 88%, worst edge -1.8%, mean edge 22.4%
