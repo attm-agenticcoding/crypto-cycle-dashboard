@@ -7,12 +7,12 @@
     "accumulation_window_jitter_worst_terminal_edge": -0.108472,
     "accumulation_worst_terminal_edge_vs_median_baseline": -0.017668,
     "btc_avg_accumulation_utility": 0.288151,
-    "early_exhaustion_status": "FAIL",
-    "eth_avg_accumulation_utility": 0.092551,
+    "early_exhaustion_status": "PASS",
+    "eth_avg_accumulation_utility": 0.092177,
     "parameter_plateau_status": "FAIL",
-    "synthetic_stress_status": "FAIL"
+    "synthetic_stress_status": "PASS"
   },
-  "generated_at": "2026-07-05T19:57:49.099637+00:00",
+  "generated_at": "2026-07-06T00:20:56.836776+00:00",
   "known_risks": [
     {
       "evidence": "The live policy now uses deploy_duration_cdf_floor() with horizon multipliers (1.0, 1.5, 2.0) instead of a single linear 52-week clock.",
@@ -27,7 +27,7 @@
       "status": "OPEN_LAST_TRANCHE_DECOUPLED"
     },
     {
-      "evidence": "DEPLOY_LAST_TRANCHE_FRACTION=0.92 is locked until absolute observed drawdown exceeds the historical library or recovery/resolution confirmation fires.",
+      "evidence": "DEPLOY_LAST_TRANCHE_FRACTION=0.95 is locked until absolute observed drawdown exceeds the historical library or recovery/resolution confirmation fires.",
       "id": "forecast_driven_last_tranche",
       "risk": "Forecast error can still affect earlier reserve laddering; common-exam synthetic paths must verify the final-tranche lock is sufficient.",
       "status": "MITIGATED_RETEST_REQUIRED"
@@ -58,6 +58,13 @@
               "max_horizon_weeks": 1.0,
               "reserve_floor": 1.0
             },
+            "failure_flags": {
+              "heldout_delta_only": false,
+              "heldout_delta_only_positive_edge": false,
+              "heldout_edge_deterioration": false,
+              "historical_thresholds": false,
+              "terminal_ratio_shift": false
+            },
             "failures": [],
             "heldout_terminal_edge_delta_vs_live": 0.0,
             "name": "gamma_1.00|deep_anchor_m_1.00|reserve_floor_1.00|floor_w_1.00|max_horizon_weeks_1.00",
@@ -74,8 +81,8 @@
             "status": "PASS",
             "summary": {
               "cost_win_rate_vs_median_baseline": 0.75,
-              "mean_cost_edge_vs_median_baseline": -0.766209,
-              "mean_terminal_edge_vs_median_baseline": 0.223929,
+              "mean_cost_edge_vs_median_baseline": -0.765734,
+              "mean_terminal_edge_vs_median_baseline": 0.223828,
               "n": 8,
               "terminal_win_rate_vs_median_baseline": 0.875,
               "worst_cost_edge_vs_median_baseline": 0.148104,
@@ -105,6 +112,13 @@
               "max_horizon_weeks": 1.0,
               "reserve_floor": 1.0
             },
+            "failure_flags": {
+              "heldout_delta_only": false,
+              "heldout_delta_only_positive_edge": false,
+              "heldout_edge_deterioration": false,
+              "historical_thresholds": false,
+              "terminal_ratio_shift": false
+            },
             "failures": [],
             "heldout_terminal_edge_delta_vs_live": -0.045346,
             "name": "gamma_0.75|deep_anchor_m_1.00|reserve_floor_1.00|floor_w_1.00|max_horizon_weeks_1.00",
@@ -121,8 +135,8 @@
             "status": "PASS",
             "summary": {
               "cost_win_rate_vs_median_baseline": 0.75,
-              "mean_cost_edge_vs_median_baseline": -0.754009,
-              "mean_terminal_edge_vs_median_baseline": 0.220169,
+              "mean_cost_edge_vs_median_baseline": -0.753514,
+              "mean_terminal_edge_vs_median_baseline": 0.220069,
               "n": 8,
               "terminal_win_rate_vs_median_baseline": 0.875,
               "worst_cost_edge_vs_median_baseline": 0.148104,
@@ -152,6 +166,13 @@
               "max_horizon_weeks": 1.0,
               "reserve_floor": 1.0
             },
+            "failure_flags": {
+              "heldout_delta_only": false,
+              "heldout_delta_only_positive_edge": false,
+              "heldout_edge_deterioration": false,
+              "historical_thresholds": false,
+              "terminal_ratio_shift": false
+            },
             "failures": [],
             "heldout_terminal_edge_delta_vs_live": -0.003953,
             "name": "gamma_1.25|deep_anchor_m_1.00|reserve_floor_1.00|floor_w_1.00|max_horizon_weeks_1.00",
@@ -168,8 +189,8 @@
             "status": "PASS",
             "summary": {
               "cost_win_rate_vs_median_baseline": 0.75,
-              "mean_cost_edge_vs_median_baseline": -0.772056,
-              "mean_terminal_edge_vs_median_baseline": 0.226269,
+              "mean_cost_edge_vs_median_baseline": -0.77159,
+              "mean_terminal_edge_vs_median_baseline": 0.226169,
               "n": 8,
               "terminal_win_rate_vs_median_baseline": 0.875,
               "worst_cost_edge_vs_median_baseline": 0.148104,
@@ -199,6 +220,13 @@
               "max_horizon_weeks": 1.0,
               "reserve_floor": 1.0
             },
+            "failure_flags": {
+              "heldout_delta_only": true,
+              "heldout_delta_only_positive_edge": true,
+              "heldout_edge_deterioration": true,
+              "historical_thresholds": false,
+              "terminal_ratio_shift": false
+            },
             "failures": [
               "held-out terminal edge deterioration above 5pp"
             ],
@@ -217,14 +245,14 @@
             "status": "FAIL",
             "summary": {
               "cost_win_rate_vs_median_baseline": 0.875,
-              "mean_cost_edge_vs_median_baseline": -0.776339,
-              "mean_terminal_edge_vs_median_baseline": 0.219596,
+              "mean_cost_edge_vs_median_baseline": -0.775512,
+              "mean_terminal_edge_vs_median_baseline": 0.219392,
               "n": 8,
               "terminal_win_rate_vs_median_baseline": 1.0,
               "worst_cost_edge_vs_median_baseline": 0.148104,
               "worst_terminal_edge_vs_median_baseline": 0.011403
             },
-            "terminal_ratio_shift": 0.080058,
+            "terminal_ratio_shift": 0.078703,
             "worst_heldout_deterioration_row": {
               "asset": "BTC",
               "cell_heldout_terminal_edge": 0.289949,
@@ -234,10 +262,10 @@
             },
             "worst_terminal_ratio_shift_row": {
               "asset": "ETH",
-              "cell_terminal_value": 0.61195,
+              "cell_terminal_value": 0.610312,
               "episode": "2018 bear (single low)",
-              "live_terminal_value": 0.56659,
-              "terminal_ratio_shift": 0.080058
+              "live_terminal_value": 0.565783,
+              "terminal_ratio_shift": 0.078703
             }
           },
           {
@@ -247,6 +275,13 @@
               "gamma": 1.0,
               "max_horizon_weeks": 1.0,
               "reserve_floor": 1.0
+            },
+            "failure_flags": {
+              "heldout_delta_only": true,
+              "heldout_delta_only_positive_edge": false,
+              "heldout_edge_deterioration": true,
+              "historical_thresholds": false,
+              "terminal_ratio_shift": false
             },
             "failures": [
               "held-out terminal edge deterioration above 5pp"
@@ -266,14 +301,14 @@
             "status": "FAIL",
             "summary": {
               "cost_win_rate_vs_median_baseline": 0.75,
-              "mean_cost_edge_vs_median_baseline": -0.739847,
-              "mean_terminal_edge_vs_median_baseline": 0.219931,
+              "mean_cost_edge_vs_median_baseline": -0.741138,
+              "mean_terminal_edge_vs_median_baseline": 0.219866,
               "n": 8,
               "terminal_win_rate_vs_median_baseline": 0.875,
               "worst_cost_edge_vs_median_baseline": 0.148104,
               "worst_terminal_edge_vs_median_baseline": -0.068229
             },
-            "terminal_ratio_shift": 0.074078,
+            "terminal_ratio_shift": 0.068058,
             "worst_heldout_deterioration_row": {
               "asset": "ETH",
               "cell_heldout_terminal_edge": -0.068229,
@@ -283,10 +318,10 @@
             },
             "worst_terminal_ratio_shift_row": {
               "asset": "ETH",
-              "cell_terminal_value": 0.524618,
+              "cell_terminal_value": 0.527277,
               "episode": "2018 bear (single low)",
-              "live_terminal_value": 0.56659,
-              "terminal_ratio_shift": 0.074078
+              "live_terminal_value": 0.565783,
+              "terminal_ratio_shift": 0.068058
             }
           },
           {
@@ -297,8 +332,15 @@
               "max_horizon_weeks": 1.0,
               "reserve_floor": 0.75
             },
+            "failure_flags": {
+              "heldout_delta_only": false,
+              "heldout_delta_only_positive_edge": false,
+              "heldout_edge_deterioration": false,
+              "historical_thresholds": false,
+              "terminal_ratio_shift": false
+            },
             "failures": [],
-            "heldout_terminal_edge_delta_vs_live": -0.029112,
+            "heldout_terminal_edge_delta_vs_live": -0.029331,
             "name": "gamma_1.00|deep_anchor_m_1.00|reserve_floor_0.75|floor_w_1.00|max_horizon_weeks_1.00",
             "params": {
               "deep_anchor_m": 0.6,
@@ -313,27 +355,27 @@
             "status": "PASS",
             "summary": {
               "cost_win_rate_vs_median_baseline": 0.75,
-              "mean_cost_edge_vs_median_baseline": -0.748817,
-              "mean_terminal_edge_vs_median_baseline": 0.220814,
+              "mean_cost_edge_vs_median_baseline": -0.748147,
+              "mean_terminal_edge_vs_median_baseline": 0.220686,
               "n": 8,
               "terminal_win_rate_vs_median_baseline": 1.0,
               "worst_cost_edge_vs_median_baseline": 0.148104,
               "worst_terminal_edge_vs_median_baseline": 0.005471
             },
-            "terminal_ratio_shift": 0.051381,
+            "terminal_ratio_shift": 0.05184,
             "worst_heldout_deterioration_row": {
               "asset": "ETH",
-              "cell_heldout_terminal_edge": 0.166389,
-              "delta_vs_live": -0.029112,
+              "cell_heldout_terminal_edge": 0.165363,
+              "delta_vs_live": -0.029331,
               "episode": "2018 bear (single low)",
-              "live_heldout_terminal_edge": 0.195501
+              "live_heldout_terminal_edge": 0.194694
             },
             "worst_terminal_ratio_shift_row": {
               "asset": "ETH",
-              "cell_terminal_value": 0.537478,
+              "cell_terminal_value": 0.536453,
               "episode": "2018 bear (single low)",
-              "live_terminal_value": 0.56659,
-              "terminal_ratio_shift": 0.051381
+              "live_terminal_value": 0.565783,
+              "terminal_ratio_shift": 0.05184
             }
           },
           {
@@ -343,6 +385,13 @@
               "gamma": 1.0,
               "max_horizon_weeks": 1.0,
               "reserve_floor": 1.25
+            },
+            "failure_flags": {
+              "heldout_delta_only": false,
+              "heldout_delta_only_positive_edge": false,
+              "heldout_edge_deterioration": false,
+              "historical_thresholds": false,
+              "terminal_ratio_shift": false
             },
             "failures": [],
             "heldout_terminal_edge_delta_vs_live": -0.024937,
@@ -360,14 +409,14 @@
             "status": "PASS",
             "summary": {
               "cost_win_rate_vs_median_baseline": 0.75,
-              "mean_cost_edge_vs_median_baseline": -0.779048,
-              "mean_terminal_edge_vs_median_baseline": 0.22519,
+              "mean_cost_edge_vs_median_baseline": -0.778505,
+              "mean_terminal_edge_vs_median_baseline": 0.225064,
               "n": 8,
               "terminal_win_rate_vs_median_baseline": 0.875,
               "worst_cost_edge_vs_median_baseline": 0.148104,
               "worst_terminal_edge_vs_median_baseline": -0.042605
             },
-            "terminal_ratio_shift": 0.045119,
+            "terminal_ratio_shift": 0.044826,
             "worst_heldout_deterioration_row": {
               "asset": "ETH",
               "cell_heldout_terminal_edge": -0.042605,
@@ -377,10 +426,10 @@
             },
             "worst_terminal_ratio_shift_row": {
               "asset": "ETH",
-              "cell_terminal_value": 0.592154,
+              "cell_terminal_value": 0.591145,
               "episode": "2018 bear (single low)",
-              "live_terminal_value": 0.56659,
-              "terminal_ratio_shift": 0.045119
+              "live_terminal_value": 0.565783,
+              "terminal_ratio_shift": 0.044826
             }
           },
           {
@@ -390,6 +439,13 @@
               "gamma": 1.0,
               "max_horizon_weeks": 1.0,
               "reserve_floor": 1.0
+            },
+            "failure_flags": {
+              "heldout_delta_only": false,
+              "heldout_delta_only_positive_edge": false,
+              "heldout_edge_deterioration": false,
+              "historical_thresholds": false,
+              "terminal_ratio_shift": false
             },
             "failures": [],
             "heldout_terminal_edge_delta_vs_live": 0.0,
@@ -407,8 +463,8 @@
             "status": "PASS",
             "summary": {
               "cost_win_rate_vs_median_baseline": 0.75,
-              "mean_cost_edge_vs_median_baseline": -0.782746,
-              "mean_terminal_edge_vs_median_baseline": 0.23878,
+              "mean_cost_edge_vs_median_baseline": -0.782271,
+              "mean_terminal_edge_vs_median_baseline": 0.238679,
               "n": 8,
               "terminal_win_rate_vs_median_baseline": 0.875,
               "worst_cost_edge_vs_median_baseline": 0.148104,
@@ -417,10 +473,10 @@
             "terminal_ratio_shift": 0.063211,
             "worst_heldout_deterioration_row": {
               "asset": "ETH",
-              "cell_heldout_terminal_edge": 0.195501,
+              "cell_heldout_terminal_edge": 0.194694,
               "delta_vs_live": 0.0,
               "episode": "2018 bear (single low)",
-              "live_heldout_terminal_edge": 0.195501
+              "live_heldout_terminal_edge": 0.194694
             },
             "worst_terminal_ratio_shift_row": {
               "asset": "BTC",
@@ -437,6 +493,13 @@
               "gamma": 1.0,
               "max_horizon_weeks": 1.0,
               "reserve_floor": 1.0
+            },
+            "failure_flags": {
+              "heldout_delta_only": true,
+              "heldout_delta_only_positive_edge": true,
+              "heldout_edge_deterioration": true,
+              "historical_thresholds": false,
+              "terminal_ratio_shift": false
             },
             "failures": [
               "held-out terminal edge deterioration above 5pp"
@@ -456,8 +519,8 @@
             "status": "FAIL",
             "summary": {
               "cost_win_rate_vs_median_baseline": 0.75,
-              "mean_cost_edge_vs_median_baseline": -0.740005,
-              "mean_terminal_edge_vs_median_baseline": 0.201205,
+              "mean_cost_edge_vs_median_baseline": -0.73953,
+              "mean_terminal_edge_vs_median_baseline": 0.201104,
               "n": 8,
               "terminal_win_rate_vs_median_baseline": 0.875,
               "worst_cost_edge_vs_median_baseline": 0.148104,
@@ -487,6 +550,13 @@
               "max_horizon_weeks": 0.75,
               "reserve_floor": 1.0
             },
+            "failure_flags": {
+              "heldout_delta_only": true,
+              "heldout_delta_only_positive_edge": true,
+              "heldout_edge_deterioration": true,
+              "historical_thresholds": false,
+              "terminal_ratio_shift": false
+            },
             "failures": [
               "held-out terminal edge deterioration above 5pp"
             ],
@@ -505,8 +575,8 @@
             "status": "FAIL",
             "summary": {
               "cost_win_rate_vs_median_baseline": 0.75,
-              "mean_cost_edge_vs_median_baseline": -0.728652,
-              "mean_terminal_edge_vs_median_baseline": 0.191298,
+              "mean_cost_edge_vs_median_baseline": -0.728177,
+              "mean_terminal_edge_vs_median_baseline": 0.191197,
               "n": 8,
               "terminal_win_rate_vs_median_baseline": 0.875,
               "worst_cost_edge_vs_median_baseline": 0.148104,
@@ -536,6 +606,13 @@
               "max_horizon_weeks": 1.25,
               "reserve_floor": 1.0
             },
+            "failure_flags": {
+              "heldout_delta_only": false,
+              "heldout_delta_only_positive_edge": false,
+              "heldout_edge_deterioration": false,
+              "historical_thresholds": false,
+              "terminal_ratio_shift": false
+            },
             "failures": [],
             "heldout_terminal_edge_delta_vs_live": 0.0,
             "name": "gamma_1.00|deep_anchor_m_1.00|reserve_floor_1.00|floor_w_1.00|max_horizon_weeks_1.25",
@@ -552,8 +629,8 @@
             "status": "PASS",
             "summary": {
               "cost_win_rate_vs_median_baseline": 0.75,
-              "mean_cost_edge_vs_median_baseline": -0.781038,
-              "mean_terminal_edge_vs_median_baseline": 0.237169,
+              "mean_cost_edge_vs_median_baseline": -0.780563,
+              "mean_terminal_edge_vs_median_baseline": 0.237068,
               "n": 8,
               "terminal_win_rate_vs_median_baseline": 0.875,
               "worst_cost_edge_vs_median_baseline": 0.148104,
@@ -562,10 +639,10 @@
             "terminal_ratio_shift": 0.05681,
             "worst_heldout_deterioration_row": {
               "asset": "ETH",
-              "cell_heldout_terminal_edge": 0.195501,
+              "cell_heldout_terminal_edge": 0.194694,
               "delta_vs_live": 0.0,
               "episode": "2018 bear (single low)",
-              "live_heldout_terminal_edge": 0.195501
+              "live_heldout_terminal_edge": 0.194694
             },
             "worst_terminal_ratio_shift_row": {
               "asset": "BTC",
@@ -590,12 +667,26 @@
               "max_horizon_weeks": 1.0,
               "reserve_floor": 1.0
             },
+            "failure_flags": {
+              "heldout_delta_only": true,
+              "heldout_delta_only_positive_edge": true,
+              "heldout_edge_deterioration": true,
+              "historical_thresholds": false,
+              "terminal_ratio_shift": false
+            },
             "failures": [
               "held-out terminal edge deterioration above 5pp"
             ],
             "heldout_terminal_edge_delta_vs_live": -0.087094,
             "name": "gamma_1.00|deep_anchor_m_0.75|reserve_floor_1.00|floor_w_1.00|max_horizon_weeks_1.00",
-            "terminal_ratio_shift": 0.080058
+            "terminal_ratio_shift": 0.078703,
+            "worst_heldout_deterioration_row": {
+              "asset": "BTC",
+              "cell_heldout_terminal_edge": 0.289949,
+              "delta_vs_live": -0.087094,
+              "episode": "2018 bear (single low)",
+              "live_heldout_terminal_edge": 0.377043
+            }
           },
           {
             "factors": {
@@ -605,12 +696,26 @@
               "max_horizon_weeks": 1.0,
               "reserve_floor": 1.0
             },
+            "failure_flags": {
+              "heldout_delta_only": true,
+              "heldout_delta_only_positive_edge": false,
+              "heldout_edge_deterioration": true,
+              "historical_thresholds": false,
+              "terminal_ratio_shift": false
+            },
             "failures": [
               "held-out terminal edge deterioration above 5pp"
             ],
             "heldout_terminal_edge_delta_vs_live": -0.050561,
             "name": "gamma_1.00|deep_anchor_m_1.25|reserve_floor_1.00|floor_w_1.00|max_horizon_weeks_1.00",
-            "terminal_ratio_shift": 0.074078
+            "terminal_ratio_shift": 0.068058,
+            "worst_heldout_deterioration_row": {
+              "asset": "ETH",
+              "cell_heldout_terminal_edge": -0.068229,
+              "delta_vs_live": -0.050561,
+              "episode": "2019 H2 correction (mid-cycle)",
+              "live_heldout_terminal_edge": -0.017668
+            }
           },
           {
             "factors": {
@@ -620,12 +725,26 @@
               "max_horizon_weeks": 1.0,
               "reserve_floor": 1.0
             },
+            "failure_flags": {
+              "heldout_delta_only": true,
+              "heldout_delta_only_positive_edge": true,
+              "heldout_edge_deterioration": true,
+              "historical_thresholds": false,
+              "terminal_ratio_shift": false
+            },
             "failures": [
               "held-out terminal edge deterioration above 5pp"
             ],
             "heldout_terminal_edge_delta_vs_live": -0.09802,
             "name": "gamma_1.00|deep_anchor_m_1.00|reserve_floor_1.00|floor_w_1.25|max_horizon_weeks_1.00",
-            "terminal_ratio_shift": 0.075612
+            "terminal_ratio_shift": 0.075612,
+            "worst_heldout_deterioration_row": {
+              "asset": "BTC",
+              "cell_heldout_terminal_edge": 0.279023,
+              "delta_vs_live": -0.09802,
+              "episode": "2018 bear (single low)",
+              "live_heldout_terminal_edge": 0.377043
+            }
           },
           {
             "factors": {
@@ -635,14 +754,41 @@
               "max_horizon_weeks": 0.75,
               "reserve_floor": 1.0
             },
+            "failure_flags": {
+              "heldout_delta_only": true,
+              "heldout_delta_only_positive_edge": true,
+              "heldout_edge_deterioration": true,
+              "historical_thresholds": false,
+              "terminal_ratio_shift": false
+            },
             "failures": [
               "held-out terminal edge deterioration above 5pp"
             ],
             "heldout_terminal_edge_delta_vs_live": -0.12907,
             "name": "gamma_1.00|deep_anchor_m_1.00|reserve_floor_1.00|floor_w_1.00|max_horizon_weeks_0.75",
-            "terminal_ratio_shift": 0.099563
+            "terminal_ratio_shift": 0.099563,
+            "worst_heldout_deterioration_row": {
+              "asset": "BTC",
+              "cell_heldout_terminal_edge": 0.247973,
+              "delta_vs_live": -0.12907,
+              "episode": "2018 bear (single low)",
+              "live_heldout_terminal_edge": 0.377043
+            }
           }
         ],
+        "materiality_review": {
+          "heldout_delta_gate_status": "FAIL",
+          "heldout_delta_only_cells": 4,
+          "heldout_delta_only_negative_edge_cells": 1,
+          "heldout_delta_only_positive_edge_cells": 3,
+          "historical_threshold_failure_cells": 0,
+          "historical_threshold_gate_status": "PASS",
+          "interpretation": "The pre-registered plateau gate remains a FAIL when any held-out episode deteriorates by more than 5 percentage points. This review separates that delta-only failure from terminal-ratio and historical-threshold failures so future research can decide whether to harden policy parameters or pre-register a more materiality-aware gate.",
+          "original_gate_status": "FAIL",
+          "status": "DELTA_ONLY_REVIEW",
+          "terminal_shift_failure_cells": 0,
+          "terminal_shift_gate_status": "PASS"
+        },
         "not_yet_parameterized": [
           "late-start trigger thresholds",
           "price-improvement catch-up thresholds"
@@ -808,23 +954,23 @@
               }
             },
             "model": {
-              "avg_cost": 52.2531,
-              "avg_cost_premium_to_low": 1.090124,
-              "dry": 0.184,
-              "dry_at_low": 0.184,
+              "avg_cost": 52.6527,
+              "avg_cost_premium_to_low": 1.106109,
+              "dry": 0.19,
+              "dry_at_low": 0.19,
               "early_exhaustion_before_low": false,
               "max_4w_spent_increase": 0.225958,
-              "max_portfolio_drawdown": 0.425593,
-              "max_spent_before_low": 0.816,
-              "min_dry_before_low": 0.184,
-              "pool_return": -0.206964,
+              "max_portfolio_drawdown": 0.425405,
+              "max_spent_before_low": 0.81,
+              "min_dry_before_low": 0.19,
+              "pool_return": -0.210031,
               "reserve_frac": 0.2,
-              "spent": 0.816,
-              "spent_by_low": 0.816,
-              "terminal_ratio_vs_dca18": 1.435497,
-              "terminal_ratio_vs_dca52": 1.243951,
-              "terminal_value": 0.793036,
-              "units": 0.0156162969
+              "spent": 0.81,
+              "spent_by_low": 0.81,
+              "terminal_ratio_vs_dca18": 1.429945,
+              "terminal_ratio_vs_dca52": 1.23914,
+              "terminal_value": 0.789969,
+              "units": 0.0153838162
             },
             "end_price": 39.0,
             "failures": [],
@@ -842,8 +988,8 @@
         "summary": {
           "failing_ids": [],
           "failing_paths": 0,
-          "min_terminal_ratio_vs_dca18": 1.435497,
-          "min_terminal_ratio_vs_dca52": 1.243951,
+          "min_terminal_ratio_vs_dca18": 1.429945,
+          "min_terminal_ratio_vs_dca52": 1.23914,
           "paths": 1
         }
       },
@@ -1028,24 +1174,16 @@
         "Any policy candidate that triggers early exhaustion is blocked from dashboard promotion."
       ],
       "result": {
-        "historical_flags": [
-          {
-            "asset": "ETH",
-            "episode": "2018 bear (single low)",
-            "min_dry_before_low": 0.276,
-            "reserve_frac": 0.3,
-            "spent_by_low": 0.724
-          }
-        ],
+        "historical_flags": [],
         "scope": "historical_and_synthetic_full_stack",
-        "status": "FAIL",
+        "status": "PASS",
         "summary": {
-          "historical_flags": 1,
+          "historical_flags": 0,
           "synthetic_flags": 0
         },
         "synthetic_flags": []
       },
-      "status": "FAIL"
+      "status": "PASS"
     }
   ],
   "promotion_rule": "A future policy may be labelled fully promoted only if both the current historical utility audit and the common-exam gates pass. Until then, dashboard PASS labels must be scoped as current utility audit only.",

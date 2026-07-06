@@ -1,6 +1,6 @@
 # Robust Evaluation
 
-Generated: 2026-07-05T19:57:49.099637+00:00
+Generated: 2026-07-06T00:20:56.836776+00:00
 Verdict: **WATCH_CURRENT_UTILITY_AUDIT**
 
 Reasons:
@@ -14,19 +14,19 @@ Boundary:
 ## Common Exam
 
 - Status: **FAIL**
-- parameter_plateau_25pct: FAIL (cells=11, failing=4, worst shift=10.0%)
+- parameter_plateau_25pct: FAIL (cells=11, failing=4, worst shift=10.0%, materiality=DELTA_ONLY_REVIEW, delta-only=4)
 - synthetic_delayed_lower_low: PASS (paths=1, failing=0, min DCA18 ratio=1.287973)
-- synthetic_false_bottom_continued_grind: PASS (paths=1, failing=0, min DCA18 ratio=1.435497)
+- synthetic_false_bottom_continued_grind: PASS (paths=1, failing=0, min DCA18 ratio=1.429945)
 - synthetic_fast_v_participation: PASS (paths=1, failing=0, min DCA18 ratio=1.033405)
 - synthetic_shallow_recover: PASS (paths=1, failing=0, min DCA18 ratio=0.844307)
-- early_exhaustion_guard: FAIL (historical flags=1, synthetic flags=0)
+- early_exhaustion_guard: PASS (historical flags=0, synthetic flags=0)
 
 ## Forecast Calibration
 
 - BTC bottom: n=444, down20 MAE raw→cal=0.30479→0.15683, brier raw→cal=0.3371→0.28649, median low abs err=32.6%, timing abs days=84.0
-  - LOCO: low<spot LL raw/cal/null=0.23296/0.19106/0.15862; down20 LL raw/cal/null=1.19817/0.75529/0.72042; p10-p90 coverage=59.0% (target 80%)
+  - LOCO: low<spot LL raw/cal/null=0.23296/0.19106/0.15862; down20 LL raw/cal/null=1.19817/0.75529/0.72042; p10-p90 coverage=59.0% (target 80%); conformal candidate coverage=84.2% scale med/final=2.03128/2.00311, folds=WEAK_FOLDS min=0.0%
 - ETH bottom: n=391, down20 MAE raw→cal=0.20247→0.19587, brier raw→cal=0.27125→0.2788, median low abs err=50.0%, timing abs days=73.0
-  - LOCO: low<spot LL raw/cal/null=0.27359/0.20643/0.16704; down20 LL raw/cal/null=1.068/0.70995/0.70484; p10-p90 coverage=52.9% (target 80%)
+  - LOCO: low<spot LL raw/cal/null=0.27359/0.20643/0.16704; down20 LL raw/cal/null=1.068/0.70995/0.70484; p10-p90 coverage=52.9% (target 80%); conformal candidate coverage=84.7% scale med/final=1.95694/1.95107, folds=WEAK_FOLDS min=4.8%
 - BTC top: n=129, dd35 MAE raw→cal=0.10218→0.10999, brier raw→cal=0.22805→0.23257, event rate=30.2%, avg pred raw→cal=23.1%→31.5%
 - ETH top: n=92, dd35 MAE raw→cal=0.27205→0.16814, brier raw→cal=0.3253→0.3104, event rate=50.0%, avg pred raw→cal=22.8%→33.4%
 
@@ -42,7 +42,7 @@ Boundary:
 | Asset | Status | Accum eps | Dist windows | Acc utility | Dist utility | Bottom MAE | Top MAE | Reasons |
 |---|---:|---:|---:|---:|---:|---:|---:|---|
 | BTC | PASS | 4 | 4 | 0.288151 | 7.083705 | 0.15683 | 0.10999 | current utility asset gate passed |
-| ETH | WATCH | 4 | 3 | 0.092551 | 9.57016 | 0.19587 | 0.16814 | bottom calibration watch |
+| ETH | WATCH | 4 | 3 | 0.092177 | 9.57016 | 0.19587 | 0.16814 | bottom calibration watch |
 
 ## Accumulation Policy
 
@@ -55,7 +55,7 @@ Boundary:
 | Asset | Episode | Policy terminal | Edge vs median | Avg/low | Cost edge | Utility |
 |---|---:|---:|---:|---:|---:|---:|
 | BTC | 2018 bear (single low) | 1.30 | 37.7% | 73.4% | -79.8% | 0.003333 |
-| ETH | 2018 bear (single low) | 0.57 | 19.6% | 166.3% | -442.0% | -1.036808 |
+| ETH | 2018 bear (single low) | 0.57 | 19.5% | 166.7% | -441.7% | -1.038305 |
 | BTC | 2022 bear (DOUBLE bottom) | 1.83 | 49.3% | 39.5% | -43.1% | 0.675662 |
 | ETH | 2022 bear (DOUBLE bottom) | 1.61 | 50.8% | 35.1% | -61.4% | 0.474302 |
 | BTC | 2019 H2 correction (mid-cycle) | 1.13 | 1.1% | 16.6% | -3.3% | 0.085831 |
@@ -68,14 +68,14 @@ Boundary:
 - Research-only reference-style expected-regret sizing ported into the Model accumulation harness.
 - Terminal win-rate vs Model live: 50%
 - Avg-cost win-rate vs Model live: 75%
-- Mean terminal delta vs Model: -3.2%
+- Mean terminal delta vs Model: -3.1%
 - Mean avg-cost premium delta vs Model: -6.7%
 - Worst terminal delta vs Model: -53.6%
 
 | Asset | Episode | Policy terminal | Exp-reg terminal | Delta | Model avg/low | Exp-reg avg/low | Model spent@low | Exp-reg spent@low |
 |---|---|---:|---:|---:|---:|---:|---:|---:|
 | BTC | 2018 bear (single low) | 1.296 | 1.909 | 61.3% | 73.4% | 17.8% | 80% | 40% |
-| ETH | 2018 bear (single low) | 0.567 | 0.579 | 1.3% | 166.3% | 160.5% | 72% | 76% |
+| ETH | 2018 bear (single low) | 0.566 | 0.579 | 1.3% | 166.7% | 160.5% | 72% | 76% |
 | BTC | 2022 bear (DOUBLE bottom) | 1.827 | 1.926 | 9.9% | 39.5% | 32.3% | 74% | 86% |
 | ETH | 2022 bear (DOUBLE bottom) | 1.607 | 1.607 | 0.0% | 35.1% | 35.1% | 44% | 1% |
 | BTC | 2019 H2 correction (mid-cycle) | 1.131 | 1.019 | -11.2% | 16.6% | 5.2% | 47% | 5% |
@@ -89,14 +89,14 @@ Boundary:
 - Terminal win-rate vs Model live: 62%
 - Avg-cost win-rate vs Model live: 62%
 - Mean terminal delta vs Model: 9.1%
-- Mean avg-cost premium delta vs Model: -8.6%
+- Mean avg-cost premium delta vs Model: -8.7%
 - Worst terminal delta vs Model: 0.0%
 - Mean weeks using Model regime: 50%
 
 | Asset | Episode | Policy terminal | Exp-reg terminal | Cap-switch terminal | Cap delta | Model avg/low | Exp-reg avg/low | Cap avg/low | Cap spent@low | Model-regime weeks |
 |---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
 | BTC | 2018 bear (single low) | 1.296 | 1.909 | 1.909 | 61.3% | 73.4% | 17.8% | 17.8% | 40% | 1% |
-| ETH | 2018 bear (single low) | 0.567 | 0.579 | 0.579 | 1.3% | 166.3% | 160.5% | 160.5% | 76% | 0% |
+| ETH | 2018 bear (single low) | 0.566 | 0.579 | 0.579 | 1.3% | 166.7% | 160.5% | 160.5% | 76% | 0% |
 | BTC | 2022 bear (DOUBLE bottom) | 1.827 | 1.926 | 1.926 | 9.9% | 39.5% | 32.3% | 32.3% | 86% | 0% |
 | ETH | 2022 bear (DOUBLE bottom) | 1.607 | 1.607 | 1.607 | 0.0% | 35.1% | 35.1% | 35.1% | 1% | 0% |
 | BTC | 2019 H2 correction (mid-cycle) | 1.131 | 1.019 | 1.131 | 0.0% | 16.6% | 5.2% | 16.6% | 47% | 100% |
@@ -114,7 +114,7 @@ Accumulation anti-overfit checks:
 - Target perturbations: min terminal win-rate 75%, min cost win-rate 62%, worst terminal edge -2.6%
 - Leave-one-episode-out: worst held-out terminal edge -1.8%, worst held-out cost edge 14.8%
 - Chronological holdout since 2020-01-01: terminal win-rate 100%, worst terminal edge 10.5%
-- Cap-switch window jitter vs Model: min terminal win-rate 50%, worst terminal delta -18.4%, worst cost delta 128.4%
+- Cap-switch window jitter vs Model: min terminal win-rate 50%, worst terminal delta -18.4%, worst cost delta 128.0%
 - Cap-switch target perturbation vs Model: min terminal win-rate 62%, worst terminal delta 0.0%, worst cost delta 0.0%
 - Cap-switch leave-one-episode-out vs Model: min remaining terminal win-rate 57%, worst held-out terminal delta 0.0%, worst held-out cost delta 0.0%
 - Cap-switch chronological holdout since 2020-01-01: terminal win-rate 50%, worst terminal delta 0.0%
