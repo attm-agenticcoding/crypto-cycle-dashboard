@@ -1,6 +1,6 @@
 # Robust Evaluation
 
-Generated: 2026-07-06T00:20:56.836776+00:00
+Generated: 2026-07-06T01:44:29.362640+00:00
 Verdict: **WATCH_CURRENT_UTILITY_AUDIT**
 
 Reasons:
@@ -15,11 +15,40 @@ Boundary:
 
 - Status: **FAIL**
 - parameter_plateau_25pct: FAIL (cells=11, failing=4, worst shift=10.0%, materiality=DELTA_ONLY_REVIEW, delta-only=4)
-- synthetic_delayed_lower_low: PASS (paths=1, failing=0, min DCA18 ratio=1.287973)
-- synthetic_false_bottom_continued_grind: PASS (paths=1, failing=0, min DCA18 ratio=1.429945)
+- synthetic_delayed_lower_low: FAIL (paths=1, failing=1, min DCA18 ratio=1.287973)
+- synthetic_false_bottom_continued_grind: FAIL (paths=1, failing=1, min DCA18 ratio=1.429945)
 - synthetic_fast_v_participation: PASS (paths=1, failing=0, min DCA18 ratio=1.033405)
 - synthetic_shallow_recover: PASS (paths=1, failing=0, min DCA18 ratio=0.844307)
 - early_exhaustion_guard: PASS (historical flags=0, synthetic flags=0)
+
+## Cap Rationale Audit
+
+- Status: **REVIEW_REQUIRED**
+- Caps classified: 38; standard metrics: 6; non-canonical thresholds: 38; review-required: 25; implementation-review: 0
+- Source mix: canonical metrics=0, nominal statistical targets=2, baseline-relative gates=11, policy risk tolerances=4, heuristic stress gates=21
+- Interpretation: Most metrics used here are standard diagnostics, but the explicit numeric caps are local governance thresholds unless marked as nominal statistical targets. A triggered local cap should be read as WATCH/REVIEW evidence, not as proof that the model violated a universal market-standard constant.
+
+| Cap | Source | Effect | Threshold | Observed | Status | Implementation |
+|---|---:|---:|---:|---:|---:|---:|
+| forecast.bottom_down20_calibration_mae_0_18 | policy_risk_tolerance | WATCH_ONLY | <= 0.18 | 0.1959 | TRIGGERED | ENFORCED |
+| forecast.bottom_loco_log_loss_vs_null | baseline_relative_gate | REPORT_ONLY | <= 0.0 | 0.0394 | TRIGGERED | ENFORCED |
+| forecast.bottom_raw_p10_p90_coverage_80 | nominal_statistical_target | REPORT_ONLY | >= 0.8 | 0.5294 | TRIGGERED | ENFORCED |
+| forecast.bottom_conformal_each_fold_coverage_80 | heuristic_stress_gate | RESEARCH_WARNING | >= 0.8 | 0.0000 | TRIGGERED | ENFORCED |
+| common_exam.parameter_plateau_heldout_edge_deterioration_5pp | heuristic_stress_gate | HARD_PROMOTION_BLOCK | >= -0.05 | -0.1291 | TRIGGERED | ENFORCED |
+| common_exam.synthetic_delayed_lower_low_avg_premium_60 | heuristic_stress_gate | HARD_PROMOTION_BLOCK | <= 0.6 | 0.7336 | TRIGGERED | ENFORCED |
+| common_exam.synthetic_false_bottom_unlock_20pp | heuristic_stress_gate | HARD_PROMOTION_BLOCK | <= 0.2 | 0.2260 | TRIGGERED | ENFORCED |
+| forecast.top_drawdown35_calibration_mae_0_18 | policy_risk_tolerance | WATCH_ONLY | <= 0.18 | 0.1681 | PASS | ENFORCED |
+| current_utility.accum_parameter_stability_terminal_win_50 | heuristic_stress_gate | WATCH_ONLY | >= 0.5 | 0.8750 | PASS | ENFORCED |
+| current_utility.accum_window_jitter_terminal_win_60 | heuristic_stress_gate | WATCH_ONLY | >= 0.6 | 0.7500 | PASS | ENFORCED |
+| current_utility.accum_window_jitter_cost_win_50 | heuristic_stress_gate | WATCH_ONLY | >= 0.5 | 0.6250 | PASS | ENFORCED |
+| current_utility.accum_window_jitter_worst_terminal_edge_minus15 | heuristic_stress_gate | WATCH_ONLY | >= -0.15 | -0.1085 | PASS | ENFORCED |
+| current_utility.accum_target_perturbation_terminal_win_60 | heuristic_stress_gate | WATCH_ONLY | >= 0.6 | 0.7500 | PASS | ENFORCED |
+| current_utility.accum_target_perturbation_cost_win_50 | heuristic_stress_gate | WATCH_ONLY | >= 0.5 | 0.6250 | PASS | ENFORCED |
+| current_utility.accum_target_perturbation_worst_terminal_edge_minus15 | heuristic_stress_gate | WATCH_ONLY | >= -0.15 | -0.0255 | PASS | ENFORCED |
+| current_utility.accum_loo_worst_terminal_edge_minus15 | heuristic_stress_gate | WATCH_ONLY | >= -0.15 | -0.0177 | PASS | ENFORCED |
+| current_utility.distribution_parameter_stability_win_rate_70 | heuristic_stress_gate | WATCH_ONLY | >= 0.7 | 1.0000 | PASS | ENFORCED |
+| current_utility.distribution_parameter_stability_end_value_75 | heuristic_stress_gate | WATCH_ONLY | >= 0.75 | 1.0994 | PASS | ENFORCED |
+| ... | ... | ... | ... | ... | ... | 9 more in JSON |
 
 ## Forecast Calibration
 
@@ -41,8 +70,8 @@ Boundary:
 
 | Asset | Status | Accum eps | Dist windows | Acc utility | Dist utility | Bottom MAE | Top MAE | Reasons |
 |---|---:|---:|---:|---:|---:|---:|---:|---|
-| BTC | PASS | 4 | 4 | 0.288151 | 7.083705 | 0.15683 | 0.10999 | current utility asset gate passed |
-| ETH | WATCH | 4 | 3 | 0.092177 | 9.57016 | 0.19587 | 0.16814 | bottom calibration watch |
+| BTC | PASS | 4 | 4 | 0.288151 | 7.083256 | 0.15683 | 0.10999 | current utility asset gate passed |
+| ETH | WATCH | 4 | 3 | 0.092177 | 9.569627 | 0.19587 | 0.16814 | bottom calibration watch |
 
 ## Accumulation Policy
 
@@ -104,6 +133,33 @@ Boundary:
 | BTC | 2020 COVID crash (fast V) | 1.480 | 1.425 | 1.480 | 0.0% | 25.9% | 32.5% | 25.9% | 17% | 100% |
 | ETH | 2020 COVID crash (fast V) | 1.849 | 1.313 | 1.849 | 0.0% | 33.5% | 55.6% | 33.5% | 38% | 100% |
 
+### Release-Hardening Candidate
+
+- Research-only causal overlay: throttles early front-loading by realized depth, caps the four-week unlock, and holds a late reserve until a non-forecast trigger (fast crash, deep capitulation, final third, or resolution) fires.
+- Verdict: **REJECTED_HISTORICAL_UTILITY** (synthetic gates pass=True, historical utility preserved=False)
+- Synthetic common-exam gates: **PASS**
+- Historical vs live: terminal win-rate 38%, worst terminal delta -25.2%, mean terminal delta -6.0%, cost-premium win-rate 38%, new early-exhaustion episodes 0
+
+| Synthetic path | Candidate metric | Value | Gate |
+|---|---|---:|---|
+| delayed_lower_low | avg entry premium to low | 54.5% | <= 60% |
+| false_bottom_continued_grind | max four-week unlock | 15.7% | <= 20% |
+| fast_v | deployed by fast-V low | 44.4% | >= 30% |
+| shallow_recover | terminal vs DCA52 | 98.1% | >= 95% |
+
+| Asset | Episode | Live terminal | Cand terminal | Terminal delta | Live avg/low | Cand avg/low | Premium delta |
+|---|---|---:|---:|---:|---:|---:|---:|
+| BTC | 2018 bear (single low) | 1.296 | 0.970 | -25.2% | 73.4% | 131.8% | 58.3% |
+| ETH | 2018 bear (single low) | 0.566 | 0.442 | -21.8% | 166.7% | 241.1% | 74.4% |
+| BTC | 2022 bear (DOUBLE bottom) | 1.827 | 1.725 | -5.5% | 39.5% | 47.7% | 8.2% |
+| ETH | 2022 bear (DOUBLE bottom) | 1.607 | 1.475 | -8.2% | 35.1% | 47.2% | 12.1% |
+| BTC | 2019 H2 correction (mid-cycle) | 1.131 | 1.195 | 5.7% | 16.6% | 7.0% | -9.6% |
+| ETH | 2019 H2 correction (mid-cycle) | 1.336 | 1.390 | 4.0% | 44.9% | 37.3% | -7.6% |
+| BTC | 2020 COVID crash (fast V) | 1.480 | 1.443 | -2.5% | 25.9% | 29.3% | 3.4% |
+| ETH | 2020 COVID crash (fast V) | 1.849 | 1.952 | 5.5% | 33.5% | 26.0% | -7.5% |
+
+- The release-hardening overlay clears the delayed-lower-low average entry premium and false-bottom four-week unlock synthetic gates by throttling early front-loading and holding a late reserve until a non-forecast trigger fires. On the real accumulation episodes the same deferral buys later and higher in prolonged deep bears (2018 BTC/ETH worst), so terminal value and average cost both deteriorate versus live. Under the pre-registered promotion rule (historical utility AND common exam) the candidate is not promotable; it is recorded as a REJECTED research candidate with an explicit trade-off, not a production change.
+
 Parameter stability:
 - live: terminal win-rate 88%, worst edge -1.8%, mean edge 22.4%
 - shallower_faster: terminal win-rate 88%, worst edge -3.9%, mean edge 21.5%
@@ -147,13 +203,13 @@ Accumulation anti-overfit checks:
 | BTC | 2017-12-17 | 77% | 94% | 18.07 | 382.0% | 18.052682 |
 | BTC | 2021-04-14 | 90% | 79% | 7.49 | 139.0% | 6.704192 |
 | BTC | 2021-11-10 | 90% | 79% | 3.22 | 207.2% | 2.619057 |
-| BTC | 2025-10-06 | 77% | 91% | 1.68 | 147.3% | 0.958889 |
+| BTC | 2025-10-06 | 77% | 91% | 1.68 | 146.7% | 0.957093 |
 | ETH | 2021-05-12 | 100% | 74% | 20.19 | 299.6% | 19.889905 |
 | ETH | 2021-11-10 | 100% | 74% | 8.75 | 255.2% | 8.308763 |
-| ETH | 2025-08-22 | 78% | 93% | 1.09 | 218.1% | 0.511813 |
+| ETH | 2025-08-22 | 78% | 93% | 1.09 | 217.5% | 0.510212 |
 
 Distribution anti-overfit checks:
-- Parameter perturbations: min win-rate 100%, worst low/hold 121.1%, worst end/hold 110.2%
+- Parameter perturbations: min win-rate 100%, worst low/hold 121.1%, worst end/hold 109.9%
 - Top-date jitter [-60, -30, 0, 30, 60]: min win-rate 100%, worst low/hold 100.0%, worst end/hold 114.3%
 - Leave-one-top-out: worst held-out low/hold 142.2%, worst held-out end/hold 139.0%
 - Chronological holdout since 2021-01-01: win-rate 100%, worst end/hold 139.0%
@@ -162,7 +218,7 @@ Distribution anti-overfit checks:
 |---|---:|---:|---:|---:|---:|
 | live | 7 | 100% | 142.2% | 139.0% | 79% |
 | earlier_tighter | 7 | 100% | 145.6% | 142.2% | 80% |
-| later_looser | 7 | 100% | 121.1% | 110.2% | 84% |
+| later_looser | 7 | 100% | 121.1% | 109.9% | 84% |
 | less_rerisk | 7 | 100% | 139.2% | 136.0% | 77% |
 
 | Top-date jitter | Windows | Win-rate | Worst low/hold | Worst end/hold |
@@ -170,10 +226,10 @@ Distribution anti-overfit checks:
 | -60d | 7 | 100% | 100.0% | 114.7% |
 | -30d | 7 | 100% | 146.1% | 114.3% |
 | 0d | 7 | 100% | 142.2% | 139.0% |
-| 30d | 7 | 100% | 151.3% | 147.3% |
-| 60d | 7 | 100% | 151.3% | 147.3% |
+| 30d | 7 | 100% | 151.3% | 146.7% |
+| 60d | 7 | 100% | 151.3% | 146.7% |
 
 Distribution diagnostics:
-- Worst value at post-top low: BTC 2021-04-14 sold=90% low/hold=142.2% end/hold=139.0%; BTC 2025-10-06 sold=77% low/hold=151.3% end/hold=147.3%; BTC 2021-11-10 sold=90% low/hold=215.4% end/hold=207.2%
-- Worst end value vs hold: BTC 2021-04-14 sold=90% low/hold=142.2% end/hold=139.0%; BTC 2025-10-06 sold=77% low/hold=151.3% end/hold=147.3%; BTC 2021-11-10 sold=90% low/hold=215.4% end/hold=207.2%
-- Lowest sold fraction: BTC 2017-12-17 sold=77% low/hold=418.9% end/hold=382.0%; BTC 2025-10-06 sold=77% low/hold=151.3% end/hold=147.3%; ETH 2025-08-22 sold=78% low/hold=243.3% end/hold=218.1%
+- Worst value at post-top low: BTC 2021-04-14 sold=90% low/hold=142.2% end/hold=139.0%; BTC 2025-10-06 sold=77% low/hold=151.3% end/hold=146.7%; BTC 2021-11-10 sold=90% low/hold=215.4% end/hold=207.2%
+- Worst end value vs hold: BTC 2021-04-14 sold=90% low/hold=142.2% end/hold=139.0%; BTC 2025-10-06 sold=77% low/hold=151.3% end/hold=146.7%; BTC 2021-11-10 sold=90% low/hold=215.4% end/hold=207.2%
+- Lowest sold fraction: BTC 2017-12-17 sold=77% low/hold=418.9% end/hold=382.0%; BTC 2025-10-06 sold=77% low/hold=151.3% end/hold=146.7%; ETH 2025-08-22 sold=78% low/hold=243.3% end/hold=217.5%
