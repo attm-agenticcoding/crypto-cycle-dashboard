@@ -1,6 +1,6 @@
 # Robust Evaluation
 
-Generated: 2026-07-07T00:15:20.468473+00:00
+Generated: 2026-07-07T02:21:56.438466+00:00
 Verdict: **WATCH_CURRENT_UTILITY_AUDIT**
 
 Reasons:
@@ -47,7 +47,7 @@ Boundary:
 | current_utility.accum_target_perturbation_worst_terminal_edge_minus15 | heuristic_stress_gate | WATCH_ONLY | >= -0.15 | -0.0255 | PASS | ENFORCED |
 | current_utility.accum_loo_worst_terminal_edge_minus15 | heuristic_stress_gate | WATCH_ONLY | >= -0.15 | -0.0177 | PASS | ENFORCED |
 | current_utility.distribution_parameter_stability_win_rate_70 | heuristic_stress_gate | WATCH_ONLY | >= 0.7 | 1.0000 | PASS | ENFORCED |
-| current_utility.distribution_parameter_stability_end_value_75 | heuristic_stress_gate | WATCH_ONLY | >= 0.75 | 1.0994 | PASS | ENFORCED |
+| current_utility.distribution_parameter_stability_end_value_75 | heuristic_stress_gate | WATCH_ONLY | >= 0.75 | 1.0927 | PASS | ENFORCED |
 | ... | ... | ... | ... | ... | ... | 9 more in JSON |
 
 ## Forecast Calibration
@@ -70,8 +70,8 @@ Boundary:
 
 | Asset | Status | Accum eps | Dist windows | Acc utility | Dist utility | Bottom MAE | Top MAE | Reasons |
 |---|---:|---:|---:|---:|---:|---:|---:|---|
-| BTC | PASS | 4 | 4 | 0.288151 | 7.083256 | 0.15683 | 0.10999 | current utility asset gate passed |
-| ETH | WATCH | 4 | 3 | 0.092177 | 9.569627 | 0.19587 | 0.16814 | bottom calibration watch |
+| BTC | PASS | 4 | 4 | 0.288151 | 7.082879 | 0.15683 | 0.10999 | current utility asset gate passed |
+| ETH | WATCH | 4 | 3 | 0.092177 | 9.568079 | 0.19587 | 0.16814 | bottom calibration watch |
 
 ## Accumulation Policy
 
@@ -241,6 +241,16 @@ Boundary:
 
 - Across every tested lever the delayed-lower-low average entry premium gate (<= 60%) is reachable only by throttling first-decline depth-floor deployment (the release-hardening lever), which the historical-utility audit rejects on prolonged 2018-style bears. Governing the posterior target alone floors at roughly 66% because the duration-CDF depth floor independently deploys the working bucket at first-decline prices. No tested lever reaches the gate while preserving historical utility, so within the current policy architecture this gate appears unattainable without historical-utility loss. Per the governance point, the next round should either accept this as the documented trade-off of record, or review whether the 60% threshold is attainable and correctly specified, keeping the current value as a sensitivity row and justifying any change with this frontier rather than tuning to pass.
 
+### Frontier-Aware Gate Proposal (research-only)
+
+- Status: **PROPOSED_FRONTIER_AWARE_PASS**; proposed delayed-premium verdict: **PASS_BY_NON_DOMINANCE**; production policy change: **False**
+- Non-dominance: incumbent `live_policy` non-dominated=**True**; dominating levers: none
+- Relative premium guard vs `fixed_18w_dca_same_synthetic_path`: policy 73.4%; baseline 123.8%; policy/baseline 59.3%; status **PASS**
+- Absolute 60% gate under this proposal: triggered=True; proposed effect=**WATCH_SENSITIVITY_ONLY**
+
+- Recommended spec: Use non-dominance on the frozen delayed-premium/historical-utility frontier as the primary delayed-premium promotion criterion; keep the absolute 60/65/70/75 thresholds as WATCH sensitivity rows; retain a same-path DCA18-relative premium guard to catch genuine over-eagerness.
+- This is a governance proposal, not a production change. It records that the incumbent survives by non-dominance: no tested candidate lowers delayed-premium while preserving historical utility.
+
 Parameter stability:
 - live: terminal win-rate 88%, worst edge -1.8%, mean edge 22.4%
 - shallower_faster: terminal win-rate 88%, worst edge -3.9%, mean edge 21.5%
@@ -284,13 +294,13 @@ Accumulation anti-overfit checks:
 | BTC | 2017-12-17 | 77% | 94% | 18.07 | 382.0% | 18.052682 |
 | BTC | 2021-04-14 | 90% | 79% | 7.49 | 139.0% | 6.704192 |
 | BTC | 2021-11-10 | 90% | 79% | 3.22 | 207.2% | 2.619057 |
-| BTC | 2025-10-06 | 77% | 91% | 1.68 | 146.7% | 0.957093 |
+| BTC | 2025-10-06 | 77% | 91% | 1.68 | 146.2% | 0.955583 |
 | ETH | 2021-05-12 | 100% | 74% | 20.19 | 299.6% | 19.889905 |
 | ETH | 2021-11-10 | 100% | 74% | 8.75 | 255.2% | 8.308763 |
-| ETH | 2025-08-22 | 78% | 93% | 1.09 | 217.5% | 0.510212 |
+| ETH | 2025-08-22 | 78% | 93% | 1.09 | 216.0% | 0.505568 |
 
 Distribution anti-overfit checks:
-- Parameter perturbations: min win-rate 100%, worst low/hold 121.1%, worst end/hold 109.9%
+- Parameter perturbations: min win-rate 100%, worst low/hold 121.1%, worst end/hold 109.3%
 - Top-date jitter [-60, -30, 0, 30, 60]: min win-rate 100%, worst low/hold 100.0%, worst end/hold 114.3%
 - Leave-one-top-out: worst held-out low/hold 142.2%, worst held-out end/hold 139.0%
 - Chronological holdout since 2021-01-01: win-rate 100%, worst end/hold 139.0%
@@ -299,7 +309,7 @@ Distribution anti-overfit checks:
 |---|---:|---:|---:|---:|---:|
 | live | 7 | 100% | 142.2% | 139.0% | 79% |
 | earlier_tighter | 7 | 100% | 145.6% | 142.2% | 80% |
-| later_looser | 7 | 100% | 121.1% | 109.9% | 84% |
+| later_looser | 7 | 100% | 121.1% | 109.3% | 84% |
 | less_rerisk | 7 | 100% | 139.2% | 136.0% | 77% |
 
 | Top-date jitter | Windows | Win-rate | Worst low/hold | Worst end/hold |
@@ -307,10 +317,10 @@ Distribution anti-overfit checks:
 | -60d | 7 | 100% | 100.0% | 114.7% |
 | -30d | 7 | 100% | 146.1% | 114.3% |
 | 0d | 7 | 100% | 142.2% | 139.0% |
-| 30d | 7 | 100% | 151.3% | 146.7% |
-| 60d | 7 | 100% | 151.3% | 146.7% |
+| 30d | 7 | 100% | 151.3% | 146.2% |
+| 60d | 7 | 100% | 151.3% | 146.2% |
 
 Distribution diagnostics:
-- Worst value at post-top low: BTC 2021-04-14 sold=90% low/hold=142.2% end/hold=139.0%; BTC 2025-10-06 sold=77% low/hold=151.3% end/hold=146.7%; BTC 2021-11-10 sold=90% low/hold=215.4% end/hold=207.2%
-- Worst end value vs hold: BTC 2021-04-14 sold=90% low/hold=142.2% end/hold=139.0%; BTC 2025-10-06 sold=77% low/hold=151.3% end/hold=146.7%; BTC 2021-11-10 sold=90% low/hold=215.4% end/hold=207.2%
-- Lowest sold fraction: BTC 2017-12-17 sold=77% low/hold=418.9% end/hold=382.0%; BTC 2025-10-06 sold=77% low/hold=151.3% end/hold=146.7%; ETH 2025-08-22 sold=78% low/hold=243.3% end/hold=217.5%
+- Worst value at post-top low: BTC 2021-04-14 sold=90% low/hold=142.2% end/hold=139.0%; BTC 2025-10-06 sold=77% low/hold=151.3% end/hold=146.2%; BTC 2021-11-10 sold=90% low/hold=215.4% end/hold=207.2%
+- Worst end value vs hold: BTC 2021-04-14 sold=90% low/hold=142.2% end/hold=139.0%; BTC 2025-10-06 sold=77% low/hold=151.3% end/hold=146.2%; BTC 2021-11-10 sold=90% low/hold=215.4% end/hold=207.2%
+- Lowest sold fraction: BTC 2017-12-17 sold=77% low/hold=418.9% end/hold=382.0%; BTC 2025-10-06 sold=77% low/hold=151.3% end/hold=146.2%; ETH 2025-08-22 sold=78% low/hold=243.3% end/hold=216.0%

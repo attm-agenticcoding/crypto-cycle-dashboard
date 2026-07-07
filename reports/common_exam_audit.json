@@ -392,7 +392,7 @@
         "metric": "parameter-stability worst end value versus hold",
         "metric_is_standard": false,
         "observed_status": "PASS",
-        "observed_value": 1.099417,
+        "observed_value": 1.092727,
         "rationale": "Distribution left-tail perturbation gate; threshold is local.",
         "recommendation": "",
         "review_required": true,
@@ -964,7 +964,7 @@
         "metric": "parameter-stability worst end value versus hold",
         "metric_is_standard": false,
         "observed_status": "PASS",
-        "observed_value": 1.099417,
+        "observed_value": 1.092727,
         "rationale": "Distribution left-tail perturbation gate; threshold is local.",
         "recommendation": "",
         "review_required": true,
@@ -5132,7 +5132,53 @@
       }
     ]
   },
-  "generated_at": "2026-07-07T00:15:20.468473+00:00",
+  "frontier_aware_gate_proposal": {
+    "absolute_60_gate": {
+      "observed_policy_avg_premium": 0.733606,
+      "proposed_effect": "WATCH_SENSITIVITY_ONLY",
+      "review_thresholds": [
+        0.6,
+        0.65,
+        0.7,
+        0.75
+      ],
+      "threshold": 0.6,
+      "triggered": true
+    },
+    "current_common_exam_unchanged": true,
+    "interpretation": "This is a governance proposal, not a production change. It records that the incumbent survives by non-dominance: no tested candidate lowers delayed-premium while preserving historical utility.",
+    "non_dominance": {
+      "dominance_axes": [
+        "lower delayed_lower_low_avg_entry_premium is better",
+        "historical utility must be preserved"
+      ],
+      "dominating_levers": [],
+      "frozen_candidate_set": [
+        "live_policy",
+        "posterior_target_zero_lower_bound",
+        "release_hardening_target_and_depth_floor_throttle"
+      ],
+      "incumbent": "live_policy",
+      "incumbent_non_dominated": true
+    },
+    "production_policy_change": false,
+    "proposed_primary_delayed_premium_verdict": "PASS_BY_NON_DOMINANCE",
+    "recommended_spec": "Use non-dominance on the frozen delayed-premium/historical-utility frontier as the primary delayed-premium promotion criterion; keep the absolute 60/65/70/75 thresholds as WATCH sensitivity rows; retain a same-path DCA18-relative premium guard to catch genuine over-eagerness.",
+    "relative_premium_guard": {
+      "baseline": "fixed_18w_dca_same_synthetic_path",
+      "baseline_avg_premium": 1.23813,
+      "interpretation": "The live policy is cheaper than same-path fixed 18-week DCA, so the absolute premium is mostly path cost rather than an information-equivalent policy defect.",
+      "limit": 1.23813,
+      "policy_avg_premium": 0.733606,
+      "policy_to_baseline_ratio": 0.592511,
+      "status": "PASS",
+      "tolerance": 0.0
+    },
+    "schema_version": 1,
+    "scope": "research_only_governance_proposal",
+    "status": "PROPOSED_FRONTIER_AWARE_PASS"
+  },
+  "generated_at": "2026-07-07T02:21:56.438466+00:00",
   "known_risks": [
     {
       "evidence": "The live policy now uses deploy_duration_cdf_floor() with horizon multipliers (1.0, 1.5, 2.0) instead of a single linear 52-week clock.",

@@ -1,6 +1,6 @@
 # Common Exam Audit
 
-Generated: 2026-07-07T00:15:20.468473+00:00
+Generated: 2026-07-07T02:21:56.438466+00:00
 Verdict: **FAIL**
 
 The current dashboard verdict is scoped to the historical utility audit. The stricter common-exam gates now replay parameter plateau and synthetic adverse paths through the dashboard full stack. Fable's external core-only cross-audit remains recorded as a separate warning because it failed the convex core on plateau and synthetic-shape stress.
@@ -47,7 +47,7 @@ The current dashboard verdict is scoped to the historical utility audit. The str
 | current_utility.accum_target_perturbation_worst_terminal_edge_minus15 | heuristic_stress_gate | WATCH_ONLY | >= -0.15 | -0.0255 | PASS | ENFORCED |
 | current_utility.accum_loo_worst_terminal_edge_minus15 | heuristic_stress_gate | WATCH_ONLY | >= -0.15 | -0.0177 | PASS | ENFORCED |
 | current_utility.distribution_parameter_stability_win_rate_70 | heuristic_stress_gate | WATCH_ONLY | >= 0.7 | 1.0000 | PASS | ENFORCED |
-| current_utility.distribution_parameter_stability_end_value_75 | heuristic_stress_gate | WATCH_ONLY | >= 0.75 | 1.0994 | PASS | ENFORCED |
+| current_utility.distribution_parameter_stability_end_value_75 | heuristic_stress_gate | WATCH_ONLY | >= 0.75 | 1.0927 | PASS | ENFORCED |
 | ... | ... | ... | ... | ... | ... | 9 more in JSON |
 
 ## Pre-Registered Gates
@@ -122,6 +122,16 @@ The current dashboard verdict is scoped to the historical utility audit. The str
 | Accept release-hardening throttle behavior | 54.5% | 18.8% | historical utility not preserved; verdict REJECTED_HISTORICAL_UTILITY; terminal win-rate vs live 38%; worst terminal delta -25.2%; cost win-rate vs live 38%; worst cost-premium delta 74.4% |
 
 - Across every tested lever the delayed-lower-low average entry premium gate (<= 60%) is reachable only by throttling first-decline depth-floor deployment (the release-hardening lever), which the historical-utility audit rejects on prolonged 2018-style bears. Governing the posterior target alone floors at roughly 66% because the duration-CDF depth floor independently deploys the working bucket at first-decline prices. No tested lever reaches the gate while preserving historical utility, so within the current policy architecture this gate appears unattainable without historical-utility loss. Per the governance point, the next round should either accept this as the documented trade-off of record, or review whether the 60% threshold is attainable and correctly specified, keeping the current value as a sensitivity row and justifying any change with this frontier rather than tuning to pass.
+
+## Frontier-Aware Gate Proposal (research-only)
+
+- Status: **PROPOSED_FRONTIER_AWARE_PASS**; proposed delayed-premium verdict: **PASS_BY_NON_DOMINANCE**; production policy change: **False**
+- Non-dominance: incumbent `live_policy` non-dominated=**True**; dominating levers: none
+- Relative premium guard vs `fixed_18w_dca_same_synthetic_path`: policy 73.4%; baseline 123.8%; policy/baseline 59.3%; status **PASS**
+- Absolute 60% gate under this proposal: triggered=True; proposed effect=**WATCH_SENSITIVITY_ONLY**
+
+- Recommended spec: Use non-dominance on the frozen delayed-premium/historical-utility frontier as the primary delayed-premium promotion criterion; keep the absolute 60/65/70/75 thresholds as WATCH sensitivity rows; retain a same-path DCA18-relative premium guard to catch genuine over-eagerness.
+- This is a governance proposal, not a production change. It records that the incumbent survives by non-dominance: no tested candidate lowers delayed-premium while preserving historical utility.
 
 ## Promotion Rule
 
