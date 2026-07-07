@@ -5003,6 +5003,68 @@
     "delayed_premium_gate_attainability": {
       "attainable_without_historical_loss": false,
       "conclusion": "Across every tested lever the delayed-lower-low average entry premium gate (<= 60%) is reachable only by throttling first-decline depth-floor deployment (the release-hardening lever), which the historical-utility audit rejects on prolonged 2018-style bears. Governing the posterior target alone floors at roughly 66% because the duration-CDF depth floor independently deploys the working bucket at first-decline prices. No tested lever reaches the gate while preserving historical utility, so within the current policy architecture this gate appears unattainable without historical-utility loss. Per the governance point, the next round should either accept this as the documented trade-off of record, or review whether the 60% threshold is attainable and correctly specified, keeping the current value as a sensitivity row and justifying any change with this frontier rather than tuning to pass.",
+      "cost_of_relaxation": [
+        {
+          "decision_label": "Keep current gate/blocker and live policy",
+          "delayed_avg_premium": 0.733606,
+          "historical_cost": "none_status_quo",
+          "historical_cost_summary": "none (status quo); current utility terminal win-rate vs median baseline 88%",
+          "historical_metrics": {
+            "cost_win_rate_vs_median_baseline": 0.75,
+            "reference": "current_policy_vs_median_simple_baseline",
+            "terminal_win_rate_vs_median_baseline": 0.875,
+            "worst_cost_edge_vs_median_baseline": 0.148104,
+            "worst_terminal_edge_vs_median_baseline": -0.017668
+          },
+          "historical_utility_preserved": true,
+          "historical_verdict": "CURRENT_POLICY",
+          "lever": "live_policy",
+          "option": "status_quo_live_policy",
+          "premium_reduction_vs_live": 0.0
+        },
+        {
+          "decision_label": "Accept target-zero lower bound behavior",
+          "delayed_avg_premium": 0.663994,
+          "historical_cost": "historical_utility_not_preserved",
+          "historical_cost_summary": "historical utility not preserved; verdict REJECTED_SYNTHETIC_GATES; terminal win-rate vs live 25%; worst terminal delta -14.3%; cost win-rate vs live 38%; worst cost-premium delta 19.6%",
+          "historical_metrics": {
+            "cost_win_rate_vs_live": 0.375,
+            "mean_cost_premium_delta_vs_live": 0.044439,
+            "mean_terminal_delta_vs_live": -0.047827,
+            "new_early_exhaustion_episodes": 0,
+            "reference": "candidate_vs_live_policy",
+            "terminal_win_rate_vs_live": 0.25,
+            "worst_cost_premium_delta_vs_live": 0.196198,
+            "worst_terminal_delta_vs_live": -0.142617
+          },
+          "historical_utility_preserved": false,
+          "historical_verdict": "REJECTED_SYNTHETIC_GATES",
+          "lever": "posterior_target_zero_lower_bound",
+          "option": "target_zero_lower_bound",
+          "premium_reduction_vs_live": 0.069612
+        },
+        {
+          "decision_label": "Accept release-hardening throttle behavior",
+          "delayed_avg_premium": 0.545428,
+          "historical_cost": "historical_utility_not_preserved",
+          "historical_cost_summary": "historical utility not preserved; verdict REJECTED_HISTORICAL_UTILITY; terminal win-rate vs live 38%; worst terminal delta -25.2%; cost win-rate vs live 38%; worst cost-premium delta 74.4%",
+          "historical_metrics": {
+            "cost_win_rate_vs_live": 0.375,
+            "mean_cost_premium_delta_vs_live": 0.164531,
+            "mean_terminal_delta_vs_live": -0.060031,
+            "new_early_exhaustion_episodes": 0,
+            "reference": "candidate_vs_live_policy",
+            "terminal_win_rate_vs_live": 0.375,
+            "worst_cost_premium_delta_vs_live": 0.744265,
+            "worst_terminal_delta_vs_live": -0.251707
+          },
+          "historical_utility_preserved": false,
+          "historical_verdict": "REJECTED_HISTORICAL_UTILITY",
+          "lever": "release_hardening_target_and_depth_floor_throttle",
+          "option": "release_hardening_target_and_depth_floor_throttle",
+          "premium_reduction_vs_live": 0.188178
+        }
+      ],
       "frontier": [
         {
           "delayed_avg_premium": 0.733606,
@@ -5097,7 +5159,7 @@
         }
       ]
     },
-    "generated_at": "2026-07-06T16:12:38.075128+00:00",
+    "generated_at": "2026-07-07T00:15:20.468473+00:00",
     "known_risks": [
       {
         "evidence": "The live policy now uses deploy_duration_cdf_floor() with horizon multipliers (1.0, 1.5, 2.0) instead of a single linear 52-week clock.",
@@ -8935,7 +8997,7 @@
     ],
     "status": "CORE_FAILED_STRICTER_GATES"
   },
-  "generated_at": "2026-07-06T16:00:25-04:00",
+  "generated_at": "2026-07-06T20:30:36-04:00",
   "ledger": {
     "count": 15,
     "last": {
@@ -9054,36 +9116,36 @@
   "live_record": {
     "data_age_days": 0,
     "data_as_of": "2026-07-06",
-    "generated_at": "2026-07-06T16:00:24",
-    "key": "live|2026-07-06|2026-07-06T16:00",
+    "generated_at": "2026-07-06T20:30:34",
+    "key": "close|2026-07-06|2026-07-06T20:30",
     "material": false,
     "run_date": "2026-07-06",
-    "run_kind": "live",
+    "run_kind": "close",
     "schema_version": 1,
     "signals": {
       "BTC": {
         "action": "HOLD",
         "flags": [],
         "full_policy_target": 0.2736,
-        "price": 63716.0,
+        "price": 64001.17,
         "prior_close_target": 0.2736,
-        "raw_policy_gap": 0.092,
-        "raw_posterior_target": 0.1816,
+        "raw_policy_gap": 0.0925,
+        "raw_posterior_target": 0.1811,
         "top_keep": 1.0,
         "top_phase": "inactive",
-        "top_risk": 0.2877
+        "top_risk": 0.2882
       },
       "ETH": {
         "action": "HOLD",
         "flags": [],
-        "full_policy_target": 0.353,
-        "price": 1793.55,
-        "prior_close_target": 0.353,
+        "full_policy_target": 0.3532,
+        "price": 1798.52,
+        "prior_close_target": 0.3532,
         "raw_policy_gap": 0.0002,
-        "raw_posterior_target": 0.3528,
+        "raw_posterior_target": 0.353,
         "top_keep": 1.0,
         "top_phase": "inactive",
-        "top_risk": 0.3345
+        "top_risk": 0.3346
       }
     }
   },
@@ -9110,15 +9172,15 @@
   "schema_version": 1,
   "watchdog": {
     "data_age_days": 0.0,
-    "expected_latest_slot_et": "2026-07-06T16:00-04:00",
+    "expected_latest_slot_et": "2026-07-06T20:30-04:00",
     "last_close_log_done": "2026-07-05 20:32:30",
-    "last_live_log_done": "2026-07-06 15:31:33",
+    "last_live_log_done": "2026-07-06 16:01:33",
     "minutes_behind_expected": 0.0,
     "reasons": [
       "refresh cadence healthy"
     ],
-    "site_index_mtime_et": "2026-07-06T15:30:28-04:00",
-    "snapshot_generated_at_et": "2026-07-06T16:00-04:00",
+    "site_index_mtime_et": "2026-07-06T16:00:28-04:00",
+    "snapshot_generated_at_et": "2026-07-06T20:30-04:00",
     "status": "PASS"
   }
 }

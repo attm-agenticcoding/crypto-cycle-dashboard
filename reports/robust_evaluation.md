@@ -1,6 +1,6 @@
 # Robust Evaluation
 
-Generated: 2026-07-06T16:12:38.075128+00:00
+Generated: 2026-07-07T00:15:20.468473+00:00
 Verdict: **WATCH_CURRENT_UTILITY_AUDIT**
 
 Reasons:
@@ -230,6 +230,14 @@ Boundary:
 | 65% | release_hardening_target_and_depth_floor_throttle | none | only_non_utility_preserving_or_unscored_levers_pass |
 | 70% | posterior_target_zero_lower_bound, release_hardening_target_and_depth_floor_throttle | none | only_non_utility_preserving_or_unscored_levers_pass |
 | 75% | live_policy, posterior_target_zero_lower_bound, release_hardening_target_and_depth_floor_throttle | live_policy | at_least_one_utility_preserving_tested_lever_passes |
+
+### Cost Of Relaxation
+
+| Option | Delayed avg premium | Premium reduction vs live | Historical cost to accept |
+|---|---:|---:|---|
+| Keep current gate/blocker and live policy | 73.4% | 0.0% | none (status quo); current utility terminal win-rate vs median baseline 88% |
+| Accept target-zero lower bound behavior | 66.4% | 7.0% | historical utility not preserved; verdict REJECTED_SYNTHETIC_GATES; terminal win-rate vs live 25%; worst terminal delta -14.3%; cost win-rate vs live 38%; worst cost-premium delta 19.6% |
+| Accept release-hardening throttle behavior | 54.5% | 18.8% | historical utility not preserved; verdict REJECTED_HISTORICAL_UTILITY; terminal win-rate vs live 38%; worst terminal delta -25.2%; cost win-rate vs live 38%; worst cost-premium delta 74.4% |
 
 - Across every tested lever the delayed-lower-low average entry premium gate (<= 60%) is reachable only by throttling first-decline depth-floor deployment (the release-hardening lever), which the historical-utility audit rejects on prolonged 2018-style bears. Governing the posterior target alone floors at roughly 66% because the duration-CDF depth floor independently deploys the working bucket at first-decline prices. No tested lever reaches the gate while preserving historical utility, so within the current policy architecture this gate appears unattainable without historical-utility loss. Per the governance point, the next round should either accept this as the documented trade-off of record, or review whether the 60% threshold is attainable and correctly specified, keeping the current value as a sensitivity row and justifying any change with this frontier rather than tuning to pass.
 

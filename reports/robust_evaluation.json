@@ -6659,6 +6659,68 @@
       "delayed_premium_gate_attainability": {
         "attainable_without_historical_loss": false,
         "conclusion": "Across every tested lever the delayed-lower-low average entry premium gate (<= 60%) is reachable only by throttling first-decline depth-floor deployment (the release-hardening lever), which the historical-utility audit rejects on prolonged 2018-style bears. Governing the posterior target alone floors at roughly 66% because the duration-CDF depth floor independently deploys the working bucket at first-decline prices. No tested lever reaches the gate while preserving historical utility, so within the current policy architecture this gate appears unattainable without historical-utility loss. Per the governance point, the next round should either accept this as the documented trade-off of record, or review whether the 60% threshold is attainable and correctly specified, keeping the current value as a sensitivity row and justifying any change with this frontier rather than tuning to pass.",
+        "cost_of_relaxation": [
+          {
+            "decision_label": "Keep current gate/blocker and live policy",
+            "delayed_avg_premium": 0.733606,
+            "historical_cost": "none_status_quo",
+            "historical_cost_summary": "none (status quo); current utility terminal win-rate vs median baseline 88%",
+            "historical_metrics": {
+              "cost_win_rate_vs_median_baseline": 0.75,
+              "reference": "current_policy_vs_median_simple_baseline",
+              "terminal_win_rate_vs_median_baseline": 0.875,
+              "worst_cost_edge_vs_median_baseline": 0.148104,
+              "worst_terminal_edge_vs_median_baseline": -0.017668
+            },
+            "historical_utility_preserved": true,
+            "historical_verdict": "CURRENT_POLICY",
+            "lever": "live_policy",
+            "option": "status_quo_live_policy",
+            "premium_reduction_vs_live": 0.0
+          },
+          {
+            "decision_label": "Accept target-zero lower bound behavior",
+            "delayed_avg_premium": 0.663994,
+            "historical_cost": "historical_utility_not_preserved",
+            "historical_cost_summary": "historical utility not preserved; verdict REJECTED_SYNTHETIC_GATES; terminal win-rate vs live 25%; worst terminal delta -14.3%; cost win-rate vs live 38%; worst cost-premium delta 19.6%",
+            "historical_metrics": {
+              "cost_win_rate_vs_live": 0.375,
+              "mean_cost_premium_delta_vs_live": 0.044439,
+              "mean_terminal_delta_vs_live": -0.047827,
+              "new_early_exhaustion_episodes": 0,
+              "reference": "candidate_vs_live_policy",
+              "terminal_win_rate_vs_live": 0.25,
+              "worst_cost_premium_delta_vs_live": 0.196198,
+              "worst_terminal_delta_vs_live": -0.142617
+            },
+            "historical_utility_preserved": false,
+            "historical_verdict": "REJECTED_SYNTHETIC_GATES",
+            "lever": "posterior_target_zero_lower_bound",
+            "option": "target_zero_lower_bound",
+            "premium_reduction_vs_live": 0.069612
+          },
+          {
+            "decision_label": "Accept release-hardening throttle behavior",
+            "delayed_avg_premium": 0.545428,
+            "historical_cost": "historical_utility_not_preserved",
+            "historical_cost_summary": "historical utility not preserved; verdict REJECTED_HISTORICAL_UTILITY; terminal win-rate vs live 38%; worst terminal delta -25.2%; cost win-rate vs live 38%; worst cost-premium delta 74.4%",
+            "historical_metrics": {
+              "cost_win_rate_vs_live": 0.375,
+              "mean_cost_premium_delta_vs_live": 0.164531,
+              "mean_terminal_delta_vs_live": -0.060031,
+              "new_early_exhaustion_episodes": 0,
+              "reference": "candidate_vs_live_policy",
+              "terminal_win_rate_vs_live": 0.375,
+              "worst_cost_premium_delta_vs_live": 0.744265,
+              "worst_terminal_delta_vs_live": -0.251707
+            },
+            "historical_utility_preserved": false,
+            "historical_verdict": "REJECTED_HISTORICAL_UTILITY",
+            "lever": "release_hardening_target_and_depth_floor_throttle",
+            "option": "release_hardening_target_and_depth_floor_throttle",
+            "premium_reduction_vs_live": 0.188178
+          }
+        ],
         "frontier": [
           {
             "delayed_avg_premium": 0.733606,
@@ -15780,6 +15842,68 @@
     "delayed_premium_gate_attainability": {
       "attainable_without_historical_loss": false,
       "conclusion": "Across every tested lever the delayed-lower-low average entry premium gate (<= 60%) is reachable only by throttling first-decline depth-floor deployment (the release-hardening lever), which the historical-utility audit rejects on prolonged 2018-style bears. Governing the posterior target alone floors at roughly 66% because the duration-CDF depth floor independently deploys the working bucket at first-decline prices. No tested lever reaches the gate while preserving historical utility, so within the current policy architecture this gate appears unattainable without historical-utility loss. Per the governance point, the next round should either accept this as the documented trade-off of record, or review whether the 60% threshold is attainable and correctly specified, keeping the current value as a sensitivity row and justifying any change with this frontier rather than tuning to pass.",
+      "cost_of_relaxation": [
+        {
+          "decision_label": "Keep current gate/blocker and live policy",
+          "delayed_avg_premium": 0.733606,
+          "historical_cost": "none_status_quo",
+          "historical_cost_summary": "none (status quo); current utility terminal win-rate vs median baseline 88%",
+          "historical_metrics": {
+            "cost_win_rate_vs_median_baseline": 0.75,
+            "reference": "current_policy_vs_median_simple_baseline",
+            "terminal_win_rate_vs_median_baseline": 0.875,
+            "worst_cost_edge_vs_median_baseline": 0.148104,
+            "worst_terminal_edge_vs_median_baseline": -0.017668
+          },
+          "historical_utility_preserved": true,
+          "historical_verdict": "CURRENT_POLICY",
+          "lever": "live_policy",
+          "option": "status_quo_live_policy",
+          "premium_reduction_vs_live": 0.0
+        },
+        {
+          "decision_label": "Accept target-zero lower bound behavior",
+          "delayed_avg_premium": 0.663994,
+          "historical_cost": "historical_utility_not_preserved",
+          "historical_cost_summary": "historical utility not preserved; verdict REJECTED_SYNTHETIC_GATES; terminal win-rate vs live 25%; worst terminal delta -14.3%; cost win-rate vs live 38%; worst cost-premium delta 19.6%",
+          "historical_metrics": {
+            "cost_win_rate_vs_live": 0.375,
+            "mean_cost_premium_delta_vs_live": 0.044439,
+            "mean_terminal_delta_vs_live": -0.047827,
+            "new_early_exhaustion_episodes": 0,
+            "reference": "candidate_vs_live_policy",
+            "terminal_win_rate_vs_live": 0.25,
+            "worst_cost_premium_delta_vs_live": 0.196198,
+            "worst_terminal_delta_vs_live": -0.142617
+          },
+          "historical_utility_preserved": false,
+          "historical_verdict": "REJECTED_SYNTHETIC_GATES",
+          "lever": "posterior_target_zero_lower_bound",
+          "option": "target_zero_lower_bound",
+          "premium_reduction_vs_live": 0.069612
+        },
+        {
+          "decision_label": "Accept release-hardening throttle behavior",
+          "delayed_avg_premium": 0.545428,
+          "historical_cost": "historical_utility_not_preserved",
+          "historical_cost_summary": "historical utility not preserved; verdict REJECTED_HISTORICAL_UTILITY; terminal win-rate vs live 38%; worst terminal delta -25.2%; cost win-rate vs live 38%; worst cost-premium delta 74.4%",
+          "historical_metrics": {
+            "cost_win_rate_vs_live": 0.375,
+            "mean_cost_premium_delta_vs_live": 0.164531,
+            "mean_terminal_delta_vs_live": -0.060031,
+            "new_early_exhaustion_episodes": 0,
+            "reference": "candidate_vs_live_policy",
+            "terminal_win_rate_vs_live": 0.375,
+            "worst_cost_premium_delta_vs_live": 0.744265,
+            "worst_terminal_delta_vs_live": -0.251707
+          },
+          "historical_utility_preserved": false,
+          "historical_verdict": "REJECTED_HISTORICAL_UTILITY",
+          "lever": "release_hardening_target_and_depth_floor_throttle",
+          "option": "release_hardening_target_and_depth_floor_throttle",
+          "premium_reduction_vs_live": 0.188178
+        }
+      ],
       "frontier": [
         {
           "delayed_avg_premium": 0.733606,
@@ -15874,7 +15998,7 @@
         }
       ]
     },
-    "generated_at": "2026-07-06T16:12:38.075128+00:00",
+    "generated_at": "2026-07-07T00:15:20.468473+00:00",
     "known_risks": [
       {
         "evidence": "The live policy now uses deploy_duration_cdf_floor() with horizon multipliers (1.0, 1.5, 2.0) instead of a single linear 52-week clock.",
@@ -21481,7 +21605,7 @@
       }
     }
   },
-  "generated_at": "2026-07-06T16:12:38.075128+00:00",
+  "generated_at": "2026-07-07T00:15:20.468473+00:00",
   "history_file": "/Users/block/agentic-coding/reference/crypto-cycle-detection-model/reports/history.json",
   "policy_objective": {
     "accumulation": {
