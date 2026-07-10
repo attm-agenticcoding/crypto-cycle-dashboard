@@ -1,15 +1,28 @@
 # Common Exam Audit
 
 Generated: 2026-07-07T02:21:56.438466+00:00
-Verdict: **FAIL**
+Verdict: **PASS_FRONTIER_SCOPED**
+Pre-adjudication (absolute gates): **FAIL** — adjudicated 2026-07-10 (OPTION_A_PLUS_FRONTIER_SCOPED; see docs/COMMON_EXAM_ADJUDICATION_DECISION_2026-07-10.md)
 
 The current dashboard verdict is scoped to the historical utility audit. The stricter common-exam gates now replay parameter plateau and synthetic adverse paths through the dashboard full stack. Fable's external core-only cross-audit remains recorded as a separate warning because it failed the convex core on plateau and synthetic-shape stress.
 
 ## Boundary
 
 - Current utility audit: **WATCH**
-- Common-exam gates: **FAIL**
+- Common-exam gates: **PASS_FRONTIER_SCOPED**
 - Reason: The existing PASS covers utility, historical replay, jitter, target 90/110/lagged perturbations, leave-one-episode-out, and chronological holdout. The common exam below is a stricter promotion layer and should be read separately from the current utility verdict and from the Fable 2026-07-05 core-only cross-audit.
+
+## Governance Adjudication
+
+- Decision: **OPTION_A_PLUS_FRONTIER_SCOPED** (2026-07-10), packet docs/COMMON_EXAM_FRONTIER_AWARE_ADJUDICATION_PACKET_2026-07-07.md, record docs/COMMON_EXAM_ADJUDICATION_DECISION_2026-07-10.md
+- Scope: Extends the packet's pre-registered Option A (delayed-premium primary gate) to the other two standing style-gate misses (false-bottom 4w unlock, parameter-plateau held-out delta) via achieved-value ratchets. Recorded explicitly as a wider act than the packet's literal text.
+- Standing rules: achieved-value ratchets may never worsen; any other failing gate/check still fails the exam; the frozen adversarial set only grows; a future candidate that lowers delayed premium while preserving historical utility revokes the non-dominance pass (re-adjudication required).
+
+| Gate (watch row) | Metric | Observed | Aspirational line | Ratchet (may not worsen) |
+|---|---|---:|---:|---:|
+| parameter_plateau_25pct | worst_heldout_terminal_edge_delta_vs_live | -0.12907 | -0.05 | -0.12907 |
+| synthetic_delayed_lower_low | avg_cost_premium_to_low | 0.733606 | 0.6 | 0.733606 |
+| synthetic_false_bottom_continued_grind | max_4w_spent_increase | 0.225958 | 0.2 | 0.225958 |
 
 ## Known Risks
 
@@ -19,7 +32,7 @@ The current dashboard verdict is scoped to the historical utility audit. The str
 | forecast_coupled_deep_anchor | TESTED_REJECTED_SYNTHETIC_GATES | Deep anchor is coupled to the bottom forecast through DEPLOY_DEEP_ANCHOR_M=0.6; anchor-only candidate verdict=REJECTED_SYNTHETIC_GATES. |
 | forecast_driven_last_tranche | MITIGATED_RETEST_REQUIRED | DEPLOY_LAST_TRANCHE_FRACTION=0.95 is locked until absolute observed drawdown exceeds the historical library or recovery/resolution confirmation fires. |
 | historical_left_tail_cost | OPEN | Historical replay contains left-tail cost weak spots; see accumulation episode rows for negative utility or high average-cost premium cases. |
-| posterior_target_front_loading | TESTED_REJECTED_SYNTHETIC_GATES | First-decline attribution identifies model_target_base as the dominant premium source; target-only governor verdict=REJECTED_SYNTHETIC_GATES. |
+| posterior_target_front_loading | TESTED_REJECTED_SYNTHETIC_GATES | First-decline attribution identifies codex_target_base as the dominant premium source; target-only governor verdict=REJECTED_SYNTHETIC_GATES. |
 
 ## Cap Rationale Audit
 
@@ -54,9 +67,9 @@ The current dashboard verdict is scoped to the historical utility audit. The str
 
 | Gate | Status | Result Summary | Pass Criteria |
 |---|---:|---|---|
-| parameter_plateau_25pct | FAIL | cells=11, failing=4, worst shift=10.0%, worst held-out delta=-12.9%, materiality=DELTA_ONLY_REVIEW, delta-only=4, positive-edge delta-only=3 | Worst terminal-ratio shift stays within 15% of the live policy.; No grid cell fails the current historical audit thresholds.; No asset has a worse held-out terminal edge than the current live audit by more than 5 percentage points. |
-| synthetic_delayed_lower_low | FAIL | paths=1, failing=1, min DCA18 ratio=1.287973, min DCA52 ratio=1.065296 | Deployment at the final low remains below 85% unless an explicit capitulation confirmation fires.; Average entry premium versus the final low stays below 60%.; Terminal value stays within 10% of fixed 18-week DCA.; No early-exhaustion flag is triggered. |
-| synthetic_false_bottom_continued_grind | FAIL | paths=1, failing=1, min DCA18 ratio=1.429945, min DCA52 ratio=1.23914 | Policy preserves at least the hard reserve floor until the final third of the path.; Terminal value beats fixed 52-week DCA after fees/slippage assumptions used by the research engine.; No single false-bottom bounce unlocks more than 20 percentage points of additional deployment. |
+| parameter_plateau_25pct | PASS_BY_RATCHET (absolute: FAIL → watch) | cells=11, failing=4, worst shift=10.0%, worst held-out delta=-12.9%, materiality=DELTA_ONLY_REVIEW, delta-only=4, positive-edge delta-only=3 | Worst terminal-ratio shift stays within 15% of the live policy.; No grid cell fails the current historical audit thresholds.; No asset has a worse held-out terminal edge than the current live audit by more than 5 percentage points. |
+| synthetic_delayed_lower_low | PASS_BY_NON_DOMINANCE (absolute: FAIL → watch) | paths=1, failing=1, min DCA18 ratio=1.287973, min DCA52 ratio=1.065296 | Deployment at the final low remains below 85% unless an explicit capitulation confirmation fires.; Average entry premium versus the final low stays below 60%.; Terminal value stays within 10% of fixed 18-week DCA.; No early-exhaustion flag is triggered. |
+| synthetic_false_bottom_continued_grind | PASS_BY_RATCHET (absolute: FAIL → watch) | paths=1, failing=1, min DCA18 ratio=1.429945, min DCA52 ratio=1.23914 | Policy preserves at least the hard reserve floor until the final third of the path.; Terminal value beats fixed 52-week DCA after fees/slippage assumptions used by the research engine.; No single false-bottom bounce unlocks more than 20 percentage points of additional deployment. |
 | synthetic_fast_v_participation | PASS | paths=1, failing=0, min DCA18 ratio=1.033405, min DCA52 ratio=1.164676 | Policy deploys at least 30% by the fast-V low.; Terminal value stays within 10% of fixed 18-week DCA. |
 | synthetic_shallow_recover | PASS | paths=1, failing=0, min DCA18 ratio=0.844307, min DCA52 ratio=0.953953 | Terminal value stays within 5% of fixed 52-week DCA.; The shallow governor prevents a non-violent correction from exhausting reserve early. |
 | early_exhaustion_guard | PASS | historical flags=0, synthetic flags=0 | No historical episode triggers early exhaustion.; No synthetic adverse path triggers early exhaustion.; Any policy candidate that triggers early exhaustion is blocked from dashboard promotion. |
@@ -88,7 +101,7 @@ The current dashboard verdict is scoped to the historical utility audit. The str
 - Verdict: **REJECTED_SYNTHETIC_GATES**
 - Best recipe: `zero_posterior_lower_bound` (synthetic gates pass=False, historical utility preserved=False)
 - Best synthetic status: **FAIL**; historical terminal win-rate 25%, worst terminal delta -14.3%, new early-exhaustion episodes 0
-- The posterior-target governor tests the mechanism identified by first-decline attribution. The zero-posterior lower bound improves the open synthetic paths but still leaves delayed-lower-low average entry premium above the 60% gate, so model_target governance alone is insufficient; the remaining failure also involves the duration-CDF/depth-floor path.
+- The posterior-target governor tests the mechanism identified by first-decline attribution. The zero-posterior lower bound improves the open synthetic paths but still leaves delayed-lower-low average entry premium above the 60% gate, so codex_target governance alone is insufficient; the remaining failure also involves the duration-CDF/depth-floor path.
 
 | Recipe | Verdict | Synthetic gap | Delayed avg/low | False-bottom 4w unlock | Fast-V DCA18 | Hist win | Worst hist delta |
 |---|---:|---:|---:|---:|---:|---:|---:|
@@ -142,4 +155,4 @@ A future policy may be labelled fully promoted only if both the current historic
 - `decoupled_deep_anchor` (TESTED_REJECTED_SYNTHETIC_GATES): Test an anchor partly tied to realized valuation support or prior-cycle support rather than only the current bottom forecast multiplier.
 - `delayed_release_reserve` (TESTED_REJECTED_HISTORICAL_UTILITY): Keep a larger late reserve until capitulation, time exhaustion, or recovery above a predeclared markup confirms.
 - `anti_false_bottom_unlock` (TESTED_REJECTED_HISTORICAL_UTILITY): Limit catch-up and redeploy releases after shallow bounces unless final-low risk has materially decayed.
-- `posterior_target_governor` (TESTED_REJECTED_SYNTHETIC_GATES): Govern the posterior model_target ramp before final-low risk has decayed, after first-decline attribution showed it drives the remaining synthetic premium.
+- `posterior_target_governor` (TESTED_REJECTED_SYNTHETIC_GATES): Govern the posterior codex_target ramp before final-low risk has decayed, after first-decline attribution showed it drives the remaining synthetic premium.

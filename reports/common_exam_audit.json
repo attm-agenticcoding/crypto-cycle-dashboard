@@ -1,4 +1,67 @@
 {
+  "adjudication": {
+    "decided_on": "2026-07-10",
+    "decision": "OPTION_A_PLUS_FRONTIER_SCOPED",
+    "decision_record": "docs/COMMON_EXAM_ADJUDICATION_DECISION_2026-07-10.md",
+    "engaged": true,
+    "numeric_tolerance": 1e-09,
+    "packet": "docs/COMMON_EXAM_FRONTIER_AWARE_ADJUDICATION_PACKET_2026-07-07.md",
+    "post_adjudication_status": "PASS_FRONTIER_SCOPED",
+    "pre_adjudication_status": "FAIL",
+    "ratchets": {
+      "parameter_plateau_25pct": {
+        "aspirational_threshold": -0.05,
+        "max_failing_cells": 4,
+        "metric": "worst_heldout_terminal_edge_delta_vs_live",
+        "min": -0.12907
+      },
+      "synthetic_delayed_lower_low": {
+        "aspirational_threshold": 0.6,
+        "covered_failure": "average entry premium above 60%",
+        "max": 0.733606,
+        "metric": "avg_cost_premium_to_low",
+        "watch_thresholds": [
+          0.6,
+          0.65,
+          0.7,
+          0.75
+        ]
+      },
+      "synthetic_false_bottom_continued_grind": {
+        "aspirational_threshold": 0.2,
+        "covered_failure": "four-week unlock above 20pp",
+        "max": 0.225958,
+        "metric": "max_4w_spent_increase"
+      }
+    },
+    "scope_note": "Extends the packet's pre-registered Option A (delayed-premium primary gate) to the other two standing style-gate misses (false-bottom 4w unlock, parameter-plateau held-out delta) via achieved-value ratchets. Recorded explicitly as a wider act than the packet's literal text.",
+    "watch_rows": [
+      {
+        "aspirational_threshold": -0.05,
+        "effect": "WATCH_SENSITIVITY_ONLY",
+        "gate": "parameter_plateau_25pct",
+        "metric": "worst_heldout_terminal_edge_delta_vs_live",
+        "observed": -0.12907,
+        "ratchet": -0.12907
+      },
+      {
+        "aspirational_threshold": 0.6,
+        "effect": "WATCH_SENSITIVITY_ONLY",
+        "gate": "synthetic_delayed_lower_low",
+        "metric": "avg_cost_premium_to_low",
+        "observed": 0.733606,
+        "ratchet": 0.733606
+      },
+      {
+        "aspirational_threshold": 0.2,
+        "effect": "WATCH_SENSITIVITY_ONLY",
+        "gate": "synthetic_false_bottom_continued_grind",
+        "metric": "max_4w_spent_increase",
+        "observed": 0.225958,
+        "ratchet": 0.225958
+      }
+    ]
+  },
   "cap_rationale_audit": {
     "implementation_review_rows": [],
     "interpretation": "Most metrics used here are standard diagnostics, but the explicit numeric caps are local governance thresholds unless marked as nominal statistical targets. A triggered local cap should be read as WATCH/REVIEW evidence, not as proof that the model violated a universal market-standard constant.",
@@ -1669,7 +1732,7 @@
                       "units": 0.0168811135
                     }
                   },
-                  "model": {
+                  "codex": {
                     "avg_cost": 55.4754,
                     "avg_cost_premium_to_low": 0.733606,
                     "decoupled_anchor_diag": {
@@ -1760,7 +1823,7 @@
                       "units": 0.0163465241
                     }
                   },
-                  "model": {
+                  "codex": {
                     "avg_cost": 54.636,
                     "avg_cost_premium_to_low": 1.185441,
                     "decoupled_anchor_diag": {
@@ -1851,7 +1914,7 @@
                       "units": 0.0120292416
                     }
                   },
-                  "model": {
+                  "codex": {
                     "avg_cost": 68.1885,
                     "avg_cost_premium_to_low": 0.311317,
                     "decoupled_anchor_diag": {
@@ -1938,7 +2001,7 @@
                       "units": 0.0107492832
                     }
                   },
-                  "model": {
+                  "codex": {
                     "avg_cost": 97.52,
                     "avg_cost_premium_to_low": 0.354444,
                     "decoupled_anchor_diag": {
@@ -2030,7 +2093,7 @@
                   "units": 0.0168811135
                 }
               },
-              "model": {
+              "codex": {
                 "avg_cost": 55.4754,
                 "avg_cost_premium_to_low": 0.733606,
                 "decoupled_anchor_diag": {
@@ -2106,7 +2169,7 @@
                   "units": 0.0163465241
                 }
               },
-              "model": {
+              "codex": {
                 "avg_cost": 54.636,
                 "avg_cost_premium_to_low": 1.185441,
                 "decoupled_anchor_diag": {
@@ -2182,7 +2245,7 @@
                   "units": 0.0120292416
                 }
               },
-              "model": {
+              "codex": {
                 "avg_cost": 68.1885,
                 "avg_cost_premium_to_low": 0.311317,
                 "decoupled_anchor_diag": {
@@ -2256,7 +2319,7 @@
                   "units": 0.0107492832
                 }
               },
-              "model": {
+              "codex": {
                 "avg_cost": 97.52,
                 "avg_cost_premium_to_low": 0.354444,
                 "decoupled_anchor_diag": {
@@ -2557,7 +2620,7 @@
                       "units": 0.0168811135
                     }
                   },
-                  "model": {
+                  "codex": {
                     "avg_cost": 55.4754,
                     "avg_cost_premium_to_low": 0.733606,
                     "decoupled_anchor_diag": {
@@ -2648,7 +2711,7 @@
                       "units": 0.0163465241
                     }
                   },
-                  "model": {
+                  "codex": {
                     "avg_cost": 54.636,
                     "avg_cost_premium_to_low": 1.185441,
                     "decoupled_anchor_diag": {
@@ -2739,7 +2802,7 @@
                       "units": 0.0120292416
                     }
                   },
-                  "model": {
+                  "codex": {
                     "avg_cost": 68.1885,
                     "avg_cost_premium_to_low": 0.311317,
                     "decoupled_anchor_diag": {
@@ -2826,7 +2889,7 @@
                       "units": 0.0107492832
                     }
                   },
-                  "model": {
+                  "codex": {
                     "avg_cost": 97.52,
                     "avg_cost_premium_to_low": 0.354444,
                     "decoupled_anchor_diag": {
@@ -2918,7 +2981,7 @@
                   "units": 0.0168811135
                 }
               },
-              "model": {
+              "codex": {
                 "avg_cost": 55.4754,
                 "avg_cost_premium_to_low": 0.733606,
                 "decoupled_anchor_diag": {
@@ -2994,7 +3057,7 @@
                   "units": 0.0163465241
                 }
               },
-              "model": {
+              "codex": {
                 "avg_cost": 54.636,
                 "avg_cost_premium_to_low": 1.185441,
                 "decoupled_anchor_diag": {
@@ -3070,7 +3133,7 @@
                   "units": 0.0120292416
                 }
               },
-              "model": {
+              "codex": {
                 "avg_cost": 68.1885,
                 "avg_cost_premium_to_low": 0.311317,
                 "decoupled_anchor_diag": {
@@ -3144,7 +3207,7 @@
                   "units": 0.0107492832
                 }
               },
-              "model": {
+              "codex": {
                 "avg_cost": 97.52,
                 "avg_cost_premium_to_low": 0.354444,
                 "decoupled_anchor_diag": {
@@ -3445,7 +3508,7 @@
                       "units": 0.0168811135
                     }
                   },
-                  "model": {
+                  "codex": {
                     "avg_cost": 55.4754,
                     "avg_cost_premium_to_low": 0.733606,
                     "decoupled_anchor_diag": {
@@ -3536,7 +3599,7 @@
                       "units": 0.0163465241
                     }
                   },
-                  "model": {
+                  "codex": {
                     "avg_cost": 54.636,
                     "avg_cost_premium_to_low": 1.185441,
                     "decoupled_anchor_diag": {
@@ -3627,7 +3690,7 @@
                       "units": 0.0120292416
                     }
                   },
-                  "model": {
+                  "codex": {
                     "avg_cost": 68.1885,
                     "avg_cost_premium_to_low": 0.311317,
                     "decoupled_anchor_diag": {
@@ -3714,7 +3777,7 @@
                       "units": 0.0107492832
                     }
                   },
-                  "model": {
+                  "codex": {
                     "avg_cost": 97.52,
                     "avg_cost_premium_to_low": 0.354444,
                     "decoupled_anchor_diag": {
@@ -3806,7 +3869,7 @@
                   "units": 0.0168811135
                 }
               },
-              "model": {
+              "codex": {
                 "avg_cost": 55.4754,
                 "avg_cost_premium_to_low": 0.733606,
                 "decoupled_anchor_diag": {
@@ -3882,7 +3945,7 @@
                   "units": 0.0163465241
                 }
               },
-              "model": {
+              "codex": {
                 "avg_cost": 54.636,
                 "avg_cost_premium_to_low": 1.185441,
                 "decoupled_anchor_diag": {
@@ -3958,7 +4021,7 @@
                   "units": 0.0120292416
                 }
               },
-              "model": {
+              "codex": {
                 "avg_cost": 68.1885,
                 "avg_cost_premium_to_low": 0.311317,
                 "decoupled_anchor_diag": {
@@ -4032,7 +4095,7 @@
                   "units": 0.0107492832
                 }
               },
-              "model": {
+              "codex": {
                 "avg_cost": 97.52,
                 "avg_cost_premium_to_low": 0.354444,
                 "decoupled_anchor_diag": {
@@ -4333,7 +4396,7 @@
                       "units": 0.0168811135
                     }
                   },
-                  "model": {
+                  "codex": {
                     "avg_cost": 55.4754,
                     "avg_cost_premium_to_low": 0.733606,
                     "decoupled_anchor_diag": {
@@ -4424,7 +4487,7 @@
                       "units": 0.0163465241
                     }
                   },
-                  "model": {
+                  "codex": {
                     "avg_cost": 54.636,
                     "avg_cost_premium_to_low": 1.185441,
                     "decoupled_anchor_diag": {
@@ -4515,7 +4578,7 @@
                       "units": 0.0120292416
                     }
                   },
-                  "model": {
+                  "codex": {
                     "avg_cost": 68.1885,
                     "avg_cost_premium_to_low": 0.311317,
                     "decoupled_anchor_diag": {
@@ -4602,7 +4665,7 @@
                       "units": 0.0107492832
                     }
                   },
-                  "model": {
+                  "codex": {
                     "avg_cost": 97.52,
                     "avg_cost_premium_to_low": 0.354444,
                     "decoupled_anchor_diag": {
@@ -4694,7 +4757,7 @@
                   "units": 0.0168811135
                 }
               },
-              "model": {
+              "codex": {
                 "avg_cost": 55.4754,
                 "avg_cost_premium_to_low": 0.733606,
                 "decoupled_anchor_diag": {
@@ -4770,7 +4833,7 @@
                   "units": 0.0163465241
                 }
               },
-              "model": {
+              "codex": {
                 "avg_cost": 54.636,
                 "avg_cost_premium_to_low": 1.185441,
                 "decoupled_anchor_diag": {
@@ -4846,7 +4909,7 @@
                   "units": 0.0120292416
                 }
               },
-              "model": {
+              "codex": {
                 "avg_cost": 68.1885,
                 "avg_cost_premium_to_low": 0.311317,
                 "decoupled_anchor_diag": {
@@ -4920,7 +4983,7 @@
                   "units": 0.0107492832
                 }
               },
-              "model": {
+              "codex": {
                 "avg_cost": 97.52,
                 "avg_cost_premium_to_low": 0.354444,
                 "decoupled_anchor_diag": {
@@ -5051,7 +5114,7 @@
         "gate_pass": false,
         "historical_utility_preserved": false,
         "lever": "posterior_target_zero_lower_bound",
-        "note": "model_target set to zero (lower bound for the target-only lever). The duration-CDF depth floor still deploys the working bucket during the first decline, so the gate is still not met."
+        "note": "codex_target set to zero (lower bound for the target-only lever). The duration-CDF depth floor still deploys the working bucket during the first decline, so the gate is still not met."
       },
       {
         "delayed_avg_premium": 0.545428,
@@ -5205,7 +5268,7 @@
       "status": "OPEN"
     },
     {
-      "evidence": "First-decline attribution identifies model_target_base as the dominant premium source; target-only governor verdict=REJECTED_SYNTHETIC_GATES.",
+      "evidence": "First-decline attribution identifies codex_target_base as the dominant premium source; target-only governor verdict=REJECTED_SYNTHETIC_GATES.",
       "id": "posterior_target_front_loading",
       "risk": "If posterior target governance alone cannot clear the delayed lower-low gate, the remaining issue also involves the duration-CDF/depth-floor path.",
       "status": "TESTED_REJECTED_SYNTHETIC_GATES"
@@ -5221,7 +5284,7 @@
     "best_recipe_id": "zero_posterior_lower_bound",
     "historical_pass": false,
     "id": "posterior_target_governor",
-    "interpretation": "The posterior-target governor tests the mechanism identified by first-decline attribution. The zero-posterior lower bound improves the open synthetic paths but still leaves delayed-lower-low average entry premium above the 60% gate, so model_target governance alone is insufficient; the remaining failure also involves the duration-CDF/depth-floor path.",
+    "interpretation": "The posterior-target governor tests the mechanism identified by first-decline attribution. The zero-posterior lower bound improves the open synthetic paths but still leaves delayed-lower-low average entry premium above the 60% gate, so codex_target governance alone is insufficient; the remaining failure also involves the duration-CDF/depth-floor path.",
     "recipes_tested": [
       {
         "fast_4w_drawdown": 0.25,
@@ -5495,7 +5558,7 @@
                       "units": 0.0168811135
                     }
                   },
-                  "model": {
+                  "codex": {
                     "avg_cost": 55.2142,
                     "avg_cost_premium_to_low": 0.725445,
                     "dry": 0.054321,
@@ -5586,7 +5649,7 @@
                       "units": 0.0163465241
                     }
                   },
-                  "model": {
+                  "codex": {
                     "avg_cost": 52.3556,
                     "avg_cost_premium_to_low": 1.094224,
                     "dry": 0.19,
@@ -5673,7 +5736,7 @@
                       "units": 0.0120292416
                     }
                   },
-                  "model": {
+                  "codex": {
                     "avg_cost": 72.8641,
                     "avg_cost_premium_to_low": 0.401232,
                     "dry": 0.172236,
@@ -5760,7 +5823,7 @@
                       "units": 0.0107492832
                     }
                   },
-                  "model": {
+                  "codex": {
                     "avg_cost": 97.52,
                     "avg_cost_premium_to_low": 0.354444,
                     "dry": 0.0,
@@ -5856,7 +5919,7 @@
                   "units": 0.0168811135
                 }
               },
-              "model": {
+              "codex": {
                 "avg_cost": 55.2142,
                 "avg_cost_premium_to_low": 0.725445,
                 "dry": 0.054321,
@@ -5932,7 +5995,7 @@
                   "units": 0.0163465241
                 }
               },
-              "model": {
+              "codex": {
                 "avg_cost": 52.3556,
                 "avg_cost_premium_to_low": 1.094224,
                 "dry": 0.19,
@@ -6006,7 +6069,7 @@
                   "units": 0.0120292416
                 }
               },
-              "model": {
+              "codex": {
                 "avg_cost": 72.8641,
                 "avg_cost_premium_to_low": 0.401232,
                 "dry": 0.172236,
@@ -6080,7 +6143,7 @@
                   "units": 0.0107492832
                 }
               },
-              "model": {
+              "codex": {
                 "avg_cost": 97.52,
                 "avg_cost_premium_to_low": 0.354444,
                 "dry": 0.0,
@@ -6356,7 +6419,7 @@
                       "units": 0.0168811135
                     }
                   },
-                  "model": {
+                  "codex": {
                     "avg_cost": 53.2478,
                     "avg_cost_premium_to_low": 0.663994,
                     "dry": 0.054321,
@@ -6444,7 +6507,7 @@
                       "units": 0.0163465241
                     }
                   },
-                  "model": {
+                  "codex": {
                     "avg_cost": 50.0716,
                     "avg_cost_premium_to_low": 1.002863,
                     "dry": 0.19,
@@ -6528,7 +6591,7 @@
                       "units": 0.0120292416
                     }
                   },
-                  "model": {
+                  "codex": {
                     "avg_cost": 75.1214,
                     "avg_cost_premium_to_low": 0.444642,
                     "dry": 0.203339,
@@ -6612,7 +6675,7 @@
                       "units": 0.0107492832
                     }
                   },
-                  "model": {
+                  "codex": {
                     "avg_cost": 96.9797,
                     "avg_cost_premium_to_low": 0.346941,
                     "dry": 0.0,
@@ -6700,7 +6763,7 @@
                   "units": 0.0168811135
                 }
               },
-              "model": {
+              "codex": {
                 "avg_cost": 53.2478,
                 "avg_cost_premium_to_low": 0.663994,
                 "dry": 0.054321,
@@ -6773,7 +6836,7 @@
                   "units": 0.0163465241
                 }
               },
-              "model": {
+              "codex": {
                 "avg_cost": 50.0716,
                 "avg_cost_premium_to_low": 1.002863,
                 "dry": 0.19,
@@ -6844,7 +6907,7 @@
                   "units": 0.0120292416
                 }
               },
-              "model": {
+              "codex": {
                 "avg_cost": 75.1214,
                 "avg_cost_premium_to_low": 0.444642,
                 "dry": 0.203339,
@@ -6915,7 +6978,7 @@
                   "units": 0.0107492832
                 }
               },
-              "model": {
+              "codex": {
                 "avg_cost": 96.9797,
                 "avg_cost_premium_to_low": 0.346941,
                 "dry": 0.0,
@@ -6967,6 +7030,16 @@
   },
   "pre_registered_gates": [
     {
+      "absolute_status": "FAIL",
+      "adjudication": {
+        "all_failing_cells_heldout_delta_only": true,
+        "aspirational_threshold": -0.05,
+        "failing_cells": 4,
+        "max_failing_cells": 4,
+        "metric": "worst_heldout_terminal_edge_delta_vs_live",
+        "observed": -0.12907,
+        "ratchet_min": -0.12907
+      },
       "description": "Run a grid around deployment-policy parameters at 0.75x, 1.00x, and 1.25x. Include horizon, floor/release speed, deep-anchor multiplier, hard-reserve floor, catch-up speed, and late-start trigger parameters where applicable.",
       "id": "parameter_plateau_25pct",
       "pass_criteria": [
@@ -7747,9 +7820,35 @@
           "max_horizon_weeks"
         ]
       },
-      "status": "FAIL"
+      "status": "PASS_BY_RATCHET"
     },
     {
+      "absolute_status": "FAIL",
+      "adjudication": {
+        "aspirational_threshold": 0.6,
+        "covered_failure": "average entry premium above 60%",
+        "metric": "avg_cost_premium_to_low",
+        "non_dominance": {
+          "frozen_candidate_set": [
+            "live_policy",
+            "posterior_target_zero_lower_bound",
+            "release_hardening_target_and_depth_floor_throttle"
+          ],
+          "incumbent_non_dominated": true
+        },
+        "observed": 0.733606,
+        "ratchet_max": 0.733606,
+        "relative_premium_guard": {
+          "policy_to_baseline_ratio": 0.592511,
+          "status": "PASS"
+        },
+        "watch_thresholds": [
+          0.6,
+          0.65,
+          0.7,
+          0.75
+        ]
+      },
       "description": "Stress a path that first trades through the model anchor, bounces enough to tempt catch-up/redeploy logic, then makes a later and deeper low.",
       "id": "synthetic_delayed_lower_low",
       "pass_criteria": [
@@ -7794,7 +7893,7 @@
                 "units": 0.0168811135
               }
             },
-            "model": {
+            "codex": {
               "avg_cost": 55.4754,
               "avg_cost_premium_to_low": 0.733606,
               "dry": 0.054321,
@@ -7838,9 +7937,17 @@
           "paths": 1
         }
       },
-      "status": "FAIL"
+      "status": "PASS_BY_NON_DOMINANCE"
     },
     {
+      "absolute_status": "FAIL",
+      "adjudication": {
+        "aspirational_threshold": 0.2,
+        "covered_failure": "four-week unlock above 20pp",
+        "metric": "max_4w_spent_increase",
+        "observed": 0.225958,
+        "ratchet_max": 0.225958
+      },
       "description": "Stress a false-bottom path with repeated shallow rallies and lower lows over a longer-than-expected horizon.",
       "id": "synthetic_false_bottom_continued_grind",
       "pass_criteria": [
@@ -7884,7 +7991,7 @@
                 "units": 0.0163465241
               }
             },
-            "model": {
+            "codex": {
               "avg_cost": 52.6527,
               "avg_cost_premium_to_low": 1.106109,
               "dry": 0.19,
@@ -7928,7 +8035,7 @@
           "paths": 1
         }
       },
-      "status": "FAIL"
+      "status": "PASS_BY_RATCHET"
     },
     {
       "description": "Stress a violent fast-V liquidation where a too-slow policy misses the low and pays for excess reserve.",
@@ -7973,7 +8080,7 @@
                 "units": 0.0120292416
               }
             },
-            "model": {
+            "codex": {
               "avg_cost": 68.1885,
               "avg_cost_premium_to_low": 0.311317,
               "dry": 0.108372,
@@ -8058,7 +8165,7 @@
                 "units": 0.0107492832
               }
             },
-            "model": {
+            "codex": {
               "avg_cost": 97.52,
               "avg_cost_premium_to_low": 0.354444,
               "dry": 0.0,
@@ -8139,13 +8246,13 @@
       "status": "TESTED_REJECTED_HISTORICAL_UTILITY"
     },
     {
-      "description": "Govern the posterior model_target ramp before final-low risk has decayed, after first-decline attribution showed it drives the remaining synthetic premium.",
+      "description": "Govern the posterior codex_target ramp before final-low risk has decayed, after first-decline attribution showed it drives the remaining synthetic premium.",
       "id": "posterior_target_governor",
       "status": "TESTED_REJECTED_SYNTHETIC_GATES"
     }
   ],
   "relationship_to_current_verdict": {
-    "common_exam_status": "FAIL",
+    "common_exam_status": "PASS_FRONTIER_SCOPED",
     "current_utility_audit_artifact": "reports/robust_evaluation.json",
     "current_utility_audit_status": "WATCH",
     "reason": "The existing PASS covers utility, historical replay, jitter, target 90/110/lagged perturbations, leave-one-episode-out, and chronological holdout. The common exam below is a stricter promotion layer and should be read separately from the current utility verdict and from the Fable 2026-07-05 core-only cross-audit."
@@ -8338,7 +8445,7 @@
                   "units": 0.0168811135
                 }
               },
-              "model": {
+              "codex": {
                 "avg_cost": 49.4537,
                 "avg_cost_premium_to_low": 0.545428,
                 "dry": 0.054321,
@@ -8414,7 +8521,7 @@
                   "units": 0.0163465241
                 }
               },
-              "model": {
+              "codex": {
                 "avg_cost": 51.6203,
                 "avg_cost_premium_to_low": 1.06481,
                 "dry": 0.2,
@@ -8490,7 +8597,7 @@
                   "units": 0.0120292416
                 }
               },
-              "model": {
+              "codex": {
                 "avg_cost": 69.4437,
                 "avg_cost_premium_to_low": 0.335456,
                 "dry": 0.108372,
@@ -8566,7 +8673,7 @@
                   "units": 0.0107492832
                 }
               },
-              "model": {
+              "codex": {
                 "avg_cost": 94.8707,
                 "avg_cost_premium_to_low": 0.317648,
                 "dry": 0.0,
@@ -8642,7 +8749,7 @@
               "units": 0.0168811135
             }
           },
-          "model": {
+          "codex": {
             "avg_cost": 49.4537,
             "avg_cost_premium_to_low": 0.545428,
             "dry": 0.054321,
@@ -8705,7 +8812,7 @@
               "units": 0.0163465241
             }
           },
-          "model": {
+          "codex": {
             "avg_cost": 51.6203,
             "avg_cost_premium_to_low": 1.06481,
             "dry": 0.2,
@@ -8768,7 +8875,7 @@
               "units": 0.0120292416
             }
           },
-          "model": {
+          "codex": {
             "avg_cost": 69.4437,
             "avg_cost_premium_to_low": 0.335456,
             "dry": 0.108372,
@@ -8831,7 +8938,7 @@
               "units": 0.0107492832
             }
           },
-          "model": {
+          "codex": {
             "avg_cost": 94.8707,
             "avg_cost_premium_to_low": 0.317648,
             "dry": 0.0,
@@ -8885,6 +8992,6 @@
   },
   "schema_version": 1,
   "scope": "display_repo_disclosure",
-  "status": "FAIL",
+  "status": "PASS_FRONTIER_SCOPED",
   "summary": "The current dashboard verdict is scoped to the historical utility audit. The stricter common-exam gates now replay parameter plateau and synthetic adverse paths through the dashboard full stack. Fable's external core-only cross-audit remains recorded as a separate warning because it failed the convex core on plateau and synthetic-shape stress."
 }

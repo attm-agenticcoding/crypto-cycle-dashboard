@@ -1,4 +1,4 @@
-<!doctype html><html lang='en'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width, initial-scale=1'><meta name='color-scheme' content='dark'><meta http-equiv='refresh' content='900'><title>Crypto Cycle Dashboard</title><style>
+<!doctype html><html lang='en'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width, initial-scale=1'><meta name='color-scheme' content='dark'><meta http-equiv='refresh' content='900'><title>Codex Crypto Cycle Dashboard</title><style>
 * { box-sizing:border-box; }
 body { margin:0; background:#0d1117; color:#e6edf3;
        font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; }
@@ -15,11 +15,11 @@ header { padding:20px 24px; background:#161b22; border-bottom:1px solid #21262d;
 .card { background:#161b22; border:1px solid #21262d; border-radius:14px; padding:18px 20px; }
 .section-title { max-width:1200px; margin:18px 24px 0; color:#8b949e; font-size:12px;
                  letter-spacing:.08em; font-weight:800; text-transform:uppercase; }
-.model { margin:20px 24px 8px; max-width:1200px; }
-.model-head { display:flex; justify-content:space-between; align-items:flex-end; gap:12px; flex-wrap:wrap;
+.codex { margin:20px 24px 8px; max-width:1200px; }
+.codex-head { display:flex; justify-content:space-between; align-items:flex-end; gap:12px; flex-wrap:wrap;
               margin-bottom:12px; }
-.model-head h2 { margin:0; font-size:18px; }
-.model-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(360px,1fr)); gap:16px; }
+.codex-head h2 { margin:0; font-size:18px; }
+.codex-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(360px,1fr)); gap:16px; }
 .posterior { background:#111923; border:1px solid #2d3a4b; border-radius:14px; padding:18px 20px; }
 .posterior-top { display:flex; justify-content:space-between; gap:10px; align-items:flex-start; }
 .posterior h3 { margin:0; font-size:22px; }
@@ -122,26 +122,6 @@ header { padding:20px 24px; background:#161b22; border-bottom:1px solid #21262d;
 .ptop { display:flex; justify-content:space-between; align-items:center; gap:8px; }
 .pbig { font-size:20px; margin:8px 0 4px; }
 .pbig b { color:#3fb950; }
-.oticket { grid-column:1 / -1; background:#0d1117; border:1px solid #30363d; border-radius:11px; padding:12px 14px; }
-.oticket-head { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; flex-wrap:wrap; }
-.oticket-scroll { width:100%; overflow-x:auto; }
-.oticket table { width:100%; border-collapse:collapse; margin-top:10px; font-size:12.5px; }
-.oticket th, .oticket td { border-top:1px solid #21262d; padding:7px 8px; text-align:left; vertical-align:top; }
-.oticket th { color:#8b949e; font-weight:700; }
-.oticket .num { text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap; }
-.opmeta { display:flex; flex-wrap:wrap; gap:6px 14px; margin:8px 0 0; color:#9aa4ae; font-size:11.5px; }
-.opmeta b { color:#e6edf3; }
-.opbanner { margin-top:10px; padding:8px 10px; background:#21171a; border:1px solid #6b2f36;
-            border-radius:8px; color:#ffb3ad; font-size:11.5px; line-height:1.45; }
-.pbutton { border:1px solid #388bfd; background:#1f6feb; color:#fff; border-radius:8px; padding:7px 11px;
-           font-size:12px; font-weight:700; cursor:pointer; }
-.pbutton:hover:not(:disabled) { background:#388bfd; }
-.pbutton:disabled { border-color:#30363d; background:#21262d; color:#6e7681; cursor:not-allowed; }
-.copymsg { min-width:58px; color:#8b949e; font-size:11px; text-align:right; margin-top:4px; }
-.action-buy { color:#3fb950; font-weight:800; }
-.action-block { color:#f85149; font-weight:800; }
-.action-wait { color:#8b949e; font-weight:800; }
-.action-warn { color:#d29922; font-weight:800; }
 /* bottom-prediction derivation */
 .dcard { background:#161b22; border:1px solid #21262d; border-radius:11px; padding:12px 14px; margin:8px 0; }
 .dhead { font-size:14px; }
@@ -244,8 +224,8 @@ pre.err { background:#161b22; border:1px solid #5a1f1f; color:#ffb4b4; padding:1
   .section-title { margin:16px 16px 0; }
   .audit-rail { margin:12px 16px 0; }
   .audit-rail-status { white-space:normal; }
-  .model { margin:14px 16px 8px; }
-  .model-grid { grid-template-columns:1fr; }
+  .codex { margin:14px 16px 8px; }
+  .codex-grid { grid-template-columns:1fr; }
   .probgrid { grid-template-columns:repeat(2,1fr); }
   .planner { margin:6px 16px 8px; padding:16px; }
   .wrap { padding:4px 16px 8px; }
@@ -255,39 +235,39 @@ pre.err { background:#161b22; border:1px solid #5a1f1f; color:#ffb4b4; padding:1
 }
 </style></head><body>
       <header>
-        <div class="title">Crypto Cycle Dashboard</div>
-        <div class="meta">2026-07-10 · data as of 07:38 ET · <span class='live'>● LIVE intraday</span></div>
+        <div class="title">Codex Crypto Cycle Dashboard</div>
+        <div class="meta">2026-07-10 · data as of 2026-07-09 (1d old) · 09:25 ET</div>
       </header>
-      <section class="audit-rail" aria-label="External cross-audit status"><div class="audit-rail-head"><div><div class="audit-rail-kicker">External cross-audit</div><div class="audit-rail-title">Full-stack common exam failed; policy remains provisional.</div></div><div class="audit-rail-status">COMMON EXAM FAIL</div></div><div class="audit-rail-grid"><div class="audit-rail-item"><b>Positive signal:</b> Held-out LOCO median terminal-value ratio beat DCA-18 in Fable&#x27;s core port: 1.038 vs 1.012.</div><div class="audit-rail-item"><b>Failed gate:</b> parameter_plateau_25pct failed in the dashboard full-stack common exam.</div><div class="audit-rail-item"><b>Open stress:</b> Full-stack replay is recorded in reports/common_exam_audit.md; failed gates block robust promotion.</div></div></section>
-      
-      <section class="model">
-        <div class="model-head">
+
+
+      <section class="codex">
+        <div class="codex-head">
           <div>
-            <h2>Full Deployment View</h2>
-            <div class="sub">Uses the independent valuation/state bottom forecast, then turns the posterior into an executable policy with a convex depth floor, reserve release, re-arm and recovery redeploy. Utility gates are scoped; common-exam robustness is reported separately and currently blocks robust promotion.</div>
+            <h2>Codex Full Deployment View</h2>
+            <div class="sub">Uses the independent Codex valuation/state bottom forecast, then turns the posterior into an executable policy with a convex depth floor, reserve release, re-arm and recovery redeploy. Utility gates are scoped; common-exam robustness is reported separately and currently blocks robust promotion.</div>
           </div>
           <div class="sub">Utility scoped · common exam pending</div>
         </div>
-        <div class="model-grid">
+        <div class="codex-grid">
         <section class="posterior">
           <div class="posterior-top">
             <div>
               <h3>BTC</h3>
-              <div class="posterior-sub"><span>model-implied future-low distribution + downside odds · valuation-state</span><span class='evidence evidence-medium' title='Local evidence quality for posterior inputs; not a held-out LOCO log-loss or coverage certificate.'>evidence MODERATE</span></div>
+              <div class="posterior-sub"><span>model-implied future-low distribution + downside odds · codex-valuation-state</span><span class='evidence evidence-medium' title='Local evidence quality for posterior inputs; not a held-out LOCO log-loss or coverage certificate.'>evidence MODERATE</span></div>
             </div>
             <div class="spotbox">
-              <b>$64,401</b>
-              <span>live price</span>
-              <em class='spotdelta pos' title='Versus the last close $63,175'>vs close +1.9%</em>
+              <b>$63,175</b>
+              <span>close price</span>
+
             </div>
           </div>
           <div class="qgrid">
-            <div class="qbox"><b>$29,830</b><span>cal low p10</span></div>
-            <div class="qbox"><b>$47,312</b><span>cal median low</span></div>
-            <div class="qbox"><b>$64,401</b><span>cal low p90</span></div>
+            <div class="qbox"><b>$29,620</b><span>cal low p10</span></div>
+            <div class="qbox"><b>$46,721</b><span>cal median low</span></div>
+            <div class="qbox"><b>$63,175</b><span>cal low p90</span></div>
           </div>
           <div class="qgrid">
-            <div class="qbox"><b>2026-07-10</b><span>early</span></div>
+            <div class="qbox"><b>2026-07-09</b><span>early</span></div>
             <div class="qbox"><b>2026-08-29</b><span>median timing</span></div>
             <div class="qbox"><b>2026-11-09</b><span>late</span></div>
           </div>
@@ -295,20 +275,20 @@ pre.err { background:#161b22; border:1px solid #5a1f1f; color:#ffb4b4; padding:1
             <div class='prob'><b style='color:#f85149'>94%</b><span>model low &lt; spot</span></div>
             <div class='prob'><b style='color:#f85149'>69%</b><span>model down 10%</span></div>
             <div class='prob'><b style='color:#d29922'>53%</b><span>model down 20%</span></div>
-            <div class='prob'><b style='color:#d29922'>36%</b><span>model down 30%</span></div>
+            <div class='prob'><b style='color:#3fb950'>35%</b><span>model down 30%</span></div>
           </div>
           <div class="calnote"><b>Calibration caveat:</b> downside odds remain dashboard-model outputs until the posterior passes a held-out LOCO log-loss and coverage audit.</div>
           <div class="decision">
             <div class="decision-main">
-              <span>Full-policy target <b>27%</b></span>
+              <span>Codex full-policy target <b>27%</b></span>
               <span class="sub">target deployed 27% · cash/reserve 73% = 100% · raw structural sizing target 18%</span>
-              <span class='sub livecmp'>close baseline 2026-07-09 · price +1.9% · target -0.0pp</span>
-              <span class="sub">mode bottom accumulation · depth floor events 8 · fast-crash overlay 0 / 0% · late-start fast-V 5 / 15% · shallow governor 0 · price-improvement catch-up 0 / 0% · hard reserve floor 20% · reserve released 0% · redeployed 0% · avg cost $68,456</span>
+
+              <span class="sub">mode bottom accumulation · depth floor events 8 · fast-crash overlay 0 / 0% · late-start fast-V 5 / 15% · shallow governor 0 · price-improvement catch-up 0 / 0% · hard reserve floor 20% · reserve released 0% · redeployed 0% · avg cost $68,408</span>
               <span class="sub">top distribution inactive / LOW · keep 100% of existing holdings · calibrated P(35% drawdown, 52w) 28% · top arm 0% · prior-ATH retest 0%</span>
             </div>
             <div class="minirows">
               <div class="minirow"><span>lowest-regret rows</span><span>target</span><span>score</span></div>
-              <div class='minirow'><span>wait</span><span>0%</span><span>0.04</span></div><div class='minirow'><span>model target</span><span>18%</span><span>0.26</span></div><div class='minirow'><span>starter</span><span>20%</span><span>0.28</span></div>
+              <div class='minirow'><span>wait</span><span>0%</span><span>0.04</span></div><div class='minirow'><span>codex target</span><span>18%</span><span>0.26</span></div><div class='minirow'><span>starter</span><span>20%</span><span>0.28</span></div>
             </div>
           </div>
         </section>
@@ -316,272 +296,125 @@ pre.err { background:#161b22; border:1px solid #5a1f1f; color:#ffb4b4; padding:1
           <div class="posterior-top">
             <div>
               <h3>ETH</h3>
-              <div class="posterior-sub"><span>model-implied future-low distribution + downside odds · valuation-state</span><span class='evidence evidence-high' title='Local evidence quality for posterior inputs; not a held-out LOCO log-loss or coverage certificate.'>evidence HIGH</span></div>
+              <div class="posterior-sub"><span>model-implied future-low distribution + downside odds · codex-valuation-state</span><span class='evidence evidence-high' title='Local evidence quality for posterior inputs; not a held-out LOCO log-loss or coverage certificate.'>evidence HIGH</span></div>
             </div>
             <div class="spotbox">
-              <b>$1,798</b>
-              <span>live price</span>
-              <em class='spotdelta pos' title='Versus the last close $1,744'>vs close +3.1%</em>
+              <b>$1,744</b>
+              <span>close price</span>
+
             </div>
           </div>
           <div class="qgrid">
-            <div class="qbox"><b>$1,136</b><span>cal low p10</span></div>
-            <div class="qbox"><b>$1,553</b><span>cal median low</span></div>
-            <div class="qbox"><b>$1,798</b><span>cal low p90</span></div>
+            <div class="qbox"><b>$1,153</b><span>cal low p10</span></div>
+            <div class="qbox"><b>$1,545</b><span>cal median low</span></div>
+            <div class="qbox"><b>$1,744</b><span>cal low p90</span></div>
           </div>
           <div class="qgrid">
-            <div class="qbox"><b>2026-07-10</b><span>early</span></div>
-            <div class="qbox"><b>2026-07-24</b><span>median timing</span></div>
-            <div class="qbox"><b>2026-09-18</b><span>late</span></div>
+            <div class="qbox"><b>2026-07-09</b><span>early</span></div>
+            <div class="qbox"><b>2026-07-23</b><span>median timing</span></div>
+            <div class="qbox"><b>2026-09-17</b><span>late</span></div>
           </div>
           <div class="probgrid">
-            <div class='prob'><b style='color:#f85149'>80%</b><span>model low &lt; spot</span></div>
-            <div class='prob'><b style='color:#d29922'>51%</b><span>model down 10%</span></div>
-            <div class='prob'><b style='color:#3fb950'>34%</b><span>model down 20%</span></div>
-            <div class='prob'><b style='color:#3fb950'>28%</b><span>model down 30%</span></div>
+            <div class='prob'><b style='color:#f85149'>77%</b><span>model low &lt; spot</span></div>
+            <div class='prob'><b style='color:#d29922'>46%</b><span>model down 10%</span></div>
+            <div class='prob'><b style='color:#3fb950'>27%</b><span>model down 20%</span></div>
+            <div class='prob'><b style='color:#3fb950'>27%</b><span>model down 30%</span></div>
           </div>
           <div class="calnote"><b>Calibration caveat:</b> downside odds remain dashboard-model outputs until the posterior passes a held-out LOCO log-loss and coverage audit.</div>
           <div class="decision">
             <div class="decision-main">
-              <span>Full-policy target <b>35%</b></span>
-              <span class="sub">target deployed 35% · cash/reserve 65% = 100% · raw structural sizing target 35%</span>
-              <span class='sub livecmp'>close baseline 2026-07-09 · price +3.1% · target -0.4pp</span>
-              <span class="sub">mode bottom accumulation · depth floor events 7 · fast-crash overlay 0 / 0% · late-start fast-V 1 / 0% · shallow governor 0 · price-improvement catch-up 0 / 0% · hard reserve floor 30% · reserve released 0% · redeployed 0% · avg cost $1,874</span>
+              <span>Codex full-policy target <b>36%</b></span>
+              <span class="sub">target deployed 36% · cash/reserve 64% = 100% · raw structural sizing target 36%</span>
+
+              <span class="sub">mode bottom accumulation · depth floor events 5 · fast-crash overlay 0 / 0% · late-start fast-V 1 / 0% · shallow governor 0 · price-improvement catch-up 0 / 0% · hard reserve floor 30% · reserve released 0% · redeployed 0% · avg cost $1,876</span>
               <span class="sub">top distribution inactive / LOW · keep 100% of existing holdings · calibrated P(35% drawdown, 52w) 33% · top arm 0% · prior-ATH retest 0%</span>
             </div>
             <div class="minirows">
               <div class="minirow"><span>lowest-regret rows</span><span>target</span><span>score</span></div>
-              <div class='minirow'><span>wait</span><span>0%</span><span>0.18</span></div><div class='minirow'><span>starter</span><span>18%</span><span>0.20</span></div><div class='minirow'><span>model target</span><span>35%</span><span>0.22</span></div>
+              <div class='minirow'><span>wait</span><span>0%</span><span>0.19</span></div><div class='minirow'><span>starter</span><span>18%</span><span>0.20</span></div><div class='minirow'><span>score-input target</span><span>35%</span><span>0.21</span></div>
             </div>
           </div>
         </section></div></section>
-      <section class="planner"><h3>Weekly operator ticket <span class="sub" style="font-weight:400">· v0 dashboard-mode</span></h3><p class='sub'>Enter your total pool and how much you've <b>already deployed</b>. Each week it compares that against the Full-policy target, applies the frozen 10% base accumulation/catch-up cap, checks gap-band and min-ticket rules separately, and produces copyable markdown. It never sizes a sell from accumulation-book inputs. Runs entirely in your browser; nothing is sent or saved.</p><div class="pgrid"><div class="pin"><label>BTC total pool</label><div class="inwrap"><span>$</span><input id="pool-BTC" type="number" min="1" step="100" inputmode="decimal" required oninput="recompute()" placeholder="required · e.g. 100000"></div></div><div class="pin"><label>BTC already deployed</label><div class="inwrap"><span>$</span><input id="dep-BTC" type="number" min="0" step="100" inputmode="decimal" required oninput="recompute()" placeholder="required · cost basis"></div></div><div class="pin"><label>ETH total pool</label><div class="inwrap"><span>$</span><input id="pool-ETH" type="number" min="1" step="100" inputmode="decimal" required oninput="recompute()" placeholder="required · e.g. 50000"></div></div><div class="pin"><label>ETH already deployed</label><div class="inwrap"><span>$</span><input id="dep-ETH" type="number" min="0" step="100" inputmode="decimal" required oninput="recompute()" placeholder="required · cost basis"></div></div><div class="pin"><label>min ticket</label><div class="inwrap"><span>$</span><input id="min-ticket" type="number" min="0" step="50" inputmode="decimal" required oninput="recompute()" placeholder="required · e.g. 200"></div></div><div class="pin"><label>band pp</label><div class="inwrap"><span>pp</span><input id="band-pp" type="number" min="0" max="100" step="0.1" inputmode="decimal" required oninput="recompute()" placeholder="required · e.g. 0.5"></div></div><div class="pin"><label>venue / funding source</label><div class="inwrap"><input id="venue-src" type="text" required oninput="recompute()" placeholder="required · taxable venue / MMF carve-out"></div></div></div><div id="pout" class="pout"></div><script>
-const POLICY={"BTC": {"tgt_f": 0.2736, "dry_f": 0.7264, "res_f": 0.2, "protected_res_f": 0.2, "reserve_released_f": 0.0, "state_label": "ACCUMULATE", "color": "#1f6feb", "dist": false, "top_phase": "inactive", "top_risk": "LOW", "week_cap_f": 0.1}, "ETH": {"tgt_f": 0.3567, "dry_f": 0.6433, "res_f": 0.3, "protected_res_f": 0.3, "reserve_released_f": 0.0, "state_label": "ACCUMULATE", "color": "#1f6feb", "dist": false, "top_phase": "inactive", "top_risk": "LOW", "week_cap_f": 0.1}};
-const TICKET_META={"ticket_date": "2026-07-10", "generated_at": "2026-07-10T07:38:26", "data_as_of": "2026-07-09", "data_age_days": 1, "run_kind": "close_reference", "weekly_close": false, "stale": false, "common_exam": "FAIL", "utility_verdict": "WATCH", "utility_scope": "CURRENT_UTILITY_AUDIT", "watchdog_status": "PASS", "watchdog_ok": true, "base_cap_f": 0.1};
+<section class="planner"><h3>Weekly trade planner <span class="sub" style="font-weight:400">· Codex full-policy target</span></h3><p class='sub'>Enter your total pool and how much you've <b>already deployed</b>. Each week it compares that against the full-policy target, catches up gradually if you are behind, and holds the remaining cash for either a deeper low or confirmation that the low is behind us. Minimum ticket defaults to $0 and the no-trade band defaults to 1pp. Runs entirely in your browser; nothing is sent anywhere.</p><div class="pgrid"><div class="pin"><label>BTC total pool</label><div class="inwrap"><span>$</span><input id="pool-BTC" type="number" min="0" step="100" inputmode="decimal" oninput="recompute()" placeholder="e.g. 100000"></div></div><div class="pin"><label>BTC already deployed</label><div class="inwrap"><span>$</span><input id="dep-BTC" type="number" min="0" step="100" inputmode="decimal" oninput="recompute()" placeholder="0"></div></div><div class="pin"><label>ETH total pool</label><div class="inwrap"><span>$</span><input id="pool-ETH" type="number" min="0" step="100" inputmode="decimal" oninput="recompute()" placeholder="e.g. 50000"></div></div><div class="pin"><label>ETH already deployed</label><div class="inwrap"><span>$</span><input id="dep-ETH" type="number" min="0" step="100" inputmode="decimal" oninput="recompute()" placeholder="0"></div></div><div class="pin"><label>min ticket</label><div class="inwrap"><span>$</span><input id="min-ticket" type="number" min="0" step="50" inputmode="decimal" value="0" oninput="recompute()"></div></div><div class="pin"><label>no-trade band</label><div class="inwrap"><span>pp</span><input id="band-pp" type="number" min="0" max="100" step="0.1" inputmode="decimal" value="1" oninput="recompute()"></div></div></div><div id="pout" class="pout"></div><script>
+const POLICY={"BTC": {"now_f": 0.2736, "tgt_f": 0.2736, "res_f": 0.7264, "H": 104, "anchor": 25755, "regime": "FULL POLICY", "color": "#1f6feb", "dist": false, "keep_f": 1.0, "stop_pct": null, "stop_price": null}, "ETH": {"now_f": 0.3567, "tgt_f": 0.3567, "res_f": 0.6433, "H": 104, "anchor": 986, "regime": "FULL POLICY", "color": "#1f6feb", "dist": false, "keep_f": 1.0, "stop_pct": null, "stop_price": null}};
 
 function fmt(x){return '$'+Math.round(x).toLocaleString('en-US');}
-function pct(x){return (x*100).toFixed(2).replace(/\.00$/,'')+'%';}
+function pct(x){return (x*100).toFixed(0)+'%';}
 function val(id){var e=document.getElementById(id);var v=e?parseFloat(e.value):NaN;return v;}
-function txt(id){var e=document.getElementById(id);return e?(e.value||'').trim():'';}
-function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
-function isnum(x){return typeof x==='number'&&isFinite(x);}
-function plainMoney(x){return '$'+Math.round(x).toLocaleString('en-US');}
-
-// Pure calculator used by the UI and its regression test. The 10% value passed
-// in p.week_cap_f is the frozen BASE accumulation/catch-up cap. Model exception
-// arms remain in the model target and are explicitly disclosed, not re-created here.
-function computeAssetTicket(asset,p,input,shared){
-  var r={asset:asset,state:p.state_label||'HOLD',target:p.tgt_f,reserve_f:p.res_f,
-         phase:p.top_phase||'inactive',risk:p.top_risk||'LOW',action:'INPUTS_REQUIRED',
-         buy:0,pool:null,deployed:null,deployed_f:null,gap_f:null,gap_dollars:null,
-         base_cap:null,band_dollars:null,reserve_dollars:null,reserve_floor_dollars:null,
-         reserve_released_dollars:null,dry_after:null,preview_buy:0,
-         band_check:'INPUT REQUIRED',conflict:'not evaluated',valid:false};
-  if(p.dist){
-    r.action='BUY_BLOCKED'; r.state=(p.state_label||'DISTRIBUTE');
-    r.conflict='distribution precedence blocks buys; lot/position-book mode required';
-    r.band_check='n/a'; return r;                         // never size a sell from campaign inputs
-  }
-  if(!shared.valid||!isnum(input.pool)||!isnum(input.deployed)) return r;
-  if(!(input.pool>0)||input.deployed<0||input.deployed>input.pool){
-    r.action='INVALID_INPUTS'; r.conflict='input validation failed'; return r;
-  }
-  var P=input.pool,D=input.deployed,dep=D/P,tgt=p.tgt_f;
-  var protectedF=isnum(p.protected_res_f)?p.protected_res_f:p.res_f;
-  var reserve=protectedF*P,reserveFloor=p.res_f*P;
-  r.pool=P; r.deployed=D; r.deployed_f=dep; r.base_cap=p.week_cap_f*P;
-  r.reserve_dollars=reserve; r.reserve_floor_dollars=reserveFloor;
-  r.reserve_released_dollars=Math.max(0,reserveFloor-reserve);
-  var room=Math.max(0,tgt-dep),want=room*P;
-  var reserveRoom=Math.max(0,P-D-reserve),capped=Math.min(want,r.base_cap,reserveRoom);
-  var gapBand=shared.bandPp/100*P;
-  r.gap_f=room; r.gap_dollars=want; r.band_dollars=gapBand;
-  r.valid=true; r.conflict='none; top phase '+r.phase;
-  if(want<=1e-6){
-    r.action='CAUGHT_UP'; r.band_check='n/a';
-    if(dep>tgt+1e-9) r.conflict='deployed exceeds current target; no buy, reconcile in ledger';
-  } else if(reserveRoom<=1e-6){
-    r.action='RESERVE_LOCK'; r.state='RESERVE_LOCK';
-    r.band_check='BLOCK: protected reserve is binding';
-    r.conflict='protected reserve blocks the requested buy';
-  } else if(room*100<=shared.bandPp+1e-9){
-    r.action='WOULD_SKIP_BAND';
-    r.band_check='SKIP: gap '+(room*100).toFixed(2)+'pp is inside '+shared.bandPp+'pp';
-  } else if(capped+1e-6<shared.minTicket){
-    r.action='WOULD_SKIP_MIN';
-    r.band_check='SKIP: capped order '+plainMoney(capped)+' is below '+plainMoney(shared.minTicket);
-  } else {
-    r.action='WOULD_BUY'; r.buy=capped;
-    r.band_check='PASS: gap band and min ticket';
-  }
-  r.dry_after=P-D-r.buy;
-  return r;
-}
-
-function applyDataGate(r,meta){
-  if(r.action!=='WOULD_BUY') return r;
-  var gated=null;
-  if(meta.watchdog_ok===false) gated='NO_TRADE_WATCHDOG';
-  else if(meta.stale) gated='NO_TRADE_DATA';
-  else if(meta.run_kind!=='close'&&meta.run_kind!=='close_reference') gated='PREVIEW_ONLY';
-  else if(!meta.weekly_close) gated='PREVIEW_ONLY';
-  if(gated){
-    r.preview_buy=r.buy; r.buy=0; r.action=gated; r.dry_after=r.pool-r.deployed;
-  }
-  return r;
-}
-
-function ticketStatus(results,shared,meta){
-  if(results.some(function(r){return r.action==='BUY_BLOCKED';})) return 'LOT_MODE_REQUIRED';
-  if(!shared.valid||results.some(function(r){return r.action==='INPUTS_REQUIRED';})) return 'INPUTS_REQUIRED';
-  if(results.some(function(r){return r.action==='INVALID_INPUTS';})) return 'INVALID_INPUTS';
-  if(meta.watchdog_ok===false) return 'NO_TRADE_WATCHDOG';
-  if(meta.stale) return 'NO_TRADE_DATA';
-  if(meta.run_kind!=='close'&&meta.run_kind!=='close_reference') return 'INTRADAY_PREVIEW';
-  if(!meta.weekly_close) return 'WAIT_FOR_W_FRI_CLOSE';
-  return 'LIVE_READY_DRY_RUN';
-}
-
-function actionHtml(r){
-  if(r.action==='WOULD_BUY') return '<span class="action-buy">WOULD_BUY '+fmt(r.buy)+'</span>';
-  if(r.action==='BUY_BLOCKED') return '<span class="action-block">BUY BLOCKED</span>';
-  if(r.action==='INVALID_INPUTS'||r.action.indexOf('NO_TRADE')===0) return '<span class="action-block">'+r.action.replace(/_/g,' ')+'</span>';
-  if(r.action==='PREVIEW_ONLY') return '<span class="action-warn">PREVIEW '+fmt(r.preview_buy)+' · NO TRADE</span>';
-  if(r.action==='RESERVE_LOCK') return '<span class="action-warn">RESERVE LOCK · NO BUY</span>';
-  if(r.action==='INPUTS_REQUIRED') return '<span class="action-warn">INPUTS REQUIRED</span>';
-  if(r.action.indexOf('WOULD_SKIP')===0) return '<span class="action-wait">WOULD_SKIP</span>';
-  return '<span class="action-wait">NO BUY</span>';
-}
-
-function assetCard(r,p){
-  var head,detail;
-  if(r.action==='BUY_BLOCKED'){
-    head='<b>Buy blocked</b> &mdash; '+esc(r.state);
-    detail='Top phase '+esc(r.phase)+' / '+esc(r.risk)+'. Dashboard mode does not estimate a sell from accumulation pool dollars. Complete lot/position-book intake before any distribution action.';
-  } else if(r.action==='INPUTS_REQUIRED'){
-    head='<b>Inputs required</b>';
-    detail='Enter pool, already deployed, min ticket, band pp, and venue/funding source. Blank values never default to zero.';
-  } else if(r.action==='INVALID_INPUTS'){
-    head='<b>Invalid inputs</b>'; detail='Pool must be positive and deployed dollars must be between zero and the pool total.';
-  } else if(r.action==='RESERVE_LOCK'){
-    head='<b>Reserve lock</b>'; detail='The model-protected reserve is binding. No buy is proposed.';
-  } else if(r.action==='PREVIEW_ONLY'){
-    head='<b>Preview only</b> &mdash; '+fmt(r.preview_buy)+' computed';
-    detail='Snapshot cadence is not execution-eligible. No trade is proposed; rerun on an eligible W-FRI close.';
-  } else if(r.action.indexOf('NO_TRADE')===0){
-    head='<b>No trade</b> &mdash; data gate';
-    detail='The preview gap is '+fmt(r.preview_buy)+', but freshness/watchdog requirements are not green.';
-  } else if(r.action==='WOULD_BUY'){
-    head='Would buy this week &asymp; <b>'+fmt(r.buy)+'</b>';
-    detail='Target '+pct(r.target)+' vs deployed '+pct(r.deployed_f)+'; gap '+fmt(r.gap_dollars)
-      +'. Base catch-up cap '+fmt(r.base_cap)+' ('+pct(p.week_cap_f)+') '
-      +(r.buy>=r.base_cap-1e-6?'binds':'does not bind')+'. '+esc(r.band_check)+'.';
-  } else if(r.action.indexOf('WOULD_SKIP')===0){
-    head='<b>Would skip</b> &mdash; no-trade rule'; detail=esc(r.band_check)+'. Gap rolls forward.';
-  } else {
-    head='&check; <b>Caught up</b> &mdash; '+pct(r.deployed_f)+' deployed'; detail='No accumulation buy is due.';
-  }
-  if(r.reserve_dollars!=null){
-    detail+=' Protected reserve '+fmt(r.reserve_dollars)+' (frozen line '+fmt(r.reserve_floor_dollars)
-      +'; model-released '+fmt(r.reserve_released_dollars)+'); dry after '+fmt(r.dry_after)+'.';
-  }
-  return '<div class="pcard"><div class="ptop"><b>'+r.asset+'</b>'
-    +'<span class="pill" style="background:'+p.color+'">'+esc(r.state)+'</span></div>'
-    +'<div class="pbig">'+head+'</div><div class="sub">'+detail+'</div></div>';
-}
-
-function rowHtml(r,shared){
-  var dep=r.deployed_f==null?'—':pct(r.deployed_f);
-  var gap=r.gap_f==null?'—':pct(r.gap_f)+' = '+fmt(r.gap_dollars);
-  var cap=r.base_cap==null?'—':fmt(r.base_cap)+' ('+pct(POLICY[r.asset].week_cap_f)+')';
-  var reserve=r.reserve_dollars==null?'—':fmt(r.reserve_dollars)+' protected (line '+fmt(r.reserve_floor_dollars)
-    +', released '+fmt(r.reserve_released_dollars)+') · dry '+fmt(r.dry_after);
-  return '<tr><td><b>'+r.asset+'</b><div class="sub">'+esc(r.state)+'</div></td>'
-    +'<td class="num">'+pct(r.target)+'</td><td class="num">'+dep+'</td><td class="num">'+gap+'</td>'
-    +'<td class="num">'+cap+'</td><td>'+esc(r.band_check)+'</td><td>'+actionHtml(r)+'</td>'
-    +'<td>'+reserve+'</td><td>'+esc(r.conflict)+'</td><td>'+esc(shared.venue||'—')+'</td></tr>';
-}
-
-function statusStyle(status){
-  if(status==='LIVE_READY_DRY_RUN') return '#238636';
-  if(status==='LOT_MODE_REQUIRED'||status==='INVALID_INPUTS'||status.indexOf('NO_TRADE')===0) return '#da3633';
-  return '#9e6a03';
-}
-
-var LAST_TICKET=null;
-function markdownTicket(ticket){
-  var m=TICKET_META,lines=['# WEEKLY OPERATOR TICKET — '+(m.ticket_date||m.data_as_of||'unknown')+' ['+ticket.status+']','',
-    'Snapshot: '+(m.run_kind||'unknown')+' · data as of '+(m.data_as_of||'unknown')+' · generated '+(m.generated_at||'unknown'),
-    'Governance: common exam '+m.common_exam+' · utility '+m.utility_verdict+' ('+m.utility_scope+')','',
-    '| Asset | State | Target | Deployed | Gap | Base cap | Band check | Action | Reserve after | Conflicts | Venue / funding |',
-    '|---|---|---:|---:|---:|---:|---|---|---|---|---|'];
-  ticket.results.forEach(function(r){
-    lines.push('| '+r.asset+' | '+r.state+' | '+pct(r.target)+' | '+(r.deployed_f==null?'—':pct(r.deployed_f))
-      +' | '+(r.gap_f==null?'—':pct(r.gap_f)+' = '+plainMoney(r.gap_dollars))
-      +' | '+(r.base_cap==null?'—':plainMoney(r.base_cap))+' | '+r.band_check+' | '
-      +(r.action==='WOULD_BUY'?'WOULD_BUY '+plainMoney(r.buy):(r.action==='PREVIEW_ONLY'?'PREVIEW '+plainMoney(r.preview_buy)+'; NO TRADE':r.action))+' | '
-      +(r.reserve_dollars==null?'—':plainMoney(r.reserve_dollars)+' protected; dry '+plainMoney(r.dry_after))
-      +' | '+r.conflict+' | '+ticket.shared.venue.replace(/\|/g,'/')+' |');
-  });
-  lines.push('','Base accumulation/catch-up cap: '+pct(ticket.base_cap_f)
-    +'. Late-start, re-arm, markup-redeploy, and distribution re-risk are separate frozen arms; this v0 does not invent their sizing.',
-    'Buy-only dashboard mode: lots/tax data are not required. Distribution requires lot/position-book mode.');
-  return lines.join('\n');
-}
-
-function copyTicket(){
-  if(!LAST_TICKET) return;
-  var message=document.getElementById('copymsg'),text=markdownTicket(LAST_TICKET);
-  function done(ok){if(message)message.textContent=ok?'Copied':'Copy failed';}
-  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(text).then(function(){done(true);},function(){done(false);});return;}
-  var area=document.createElement('textarea');area.value=text;area.style.position='fixed';area.style.opacity='0';
-  document.body.appendChild(area);area.select();var ok=false;try{ok=document.execCommand('copy');}catch(e){}document.body.removeChild(area);done(ok);
-}
-
+function setting(id,fallback){var v=val(id);return v>=0?v:fallback;}
+// Catch-up dynamic DCA: each week compare what's already DEPLOYED against the
+// model's current target.  Pace the rest toward the target over the horizon;
+// if behind, split the shortfall over the next 3 weeks.  Hold the reserve back.
 function recompute(){
-  var minTicket=val('min-ticket'),bandPp=val('band-pp'),venue=txt('venue-src');
-  var shared={minTicket:minTicket,bandPp:bandPp,venue:venue,
-    valid:isnum(minTicket)&&minTicket>=0&&isnum(bandPp)&&bandPp>=0&&bandPp<=100&&venue.length>0};
-  var cards='',rows='',results=[];
-  Object.keys(POLICY).forEach(function(a){
-    var r=computeAssetTicket(a,POLICY[a],{pool:val('pool-'+a),deployed:val('dep-'+a)},shared);
-    applyDataGate(r,TICKET_META);
-    results.push(r);cards+=assetCard(r,POLICY[a]);rows+=rowHtml(r,shared);
-  });
-  var status=ticketStatus(results,shared,TICKET_META),copyable=shared.valid&&!results.some(function(r){
-    return r.action==='INPUTS_REQUIRED'||r.action==='INVALID_INPUTS'||r.action==='BUY_BLOCKED';});
-  copyable=copyable&&status==='LIVE_READY_DRY_RUN';
-  LAST_TICKET={status:status,results:results,shared:shared,base_cap_f:TICKET_META.base_cap_f};
-  var meta='<div class="opmeta"><span><b>Snapshot</b> '+esc(TICKET_META.run_kind)+' · data '+esc(TICKET_META.data_as_of||'unknown')
-    +' · '+TICKET_META.data_age_days+'d old</span><span><b>Base catch-up cap</b> '+pct(TICKET_META.base_cap_f)
-    +'</span><span><b>Privacy</b> browser-local; inputs are not sent or saved</span></div>';
-  var gate='';
-  if(TICKET_META.watchdog_ok===false) gate='Refresh watchdog is '+TICKET_META.watchdog_status+': NO_TRADE (data).';
-  else if(TICKET_META.stale) gate='Data is stale: NO_TRADE (data).';
-  else if(TICKET_META.run_kind==='close_reference') gate='Live dashboard: operator values are pinned to the last close reference.';
-  else if(TICKET_META.run_kind!=='close') gate='Intraday snapshot: preview only; use a closing snapshot.';
-  else if(!TICKET_META.weekly_close) gate='Not a W-FRI close: preview only; rerun after the Friday close.';
-  var banner='<div class="opbanner"><b>Governance:</b> common exam '+esc(TICKET_META.common_exam)
-    +' · utility '+esc(TICKET_META.utility_verdict)+' ('+esc(TICKET_META.utility_scope)+'). '
-    +(gate?'<b>'+esc(gate)+'</b> ':'')
-    +'10% is the frozen base accumulation/catch-up cap; exception arms are separate and this v0 does not relabel them.</div>';
-  var ticket='<div class="oticket"><div class="oticket-head"><div><b>Operator v0 ticket</b>'+meta+'</div>'
-    +'<div><span class="pill" style="background:'+statusStyle(status)+'">'+esc(status)+'</span>'
-    +'<button id="copy-ticket" class="pbutton" style="margin-left:8px" onclick="copyTicket()" '+(copyable?'':'disabled')+'>Copy markdown</button>'
-    +'<div id="copymsg" class="copymsg"></div></div></div>'+banner
-    +'<div class="sub" style="margin-top:9px">Buy-only dashboard mode uses campaign pool/cost-basis dollars. Lots and tax data are required only when SELL/DISTRIBUTE is active.</div>'
-    +'<div class="oticket-scroll"><table><thead><tr><th>Asset / state</th><th class="num">model target</th><th class="num">Deployed</th>'
-    +'<th class="num">Gap</th><th class="num">Base cap</th><th>Band check</th><th>Action</th><th>Reserve after</th><th>Conflicts</th><th>Venue / funding</th>'
-    +'</tr></thead><tbody>'+rows+'</tbody></table></div></div>';
-  document.getElementById('pout').innerHTML=cards+ticket;
+  var out='', minTicket=setting('min-ticket',0), bandPp=setting('band-pp',1);
+  for(var a in POLICY){
+    var p=POLICY[a], P=val('pool-'+a);
+    if(p.dist){                                       // top elevated -> distribute, don't buy
+      var keep='trim toward '+pct(p.keep_f)+' invested';
+      var dhead, ddetail;
+      if(p.stop_pct!=null){
+        dhead='<b>Distribute</b> &mdash; '+keep;
+        ddetail='Trailing stop '+pct(p.stop_pct)+' &rarr; stop '+fmt(p.stop_price)
+               +'. Hold the rest and ride a final surge; one bounded re-risk can occur only after top risk cools.';
+      } else {
+        dhead='<b>Begin trimming</b> &mdash; '+keep;
+        ddetail='Top elevated; start reducing risk. Trailing stop arms at activation. Buying is paused.';
+      }
+      if(P>0){                                        // holdings entered -> size the trim
+        var Dd=val('dep-'+a); if(!(Dd>=0)) Dd=0; if(Dd>P) Dd=P;
+        var trim=Math.max(0, Dd - p.keep_f*P);
+        if(trim>0) dhead='Trim &asymp; <b>'+fmt(trim)+'</b> &mdash; '+keep;
+      }
+      out+='<div class="pcard"><div class="ptop"><b>'+a+'</b>'
+        +'<span class="pill" style="background:'+p.color+'">'+p.regime+'</span></div>'
+        +'<div class="pbig">'+dhead+'</div>'
+        +'<div class="sub">'+ddetail+'</div></div>';
+      continue;
+    }
+    if(!(P>0)) continue;
+    var D=val('dep-'+a); if(!(D>=0)) D=0; if(D>P) D=P;
+    var dep=D/P, tgt=p.tgt_f, now=p.now_f, H=Math.max(1,p.H);
+    var reserve=p.res_f*P, room=Math.max(0,tgt-dep);
+    var anchorTxt='$'+Math.round(p.anchor).toLocaleString('en-US');
+    var head, detail;
+    if(room<=1e-6){
+      head='&check; <b>Caught up</b> &mdash; '+pct(Math.min(dep,1))+' deployed';
+      detail='Nothing to add this week. Hold '+fmt(reserve)+' ('+pct(p.res_f)
+            +') cash/reserve &mdash; it redeploys up a confirmed markup, or buys a dip below '+anchorTxt+'.';
+    } else if(room*100<=bandPp+1e-9){
+      head='&check; <b>Within band</b> &mdash; no trade';
+      detail='The '+(room*100).toFixed(1)+'pp gap is within the '+bandPp.toFixed(1)
+            +'pp no-trade band. Hold '+fmt(reserve)+' ('+pct(p.res_f)+') cash/reserve.';
+    } else {
+      var base=Math.max(0,(tgt-Math.max(dep,now))/H);   // forward pace toward target
+      var shortfall=Math.max(0,now-dep);                // behind the front-load target
+      var catchup=shortfall/3;                          // amortise the gap over 3 weeks
+      var wk=Math.min(base+catchup, room);
+      var bits=['~'+fmt(base*P)+'/wk toward '+pct(tgt)+' over '+H+'w'];
+      if(catchup>1e-9) bits.push('+'+fmt(catchup*P)+' catch-up ('+pct(shortfall)+' behind, split over 3w)');
+      if(wk*P+1e-6<minTicket){
+        head='<b>Below min ticket</b> &mdash; no trade';
+        detail=fmt(wk*P)+' is below the '+fmt(minTicket)+' minimum. The gap rolls forward.';
+      } else {
+        head='Buy this week &asymp; <b>'+fmt(wk*P)+'</b>';
+        detail=bits.join(' ')+'. Hold '+fmt(reserve)+' ('+pct(p.res_f)+') cash/reserve for the markup / a dip below '+anchorTxt+'.';
+      }
+    }
+    out+='<div class="pcard"><div class="ptop"><b>'+a+'</b>'
+      +'<span class="pill" style="background:'+p.color+'">'+p.regime+'</span></div>'
+      +'<div class="pbig">'+head+'</div>'
+      +'<div class="sub">'+detail+'</div></div>';
+  }
+  document.getElementById('pout').innerHTML =
+    out || '<div class="sub">Enter your pool and how much you\'ve already deployed to get this week\'s action.</div>';
 }
-if(typeof document!=='undefined') recompute();
+recompute();
 </script></section>
       <div class="wrap">
-        <h3>Bottom Forecast Model <span class='sub'>(model reference)</span></h3><div class='dcard'><div class='dhead'><b>BTC</b> bottom &asymp; <b>$43,424</b> <span class='neg'>(-33%)</span> around 2026-08-29 <span class='sub'>· range $32,413–$64,401, 2026-07-10→2026-11-30</span></div><div class='sub'>Raw structural bottom input ≈ $43,424; calibrated median future-low ≈ $47,312.</div><ol class='dlist'><li><b>realized/MVRV</b> [22%]: ~$46,180 <span class='sub'>MVRV 0.82 x realized $56,285</span></li><li><b>200w-MA/Mayer</b> [45%]: ~$40,074 <span class='sub'>Mayer 0.63 x 200wMA $63,907</span></li><li><b>power-law</b> [17%]: ~$62,873 <span class='sub'>log-log support through 3 prior lows</span></li><li><b>drawdown-decay</b> [10%]: ~$35,477 <span class='sub'>cycle DD 0.72 from peak $124,753</span></li><li><b>score-state</b> [5%]: ~$59,243 <span class='sub'>bottom score 62, DD progress 0.64</span></li><li><b>Timing</b>: calendar 2026-08-21 · halving 2026-10-13 · capitulation state 27% &rarr; 2026-08-29</li><li><b>reference model</b>: $35,147 around 2026-10-23 <span class='sub'>(model delta +24%, -56d)</span></li><li><b>Uncertainty</b>: evidence quality MODERATE · 6 independent events · price band 74% · timing window 143d</li></ol></div><div class='dcard'><div class='dhead'><b>ETH</b> bottom &asymp; <b>$1,658</b> <span class='neg'>(-8%)</span> around 2026-07-24 <span class='sub'>· range $1,046–$1,798, 2026-07-10→2026-10-30</span></div><div class='sub'>Raw structural bottom input ≈ $1,658; calibrated median future-low ≈ $1,553.</div><ol class='dlist'><li><b>realized/MVRV</b> [16%]: ~$1,798 <span class='sub'>MVRV 0.88 x realized $2,061 [capped at spot]</span></li><li><b>200w-MA/Mayer</b> [11%]: ~$1,798 <span class='sub'>Mayer 0.89 x 200wMA $2,475 [capped at spot]</span></li><li><b>power-law</b> [21%]: ~$1,798 <span class='sub'>log-log support through 2 prior lows [capped at spot]</span></li><li><b>drawdown-decay</b> [35%]: ~$1,558 <span class='sub'>cycle DD 0.68 from peak $4,831</span></li><li><b>score-state</b> [18%]: ~$1,671 <span class='sub'>bottom score 52, DD progress 0.78</span></li><li><b>Timing</b>: calendar 2026-06-28 · capitulation state 88% &rarr; 2026-07-24</li><li><b>reference model</b>: $1,385 around 2026-07-30 <span class='sub'>(model delta +20%, -7d)</span></li><li><b>Uncertainty</b>: evidence quality HIGH · 9 independent events · price band 45% · timing window 112d</li></ol></div>
+        <h3>Bottom Forecast Model <span class='sub'>(Codex vs Claude reference)</span></h3><div class='dcard'><div class='dhead'><b>BTC</b> bottom &asymp; <b>$42,925</b> <span class='neg'>(-32%)</span> around 2026-08-29 <span class='sub'>· range $32,081–$63,175, 2026-07-09→2026-11-30</span></div><div class='sub'>Raw structural bottom input ≈ $42,925; calibrated median future-low ≈ $46,721.</div><ol class='dlist'><li><b>realized/MVRV</b> [22%]: ~$43,998 <span class='sub'>MVRV 0.82 x realized $53,625</span></li><li><b>200w-MA/Mayer</b> [45%]: ~$40,036 <span class='sub'>Mayer 0.63 x 200wMA $63,847</span></li><li><b>power-law</b> [17%]: ~$62,873 <span class='sub'>log-log support through 3 prior lows</span></li><li><b>drawdown-decay</b> [10%]: ~$35,477 <span class='sub'>cycle DD 0.72 from peak $124,753</span></li><li><b>score-state</b> [5%]: ~$58,199 <span class='sub'>bottom score 63, DD progress 0.64</span></li><li><b>Timing</b>: calendar 2026-08-21 · halving 2026-10-13 · capitulation state 27% &rarr; 2026-08-29</li><li><b>Claude reference</b>: $34,500 around 2026-10-22 <span class='sub'>(Codex delta +24%, -55d)</span></li><li><b>Uncertainty</b>: evidence quality MODERATE · 6 independent events · price band 72% · timing window 144d</li></ol></div><div class='dcard'><div class='dhead'><b>ETH</b> bottom &asymp; <b>$1,643</b> <span class='neg'>(-6%)</span> around 2026-07-23 <span class='sub'>· range $1,049–$1,744, 2026-07-09→2026-10-29</span></div><div class='sub'>Raw structural bottom input ≈ $1,643; calibrated median future-low ≈ $1,545.</div><ol class='dlist'><li><b>realized/MVRV</b> [26%]: ~$1,727 <span class='sub'>MVRV 0.88 x realized $1,969</span></li><li><b>200w-MA/Mayer</b> [10%]: ~$1,744 <span class='sub'>Mayer 0.89 x 200wMA $2,474 [capped at spot]</span></li><li><b>power-law</b> [18%]: ~$1,744 <span class='sub'>log-log support through 2 prior lows [capped at spot]</span></li><li><b>drawdown-decay</b> [31%]: ~$1,558 <span class='sub'>cycle DD 0.68 from peak $4,831</span></li><li><b>score-state</b> [15%]: ~$1,621 <span class='sub'>bottom score 52, DD progress 0.78</span></li><li><b>Timing</b>: calendar 2026-06-28 · capitulation state 88% &rarr; 2026-07-23</li><li><b>Claude reference</b>: $1,398 around 2026-07-29 <span class='sub'>(Codex delta +18%, -7d)</span></li><li><b>Uncertainty</b>: evidence quality HIGH · 9 independent events · price band 42% · timing window 112d</li></ol></div>
         <h3>Model evidence <span class='sub'>(event-level, not daily-trigger inflated)</span></h3><p class='sub' style='max-width:780px;margin:-2px 0 10px;line-height:1.55'>This table collapses adjacent daily bottom-score triggers into one independent event per bottom cluster. The daily trigger count is shown only as a diagnostic, because adjacent days in the same bear market are not independent samples.</p><div class='tablewrap'><table class='d'><tr><th>Asset</th><th>Events</th><th>Daily triggers</th><th>Win</th><th>Avg&nbsp;12m</th><th>Avg&nbsp;DD</th><th>Worst&nbsp;DD</th><th>Quality</th></tr><tr><td>BTC</td><td>6</td><td>343</td><td>67%</td><td>+177%</td><td>-28%</td><td>-59%</td><td>MODERATE</td></tr><tr><td>ETH</td><td>9</td><td>261</td><td>67%</td><td>+26%</td><td>-28%</td><td>-79%</td><td>HIGH</td></tr></table></div>
-        <section class='audit'><div class='audit-head'><div><h3 style='margin:0'>Policy Audit & Live Ledger</h3><div class='sub'>Governance layer only: logs live signals, declares the utility function, checks asset-specific robustness and watches refresh freshness. It does not change the model target.</div></div><div class='sub'>watchdog <span class='badge-pass'>PASS</span><br>refresh cadence healthy</div></div><div class='audit-grid'><div class='audit-card'><b>Objective policy-utility-v1</b><div class='sub'>Deployment outcome beats prettier bottom/top predictions. Current PASS labels are scoped to this utility audit, not every stricter research gate.</div></div><div class='audit-card'><b>Common exam <span class='badge-fail'>FAIL</span></b><div class='sub'>Stricter plateau and synthetic-shape gates are replayed through the dashboard full stack in reports/common_exam_audit.md. Failed gates block promotion beyond the scoped utility audit.</div></div><div class='audit-card'><b>Fable core audit <span class='badge-fail'>CORE FAILED STRICTER GATES</span></b><div class='sub'>Worst +/-25% parameter perturbation shift was 0.292 at MAX_HORIZON_WEEKS x0.75, above the 0.15 band.</div></div><div class='audit-card'><b>BTC live ledger</b><div>HOLD</div><div class='sub'>policy 27% · raw 18% · gap +9%</div><div class='sub'>no material divergence flag</div></div><div class='audit-card'><b>ETH live ledger</b><div>HOLD</div><div class='sub'>policy 35% · raw 35% · gap +0%</div><div class='sub'>no material divergence flag</div></div><div class='audit-card'><b>BTC utility gate <span class='badge-pass'>PASS</span></b><div class='sub'>acc utility 0.288151 · dist utility 7.082879</div><div class='sub'>current utility asset gate passed</div></div><div class='audit-card'><b>ETH utility gate <span class='badge-watch'>WATCH</span></b><div class='sub'>acc utility 0.092177 · dist utility 9.568079</div><div class='sub'>bottom calibration watch</div></div><div class='audit-card'><b>Known accumulation risks</b><ul class='audit-list'><li>horizon cliff</li><li>forecast coupled deep anchor</li><li>forecast driven last tranche</li></ul></div><div class='audit-card'><b>Distribution weak spots</b><ul class='audit-list'><li>BTC 2021-04-14: low/hold 142%, end/hold 139%, sold 90%</li><li>BTC 2025-10-06: low/hold 151%, end/hold 146%, sold 77%</li><li>BTC 2021-11-10: low/hold 215%, end/hold 207%, sold 90%</li></ul></div><div class='audit-card'><b>Ledger</b><div class='sub'>38 material records · last 2026-07-09T13:30:24</div><ul class='audit-list'><li>BTC OPTIONAL_CATCHUP_ONLY gap +10%</li><li>BTC OPTIONAL_CATCHUP_ONLY gap +10%</li><li>BTC OPTIONAL_CATCHUP_ONLY gap +10%</li><li>BTC OPTIONAL_CATCHUP_ONLY gap +10%</li></ul></div></div></section>
-        <h3>Policy history <span class='sub'>(daily close snapshots)</span></h3><p class='sub' style='max-width:820px;margin:-2px 0 10px;line-height:1.55'><b>What this is for:</b> track how the model posterior changes across true close snapshots: closing price, target allocation, calibrated median future low, median timing, downside probability and evidence quality. Click the date field, jump by year/month, then pick a <b>start</b> and <b>end</b> date (or use a quick preset — 7d / 30d / 90d / 1y / All); defaults to the latest 7 calendar days. Closes only — provisional intraday spot snapshots are excluded.</p><div class='hctl'><div class='rangepick'><button type='button' id='hist-trig' class='htrig' onclick='calToggle(event)' aria-haspopup='dialog' aria-expanded='false' disabled><span class='hcalico'>📅</span><span id='hist-trig-txt'>Loading…</span><span class='hcar'>▾</span></button><div id='hist-pop' class='hpop' role='dialog' aria-label='Pick a date range'><div class='hjump'><select id='hist-year' onchange='calJump()' aria-label='Jump to year' disabled></select><select id='hist-month' onchange='calJump()' aria-label='Jump to month' disabled></select></div><button type='button' class='hnav prev' id='hist-prev' onclick='calNav(-1)' aria-label='Previous month'>‹</button><button type='button' class='hnav next' id='hist-next' onclick='calNav(1)' aria-label='Next month'>›</button><div id='hist-grids' class='hpop-cals'></div><div class='hpre'><button type='button' class='hchip' onclick="calPreset('latest')">Latest</button><button type='button' class='hchip' onclick="calPreset('6')">7d</button><button type='button' class='hchip' onclick="calPreset('30')">30d</button><button type='button' class='hchip' onclick="calPreset('90')">90d</button><button type='button' class='hchip' onclick="calPreset('365')">1y</button><button type='button' class='hchip' onclick="calPreset('all')">All</button><span class='hpre-sp'></span><span id='hist-sel' class='sub'></span><button type='button' class='hchip hchip-go' onclick='calClose()'>Done</button></div></div></div><input type='hidden' id='hist-from'><input type='hidden' id='hist-to'></div><div id='histcap' class='sub' style='margin:6px 0'></div><div id='histwrap' style='overflow-x:auto'><div class='sub'>Loading history…</div></div><script>
+        <section class='audit'><div class='audit-head'><div><h3 style='margin:0'>Policy Audit & Live Ledger</h3><div class='sub'>Governance layer only: logs live signals, declares the utility function, checks asset-specific robustness and watches refresh freshness. It does not change the model target.</div></div><div class='sub'>watchdog <span class='badge-watch'>WATCH</span><br>market data age 1d</div></div><div class='audit-grid'><div class='audit-card'><b>Objective codex-policy-utility-v1</b><div class='sub'>Deployment outcome beats prettier bottom/top predictions. Current PASS labels are scoped to this utility audit, not every stricter research gate.</div></div><div class='audit-card'><b>Common exam <span class='badge-watch'>PASS FRONTIER SCOPED</span></b><div class='sub'>Adjudicated 2026-07-10 (Option A+): primary verdict is frontier-scoped — non-dominance plus achieved-value ratchets that may never worsen. The absolute 60%/20pp/−5pp style lines stay visible as WATCH sensitivity rows in reports/common_exam_audit.md; any new failing gate or ratchet breach returns the exam to FAIL.</div></div><div class='audit-card'><b>Fable core audit <span class='badge-fail'>CORE FAILED STRICTER GATES</span></b><div class='sub'>Worst +/-25% parameter perturbation shift was 0.292 at MAX_HORIZON_WEEKS x0.75, above the 0.15 band.</div></div><div class='audit-card'><b>BTC live ledger</b><div>HOLD</div><div class='sub'>policy 27% · raw 18% · gap +9%</div><div class='sub'>no material divergence flag</div></div><div class='audit-card'><b>ETH live ledger</b><div>HOLD</div><div class='sub'>policy 36% · raw 36% · gap +0%</div><div class='sub'>no material divergence flag</div></div><div class='audit-card'><b>BTC utility gate <span class='badge-pass'>PASS</span></b><div class='sub'>acc utility 0.288151 · dist utility 7.082879</div><div class='sub'>current utility asset gate passed</div></div><div class='audit-card'><b>ETH utility gate <span class='badge-watch'>WATCH</span></b><div class='sub'>acc utility 0.092177 · dist utility 9.568079</div><div class='sub'>bottom calibration watch</div></div><div class='audit-card'><b>Known accumulation risks</b><ul class='audit-list'><li>horizon cliff</li><li>forecast coupled deep anchor</li><li>forecast driven last tranche</li></ul></div><div class='audit-card'><b>Distribution weak spots</b><ul class='audit-list'><li>BTC 2021-04-14: low/hold 142%, end/hold 139%, sold 90%</li><li>BTC 2025-10-06: low/hold 151%, end/hold 146%, sold 77%</li><li>BTC 2021-11-10: low/hold 215%, end/hold 207%, sold 90%</li></ul></div><div class='audit-card'><b>Ledger</b><div class='sub'>46 material records · last 2026-07-10T09:25:04</div><ul class='audit-list'><li>BTC OPTIONAL_CATCHUP_ONLY gap +10%</li><li>BTC OPTIONAL_CATCHUP_ONLY gap +10%</li><li>BTC OPTIONAL_CATCHUP_ONLY gap +10%</li><li>BTC OPTIONAL_CATCHUP_ONLY gap +10%</li></ul></div></div></section>
+        <h3>Codex history <span class='sub'>(daily close snapshots)</span></h3><p class='sub' style='max-width:820px;margin:-2px 0 10px;line-height:1.55'><b>What this is for:</b> track how the Codex posterior changes across true close snapshots: closing price, target allocation, calibrated median future low, median timing, downside probability and evidence quality. Click the date field, jump by year/month, then pick a <b>start</b> and <b>end</b> date (or use a quick preset — 7d / 30d / 90d / 1y / All); defaults to the latest 7 calendar days. Closes only — provisional intraday spot snapshots are excluded.</p><div class='hctl'><div class='rangepick'><button type='button' id='hist-trig' class='htrig' onclick='calToggle(event)' aria-haspopup='dialog' aria-expanded='false' disabled><span class='hcalico'>📅</span><span id='hist-trig-txt'>Loading…</span><span class='hcar'>▾</span></button><div id='hist-pop' class='hpop' role='dialog' aria-label='Pick a date range'><div class='hjump'><select id='hist-year' onchange='calJump()' aria-label='Jump to year' disabled></select><select id='hist-month' onchange='calJump()' aria-label='Jump to month' disabled></select></div><button type='button' class='hnav prev' id='hist-prev' onclick='calNav(-1)' aria-label='Previous month'>‹</button><button type='button' class='hnav next' id='hist-next' onclick='calNav(1)' aria-label='Next month'>›</button><div id='hist-grids' class='hpop-cals'></div><div class='hpre'><button type='button' class='hchip' onclick="calPreset('latest')">Latest</button><button type='button' class='hchip' onclick="calPreset('6')">7d</button><button type='button' class='hchip' onclick="calPreset('30')">30d</button><button type='button' class='hchip' onclick="calPreset('90')">90d</button><button type='button' class='hchip' onclick="calPreset('365')">1y</button><button type='button' class='hchip' onclick="calPreset('all')">All</button><span class='hpre-sp'></span><span id='hist-sel' class='sub'></span><button type='button' class='hchip hchip-go' onclick='calClose()'>Done</button></div></div></div><input type='hidden' id='hist-from'><input type='hidden' id='hist-to'></div><div id='histcap' class='sub' style='margin:6px 0'></div><div id='histwrap' style='overflow-x:auto'><div class='sub'>Loading history…</div></div><script>
 var HIST=[],HIST_CAL={};
 function histFmt(x){return x==null?'—':'$'+Math.round(x).toLocaleString('en-US');}
 function histN(x){return x==null?'—':x;}
@@ -798,7 +631,7 @@ document.addEventListener('keydown',function(e){if(e.key==='Escape')calClose();}
 var histReq=fetch('history.json').then(function(r){if(!r.ok)throw new Error('history');return r.json();});
 var snapReq=fetch('snapshot.json').then(function(r){return r.ok?r.json():{};}).catch(function(){return {};});
 Promise.all([histReq,snapReq]).then(function(pair){var h=pair[0],snap=pair[1];histLoadCal(snap);
-  HIST=(h||[]).filter(function(r){return r.edition==='model-posterior';})
+  HIST=(h||[]).filter(function(r){return r.edition==='codex-posterior';})
               .sort(function(a,b){return a.date<b.date?-1:(a.date>b.date?1:0);});
   var tg=document.getElementById('hist-trig');
   if(HIST.length){
@@ -811,6 +644,6 @@ Promise.all([histReq,snapReq]).then(function(pair){var h=pair[0],snap=pair[1];hi
   histRender();
 }).catch(function(){var el=document.getElementById('histwrap');if(el)el.innerHTML='<div class="sub">History unavailable.</div>';});
 </script>
-        <h3>Historic Accumulation Replays <span class='sub'>· tap any chart to open it full-size</span></h3><p class='sub' style='max-width:780px;margin:-2px 0 14px;line-height:1.55'>The dashboard is in an accumulation-side regime, so the bottom section starts with the current 2026 accumulation path, then shows prior-cycle Model full-policy replays. These charts use the same posterior, convex depth-floor and mid-cycle price-improvement catch-up policy used by the live target above.</p><div class='gallery'><figure><a class="shot" href="reports/model_deploy_BTC_2026.png?v=c81d6b30" target="_blank" rel="noopener"><img loading="lazy" src="reports/model_deploy_BTC_2026.png?v=c81d6b30" alt="BTC · 2026 current model accumulation replay"></a><figcaption><span class="takeaway">BTC — 2026 current cycle</span><span class="cap"><b>2026 / current cycle.</b> model full policy replayed through the live accumulation campaign so far. This is incomplete by definition: no realized bottom/recovery verdict yet, but it shows how today's posterior + depth floor has actually deployed.</span><span class="sub">BTC · 2026 current model accumulation replay · 2026-07-10 07:00</span></figcaption></figure><figure><a class="shot" href="reports/model_deploy_ETH_2026.png?v=34c27832" target="_blank" rel="noopener"><img loading="lazy" src="reports/model_deploy_ETH_2026.png?v=34c27832" alt="ETH · 2026 current model accumulation replay"></a><figcaption><span class="takeaway">ETH — 2026 current cycle</span><span class="cap"><b>2026 / current cycle.</b> ETH's ongoing Model full-policy accumulation path, including the higher hard-reserve floor and convex depth floor. Incomplete until the cycle resolves.</span><span class="sub">ETH · 2026 current model accumulation replay · 2026-07-10 07:00</span></figcaption></figure><figure><a class="shot" href="reports/model_deploy_BTC_2022.png?v=47496851" target="_blank" rel="noopener"><img loading="lazy" src="reports/model_deploy_BTC_2022.png?v=47496851" alt="BTC · 2022 model accumulation replay"></a><figcaption><span class="takeaway">BTC — 2022 double bottom</span><span class="cap"><b>2022 bear.</b> model posterior + convex depth floor replayed through the real double-bottom bear. The lower panel shows cash left; green dots show actual weekly buys under the model full policy.</span><span class="sub">BTC · 2022 model accumulation replay · 2026-07-10 06:42</span></figcaption></figure><figure><a class="shot" href="reports/model_deploy_ETH_2022.png?v=0f24a50c" target="_blank" rel="noopener"><img loading="lazy" src="reports/model_deploy_ETH_2022.png?v=0f24a50c" alt="ETH · 2022 model accumulation replay"></a><figcaption><span class="takeaway">ETH — 2022 double bottom</span><span class="cap"><b>2022 bear.</b> Same model policy on ETH. This is the policy behind the live dashboard target, including hard reserve, re-arm and recovery redeploy.</span><span class="sub">ETH · 2022 model accumulation replay · 2026-07-10 06:42</span></figcaption></figure><figure><a class="shot" href="reports/model_deploy_BTC_2020covid.png?v=c2ed56f4" target="_blank" rel="noopener"><img loading="lazy" src="reports/model_deploy_BTC_2020covid.png?v=c2ed56f4" alt="BTC · 2020 COVID model replay"></a><figcaption><span class="takeaway">BTC — 2020 fast V</span><span class="cap"><b>2020 COVID crash.</b> A fast-V stress case: the policy cannot know a low will round-trip quickly, so this shows the opportunity cost of keeping reserve for a deeper leg.</span><span class="sub">BTC · 2020 COVID model replay · 2026-07-10 07:00</span></figcaption></figure><figure><a class="shot" href="reports/model_deploy_ETH_2020covid.png?v=e71b4e69" target="_blank" rel="noopener"><img loading="lazy" src="reports/model_deploy_ETH_2020covid.png?v=e71b4e69" alt="ETH · 2020 COVID model replay"></a><figcaption><span class="takeaway">ETH — 2020 fast V</span><span class="cap"><b>2020 COVID crash.</b> ETH's fast-V replay under model full policy.</span><span class="sub">ETH · 2020 COVID model replay · 2026-07-10 07:00</span></figcaption></figure><figure><a class="shot" href="reports/model_deploy_BTC_2019.png?v=d73d2326" target="_blank" rel="noopener"><img loading="lazy" src="reports/model_deploy_BTC_2019.png?v=d73d2326" alt="BTC · 2019 H2 model replay"></a><figcaption><span class="takeaway">BTC — 2019 mid-cycle correction</span><span class="cap"><b>2019 H2 correction.</b> A shallow/mid-cycle pullback replay, useful for checking that the policy does not empty all cash into a non-cycle bottom.</span><span class="sub">BTC · 2019 H2 model replay · 2026-07-10 07:00</span></figcaption></figure><figure><a class="shot" href="reports/model_deploy_ETH_2019.png?v=194886bd" target="_blank" rel="noopener"><img loading="lazy" src="reports/model_deploy_ETH_2019.png?v=194886bd" alt="ETH · 2019 H2 model replay"></a><figcaption><span class="takeaway">ETH — 2019 mid-cycle correction</span><span class="cap"><b>2019 H2 correction.</b> The remaining hard case for Model: it still buys this shallow ETH dip somewhat expensively versus reference.</span><span class="sub">ETH · 2019 H2 model replay · 2026-07-10 07:00</span></figcaption></figure><figure><a class="shot" href="reports/model_deploy_BTC_2018.png?v=f4ea09b3" target="_blank" rel="noopener"><img loading="lazy" src="reports/model_deploy_BTC_2018.png?v=f4ea09b3" alt="BTC · 2018 model accumulation replay"></a><figcaption><span class="takeaway">BTC — 2018 single low</span><span class="cap"><b>2018 bear.</b> A slow single-low bear replay. The chart shows how the depth floor gets working capital on the field without claiming the bottom is known.</span><span class="sub">BTC · 2018 model accumulation replay · 2026-07-10 06:42</span></figcaption></figure><figure><a class="shot" href="reports/model_deploy_ETH_2018.png?v=4b320f5a" target="_blank" rel="noopener"><img loading="lazy" src="reports/model_deploy_ETH_2018.png?v=4b320f5a" alt="ETH · 2018 model accumulation replay"></a><figcaption><span class="takeaway">ETH — 2018 first-cycle bear</span><span class="cap"><b>2018 bear.</b> ETH's first-cycle bear, shown because it is the hardest historical left-tail case.</span><span class="sub">ETH · 2018 model accumulation replay · 2026-07-10 06:42</span></figcaption></figure></div>
+        <h3>Historic Accumulation Replays <span class='sub'>· tap any chart to open it full-size</span></h3><p class='sub' style='max-width:780px;margin:-2px 0 14px;line-height:1.55'>The dashboard is in an accumulation-side regime, so the bottom section starts with the current 2026 accumulation path, then shows prior-cycle Codex full-policy replays. These charts use the same posterior, convex depth-floor and mid-cycle price-improvement catch-up policy used by the live target above.</p><div class='gallery'><figure><a class="shot" href="reports/codex_deploy_BTC_2026.png?v=c81d6b30" target="_blank" rel="noopener"><img loading="lazy" src="reports/codex_deploy_BTC_2026.png?v=c81d6b30" alt="BTC · 2026 current Codex accumulation replay"></a><figcaption><span class="takeaway">BTC — 2026 current cycle</span><span class="cap"><b>2026 / current cycle.</b> Codex full policy replayed through the live accumulation campaign so far. This is incomplete by definition: no realized bottom/recovery verdict yet, but it shows how today's posterior + depth floor has actually deployed.</span><span class="sub">BTC · 2026 current Codex accumulation replay · 2026-07-10 07:00</span></figcaption></figure><figure><a class="shot" href="reports/codex_deploy_ETH_2026.png?v=34c27832" target="_blank" rel="noopener"><img loading="lazy" src="reports/codex_deploy_ETH_2026.png?v=34c27832" alt="ETH · 2026 current Codex accumulation replay"></a><figcaption><span class="takeaway">ETH — 2026 current cycle</span><span class="cap"><b>2026 / current cycle.</b> ETH's ongoing Codex full-policy accumulation path, including the higher hard-reserve floor and convex depth floor. Incomplete until the cycle resolves.</span><span class="sub">ETH · 2026 current Codex accumulation replay · 2026-07-10 07:00</span></figcaption></figure><figure><a class="shot" href="reports/codex_deploy_BTC_2022.png?v=47496851" target="_blank" rel="noopener"><img loading="lazy" src="reports/codex_deploy_BTC_2022.png?v=47496851" alt="BTC · 2022 Codex accumulation replay"></a><figcaption><span class="takeaway">BTC — 2022 double bottom</span><span class="cap"><b>2022 bear.</b> Codex posterior + convex depth floor replayed through the real double-bottom bear. The lower panel shows cash left; green dots show actual weekly buys under the Codex full policy.</span><span class="sub">BTC · 2022 Codex accumulation replay · 2026-07-10 06:42</span></figcaption></figure><figure><a class="shot" href="reports/codex_deploy_ETH_2022.png?v=0f24a50c" target="_blank" rel="noopener"><img loading="lazy" src="reports/codex_deploy_ETH_2022.png?v=0f24a50c" alt="ETH · 2022 Codex accumulation replay"></a><figcaption><span class="takeaway">ETH — 2022 double bottom</span><span class="cap"><b>2022 bear.</b> Same Codex policy on ETH. This is the policy behind the live dashboard target, including hard reserve, re-arm and recovery redeploy.</span><span class="sub">ETH · 2022 Codex accumulation replay · 2026-07-10 06:42</span></figcaption></figure><figure><a class="shot" href="reports/codex_deploy_BTC_2020covid.png?v=c2ed56f4" target="_blank" rel="noopener"><img loading="lazy" src="reports/codex_deploy_BTC_2020covid.png?v=c2ed56f4" alt="BTC · 2020 COVID Codex replay"></a><figcaption><span class="takeaway">BTC — 2020 fast V</span><span class="cap"><b>2020 COVID crash.</b> A fast-V stress case: the policy cannot know a low will round-trip quickly, so this shows the opportunity cost of keeping reserve for a deeper leg.</span><span class="sub">BTC · 2020 COVID Codex replay · 2026-07-10 07:00</span></figcaption></figure><figure><a class="shot" href="reports/codex_deploy_ETH_2020covid.png?v=e71b4e69" target="_blank" rel="noopener"><img loading="lazy" src="reports/codex_deploy_ETH_2020covid.png?v=e71b4e69" alt="ETH · 2020 COVID Codex replay"></a><figcaption><span class="takeaway">ETH — 2020 fast V</span><span class="cap"><b>2020 COVID crash.</b> ETH's fast-V replay under Codex full policy.</span><span class="sub">ETH · 2020 COVID Codex replay · 2026-07-10 07:00</span></figcaption></figure><figure><a class="shot" href="reports/codex_deploy_BTC_2019.png?v=d73d2326" target="_blank" rel="noopener"><img loading="lazy" src="reports/codex_deploy_BTC_2019.png?v=d73d2326" alt="BTC · 2019 H2 Codex replay"></a><figcaption><span class="takeaway">BTC — 2019 mid-cycle correction</span><span class="cap"><b>2019 H2 correction.</b> A shallow/mid-cycle pullback replay, useful for checking that the policy does not empty all cash into a non-cycle bottom.</span><span class="sub">BTC · 2019 H2 Codex replay · 2026-07-10 07:00</span></figcaption></figure><figure><a class="shot" href="reports/codex_deploy_ETH_2019.png?v=194886bd" target="_blank" rel="noopener"><img loading="lazy" src="reports/codex_deploy_ETH_2019.png?v=194886bd" alt="ETH · 2019 H2 Codex replay"></a><figcaption><span class="takeaway">ETH — 2019 mid-cycle correction</span><span class="cap"><b>2019 H2 correction.</b> The remaining hard case for Codex: it still buys this shallow ETH dip somewhat expensively versus Claude.</span><span class="sub">ETH · 2019 H2 Codex replay · 2026-07-10 07:00</span></figcaption></figure><figure><a class="shot" href="reports/codex_deploy_BTC_2018.png?v=f4ea09b3" target="_blank" rel="noopener"><img loading="lazy" src="reports/codex_deploy_BTC_2018.png?v=f4ea09b3" alt="BTC · 2018 Codex accumulation replay"></a><figcaption><span class="takeaway">BTC — 2018 single low</span><span class="cap"><b>2018 bear.</b> A slow single-low bear replay. The chart shows how the depth floor gets working capital on the field without claiming the bottom is known.</span><span class="sub">BTC · 2018 Codex accumulation replay · 2026-07-10 06:42</span></figcaption></figure><figure><a class="shot" href="reports/codex_deploy_ETH_2018.png?v=4b320f5a" target="_blank" rel="noopener"><img loading="lazy" src="reports/codex_deploy_ETH_2018.png?v=4b320f5a" alt="ETH · 2018 Codex accumulation replay"></a><figcaption><span class="takeaway">ETH — 2018 first-cycle bear</span><span class="cap"><b>2018 bear.</b> ETH's first-cycle bear, shown because it is the hardest historical left-tail case.</span><span class="sub">ETH · 2018 Codex accumulation replay · 2026-07-10 06:42</span></figcaption></figure></div>
       </div>
       <footer>Research / educational only — not investment advice.</footer></body></html>

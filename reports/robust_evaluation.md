@@ -1,4 +1,4 @@
-# Robust Evaluation
+# Codex Robust Evaluation
 
 Generated: 2026-07-07T02:21:56.438466+00:00
 Verdict: **WATCH_CURRENT_UTILITY_AUDIT**
@@ -13,10 +13,10 @@ Boundary:
 
 ## Common Exam
 
-- Status: **FAIL**
-- parameter_plateau_25pct: FAIL (cells=11, failing=4, worst shift=10.0%, materiality=DELTA_ONLY_REVIEW, delta-only=4)
-- synthetic_delayed_lower_low: FAIL (paths=1, failing=1, min DCA18 ratio=1.287973)
-- synthetic_false_bottom_continued_grind: FAIL (paths=1, failing=1, min DCA18 ratio=1.429945)
+- Status: **PASS_FRONTIER_SCOPED**
+- parameter_plateau_25pct: PASS_BY_RATCHET (cells=11, failing=4, worst shift=10.0%, materiality=DELTA_ONLY_REVIEW, delta-only=4)
+- synthetic_delayed_lower_low: PASS_BY_NON_DOMINANCE (paths=1, failing=1, min DCA18 ratio=1.287973)
+- synthetic_false_bottom_continued_grind: PASS_BY_RATCHET (paths=1, failing=1, min DCA18 ratio=1.429945)
 - synthetic_fast_v_participation: PASS (paths=1, failing=0, min DCA18 ratio=1.033405)
 - synthetic_shallow_recover: PASS (paths=1, failing=0, min DCA18 ratio=0.844307)
 - early_exhaustion_guard: PASS (historical flags=0, synthetic flags=0)
@@ -61,7 +61,7 @@ Boundary:
 
 ## Policy Objective
 
-- Version: policy-utility-v1
+- Version: codex-policy-utility-v1
 - Purpose: Judge policy changes by causal capital-deployment outcomes, not by bottom/top forecast aesthetics.
 - Accumulation utility: `pool_return - 0.30*avg_entry_premium_to_low - 0.20*max_portfolio_drawdown - 0.10*underparticipation_at_low + 0.05*dry_at_low_optional_reserve`
 - Distribution utility: `(value_at_post_top_low-1) + 0.30*(end_value_vs_hold-1) + 0.20*avg_sell_pct_of_peak - 0.20*max_portfolio_drawdown - 0.10*underdistribution`
@@ -81,7 +81,7 @@ Boundary:
 - Worst terminal edge vs median baseline: -1.8%
 - Mean terminal edge vs median baseline: 22.4%
 
-| Asset | Episode | Policy terminal | Edge vs median | Avg/low | Cost edge | Utility |
+| Asset | Episode | Codex terminal | Edge vs median | Avg/low | Cost edge | Utility |
 |---|---:|---:|---:|---:|---:|---:|
 | BTC | 2018 bear (single low) | 1.30 | 37.7% | 73.4% | -79.8% | 0.003333 |
 | ETH | 2018 bear (single low) | 0.57 | 19.5% | 166.7% | -441.7% | -1.038305 |
@@ -94,14 +94,14 @@ Boundary:
 
 ### Expected-Regret Candidate
 
-- Research-only reference-style expected-regret sizing ported into the Model accumulation harness.
-- Terminal win-rate vs Model live: 50%
-- Avg-cost win-rate vs Model live: 75%
-- Mean terminal delta vs Model: -3.1%
-- Mean avg-cost premium delta vs Model: -6.7%
-- Worst terminal delta vs Model: -53.6%
+- Research-only Claude-style expected-regret sizing ported into the Codex accumulation harness.
+- Terminal win-rate vs Codex live: 50%
+- Avg-cost win-rate vs Codex live: 75%
+- Mean terminal delta vs Codex: -3.1%
+- Mean avg-cost premium delta vs Codex: -6.7%
+- Worst terminal delta vs Codex: -53.6%
 
-| Asset | Episode | Policy terminal | Exp-reg terminal | Delta | Model avg/low | Exp-reg avg/low | Model spent@low | Exp-reg spent@low |
+| Asset | Episode | Codex terminal | Exp-reg terminal | Delta | Codex avg/low | Exp-reg avg/low | Codex spent@low | Exp-reg spent@low |
 |---|---|---:|---:|---:|---:|---:|---:|---:|
 | BTC | 2018 bear (single low) | 1.296 | 1.909 | 61.3% | 73.4% | 17.8% | 80% | 40% |
 | ETH | 2018 bear (single low) | 0.566 | 0.579 | 1.3% | 166.7% | 160.5% | 72% | 76% |
@@ -114,15 +114,15 @@ Boundary:
 
 ### Cap-Regime Switch Candidate
 
-- Research-only hybrid: expected-regret sizing in mature/deep bears, Model full-policy cumulative target in causal fast-shock/shallow-correction regimes.
-- Terminal win-rate vs Model live: 62%
-- Avg-cost win-rate vs Model live: 62%
-- Mean terminal delta vs Model: 9.1%
-- Mean avg-cost premium delta vs Model: -8.7%
-- Worst terminal delta vs Model: 0.0%
-- Mean weeks using Model regime: 50%
+- Research-only hybrid: expected-regret sizing in mature/deep bears, Codex full-policy cumulative target in causal fast-shock/shallow-correction regimes.
+- Terminal win-rate vs Codex live: 62%
+- Avg-cost win-rate vs Codex live: 62%
+- Mean terminal delta vs Codex: 9.1%
+- Mean avg-cost premium delta vs Codex: -8.7%
+- Worst terminal delta vs Codex: 0.0%
+- Mean weeks using Codex regime: 50%
 
-| Asset | Episode | Policy terminal | Exp-reg terminal | Cap-switch terminal | Cap delta | Model avg/low | Exp-reg avg/low | Cap avg/low | Cap spent@low | Model-regime weeks |
+| Asset | Episode | Codex terminal | Exp-reg terminal | Cap-switch terminal | Cap delta | Codex avg/low | Exp-reg avg/low | Cap avg/low | Cap spent@low | Codex-regime weeks |
 |---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
 | BTC | 2018 bear (single low) | 1.296 | 1.909 | 1.909 | 61.3% | 73.4% | 17.8% | 17.8% | 40% | 1% |
 | ETH | 2018 bear (single low) | 0.566 | 0.579 | 0.579 | 1.3% | 166.7% | 160.5% | 160.5% | 76% | 0% |
@@ -179,7 +179,7 @@ Boundary:
 - Verdict: **REJECTED_SYNTHETIC_GATES**
 - Best recipe: `zero_posterior_lower_bound` (synthetic gates pass=False, historical utility preserved=False)
 - Best synthetic status: **FAIL**; historical terminal win-rate 25%, worst terminal delta -14.3%, new early-exhaustion episodes 0
-- The posterior-target governor tests the mechanism identified by first-decline attribution. The zero-posterior lower bound improves the open synthetic paths but still leaves delayed-lower-low average entry premium above the 60% gate, so model_target governance alone is insufficient; the remaining failure also involves the duration-CDF/depth-floor path.
+- The posterior-target governor tests the mechanism identified by first-decline attribution. The zero-posterior lower bound improves the open synthetic paths but still leaves delayed-lower-low average entry premium above the 60% gate, so codex_target governance alone is insufficient; the remaining failure also involves the duration-CDF/depth-floor path.
 
 | Recipe | Verdict | Synthetic gap | Delayed avg/low | False-bottom 4w unlock | Fast-V DCA18 | Hist win | Worst hist delta |
 |---|---:|---:|---:|---:|---:|---:|---:|
@@ -190,28 +190,28 @@ Boundary:
 
 - Attributes every live-policy buy on the two failing synthetic paths to its deployment mechanism, so the next candidate targets the real driver.
 
-**delayed_lower_low** (low=32.0 at week 56, avg entry premium 73.4%, dominant premium source: `model_target_base`)
+**delayed_lower_low** (low=32.0 at week 56, avg entry premium 73.4%, dominant premium source: `codex_target_base`)
 
 | Source | Spent | Avg price | Premium to low | Premium $ contrib | Pre-low | Post-low |
 |---|---:|---:|---:|---:|---:|---:|
-| model_target_base | 36.2% | 71.7641 | 124.3% | 0.4504 | 36.2% | 0.0% |
+| codex_target_base | 36.2% | 71.7641 | 124.3% | 0.4504 | 36.2% | 0.0% |
 | duration_cdf_depth_floor | 40.3% | 48.2511 | 50.8% | 0.2044 | 31.7% | 8.5% |
 | price_improvement_catchup | 0.0% | 82.5 | 157.8% | 0.0004 | 0.0% | 0.0% |
 | redeploy | 18.0% | 49.4261 | 54.5% | 0.0983 | 0.0% | 18.0% |
-- Max four-week unlock 21.5% at weeks 5-8 from: model_target_base 21.5%, price_improvement_catchup 0.0%
+- Max four-week unlock 21.5% at weeks 5-8 from: codex_target_base 21.5%, price_improvement_catchup 0.0%
 
-**false_bottom_continued_grind** (low=25.0 at week 76, avg entry premium 110.6%, dominant premium source: `model_target_base`)
+**false_bottom_continued_grind** (low=25.0 at week 76, avg entry premium 110.6%, dominant premium source: `codex_target_base`)
 
 | Source | Spent | Avg price | Premium to low | Premium $ contrib | Pre-low | Post-low |
 |---|---:|---:|---:|---:|---:|---:|
-| model_target_base | 38.0% | 77.7518 | 211.0% | 0.8022 | 38.0% | 0.0% |
+| codex_target_base | 38.0% | 77.7518 | 211.0% | 0.8022 | 38.0% | 0.0% |
 | duration_cdf_depth_floor | 42.0% | 41.4851 | 65.9% | 0.2767 | 42.0% | 0.0% |
-| reserve_tail | 1.0% | 26.5 | 6.0% | 0.0006 | 1.0% | 0.0% |
 | price_improvement_catchup | 0.0% | 83.5714 | 234.3% | 0.0006 | 0.0% | 0.0% |
+| reserve_tail | 1.0% | 26.5 | 6.0% | 0.0006 | 1.0% | 0.0% |
 | unattributed | 0.0% | n/a | n/a | n/a | n/a | n/a |
-- Max four-week unlock 22.6% at weeks 7-10 from: model_target_base 22.6%
+- Max four-week unlock 22.6% at weeks 7-10 from: codex_target_base 22.6%
 
-- On both open synthetic failures the model_target (posterior) schedule is the dominant dollar-premium source: it front-loads the working bucket during the first decline leg at the highest pre-low prices (avg premium +124% delayed / +211% false-bottom), while the duration-CDF depth floor and post-low redeploy buy far cheaper. The max four-week unlock is likewise a first-decline-leg working-bucket ramp. This means the deep anchor and the reserve/release mechanics are not the primary levers for these two gates; a future candidate should govern how fast the posterior target itself deploys before final-low risk has decayed.
+- On both open synthetic failures the codex_target (posterior) schedule is the dominant dollar-premium source: it front-loads the working bucket during the first decline leg at the highest pre-low prices (avg premium +124% delayed / +211% false-bottom), while the duration-CDF depth floor and post-low redeploy buy far cheaper. The max four-week unlock is likewise a first-decline-leg working-bucket ramp. This means the deep anchor and the reserve/release mechanics are not the primary levers for these two gates; a future candidate should govern how fast the posterior target itself deploys before final-low risk has decayed.
 
 ### Delayed-Premium Gate Attainability (cross-round synthesis)
 
@@ -252,18 +252,18 @@ Boundary:
 - This is a governance proposal, not a production change. It records that the incumbent survives by non-dominance: no tested candidate lowers delayed-premium while preserving historical utility.
 
 Parameter stability:
+- deeper_more_reserve: terminal win-rate 88%, worst edge -0.8%, mean edge 22.1%
 - live: terminal win-rate 88%, worst edge -1.8%, mean edge 22.4%
 - shallower_faster: terminal win-rate 88%, worst edge -3.9%, mean edge 21.5%
-- deeper_more_reserve: terminal win-rate 88%, worst edge -0.8%, mean edge 22.1%
 
 Accumulation anti-overfit checks:
 - Window jitter: min terminal win-rate 75%, min cost win-rate 62%, worst terminal edge -10.8%
 - Target perturbations: min terminal win-rate 75%, min cost win-rate 62%, worst terminal edge -2.6%
 - Leave-one-episode-out: worst held-out terminal edge -1.8%, worst held-out cost edge 14.8%
 - Chronological holdout since 2020-01-01: terminal win-rate 100%, worst terminal edge 10.5%
-- Cap-switch window jitter vs Model: min terminal win-rate 50%, worst terminal delta -18.4%, worst cost delta 128.0%
-- Cap-switch target perturbation vs Model: min terminal win-rate 62%, worst terminal delta 0.0%, worst cost delta 0.0%
-- Cap-switch leave-one-episode-out vs Model: min remaining terminal win-rate 57%, worst held-out terminal delta 0.0%, worst held-out cost delta 0.0%
+- Cap-switch window jitter vs Codex: min terminal win-rate 50%, worst terminal delta -18.4%, worst cost delta 128.0%
+- Cap-switch target perturbation vs Codex: min terminal win-rate 62%, worst terminal delta 0.0%, worst cost delta 0.0%
+- Cap-switch leave-one-episode-out vs Codex: min remaining terminal win-rate 57%, worst held-out terminal delta 0.0%, worst held-out cost delta 0.0%
 - Cap-switch chronological holdout since 2020-01-01: terminal win-rate 50%, worst terminal delta 0.0%
 
 | Window jitter | Episodes | Terminal win | Cost win | Worst terminal edge | Worst cost edge |

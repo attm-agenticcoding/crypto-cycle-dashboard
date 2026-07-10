@@ -4,19 +4,19 @@ Date recorded: 2026-07-05
 
 Source: user-provided Fable memo, with receipts listed there as
 `../crypto-cycle-detection-fable/reports/HYPOTHESIS_CODEX_CONVEX_CROSS_AUDIT.md`,
-`../crypto-cycle-detection-fable/reports/model_cross_audit.{json,log}` and
+`../crypto-cycle-detection-fable/reports/codex_cross_audit.{json,log}` and
 `../crypto-cycle-detection-fable/NOTES.md` 2026-07-04.
 
 ## Scope
 
-Fable audited the Model convex policy core as a native Fable policy family. The
+Fable audited the Codex convex policy core as a native Fable policy family. The
 audit did not include this dashboard's hard-reserve release leg, redeploy leg or
 re-arm logic, so the result should not be read as a full-stack dashboard replay.
 
 ## Findings
 
 - The convex depth back-load direction showed real held-out merit: median LOCO
-  terminal-value ratio vs DCA-18 was 1.038 for the Model core vs 1.012 for
+  terminal-value ratio vs DCA-18 was 1.038 for the Codex core vs 1.012 for
   Fable's standing policy.
 - The current dashboard utility gates are not the stricter common exam. Asset
   utility PASS does not imply parameter plateau or synthetic-stress robustness.
