@@ -32,7 +32,7 @@ The current dashboard verdict is scoped to the historical utility audit. The str
 | forecast_coupled_deep_anchor | TESTED_REJECTED_SYNTHETIC_GATES | Deep anchor is coupled to the bottom forecast through DEPLOY_DEEP_ANCHOR_M=0.6; anchor-only candidate verdict=REJECTED_SYNTHETIC_GATES. |
 | forecast_driven_last_tranche | MITIGATED_RETEST_REQUIRED | DEPLOY_LAST_TRANCHE_FRACTION=0.95 is locked until absolute observed drawdown exceeds the historical library or recovery/resolution confirmation fires. |
 | historical_left_tail_cost | OPEN | Historical replay contains left-tail cost weak spots; see accumulation episode rows for negative utility or high average-cost premium cases. |
-| posterior_target_front_loading | TESTED_REJECTED_SYNTHETIC_GATES | First-decline attribution identifies codex_target_base as the dominant premium source; target-only governor verdict=REJECTED_SYNTHETIC_GATES. |
+| posterior_target_front_loading | TESTED_REJECTED_SYNTHETIC_GATES | First-decline attribution identifies model_target_base as the dominant premium source; target-only governor verdict=REJECTED_SYNTHETIC_GATES. |
 
 ## Cap Rationale Audit
 
@@ -101,7 +101,7 @@ The current dashboard verdict is scoped to the historical utility audit. The str
 - Verdict: **REJECTED_SYNTHETIC_GATES**
 - Best recipe: `zero_posterior_lower_bound` (synthetic gates pass=False, historical utility preserved=False)
 - Best synthetic status: **FAIL**; historical terminal win-rate 25%, worst terminal delta -14.3%, new early-exhaustion episodes 0
-- The posterior-target governor tests the mechanism identified by first-decline attribution. The zero-posterior lower bound improves the open synthetic paths but still leaves delayed-lower-low average entry premium above the 60% gate, so codex_target governance alone is insufficient; the remaining failure also involves the duration-CDF/depth-floor path.
+- The posterior-target governor tests the mechanism identified by first-decline attribution. The zero-posterior lower bound improves the open synthetic paths but still leaves delayed-lower-low average entry premium above the 60% gate, so model_target governance alone is insufficient; the remaining failure also involves the duration-CDF/depth-floor path.
 
 | Recipe | Verdict | Synthetic gap | Delayed avg/low | False-bottom 4w unlock | Fast-V DCA18 | Hist win | Worst hist delta |
 |---|---:|---:|---:|---:|---:|---:|---:|
@@ -155,4 +155,4 @@ A future policy may be labelled fully promoted only if both the current historic
 - `decoupled_deep_anchor` (TESTED_REJECTED_SYNTHETIC_GATES): Test an anchor partly tied to realized valuation support or prior-cycle support rather than only the current bottom forecast multiplier.
 - `delayed_release_reserve` (TESTED_REJECTED_HISTORICAL_UTILITY): Keep a larger late reserve until capitulation, time exhaustion, or recovery above a predeclared markup confirms.
 - `anti_false_bottom_unlock` (TESTED_REJECTED_HISTORICAL_UTILITY): Limit catch-up and redeploy releases after shallow bounces unless final-low risk has materially decayed.
-- `posterior_target_governor` (TESTED_REJECTED_SYNTHETIC_GATES): Govern the posterior codex_target ramp before final-low risk has decayed, after first-decline attribution showed it drives the remaining synthetic premium.
+- `posterior_target_governor` (TESTED_REJECTED_SYNTHETIC_GATES): Govern the posterior model_target ramp before final-low risk has decayed, after first-decline attribution showed it drives the remaining synthetic premium.
