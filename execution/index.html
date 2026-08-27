@@ -82,7 +82,7 @@
     .urgency { border-radius: 999px; padding: 5px 9px; font-size: .68rem; font-weight: 800; letter-spacing: .07em; background: rgba(120, 230, 174, .1); color: var(--green); }
     .urgency.elevated { color: var(--gold); background: rgba(255, 201, 107, .11); }
     .urgency.high { color: var(--red); background: rgba(255, 140, 147, .11); }
-    .result-metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--line); }
+    .result-metrics { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1px; background: var(--line); }
     .result-metric { padding: 12px; background: #0b1929; }
     .result-metric span { display: block; color: var(--muted); font-size: .68rem; line-height: 1.35; }
     .result-metric strong { display: block; margin-top: 5px; font-size: .9rem; }
@@ -123,7 +123,7 @@
   <main class="shell">
     <div class="topbar">
       <a class="back" href="../">← Crypto Cycle Dashboard</a>
-      <span class="tag">Execution layer · v1</span>
+      <span class="tag">Execution layer · v2</span>
     </div>
 
     <section class="hero">
@@ -186,7 +186,7 @@
             <label for="capital-two">Total remaining by deadline</label>
             <div class="input-wrap has-prefix"><span class="prefix">$</span><input id="capital-two" type="number" min="0" step="100" placeholder="Optional"></div>
           </div>
-          <p class="hint">Leave “total remaining by deadline” blank to use only the weekly target. When supplied, the finite-horizon controller may raise the effective weekly pace and tighten the ladder.</p>
+          <p class="hint">Leave “total remaining by deadline” blank to use only the weekly target. When supplied, a monotone schedule guardrail raises the target only when the current weekly pace is too slow to finish by the selected date.</p>
           <button class="primary wide" type="submit">Calculate today's orders</button>
         </form>
       </section>
@@ -200,12 +200,12 @@
       <section class="panel method">
         <div class="section-head"><h2>What the calculator is solving</h2></div>
         <details>
-          <summary>Market spacing, dynamic sizing, and deadline shadow cost</summary>
+          <summary>Market spacing, dynamic sizing, and the deadline pace guardrail</summary>
           <div class="method-copy">
             <p><strong>Market layer.</strong> The updater searches rolling lookback × first offset × spacing on BTCUSDT one-minute paths. Every historical reference is the close of the 09:35 ET bar; eligible fills begin at 09:36. Candidate ladders are compared by walk-forward weekly implementation shortfall. A one-standard-error plateau and the prior published parameter regularize the result.</p>
             <p><strong>Sizing layer.</strong> Once spacing is fixed, shares are a control output: remaining target shares divided by remaining sessions and expected rung hits. Orders continue only until their combined shares equal the effective target, so a deep intraday move cannot over-deploy the account.</p>
-            <p><strong>Deadline layer.</strong> Supplying total capital remaining activates a finite-horizon bootstrap over recent intraday drawdowns and next-reference returns. It compares candidate weekly paces and ladder tightness, with any terminal residual completed at the deadline. The reported shadow cost is the empirical expected cost of losing one remaining session—not a hand-written linear or sigmoid urgency curve.</p>
-            <p id="fallback-note" class="warning" hidden>The published JSON is still the daily-OHLC seed. Order generation works, but the deadline bootstrap remains off until the first successful minute-data update.</p>
+            <p><strong>Deadline layer.</strong> Supplying total capital remaining activates an explicit schedule guardrail. The even-pace floor is total remaining × eligible sessions in the current window ÷ sessions to the deadline; the current window ends at the earlier of week-end or the deadline. The effective target is the larger of that floor and the entered weekly target, capped at total remaining. If the floor causes a pace lift, market distances tighten by 1 ÷ √(pace lift), bounded between 0.40× and 1.00×. This rule is deliberately monotone: moving the deadline closer can never reduce the target or widen the ladder.</p>
+            <p id="fallback-note" class="warning" hidden>The published JSON is still the daily-OHLC seed. Deadline pacing remains available, but market spacing is using fallback parameters until the first successful minute-data update.</p>
           </div>
         </details>
       </section>
@@ -306,52 +306,29 @@
       const recent = sampleRows.slice(-lookback);
       return Math.max(.1, mean(recent.map(x => hitCount(x.drawdown, first, spacing))));
     }
-    function simulatePlan(capital, dailyPace, factor, horizon, sampleRows, starts = 48) {
-      const first = params.first_offset_pct / 100 * factor;
-      const spacing = params.spacing_pct / 100 * factor;
-      const hitsExpected = expectedHits(first, spacing, sampleRows);
-      const costs = [];
-      for (let path = 0; path < Math.min(starts, sampleRows.length); path++) {
-        let reference = 1, sharesRemaining = capital, spend = 0;
-        for (let day = 0; day < horizon && sharesRemaining > 1e-9; day++) {
-          const row = sampleRows[(path + day) % sampleRows.length];
-          const perRung = Math.min(sharesRemaining, dailyPace / reference / hitsExpected);
-          const hits = hitCount(row.drawdown, first, spacing);
-          for (let rung = 0; rung < hits && sharesRemaining > 1e-9; rung++) {
-            const quantity = Math.min(perRung, sharesRemaining);
-            spend += quantity * reference * (1 - first - rung * spacing);
-            sharesRemaining -= quantity;
-          }
-          reference *= Math.max(.25, 1 + row.nextReturn);
-        }
-        spend += sharesRemaining * reference;
-        costs.push((spend / capital - 1) * 10000);
-      }
-      return mean(costs);
-    }
     function optimizeDeadline(weekly, capital, weekSessions, horizon) {
-      const rows = samples();
-      if (!capital || capital <= 0 || !rows.length || horizon <= 0) {
-        return { weekly, factor: 1, shadow: 0, urgency: "BASE", enabled: false };
+      if (!capital || capital <= 0 || horizon <= 0) {
+        return { weekly, scheduleFloor: 0, paceSessions: weekSessions, factor: 1, lift: 1, urgency: "BASE", enabled: false, inputCapped: false };
       }
-      capital = Math.max(capital, weekly);
-      const neutralWeekly = capital * weekSessions / horizon;
-      const budgets = [...new Set([weekly, neutralWeekly * .75, neutralWeekly, neutralWeekly * 1.25, neutralWeekly * 1.5, neutralWeekly * 2, capital]
-        .map(x => Math.round(Math.min(capital, Math.max(weekly, x)) * 100) / 100))];
-      const factors = [1, .85, .70, .55, .40];
-      function solve(h) {
-        let best = null;
-        for (const budget of budgets) for (const factor of factors) {
-          const cost = simulatePlan(capital, budget / weekSessions, factor, Math.max(1, h), rows);
-          if (!best || cost < best.cost) best = { weekly: budget, factor, cost };
-        }
-        return best;
-      }
-      const best = solve(horizon), oneLess = solve(Math.max(1, horizon - 1));
-      const shadow = Math.max(0, oneLess.cost - best.cost);
-      const lift = best.weekly / Math.max(weekly, 1), tightness = 1 / best.factor;
-      const urgency = lift > 1.5 || tightness > 1.65 ? "HIGH" : lift > 1.12 || tightness > 1.22 ? "ELEVATED" : "NORMAL";
-      return { ...best, shadow, urgency, enabled: true };
+      const total = Math.max(0, capital);
+      const enteredWeekly = Math.max(0, weekly);
+      const baseWeekly = Math.min(enteredWeekly, total);
+      const paceSessions = Math.min(weekSessions, horizon);
+      const scheduleFloor = Math.min(total, total * paceSessions / horizon);
+      const effectiveWeekly = Math.min(total, Math.max(baseWeekly, scheduleFloor));
+      const lift = effectiveWeekly / Math.max(baseWeekly, 1);
+      const factor = Math.max(.40, Math.min(1, 1 / Math.sqrt(Math.max(1, lift))));
+      const urgency = lift > 1.5 ? "HIGH" : lift > 1.02 ? "ELEVATED" : "NORMAL";
+      return {
+        weekly: effectiveWeekly,
+        scheduleFloor,
+        paceSessions,
+        factor,
+        lift,
+        urgency,
+        enabled: true,
+        inputCapped: enteredWeekly > total
+      };
     }
     function buildOrders(amount, reference, weekSessions, first, spacing, hits) {
       const targetShares = Math.max(0, Math.floor(amount / reference));
@@ -389,18 +366,26 @@
       const first = params.first_offset_pct / 100 * controller.factor;
       const spacing = params.spacing_pct / 100 * controller.factor;
       const hits = expectedHits(first, spacing, samples());
-      const plan = buildOrders(effectiveWeekly, reference, weekSessions, first, spacing, hits);
+      const plan = buildOrders(effectiveWeekly, reference, controller.paceSessions, first, spacing, hits);
       const rows = plan.orders.map(o => `<tr><td>Rung ${o.rung}</td><td>${money2.format(o.price)}</td><td>${o.shares.toLocaleString()}</td><td>${money2.format(o.notional)}</td></tr>`).join("");
-      const controllerNote = controller.enabled
-        ? `Finite-horizon controller selected ${money.format(effectiveWeekly)} for the remaining week and ${controller.factor.toFixed(2)}× market distances. Any simulated deadline residual is completed at the terminal reference.`
-        : `Deadline controller is off for this account${capital > 0 ? " until minute session samples are published" : " because total remaining capital was left blank"}.`;
+      let controllerNote;
+      if (!controller.enabled) {
+        controllerNote = `Deadline guardrail is off for this account because total remaining capital was left blank.`;
+      } else if (controller.inputCapped) {
+        controllerNote = `The entered weekly target exceeds total remaining capital, so the effective target is capped at ${money.format(effectiveWeekly)}.`;
+      } else if (controller.lift > 1.000001) {
+        controllerNote = `Deadline guardrail raised the remaining-week target from ${money.format(weekly)} to ${money.format(effectiveWeekly)} to stay on an even completion path, and tightened market distances to ${controller.factor.toFixed(2)}×.`;
+      } else {
+        controllerNote = `Deadline checked: the entered ${money.format(weekly)} weekly target is already at or above the ${money.format(controller.scheduleFloor)} even-pace floor, so the deadline does not change today's ladder.`;
+      }
       return `<article class="account-result">
         <div class="result-title"><h3>${name}</h3><span class="urgency ${urgencyClass(controller.urgency)}">${controller.urgency}</span></div>
         <div class="result-metrics">
           <div class="result-metric"><span>Effective weekly target</span><strong>${money.format(effectiveWeekly)}</strong></div>
+          <div class="result-metric"><span>Even-pace floor</span><strong>${controller.enabled ? money.format(controller.scheduleFloor) : "—"}</strong></div>
           <div class="result-metric"><span>Shares / rung</span><strong>${plan.perRung.toLocaleString()}</strong></div>
           <div class="result-metric"><span>Effective offset / spacing</span><strong>${(first * 100).toFixed(2)}% / ${(spacing * 100).toFixed(2)}%</strong></div>
-          <div class="result-metric"><span>Deadline shadow cost</span><strong>${controller.enabled ? controller.shadow.toFixed(2) + " bp/session" : "—"}</strong></div>
+          <div class="result-metric"><span>Deadline pace lift</span><strong>${controller.enabled ? controller.lift.toFixed(2) + "×" : "—"}</strong></div>
         </div>
         <div class="table-wrap"><table><thead><tr><th>Order</th><th>Limit</th><th>Shares</th><th>Max notional</th></tr></thead><tbody>${rows}</tbody></table></div>
         <div class="notice">${controllerNote} Maximum outstanding quantity is ${plan.targetShares.toLocaleString()} shares; the final rung is trimmed to prevent over-deployment.</div>
