@@ -302,7 +302,9 @@
     }
     function expectedHits(first, spacing, sampleRows) {
       if (!sampleRows.length) return params.expected_rungs_per_session || 1.2;
-      return Math.max(.1, mean(sampleRows.map(x => hitCount(x.drawdown, first, spacing))));
+      const lookback = Math.max(1, +params.lookback_sessions || sampleRows.length);
+      const recent = sampleRows.slice(-lookback);
+      return Math.max(.1, mean(recent.map(x => hitCount(x.drawdown, first, spacing))));
     }
     function simulatePlan(capital, dailyPace, factor, horizon, sampleRows, starts = 48) {
       const first = params.first_offset_pct / 100 * factor;
