@@ -1,0 +1,46 @@
+name: Update execution parameters
+
+on:
+  workflow_dispatch:
+  schedule:
+    # The updater accepts only the invocation that lands in the 00:00 ET hour.
+    # Two UTC schedules cover both EDT and EST without hard-coding DST dates.
+    - cron: "7 4 * * 1-5"
+    - cron: "7 5 * * 1-5"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: execution-parameter-update
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Refit rolling execution parameters
+        shell: bash
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            python scripts/update_execution_params.py --force
+          else
+            python scripts/update_execution_params.py
+          fi
+      - name: Publish changed parameters
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/execution_params.json
+          if git diff --cached --quiet; then
+            echo "No parameter change to publish."
+          else
+            git commit -m "Update rolling execution parameters"
+            git push
+          fi
