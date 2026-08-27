@@ -55,7 +55,7 @@
     .status { display: inline-flex; align-items: center; gap: 7px; color: var(--muted); font-size: .78rem; }
     .status::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--gold); box-shadow: 0 0 14px rgba(255, 201, 107, .75); }
     .status.live::before { background: var(--green); box-shadow: 0 0 14px rgba(120, 230, 174, .8); }
-    .metrics { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 14px; }
+    .metrics { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; margin-top: 14px; }
     .metric { min-width: 0; padding: 13px; border: 1px solid var(--line); border-radius: 14px; background: var(--panel-2); }
     .metric-label { color: var(--muted); font-size: .72rem; line-height: 1.35; text-transform: uppercase; letter-spacing: .065em; }
     .metric-value { margin-top: 7px; font-size: 1.1rem; font-weight: 760; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -112,7 +112,6 @@
       .tag { display: none; }
       .panel { border-radius: 17px; }
       .metrics { grid-template-columns: 1fr 1fr; }
-      .metrics .metric:last-child { grid-column: 1 / -1; }
       .field-grid { grid-template-columns: 1fr; }
       .field.wide, .account-title, .hint { grid-column: auto; }
       .result-metrics { grid-template-columns: 1fr 1fr; }
@@ -151,6 +150,7 @@
           <div class="metric"><div class="metric-label">Base spacing</div><div id="base-spacing" class="metric-value">—</div></div>
           <div class="metric"><div class="metric-label">Expected hits</div><div id="base-hits" class="metric-value">—</div></div>
           <div class="metric"><div class="metric-label">Rolling lookback</div><div id="base-lookback" class="metric-value">—</div></div>
+          <div class="metric"><div class="metric-label">Last scaling run</div><div id="base-run" class="metric-value">—</div></div>
           <div class="metric"><div class="metric-label">Data through</div><div id="base-date" class="metric-value">—</div></div>
         </div>
       </section>
@@ -369,6 +369,19 @@
       return { targetShares, perRung, orders };
     }
     function urgencyClass(label) { return label === "HIGH" ? "high" : label === "ELEVATED" ? "elevated" : ""; }
+    function scalingRunLabel(value) {
+      if (!value) return "—";
+      const parsed = new Date(value);
+      if (Number.isNaN(parsed.getTime())) return value;
+      return new Intl.DateTimeFormat("en-US", {
+        timeZone: "America/New_York",
+        month: "short",
+        day: "numeric",
+        hour: "numeric",
+        minute: "2-digit",
+        timeZoneName: "short"
+      }).format(parsed);
+    }
     function renderAccount(name, weekly, capital, reference, deadlineSessions, weekSessions) {
       if (weekly <= 0) return "";
       const controller = optimizeDeadline(weekly, capital, weekSessions, deadlineSessions);
@@ -402,6 +415,7 @@
       document.getElementById("base-spacing").textContent = (+params.spacing_pct).toFixed(2) + "%";
       document.getElementById("base-hits").textContent = (+params.expected_rungs_per_session).toFixed(2) + " / day";
       document.getElementById("base-lookback").textContent = params.lookback_sessions + " sessions";
+      document.getElementById("base-run").textContent = scalingRunLabel(params.generated_at);
       document.getElementById("base-date").textContent = params.data_as_of || "—";
       document.getElementById("fallback-note").hidden = live;
     }
