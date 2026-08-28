@@ -203,6 +203,27 @@ def market_holidays(year: int) -> set[date]:
     }
 
 
+def is_market_session_day(day: date) -> bool:
+    return day.weekday() < 5 and day not in market_holidays(day.year)
+
+
+def previous_market_session(day: date) -> date:
+    candidate = day - timedelta(days=1)
+    while not is_market_session_day(candidate):
+        candidate -= timedelta(days=1)
+    return candidate
+
+
+def published_data_as_of(output_path: Path) -> date | None:
+    try:
+        payload = json.loads(output_path.read_text(encoding="utf-8"))
+        if payload.get("status") != "minute-rolling":
+            return None
+        return date.fromisoformat(str(payload["data_as_of"]))
+    except (FileNotFoundError, KeyError, json.JSONDecodeError, TypeError, ValueError):
+        return None
+
+
 def build_sessions(bars: list[MinuteBar]) -> list[Session]:
     by_session: dict[date, dict[time, MinuteBar]] = defaultdict(dict)
     years: set[int] = set()
@@ -410,16 +431,22 @@ def build_payload(sessions: list[Session], selected: CandidateResult) -> dict:
     }
 
 
-def should_run(force: bool) -> bool:
+def should_run(force: bool, output_path: Path, now_et: datetime | None = None) -> bool:
     if force:
         return True
-    now_et = datetime.now(ET)
-    return now_et.hour == 0
+    current = now_et or datetime.now(ET)
+    expected = previous_market_session(current.date())
+    published = published_data_as_of(output_path)
+    if published is not None and published >= expected:
+        print(f"Execution parameters already cover {published}; expected at least {expected}. Nothing to do.")
+        return False
+    print(f"Execution parameters are stale ({published or 'missing'}); expected {expected}. Catch-up required.")
+    return True
 
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--force", action="store_true", help="Ignore the midnight ET schedule guard")
+    parser.add_argument("--force", action="store_true", help="Ignore the freshness guard and refit immediately")
     parser.add_argument("--days", type=int, default=220, help="Calendar days of minute archives to request")
     parser.add_argument(
         "--output",
@@ -428,8 +455,9 @@ def main() -> int:
     )
     args = parser.parse_args()
 
-    if not should_run(args.force):
-        print("Outside the 00:00 America/New_York update window; nothing to do.")
+    now_et = datetime.now(ET)
+    expected_session = previous_market_session(now_et.date())
+    if not should_run(args.force, args.output, now_et):
         return 0
 
     today_utc = datetime.now(UTC).date()
@@ -439,6 +467,11 @@ def main() -> int:
     sessions = build_sessions(bars)
     if len(sessions) < 75:
         raise RuntimeError(f"Only {len(sessions)} complete NY sessions were available; need at least 75")
+    if sessions[-1].session_date < expected_session:
+        raise RuntimeError(
+            f"Latest complete NY session is {sessions[-1].session_date}; expected {expected_session}. "
+            "The source archive is not ready yet, so a later scheduled retry should run again."
+        )
 
     prior = previous_parameters(args.output)
     selected = choose_candidate(sessions, prior)
