@@ -3,10 +3,14 @@ name: Update execution parameters
 on:
   workflow_dispatch:
   schedule:
-    # The updater accepts only the invocation that lands in the 00:00 ET hour.
-    # Two UTC schedules cover both EDT and EST without hard-coding DST dates.
-    - cron: "7 4 * * 1-5"
-    - cron: "7 5 * * 1-5"
+    # GitHub may delay or drop an individual scheduled event. Retry through the
+    # morning; the script exits before downloading when data_as_of is current.
+    - cron: "7 0 * * 1-5"
+      timezone: "America/New_York"
+    - cron: "37 0 * * 1-5"
+      timezone: "America/New_York"
+    - cron: "17 2,6,10 * * 1-5"
+      timezone: "America/New_York"
 
 permissions:
   contents: write
