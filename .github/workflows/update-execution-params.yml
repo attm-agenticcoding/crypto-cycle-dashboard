@@ -3,13 +3,11 @@ name: Update execution parameters
 on:
   workflow_dispatch:
   schedule:
-    # GitHub may delay or drop an individual scheduled event. Retry through the
-    # morning; the script exits before downloading when data_as_of is current.
-    - cron: "7 0 * * 1-5"
+    # Refit after each US market session. The second run is a publication retry;
+    # it exits before downloading when the 20:30 run already covered that day.
+    - cron: "30 20 * * 1-5"
       timezone: "America/New_York"
-    - cron: "37 0 * * 1-5"
-      timezone: "America/New_York"
-    - cron: "17 2,6,10 * * 1-5"
+    - cron: "30 22 * * 1-5"
       timezone: "America/New_York"
 
 permissions:

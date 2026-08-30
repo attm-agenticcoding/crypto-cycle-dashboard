@@ -74,6 +74,7 @@
     .hint { grid-column: 1 / -1; margin: -3px 0 0; color: var(--muted); font-size: .73rem; line-height: 1.45; }
     .primary { width: 100%; margin-top: 18px; border: 0; border-radius: 13px; padding: 13px 16px; color: #03111d; background: linear-gradient(135deg, var(--cyan), var(--blue)); font-weight: 800; cursor: pointer; box-shadow: 0 12px 30px rgba(68, 179, 255, .2); }
     .primary:hover { filter: brightness(1.06); }
+    .primary:disabled { cursor: not-allowed; opacity: .45; filter: none; }
     .result-empty { min-height: 345px; display: grid; place-items: center; padding: 30px; border: 1px dashed rgba(146, 178, 211, .2); border-radius: 16px; color: var(--muted); text-align: center; line-height: 1.55; }
     .result-stack { display: grid; gap: 16px; margin-top: 18px; }
     .account-result { border: 1px solid var(--line); border-radius: 17px; overflow: hidden; background: rgba(5, 15, 26, .45); }
@@ -186,8 +187,8 @@
             <label for="capital-two">Total remaining by deadline</label>
             <div class="input-wrap has-prefix"><span class="prefix">$</span><input id="capital-two" type="number" min="0" step="any" placeholder="Optional"></div>
           </div>
-          <p class="hint">Leave “total remaining by deadline” blank to use only the weekly target. When supplied, a monotone schedule guardrail raises the target only when the current weekly pace is too slow to finish by the selected date.</p>
-          <button class="primary wide" type="submit">Calculate today's orders</button>
+          <p class="hint">Leave “total remaining by deadline” blank to use only the weekly target. When supplied, a monotone schedule guardrail raises the target only when the current weekly pace is too slow to finish by the selected date. Same-day orders stop at 16:00 ET.</p>
+          <button id="calculate-button" class="primary wide" type="submit">Calculate today's orders</button>
         </form>
       </section>
 
@@ -264,11 +265,26 @@
       ]);
     }
     function isSession(d) { return d.getUTCDay() > 0 && d.getUTCDay() < 6 && !holidays(d.getUTCFullYear()).has(key(d)); }
-    function nyParts() {
+    function nyParts(at = new Date()) {
       const parts = Object.fromEntries(new Intl.DateTimeFormat("en-US", {
         timeZone: "America/New_York", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", hour12: false
-      }).formatToParts(new Date()).filter(x => x.type !== "literal").map(x => [x.type, x.value]));
+      }).formatToParts(at).filter(x => x.type !== "literal").map(x => [x.type, x.value]));
       return { date: new Date(Date.UTC(+parts.year, +parts.month - 1, +parts.day)), hour: +parts.hour };
+    }
+    function tradingWindow(now = nyParts()) {
+      if (!isSession(now.date)) return { open: false, label: "No BTC ETF session today", message: "Today is not a BTC ETF trading session, so no same-day DAY orders are generated." };
+      if (now.hour >= 16) return { open: false, label: "16:00 ET cutoff passed", message: "The 16:00 ET cutoff has passed. Today's BTC ETF session is over, so the calculator will not generate same-day orders." };
+      return { open: true, label: "", message: "" };
+    }
+    function applyTradingWindow() {
+      const state = tradingWindow();
+      const button = document.getElementById("calculate-button");
+      button.disabled = !state.open;
+      if (!state.open) {
+        document.getElementById("session-label").textContent = state.label;
+        document.getElementById("empty").textContent = state.message;
+      }
+      return state;
     }
     function sessionsThrough(endDate) {
       const now = nyParts();
@@ -287,7 +303,7 @@
         if (isSession(cursor) && (i > 0 || now.hour < 16)) count++;
         if (cursor.getUTCDay() === 5) break;
       }
-      return Math.max(1, count);
+      return count;
     }
     function hitCount(drawdown, first, spacing) {
       if (drawdown + 1e-12 < first) return 0;
@@ -414,6 +430,12 @@
     }
     document.getElementById("calculator-form").addEventListener("submit", event => {
       event.preventDefault();
+      const windowState = applyTradingWindow();
+      if (!windowState.open) {
+        document.getElementById("empty").hidden = false;
+        document.getElementById("result-stack").hidden = true;
+        return;
+      }
       const reference = +document.getElementById("reference-price").value;
       const deadlineRaw = document.getElementById("deadline").value;
       const deadline = new Date(deadlineRaw + "T00:00:00Z");
@@ -428,6 +450,7 @@
       const stack = document.getElementById("result-stack"); stack.hidden = false; stack.innerHTML = html;
       document.getElementById("session-label").textContent = `${weekSessions} sessions this week · ${deadlineSessions} to deadline`;
     });
+    applyTradingWindow();
     loadParams();
   </script>
 </body>

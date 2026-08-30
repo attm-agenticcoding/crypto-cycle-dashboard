@@ -214,6 +214,14 @@ def previous_market_session(day: date) -> date:
     return candidate
 
 
+def expected_market_session(now_et: datetime) -> date:
+    """Return the latest NYSE session that should be complete at this time."""
+    today = now_et.date()
+    if is_market_session_day(today) and now_et.time() >= time(16, 0):
+        return today
+    return previous_market_session(today)
+
+
 def published_data_as_of(output_path: Path) -> date | None:
     try:
         payload = json.loads(output_path.read_text(encoding="utf-8"))
@@ -435,7 +443,7 @@ def should_run(force: bool, output_path: Path, now_et: datetime | None = None) -
     if force:
         return True
     current = now_et or datetime.now(ET)
-    expected = previous_market_session(current.date())
+    expected = expected_market_session(current)
     published = published_data_as_of(output_path)
     if published is not None and published >= expected:
         print(f"Execution parameters already cover {published}; expected at least {expected}. Nothing to do.")
@@ -456,7 +464,7 @@ def main() -> int:
     args = parser.parse_args()
 
     now_et = datetime.now(ET)
-    expected_session = previous_market_session(now_et.date())
+    expected_session = expected_market_session(now_et)
     if not should_run(args.force, args.output, now_et):
         return 0
 
