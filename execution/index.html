@@ -55,10 +55,18 @@
     .status { display: inline-flex; align-items: center; gap: 7px; color: var(--muted); font-size: .78rem; }
     .status::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--gold); box-shadow: 0 0 14px rgba(255, 201, 107, .75); }
     .status.live::before { background: var(--green); box-shadow: 0 0 14px rgba(120, 230, 174, .8); }
-    .metrics { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; margin-top: 14px; }
+    .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 14px; }
     .metric { min-width: 0; padding: 13px; border: 1px solid var(--line); border-radius: 14px; background: var(--panel-2); }
     .metric-label { color: var(--muted); font-size: .72rem; line-height: 1.35; text-transform: uppercase; letter-spacing: .065em; }
     .metric-value { margin-top: 7px; font-size: 1.1rem; font-weight: 760; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .freshness { display: flex; align-items: center; gap: 8px; }
+    .freshness::before { content: ""; width: 8px; height: 8px; flex: 0 0 auto; border-radius: 50%; background: var(--muted); }
+    .freshness.current { color: var(--green); }
+    .freshness.current::before { background: var(--green); box-shadow: 0 0 12px rgba(120, 230, 174, .65); }
+    .freshness.pending { color: var(--gold); }
+    .freshness.pending::before { background: var(--gold); box-shadow: 0 0 12px rgba(255, 201, 107, .6); }
+    .freshness.delayed { color: var(--red); }
+    .freshness.delayed::before { background: var(--red); box-shadow: 0 0 12px rgba(255, 140, 147, .6); }
     .inputs { grid-column: span 5; padding: 20px; }
     .results { grid-column: span 7; padding: 20px; }
     .field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; margin-top: 18px; }
@@ -104,7 +112,7 @@
     [hidden] { display: none !important; }
     @media (max-width: 900px) {
       .hero { grid-template-columns: 1fr; }
-      .metrics { grid-template-columns: repeat(3, 1fr); }
+      .metrics { grid-template-columns: repeat(2, 1fr); }
       .inputs, .results { grid-column: 1 / -1; }
     }
     @media (max-width: 620px) {
@@ -151,8 +159,10 @@
           <div class="metric"><div class="metric-label">Base spacing</div><div id="base-spacing" class="metric-value">—</div></div>
           <div class="metric"><div class="metric-label">Expected hits</div><div id="base-hits" class="metric-value">—</div></div>
           <div class="metric"><div class="metric-label">Rolling lookback</div><div id="base-lookback" class="metric-value">—</div></div>
-          <div class="metric"><div class="metric-label">Last scaling run</div><div id="base-run" class="metric-value">—</div></div>
-          <div class="metric"><div class="metric-label">Data through</div><div id="base-date" class="metric-value">—</div></div>
+          <div class="metric"><div class="metric-label">Data status</div><div id="base-freshness" class="metric-value freshness">—</div></div>
+          <div class="metric"><div class="metric-label">Latest completed session</div><div id="base-date" class="metric-value">—</div></div>
+          <div class="metric"><div class="metric-label">Parameters generated</div><div id="base-run" class="metric-value">—</div></div>
+          <div class="metric"><div class="metric-label">Next expected update</div><div id="base-next-run" class="metric-value">—</div></div>
         </div>
       </section>
 
@@ -267,9 +277,9 @@
     function isSession(d) { return d.getUTCDay() > 0 && d.getUTCDay() < 6 && !holidays(d.getUTCFullYear()).has(key(d)); }
     function nyParts(at = new Date()) {
       const parts = Object.fromEntries(new Intl.DateTimeFormat("en-US", {
-        timeZone: "America/New_York", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", hour12: false
+        timeZone: "America/New_York", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hourCycle: "h23"
       }).formatToParts(at).filter(x => x.type !== "literal").map(x => [x.type, x.value]));
-      return { date: new Date(Date.UTC(+parts.year, +parts.month - 1, +parts.day)), hour: +parts.hour };
+      return { date: new Date(Date.UTC(+parts.year, +parts.month - 1, +parts.day)), hour: +parts.hour, minute: +parts.minute };
     }
     function tradingWindow(now = nyParts()) {
       if (!isSession(now.date)) return { open: false, label: "No BTC ETF session today", message: "Today is not a BTC ETF trading session, so no same-day DAY orders are generated." };
@@ -375,6 +385,50 @@
         timeZoneName: "short"
       }).format(parsed);
     }
+    function parseTradingDate(value) {
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(value || "")) return null;
+      const parsed = new Date(value + "T00:00:00Z");
+      return Number.isNaN(parsed.getTime()) || key(parsed) !== value ? null : parsed;
+    }
+    function tradingDateLabel(value) {
+      const parsed = typeof value === "string" ? parseTradingDate(value) : value;
+      if (!parsed) return "—";
+      return new Intl.DateTimeFormat("en-US", {
+        timeZone: "UTC", month: "short", day: "numeric", year: "numeric"
+      }).format(parsed);
+    }
+    function previousSession(date) {
+      let cursor = addDays(date, -1);
+      while (!isSession(cursor)) cursor = addDays(cursor, -1);
+      return cursor;
+    }
+    function nextSession(date) {
+      let cursor = addDays(date, 1);
+      while (!isSession(cursor)) cursor = addDays(cursor, 1);
+      return cursor;
+    }
+    function parameterFreshness(dataAsOf, live, at = new Date()) {
+      if (!live) return { label: "Fallback", className: "pending", title: "Minute-data parameters are unavailable." };
+      const dataDate = parseTradingDate(dataAsOf);
+      if (!dataDate) return { label: "Unknown", className: "", title: "The parameter data date is unavailable." };
+      const now = nyParts(at);
+      const minutes = now.hour * 60 + now.minute;
+      const closeRunDue = isSession(now.date) && minutes >= 20 * 60 + 30;
+      const priorSession = previousSession(now.date);
+      const expectedDate = closeRunDue ? now.date : priorSession;
+      if (key(dataDate) >= key(expectedDate)) {
+        return { label: "Current", className: "current", title: `Current through the latest eligible completed session: ${tradingDateLabel(dataDate)}.` };
+      }
+      if (closeRunDue && minutes < 22 * 60 + 30 && key(dataDate) >= key(priorSession)) {
+        return { label: "Refresh pending", className: "pending", title: "The 20:30 ET close refresh is due; the 22:30 ET backup window has not passed." };
+      }
+      return { label: "Update delayed", className: "delayed", title: `Expected data through ${tradingDateLabel(expectedDate)}, but parameters cover ${tradingDateLabel(dataDate)}.` };
+    }
+    function nextUpdateLabel(dataAsOf) {
+      const dataDate = parseTradingDate(dataAsOf);
+      if (!dataDate) return "After next market close";
+      return `${tradingDateLabel(nextSession(dataDate))} after 8:30 PM ET`;
+    }
     function renderAccount(name, weekly, capital, reference, deadlineSessions, weekSessions) {
       if (weekly <= 0) return "";
       const controller = optimizeDeadline(weekly, capital, weekSessions, deadlineSessions);
@@ -416,8 +470,14 @@
       document.getElementById("base-spacing").textContent = (+params.spacing_pct).toFixed(2) + "%";
       document.getElementById("base-hits").textContent = (+params.expected_rungs_per_session).toFixed(2) + " / day";
       document.getElementById("base-lookback").textContent = params.lookback_sessions + " sessions";
+      const freshness = parameterFreshness(params.data_as_of, live);
+      const freshnessNode = document.getElementById("base-freshness");
+      freshnessNode.textContent = freshness.label;
+      freshnessNode.className = `metric-value freshness ${freshness.className}`.trim();
+      freshnessNode.title = freshness.title;
       document.getElementById("base-run").textContent = scalingRunLabel(params.generated_at);
-      document.getElementById("base-date").textContent = params.data_as_of || "—";
+      document.getElementById("base-date").textContent = tradingDateLabel(params.data_as_of);
+      document.getElementById("base-next-run").textContent = live ? nextUpdateLabel(params.data_as_of) : "After next successful run";
       document.getElementById("fallback-note").hidden = live;
     }
     async function loadParams() {
