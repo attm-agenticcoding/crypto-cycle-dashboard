@@ -1,0 +1,66 @@
+name: Remove execution instrument
+
+on:
+  issues:
+    types: [opened, reopened]
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: execution-data-write
+  cancel-in-progress: false
+
+jobs:
+  remove:
+    if: >-
+      github.event.issue.user.login == github.repository_owner &&
+      startsWith(github.event.issue.title, '[Remove execution instrument]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Validate and remove instrument
+        run: python scripts/remove_execution_instrument.py --event "$GITHUB_EVENT_PATH"
+      - name: Verify updated registry and updater
+        run: python -m unittest discover -s tests -v
+      - name: Publish registry change
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/execution_instruments.json
+          git commit -m "Remove execution instrument"
+          git push
+      - name: Confirm removal
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: 'Removed from the ticker registry. The calculator will hide it as soon as GitHub Pages publishes this registry change; the next scaling run will also remove its stale parameter entry.'
+            });
+            await github.rest.issues.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              state: 'closed'
+            });
+      - name: Report rejected removal
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: `Removal was not applied. Review the validation details in [this workflow run](${runUrl}), correct the request, and reopen or submit it again.`
+            });

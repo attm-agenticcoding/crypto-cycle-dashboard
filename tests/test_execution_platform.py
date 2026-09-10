@@ -19,6 +19,7 @@ from register_execution_instrument import (  # noqa: E402
     register,
     validate_owner_issue,
 )
+from remove_execution_instrument import remove, remove_from_registry  # noqa: E402
 import update_execution_params as updater  # noqa: E402
 from update_execution_params import (  # noqa: E402
     CandidateResult,
@@ -127,6 +128,63 @@ class RegistrationTests(unittest.TestCase):
                 [item["instrument_id"] for item in registered["instruments"]],
                 ["ARCX:BTC", "XNAS:IBIT"],
             )
+
+
+class RemovalTests(unittest.TestCase):
+    def two_instrument_registry(self) -> dict:
+        original = load_registry(ROOT / "data" / "execution_instruments.json")
+        return {
+            "schema_version": 1,
+            "default_instrument_id": "ARCX:BTC",
+            "instruments": [original["instruments"][0], build_instrument_from_issue(ISSUE_BODY)],
+        }
+
+    def test_non_default_instrument_is_removed(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            registry_path = Path(temp_dir) / "registry.json"
+            write_registry(registry_path, self.two_instrument_registry())
+            removed, default_id = remove_from_registry(registry_path, " xnas : ibit ")
+            self.assertEqual(removed, "XNAS:IBIT")
+            self.assertEqual(default_id, "ARCX:BTC")
+            self.assertEqual(
+                [item["instrument_id"] for item in load_registry(registry_path)["instruments"]],
+                ["ARCX:BTC"],
+            )
+
+    def test_removing_default_chooses_remaining_instrument(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            registry_path = Path(temp_dir) / "registry.json"
+            write_registry(registry_path, self.two_instrument_registry())
+            removed, default_id = remove_from_registry(registry_path, "ARCX:BTC")
+            self.assertEqual(removed, "ARCX:BTC")
+            self.assertEqual(default_id, "XNAS:IBIT")
+            self.assertEqual(load_registry(registry_path)["default_instrument_id"], "XNAS:IBIT")
+
+    def test_final_enabled_instrument_cannot_be_removed(self) -> None:
+        with self.assertRaisesRegex(RegistryError, "final enabled"):
+            with tempfile.TemporaryDirectory() as temp_dir:
+                registry_path = Path(temp_dir) / "registry.json"
+                write_registry(
+                    registry_path,
+                    load_registry(ROOT / "data" / "execution_instruments.json"),
+                )
+                remove_from_registry(registry_path, "ARCX:BTC")
+
+    def test_owner_removal_issue_is_applied(self) -> None:
+        event = {
+            "repository": {"owner": {"login": "attm-agenticcoding"}},
+            "issue": {
+                "user": {"login": "attm-agenticcoding"},
+                "title": "[Remove execution instrument] XNAS:IBIT",
+                "body": "### Instrument ID\nXNAS:IBIT\n\n### Replacement default instrument ID\n_No response_\n",
+            },
+        }
+        with tempfile.TemporaryDirectory() as temp_dir:
+            event_path = Path(temp_dir) / "event.json"
+            registry_path = Path(temp_dir) / "registry.json"
+            event_path.write_text(json.dumps(event), encoding="utf-8")
+            write_registry(registry_path, self.two_instrument_registry())
+            self.assertEqual(remove(event_path, registry_path), ("XNAS:IBIT", "ARCX:BTC"))
 
 
 class UpdaterTests(unittest.TestCase):

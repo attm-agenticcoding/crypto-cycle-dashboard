@@ -1,0 +1,38 @@
+name: Remove execution instrument
+description: Remove a registered instrument from the execution calculator.
+title: "[Remove execution instrument] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use the complete instrument ID so a ticker cannot be confused with the same symbol on another exchange. The final enabled instrument cannot be removed. If the current default is removed and no replacement is entered, the first remaining enabled instrument becomes the default.
+
+  - type: input
+    id: instrument_id
+    attributes:
+      label: Instrument ID
+      description: Exchange MIC followed by ticker, for example XNAS:IBIT or ARCX:BTC.
+      placeholder: XNAS:IBIT
+    validations:
+      required: true
+
+  - type: input
+    id: replacement_default
+    attributes:
+      label: Replacement default instrument ID
+      description: Optional. Used only when removing the current default; leave blank to choose the first remaining enabled instrument.
+      placeholder: ARCX:BTC
+
+  - type: textarea
+    id: reason
+    attributes:
+      label: Removal note
+      description: Optional audit note explaining why this instrument should leave the list.
+
+  - type: checkboxes
+    id: confirmation
+    attributes:
+      label: Removal confirmation
+      options:
+        - label: I confirm that this exact exchange-and-ticker instrument should be removed from the execution list.
+          required: true

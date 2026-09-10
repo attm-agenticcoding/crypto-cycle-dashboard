@@ -34,6 +34,13 @@ Execution calculator:
 - the **Add ticker** button opens a structured GitHub issue form. Only a request
   submitted by the repository owner can update the registry, and the proxy is
   checked against the supported archive before it is accepted;
+- **Remove selected** targets the complete exchange-MIC-and-ticker identity and
+  uses the same owner-only, auditable issue workflow. The final enabled
+  instrument cannot be removed; removing the default selects another enabled
+  instrument as the new default;
+- the calculator reads the registry and fitted parameter bundle together, so a
+  removed instrument disappears after the registry deploy while a newly added
+  instrument is shown as pending until its first scaling run completes;
 - every scheduled scaling refresh fits the complete enabled registry. Listed
   instruments that share the same proxy deliberately share one base market
   scaling, while account-specific deadline pressure is still calculated in the

@@ -85,7 +85,7 @@ def build_instrument_from_issue(body: str) -> dict:
     )
 
 
-def validate_owner_issue(event: dict) -> str:
+def validate_owner_issue(event: dict, title_prefix: str = ISSUE_TITLE_PREFIX) -> str:
     issue = event.get("issue") or {}
     repository = event.get("repository") or {}
     owner = (repository.get("owner") or {}).get("login")
@@ -93,8 +93,8 @@ def validate_owner_issue(event: dict) -> str:
     title = str(issue.get("title") or "")
     if not owner or author != owner:
         raise RegistryError("only the repository owner may register an execution instrument")
-    if not title.startswith(ISSUE_TITLE_PREFIX):
-        raise RegistryError(f"issue title must start with {ISSUE_TITLE_PREFIX!r}")
+    if not title.startswith(title_prefix):
+        raise RegistryError(f"issue title must start with {title_prefix!r}")
     return str(issue.get("body") or "")
 
 

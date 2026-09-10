@@ -57,10 +57,14 @@
     .status.live::before { background: var(--green); box-shadow: 0 0 14px rgba(120, 230, 174, .8); }
     .instrument-tools { display: grid; grid-template-columns: minmax(260px, 1fr) auto; gap: 12px; align-items: end; margin-top: 16px; }
     .instrument-choice label { margin-bottom: 7px; }
+    .instrument-actions { display: flex; gap: 8px; }
     select { width: 100%; border: 1px solid rgba(145, 182, 219, .21); border-radius: 12px; outline: none; padding: 12px 40px 12px 13px; color: var(--text); background: #081625; }
     select:focus { border-color: rgba(85, 184, 255, .75); box-shadow: 0 0 0 3px rgba(85, 184, 255, .12); }
     .secondary { display: inline-flex; min-height: 45px; align-items: center; justify-content: center; border: 1px solid rgba(99, 234, 215, .36); border-radius: 12px; padding: 10px 15px; color: var(--cyan); background: rgba(99, 234, 215, .07); text-decoration: none; font-size: .84rem; font-weight: 760; white-space: nowrap; }
     .secondary:hover { background: rgba(99, 234, 215, .12); border-color: rgba(99, 234, 215, .58); }
+    .secondary.danger { color: var(--red); border-color: rgba(255, 140, 147, .34); background: rgba(255, 140, 147, .06); }
+    .secondary.danger:hover { border-color: rgba(255, 140, 147, .58); background: rgba(255, 140, 147, .11); }
+    .secondary[aria-disabled="true"] { pointer-events: none; cursor: not-allowed; opacity: .42; }
     .instrument-meta { margin: 10px 0 0; color: var(--muted); font-size: .78rem; line-height: 1.5; }
     .instrument-rationale { margin-top: 3px; color: #7f98b2; }
     .instrument-meta strong { color: var(--text); font-weight: 720; }
@@ -131,6 +135,7 @@
       .panel { border-radius: 17px; }
       .metrics { grid-template-columns: 1fr 1fr; }
       .instrument-tools { grid-template-columns: 1fr; }
+      .instrument-actions { display: grid; grid-template-columns: 1fr 1fr; }
       .secondary { width: 100%; }
       .field-grid { grid-template-columns: 1fr; }
       .field.wide, .account-title, .hint { grid-column: auto; }
@@ -172,7 +177,10 @@
               <option>Loading instrument list…</option>
             </select>
           </div>
-          <a class="secondary" href="https://github.com/attm-agenticcoding/crypto-cycle-dashboard/issues/new?template=add-execution-instrument.yml" target="_blank" rel="noopener" aria-label="Add ticker using GitHub; opens in a new tab">＋ Add ticker</a>
+          <div class="instrument-actions">
+            <a class="secondary" href="https://github.com/attm-agenticcoding/crypto-cycle-dashboard/issues/new?template=add-execution-instrument.yml" target="_blank" rel="noopener" aria-label="Add ticker using GitHub; opens in a new tab">＋ Add ticker</a>
+            <a id="remove-ticker" class="secondary danger" href="https://github.com/attm-agenticcoding/crypto-cycle-dashboard/issues/new?template=remove-execution-instrument.yml" target="_blank" rel="noopener" aria-disabled="true" aria-label="Remove selected ticker using GitHub; opens in a new tab">− Remove selected</a>
+          </div>
         </div>
         <p id="instrument-meta" class="instrument-meta">Loading the registered execution instrument and scaling proxy…</p>
         <p id="instrument-rationale" class="instrument-meta instrument-rationale"></p>
@@ -239,6 +247,7 @@
             <p><strong>Sizing layer.</strong> Once spacing is fixed, shares are a control output: remaining target shares divided by remaining sessions and expected rung hits. Orders continue only until their combined shares equal the effective target, so a deep intraday move cannot over-deploy the account.</p>
             <p><strong>Deadline layer.</strong> Supplying total capital remaining activates an explicit schedule guardrail. The even-pace floor is total remaining × eligible sessions in the current window ÷ sessions to the deadline; the current window ends at the earlier of week-end or the deadline. The effective target is the larger of that floor and the entered weekly target, capped at total remaining. If the floor causes a pace lift, market distances tighten by 1 ÷ √(pace lift), bounded between 0.40× and 1.00×. This rule is deliberately monotone: moving the deadline closer can never reduce the target or widen the ladder.</p>
             <p id="fallback-note" class="warning" hidden>The published JSON is still the daily-OHLC seed. Deadline pacing remains available, but market spacing is using fallback parameters until the first successful minute-data update.</p>
+            <p id="pending-note" class="warning" hidden>This instrument is registered but has not completed its first scaling run. Order calculation stays disabled until fitted parameters are published.</p>
           </div>
         </details>
       </section>
@@ -249,6 +258,8 @@
 
   <script>
     const PARAMS_URL = "../data/execution_params.json";
+    const REGISTRY_URL = "../data/execution_instruments.json";
+    const REMOVE_ISSUE_URL = "https://github.com/attm-agenticcoding/crypto-cycle-dashboard/issues/new";
     const FALLBACK = {
       instrument_id: "ARCX:BTC",
       symbol: "BTC",
@@ -327,6 +338,10 @@
       }).formatToParts(at).filter(x => x.type !== "literal").map(x => [x.type, x.value]));
       return { date: new Date(Date.UTC(+parts.year, +parts.month - 1, +parts.day)), hour: +parts.hour, minute: +parts.minute };
     }
+    function parametersReady(item = params) {
+      return ["first_offset_pct", "spacing_pct", "expected_rungs_per_session", "lookback_sessions"]
+        .every(field => Number.isFinite(+item[field]));
+    }
     function tradingWindow(now = nyParts()) {
       const symbol = params.symbol || "selected instrument";
       if (!isSession(now.date)) return { open: false, label: `No ${symbol} session today`, message: `Today is not a ${symbol} trading session, so no same-day DAY orders are generated.` };
@@ -334,8 +349,19 @@
       return { open: true, label: "", message: "" };
     }
     function applyTradingWindow() {
-      const state = tradingWindow();
       const button = document.getElementById("calculate-button");
+      if (!parametersReady()) {
+        const pending = {
+          open: false,
+          label: "Scaling pending",
+          message: `${params.symbol || "This instrument"} is registered but has not completed its first scaling run. Orders stay disabled until parameters are published.`
+        };
+        button.disabled = true;
+        document.getElementById("session-label").textContent = pending.label;
+        document.getElementById("empty").textContent = pending.message;
+        return pending;
+      }
+      const state = tradingWindow();
       button.disabled = !state.open;
       if (!state.open) {
         document.getElementById("session-label").textContent = state.label;
@@ -512,37 +538,66 @@
     }
     function renderModel() {
       const live = params.status === "minute-rolling";
+      const pending = !parametersReady();
       const status = document.getElementById("model-status");
-      status.textContent = live ? "Minute rolling model" : "Fallback seed";
+      status.textContent = pending ? "Awaiting first scaling run" : (live ? "Minute rolling model" : "Fallback seed");
       status.classList.toggle("live", live);
-      document.getElementById("base-first").textContent = (+params.first_offset_pct).toFixed(2) + "%";
-      document.getElementById("base-spacing").textContent = (+params.spacing_pct).toFixed(2) + "%";
-      document.getElementById("base-hits").textContent = (+params.expected_rungs_per_session).toFixed(2) + " / day";
-      document.getElementById("base-lookback").textContent = params.lookback_sessions + " sessions";
-      const freshness = parameterFreshness(params.data_as_of, live);
+      document.getElementById("base-first").textContent = pending ? "—" : (+params.first_offset_pct).toFixed(2) + "%";
+      document.getElementById("base-spacing").textContent = pending ? "—" : (+params.spacing_pct).toFixed(2) + "%";
+      document.getElementById("base-hits").textContent = pending ? "—" : (+params.expected_rungs_per_session).toFixed(2) + " / day";
+      document.getElementById("base-lookback").textContent = pending ? "—" : params.lookback_sessions + " sessions";
+      const freshness = pending
+        ? { label: "Pending first fit", className: "pending", title: "The instrument is registered and will be fitted by the next scaling run." }
+        : parameterFreshness(params.data_as_of, live);
       const freshnessNode = document.getElementById("base-freshness");
       freshnessNode.textContent = freshness.label;
       freshnessNode.className = `metric-value freshness ${freshness.className}`.trim();
       freshnessNode.title = freshness.title;
-      document.getElementById("base-run").textContent = scalingRunLabel(params.generated_at);
-      document.getElementById("base-date").textContent = tradingDateLabel(params.data_as_of);
-      document.getElementById("base-next-run").textContent = live ? nextUpdateLabel(params.data_as_of) : "After next successful run";
-      document.getElementById("fallback-note").hidden = live;
+      document.getElementById("base-run").textContent = pending ? "—" : scalingRunLabel(params.generated_at);
+      document.getElementById("base-date").textContent = pending ? "—" : tradingDateLabel(params.data_as_of);
+      document.getElementById("base-next-run").textContent = pending ? "Next scheduled scaling run" : (live ? nextUpdateLabel(params.data_as_of) : "After next successful run");
+      document.getElementById("fallback-note").hidden = live || pending;
+      document.getElementById("pending-note").hidden = !pending;
     }
     function instrumentOptionLabel(item) {
       const venue = item.exchange_mic || item.exchange || "venue unknown";
-      return `${item.symbol || "Ticker"} · ${venue} — ${item.name || item.execution_instrument || "Unnamed instrument"}`;
+      const pending = parametersReady(item) ? "" : " · scaling pending";
+      return `${item.symbol || "Ticker"} · ${venue} — ${item.name || item.execution_instrument || "Unnamed instrument"}${pending}`;
     }
     function clearResults() {
       document.getElementById("result-stack").hidden = true;
       document.getElementById("result-stack").innerHTML = "";
       const empty = document.getElementById("empty");
       empty.hidden = false;
-      empty.textContent = `Enter today's ${params.symbol || "instrument"} reference and remaining amounts, then calculate. Both accounts use the selected instrument's price ladder; sizing is solved independently.`;
+      empty.textContent = parametersReady()
+        ? `Enter today's ${params.symbol || "instrument"} reference and remaining amounts, then calculate. Both accounts use the selected instrument's price ladder; sizing is solved independently.`
+        : `${params.symbol || "This instrument"} is registered but has not completed its first scaling run. Orders stay disabled until parameters are published.`;
+    }
+    function updateRemoveLink() {
+      const link = document.getElementById("remove-ticker");
+      const canRemove = Object.keys(paramsById).length > 1;
+      link.setAttribute("aria-disabled", canRemove ? "false" : "true");
+      link.title = canRemove ? `Remove ${params.instrument_id}` : "Add another ticker before removing the final instrument.";
+      if (!canRemove) return;
+      const issueUrl = new URL(REMOVE_ISSUE_URL);
+      issueUrl.searchParams.set("title", `[Remove execution instrument] ${params.instrument_id}`);
+      issueUrl.searchParams.set("body", [
+        "### Instrument ID",
+        params.instrument_id,
+        "",
+        "### Selected instrument",
+        `${params.symbol} · ${params.exchange_mic} — ${params.name || params.execution_instrument}`,
+        "",
+        "### Removal confirmation",
+        "Submitting this issue requests removal of the exact instrument shown above."
+      ].join("\n"));
+      link.href = issueUrl.toString();
     }
     function selectInstrument(instrumentId, { resetReference = true, persist = true } = {}) {
       const selected = paramsById[instrumentId] || FALLBACK;
-      params = { ...FALLBACK, ...selected, instrument_id: instrumentId || selected.instrument_id };
+      params = selected.status === "pending-first-fit"
+        ? { ...selected, instrument_id: instrumentId || selected.instrument_id }
+        : { ...FALLBACK, ...selected, instrument_id: instrumentId || selected.instrument_id };
       setCurrency(params.currency);
       document.getElementById("reference-price-label").textContent = `${params.reference_time || "09:35"} ${params.symbol} reference`;
       document.getElementById("contract-times").textContent = `${params.reference_time || "09:35"} reference · fills from ${params.fill_start_time || "09:36"}`;
@@ -558,23 +613,39 @@
       if (persist) {
         try { localStorage.setItem("execution-instrument", params.instrument_id); } catch (error) { /* preference is optional */ }
       }
+      updateRemoveLink();
       renderModel();
       clearResults();
       applyTradingWindow();
     }
-    function installParameterPayload(payload) {
-      let entries = [];
+    function installParameterPayload(payload, registry) {
+      let parameterEntries = [];
       let defaultId = FALLBACK.instrument_id;
       if (+payload?.schema_version >= 2 && payload.instruments && typeof payload.instruments === "object") {
-        entries = Object.entries(payload.instruments).filter(([, value]) => value && typeof value === "object");
-        defaultId = payload.default_instrument_id || entries[0]?.[0] || defaultId;
+        parameterEntries = Object.entries(payload.instruments).filter(([, value]) => value && typeof value === "object");
+        defaultId = payload.default_instrument_id || parameterEntries[0]?.[0] || defaultId;
       } else if (payload && typeof payload === "object") {
         const legacyId = payload.instrument_id || FALLBACK.instrument_id;
-        entries = [[legacyId, { ...FALLBACK, ...payload, instrument_id: legacyId }]];
+        parameterEntries = [[legacyId, { ...FALLBACK, ...payload, instrument_id: legacyId }]];
         defaultId = legacyId;
       }
+      const parameterMap = Object.fromEntries(parameterEntries);
+      let entries = parameterEntries;
+      if (+registry?.schema_version === 1 && Array.isArray(registry.instruments)) {
+        defaultId = registry.default_instrument_id || defaultId;
+        entries = registry.instruments
+          .filter(item => item && item.enabled !== false && item.instrument_id)
+          .map(item => {
+            const fitted = parameterMap[item.instrument_id];
+            if (fitted) return [item.instrument_id, { ...item, ...fitted }];
+            if (item.instrument_id === FALLBACK.instrument_id) {
+              return [item.instrument_id, { ...FALLBACK, ...item, status: "daily-ohlc-fallback" }];
+            }
+            return [item.instrument_id, { ...item, status: "pending-first-fit" }];
+          });
+      }
       if (!entries.length) entries = [[FALLBACK.instrument_id, FALLBACK]];
-      paramsById = Object.fromEntries(entries.map(([id, value]) => [id, { ...FALLBACK, ...value, instrument_id: id }]));
+      paramsById = Object.fromEntries(entries.map(([id, value]) => [id, { ...value, instrument_id: id }]));
       const select = document.getElementById("instrument-select");
       select.innerHTML = "";
       Object.entries(paramsById).forEach(([id, value]) => {
@@ -590,15 +661,22 @@
       select.disabled = false;
       selectInstrument(selectedId, { resetReference: true, persist: false });
     }
-    async function loadParams() {
+    async function fetchJson(url) {
       try {
-        const response = await fetch(PARAMS_URL, { cache: "no-store" });
-        if (!response.ok) throw new Error("parameter file unavailable");
-        installParameterPayload(await response.json());
-      } catch (error) { installParameterPayload(FALLBACK); }
+        const response = await fetch(url, { cache: "no-store" });
+        if (!response.ok) return null;
+        return await response.json();
+      } catch (error) { return null; }
+    }
+    async function loadParams() {
+      const [payload, registry] = await Promise.all([fetchJson(PARAMS_URL), fetchJson(REGISTRY_URL)]);
+      installParameterPayload(payload || FALLBACK, registry);
     }
     document.getElementById("instrument-select").addEventListener("change", event => {
       selectInstrument(event.target.value);
+    });
+    document.getElementById("remove-ticker").addEventListener("click", event => {
+      if (event.currentTarget.getAttribute("aria-disabled") === "true") event.preventDefault();
     });
     document.getElementById("calculator-form").addEventListener("submit", event => {
       event.preventDefault();
