@@ -12,21 +12,27 @@ on:
 
 permissions:
   contents: write
+  pages: write
+  id-token: write
 
 concurrency:
-  group: execution-parameter-update
+  group: execution-data-write
   cancel-in-progress: false
 
 jobs:
   update:
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    outputs:
+      changed: ${{ steps.publish.outputs.changed }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Refit rolling execution parameters
+      - name: Verify execution platform
+        run: python -m unittest discover -s tests -v
+      - name: Refit every registered execution instrument
         shell: bash
         run: |
           if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
@@ -34,7 +40,8 @@ jobs:
           else
             python scripts/update_execution_params.py
           fi
-      - name: Publish changed parameters
+      - id: publish
+        name: Publish changed parameters
         shell: bash
         run: |
           git config user.name "github-actions[bot]"
@@ -42,7 +49,33 @@ jobs:
           git add data/execution_params.json
           if git diff --cached --quiet; then
             echo "No parameter change to publish."
+            echo "changed=false" >> "$GITHUB_OUTPUT"
           else
             git commit -m "Update rolling execution parameters"
             git push
+            echo "changed=true" >> "$GITHUB_OUTPUT"
           fi
+
+  deploy:
+    needs: update
+    if: needs.update.outputs.changed == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    concurrency:
+      group: pages
+      cancel-in-progress: true
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/configure-pages@v5
+        with:
+          enablement: true
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+      - id: deployment
+        uses: actions/deploy-pages@v4

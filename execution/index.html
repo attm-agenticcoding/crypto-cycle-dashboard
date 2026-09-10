@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#07111f">
-  <title>BTC Execution Calculator</title>
+  <title>Execution Calculator</title>
   <style>
     :root {
       color-scheme: dark;
@@ -33,7 +33,7 @@
         linear-gradient(165deg, #050c16, var(--bg) 42%, #071524);
     }
     a { color: inherit; }
-    button, input { font: inherit; }
+    button, input, select { font: inherit; }
     .shell { width: min(1180px, calc(100% - 28px)); margin: 0 auto; padding: 28px 0 64px; }
     .topbar { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 32px; }
     .back { text-decoration: none; color: var(--muted); font-size: .91rem; }
@@ -55,6 +55,15 @@
     .status { display: inline-flex; align-items: center; gap: 7px; color: var(--muted); font-size: .78rem; }
     .status::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--gold); box-shadow: 0 0 14px rgba(255, 201, 107, .75); }
     .status.live::before { background: var(--green); box-shadow: 0 0 14px rgba(120, 230, 174, .8); }
+    .instrument-tools { display: grid; grid-template-columns: minmax(260px, 1fr) auto; gap: 12px; align-items: end; margin-top: 16px; }
+    .instrument-choice label { margin-bottom: 7px; }
+    select { width: 100%; border: 1px solid rgba(145, 182, 219, .21); border-radius: 12px; outline: none; padding: 12px 40px 12px 13px; color: var(--text); background: #081625; }
+    select:focus { border-color: rgba(85, 184, 255, .75); box-shadow: 0 0 0 3px rgba(85, 184, 255, .12); }
+    .secondary { display: inline-flex; min-height: 45px; align-items: center; justify-content: center; border: 1px solid rgba(99, 234, 215, .36); border-radius: 12px; padding: 10px 15px; color: var(--cyan); background: rgba(99, 234, 215, .07); text-decoration: none; font-size: .84rem; font-weight: 760; white-space: nowrap; }
+    .secondary:hover { background: rgba(99, 234, 215, .12); border-color: rgba(99, 234, 215, .58); }
+    .instrument-meta { margin: 10px 0 0; color: var(--muted); font-size: .78rem; line-height: 1.5; }
+    .instrument-rationale { margin-top: 3px; color: #7f98b2; }
+    .instrument-meta strong { color: var(--text); font-weight: 720; }
     .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 14px; }
     .metric { min-width: 0; padding: 13px; border: 1px solid var(--line); border-radius: 14px; background: var(--panel-2); }
     .metric-label { color: var(--muted); font-size: .72rem; line-height: 1.35; text-transform: uppercase; letter-spacing: .065em; }
@@ -121,6 +130,8 @@
       .tag { display: none; }
       .panel { border-radius: 17px; }
       .metrics { grid-template-columns: 1fr 1fr; }
+      .instrument-tools { grid-template-columns: 1fr; }
+      .secondary { width: 100%; }
       .field-grid { grid-template-columns: 1fr; }
       .field.wide, .account-title, .hint { grid-column: auto; }
       .result-metrics { grid-template-columns: 1fr 1fr; }
@@ -132,18 +143,18 @@
   <main class="shell">
     <div class="topbar">
       <a class="back" href="../">← Crypto Cycle Dashboard</a>
-      <span class="tag">Execution layer · v2</span>
+      <span class="tag">Execution layer · v3</span>
     </div>
 
     <section class="hero">
       <div>
-        <p class="eyebrow">BTC Mini · daily-reset limit ladder</p>
+        <p class="eyebrow">Multi-instrument · daily-reset limit ladder</p>
         <h1>Execution<br>Calculator</h1>
         <p class="lede">Turn this week's remaining dollar target into a capped ladder of DAY limit orders. Market-state parameters update from 09:35 ET rolling minute data; deadline pressure stays separate and visible.</p>
       </div>
       <div class="stamp">
         <div class="stamp-label">Model contract</div>
-        <div class="stamp-value">09:35 reference · fills from 09:36</div>
+        <div id="contract-times" class="stamp-value">09:35 reference · fills from 09:36</div>
         <div class="stamp-sub">The reference minute is never reused as a fill minute. All order totals are capped at the effective weekly target.</div>
       </div>
     </section>
@@ -154,6 +165,17 @@
           <h2>Rolling market parameters</h2>
           <span id="model-status" class="status">Loading parameters…</span>
         </div>
+        <div class="instrument-tools">
+          <div class="instrument-choice">
+            <label for="instrument-select">Execution instrument</label>
+            <select id="instrument-select" aria-describedby="instrument-meta instrument-rationale" disabled>
+              <option>Loading instrument list…</option>
+            </select>
+          </div>
+          <a class="secondary" href="https://github.com/attm-agenticcoding/crypto-cycle-dashboard/issues/new?template=add-execution-instrument.yml" target="_blank" rel="noopener" aria-label="Add ticker using GitHub; opens in a new tab">＋ Add ticker</a>
+        </div>
+        <p id="instrument-meta" class="instrument-meta">Loading the registered execution instrument and scaling proxy…</p>
+        <p id="instrument-rationale" class="instrument-meta instrument-rationale"></p>
         <div class="metrics">
           <div class="metric"><div class="metric-label">Base first offset</div><div id="base-first" class="metric-value">—</div></div>
           <div class="metric"><div class="metric-label">Base spacing</div><div id="base-spacing" class="metric-value">—</div></div>
@@ -170,8 +192,8 @@
         <div class="section-head"><h2>Today's state</h2></div>
         <form id="calculator-form" class="field-grid">
           <div class="field">
-            <label for="reference-price">09:35 BTC Mini reference</label>
-            <div class="input-wrap has-prefix"><span class="prefix">$</span><input id="reference-price" type="number" min="0.01" step="any" value="35" required></div>
+            <label id="reference-price-label" for="reference-price">09:35 reference price</label>
+            <div class="input-wrap has-prefix"><span class="prefix currency-prefix">$</span><input id="reference-price" type="number" min="0.01" step="any" value="35" required></div>
           </div>
           <div class="field">
             <label for="deadline">Capital deployment deadline</label>
@@ -181,21 +203,21 @@
           <div class="account-title">Account 1</div>
           <div class="field">
             <label for="weekly-one">Remaining to deploy this week</label>
-            <div class="input-wrap has-prefix"><span class="prefix">$</span><input id="weekly-one" type="number" min="0" step="any" value="10000" required></div>
+            <div class="input-wrap has-prefix"><span class="prefix currency-prefix">$</span><input id="weekly-one" type="number" min="0" step="any" value="10000" required></div>
           </div>
           <div class="field">
             <label for="capital-one">Total remaining by deadline</label>
-            <div class="input-wrap has-prefix"><span class="prefix">$</span><input id="capital-one" type="number" min="0" step="any" placeholder="Optional"></div>
+            <div class="input-wrap has-prefix"><span class="prefix currency-prefix">$</span><input id="capital-one" type="number" min="0" step="any" placeholder="Optional"></div>
           </div>
 
           <div class="account-title">Account 2</div>
           <div class="field">
             <label for="weekly-two">Remaining to deploy this week</label>
-            <div class="input-wrap has-prefix"><span class="prefix">$</span><input id="weekly-two" type="number" min="0" step="any" value="10000" required></div>
+            <div class="input-wrap has-prefix"><span class="prefix currency-prefix">$</span><input id="weekly-two" type="number" min="0" step="any" value="10000" required></div>
           </div>
           <div class="field">
             <label for="capital-two">Total remaining by deadline</label>
-            <div class="input-wrap has-prefix"><span class="prefix">$</span><input id="capital-two" type="number" min="0" step="any" placeholder="Optional"></div>
+            <div class="input-wrap has-prefix"><span class="prefix currency-prefix">$</span><input id="capital-two" type="number" min="0" step="any" placeholder="Optional"></div>
           </div>
           <p class="hint">Leave “total remaining by deadline” blank to use only the weekly target. When supplied, a monotone schedule guardrail raises the target only when the current weekly pace is too slow to finish by the selected date. Same-day orders stop at 16:00 ET.</p>
           <button id="calculate-button" class="primary wide" type="submit">Calculate today's orders</button>
@@ -204,7 +226,7 @@
 
       <section class="panel results">
         <div class="section-head"><h2>Order plan</h2><span id="session-label" class="status live">—</span></div>
-        <div id="empty" class="result-empty">Enter today's reference and remaining amounts, then calculate. Both accounts use the same price ladder; sizing is solved independently.</div>
+        <div id="empty" class="result-empty">Choose an instrument, enter today's reference and remaining amounts, then calculate. Both accounts use the selected instrument's price ladder; sizing is solved independently.</div>
         <div id="result-stack" class="result-stack" hidden></div>
       </section>
 
@@ -213,7 +235,7 @@
         <details>
           <summary>Market spacing, dynamic sizing, and the deadline pace guardrail</summary>
           <div class="method-copy">
-            <p><strong>Market layer.</strong> The updater searches rolling lookback × first offset × spacing on BTCUSDT one-minute paths. Every historical reference is the close of the 09:35 ET bar; eligible fills begin at 09:36. Candidate ladders are compared by walk-forward weekly implementation shortfall. A one-standard-error plateau and the prior published parameter regularize the result.</p>
+            <p><strong>Market layer.</strong> The updater searches rolling lookback × first offset × spacing on the selected instrument's registered proxy, <strong id="method-proxy">—</strong>. Every historical reference is the close of the <span id="method-reference">09:35</span> ET bar; eligible fills begin at <span id="method-fill">09:36</span>. Candidate ladders are compared by walk-forward weekly implementation shortfall. A one-standard-error plateau and the prior published parameter regularize the result.</p>
             <p><strong>Sizing layer.</strong> Once spacing is fixed, shares are a control output: remaining target shares divided by remaining sessions and expected rung hits. Orders continue only until their combined shares equal the effective target, so a deep intraday move cannot over-deploy the account.</p>
             <p><strong>Deadline layer.</strong> Supplying total capital remaining activates an explicit schedule guardrail. The even-pace floor is total remaining × eligible sessions in the current window ÷ sessions to the deadline; the current window ends at the earlier of week-end or the deadline. The effective target is the larger of that floor and the entered weekly target, capped at total remaining. If the floor causes a pace lift, market distances tighten by 1 ÷ √(pace lift), bounded between 0.40× and 1.00×. This rule is deliberately monotone: moving the deadline closer can never reduce the target or widen the ladder.</p>
             <p id="fallback-note" class="warning" hidden>The published JSON is still the daily-OHLC seed. Deadline pacing remains available, but market spacing is using fallback parameters until the first successful minute-data update.</p>
@@ -228,6 +250,21 @@
   <script>
     const PARAMS_URL = "../data/execution_params.json";
     const FALLBACK = {
+      instrument_id: "ARCX:BTC",
+      symbol: "BTC",
+      exchange: "NYSE Arca",
+      exchange_mic: "ARCX",
+      name: "Grayscale Bitcoin Mini Trust ETF",
+      asset_class: "ETF",
+      currency: "USD",
+      market_calendar: "XNYS",
+      default_reference_price: 35,
+      market_proxy: "BTCUSDT",
+      scaling_source: { provider: "binance_vision", symbol: "BTCUSDT", interval: "1m", rationale: "The listed trust provides spot Bitcoin exposure; BTCUSDT supplies a liquid continuous intraday path for ladder scaling." },
+      timezone: "America/New_York",
+      reference_time: "09:35",
+      fill_start_time: "09:36",
+      session_end_time: "16:00",
       status: "daily-ohlc-fallback",
       data_as_of: "2026-08-26",
       lookback_sessions: 10,
@@ -237,9 +274,18 @@
       session_samples: []
     };
     let params = FALLBACK;
+    let paramsById = { [FALLBACK.instrument_id]: FALLBACK };
 
-    const money = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
-    const money2 = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    let money = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
+    let money2 = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+    function setCurrency(currency) {
+      const safeCurrency = /^[A-Z]{3}$/.test(currency || "") ? currency : "USD";
+      money = new Intl.NumberFormat("en-US", { style: "currency", currency: safeCurrency, maximumFractionDigits: 0 });
+      money2 = new Intl.NumberFormat("en-US", { style: "currency", currency: safeCurrency, minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      const symbol = new Intl.NumberFormat("en-US", { style: "currency", currency: safeCurrency, currencyDisplay: "narrowSymbol", maximumFractionDigits: 0 }).formatToParts(0).find(part => part.type === "currency")?.value || safeCurrency;
+      document.querySelectorAll(".currency-prefix").forEach(node => { node.textContent = symbol; });
+    }
 
     function observedHoliday(d) {
       const day = d.getUTCDay();
@@ -282,8 +328,9 @@
       return { date: new Date(Date.UTC(+parts.year, +parts.month - 1, +parts.day)), hour: +parts.hour, minute: +parts.minute };
     }
     function tradingWindow(now = nyParts()) {
-      if (!isSession(now.date)) return { open: false, label: "No BTC ETF session today", message: "Today is not a BTC ETF trading session, so no same-day DAY orders are generated." };
-      if (now.hour >= 16) return { open: false, label: "16:00 ET cutoff passed", message: "The 16:00 ET cutoff has passed. Today's BTC ETF session is over, so the calculator will not generate same-day orders." };
+      const symbol = params.symbol || "selected instrument";
+      if (!isSession(now.date)) return { open: false, label: `No ${symbol} session today`, message: `Today is not a ${symbol} trading session, so no same-day DAY orders are generated.` };
+      if (now.hour >= 16) return { open: false, label: "16:00 ET cutoff passed", message: `The 16:00 ET cutoff has passed. Today's ${symbol} session is over, so the calculator will not generate same-day orders.` };
       return { open: true, label: "", message: "" };
     }
     function applyTradingWindow() {
@@ -293,6 +340,8 @@
       if (!state.open) {
         document.getElementById("session-label").textContent = state.label;
         document.getElementById("empty").textContent = state.message;
+      } else {
+        document.getElementById("session-label").textContent = `${params.symbol || "Instrument"} · ${params.market_calendar || "market session"}`;
       }
       return state;
     }
@@ -480,14 +529,77 @@
       document.getElementById("base-next-run").textContent = live ? nextUpdateLabel(params.data_as_of) : "After next successful run";
       document.getElementById("fallback-note").hidden = live;
     }
+    function instrumentOptionLabel(item) {
+      const venue = item.exchange_mic || item.exchange || "venue unknown";
+      return `${item.symbol || "Ticker"} · ${venue} — ${item.name || item.execution_instrument || "Unnamed instrument"}`;
+    }
+    function clearResults() {
+      document.getElementById("result-stack").hidden = true;
+      document.getElementById("result-stack").innerHTML = "";
+      const empty = document.getElementById("empty");
+      empty.hidden = false;
+      empty.textContent = `Enter today's ${params.symbol || "instrument"} reference and remaining amounts, then calculate. Both accounts use the selected instrument's price ladder; sizing is solved independently.`;
+    }
+    function selectInstrument(instrumentId, { resetReference = true, persist = true } = {}) {
+      const selected = paramsById[instrumentId] || FALLBACK;
+      params = { ...FALLBACK, ...selected, instrument_id: instrumentId || selected.instrument_id };
+      setCurrency(params.currency);
+      document.getElementById("reference-price-label").textContent = `${params.reference_time || "09:35"} ${params.symbol} reference`;
+      document.getElementById("contract-times").textContent = `${params.reference_time || "09:35"} reference · fills from ${params.fill_start_time || "09:36"}`;
+      document.getElementById("method-reference").textContent = params.reference_time || "09:35";
+      document.getElementById("method-fill").textContent = params.fill_start_time || "09:36";
+      const proxy = params.scaling_source?.symbol || params.market_proxy || "—";
+      document.getElementById("method-proxy").textContent = proxy;
+      document.getElementById("instrument-meta").textContent = `${params.exchange || "Unknown exchange"} (${params.exchange_mic || "MIC unknown"}) · ${params.name || params.execution_instrument || params.symbol} · ${params.asset_class || "listed instrument"} · scaling proxy ${proxy}`;
+      document.getElementById("instrument-rationale").textContent = params.scaling_source?.rationale ? `Proxy mapping: ${params.scaling_source.rationale}` : "";
+      if (resetReference && Number(params.default_reference_price) > 0) {
+        document.getElementById("reference-price").value = params.default_reference_price;
+      }
+      if (persist) {
+        try { localStorage.setItem("execution-instrument", params.instrument_id); } catch (error) { /* preference is optional */ }
+      }
+      renderModel();
+      clearResults();
+      applyTradingWindow();
+    }
+    function installParameterPayload(payload) {
+      let entries = [];
+      let defaultId = FALLBACK.instrument_id;
+      if (+payload?.schema_version >= 2 && payload.instruments && typeof payload.instruments === "object") {
+        entries = Object.entries(payload.instruments).filter(([, value]) => value && typeof value === "object");
+        defaultId = payload.default_instrument_id || entries[0]?.[0] || defaultId;
+      } else if (payload && typeof payload === "object") {
+        const legacyId = payload.instrument_id || FALLBACK.instrument_id;
+        entries = [[legacyId, { ...FALLBACK, ...payload, instrument_id: legacyId }]];
+        defaultId = legacyId;
+      }
+      if (!entries.length) entries = [[FALLBACK.instrument_id, FALLBACK]];
+      paramsById = Object.fromEntries(entries.map(([id, value]) => [id, { ...FALLBACK, ...value, instrument_id: id }]));
+      const select = document.getElementById("instrument-select");
+      select.innerHTML = "";
+      Object.entries(paramsById).forEach(([id, value]) => {
+        const option = document.createElement("option");
+        option.value = id;
+        option.textContent = instrumentOptionLabel(value);
+        select.appendChild(option);
+      });
+      let preferred = "";
+      try { preferred = localStorage.getItem("execution-instrument") || ""; } catch (error) { /* preference is optional */ }
+      const selectedId = paramsById[preferred] ? preferred : (paramsById[defaultId] ? defaultId : Object.keys(paramsById)[0]);
+      select.value = selectedId;
+      select.disabled = false;
+      selectInstrument(selectedId, { resetReference: true, persist: false });
+    }
     async function loadParams() {
       try {
         const response = await fetch(PARAMS_URL, { cache: "no-store" });
         if (!response.ok) throw new Error("parameter file unavailable");
-        params = { ...FALLBACK, ...(await response.json()) };
-      } catch (error) { params = FALLBACK; }
-      renderModel();
+        installParameterPayload(await response.json());
+      } catch (error) { installParameterPayload(FALLBACK); }
     }
+    document.getElementById("instrument-select").addEventListener("change", event => {
+      selectInstrument(event.target.value);
+    });
     document.getElementById("calculator-form").addEventListener("submit", event => {
       event.preventDefault();
       const windowState = applyTradingWindow();

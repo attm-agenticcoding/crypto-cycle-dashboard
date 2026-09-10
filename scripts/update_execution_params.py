@@ -1,13 +1,11 @@
 #!/usr/bin/env python3
-"""Refresh rolling BTC execution parameters for the GitHub Pages calculator.
+"""Refresh rolling parameters for every registered execution instrument.
 
-The estimator uses public BTCUSDT one-minute bars as a liquid, continuously
-traded proxy for BTC Mini's intraday path.  A reference is fixed at the close
-of the 09:35 America/New_York minute; fills may only occur from 09:36 onward.
-Candidate lookbacks, first offsets, and rung spacings are evaluated with
-walk-forward weekly implementation shortfall.  A one-standard-error plateau
-and yesterday's parameters keep the published controls from chasing a noisy
-single-day argmin.
+Each execution instrument explicitly names the one-minute market proxy used
+for scaling. Candidate lookbacks, first offsets, and rung spacings are
+evaluated with walk-forward weekly implementation shortfall. A one-standard-
+error plateau and the prior published parameters keep the controls from
+chasing a noisy single-day argmin.
 """
 
 from __future__ import annotations
@@ -29,11 +27,13 @@ from pathlib import Path
 from typing import Iterable
 from zoneinfo import ZoneInfo
 
+from execution_registry import load_registry
+
 
 ET = ZoneInfo("America/New_York")
 UTC = timezone.utc
 ARCHIVE_ROOT = "https://data.binance.vision/data/spot"
-USER_AGENT = "crypto-cycle-dashboard-execution/1.0"
+USER_AGENT = "crypto-cycle-dashboard-execution/2.0"
 MAX_RUNGS = 12
 
 LOOKBACKS = (10, 15, 20, 30, 45, 60)
@@ -116,7 +116,7 @@ def month_sequence(start: date, end: date) -> Iterable[tuple[int, int]]:
             month = 1
 
 
-def download_bars(start: date, end: date) -> list[MinuteBar]:
+def download_binance_bars(symbol: str, start: date, end: date) -> list[MinuteBar]:
     bars: list[MinuteBar] = []
     failures: list[str] = []
     current_month = (datetime.now(UTC).year, datetime.now(UTC).month)
@@ -126,8 +126,8 @@ def download_bars(start: date, end: date) -> list[MinuteBar]:
         month_end = date(year, month, calendar.monthrange(year, month)[1])
         use_monthly = (year, month) < current_month and month_start >= date(2017, 1, 1)
         if use_monthly:
-            name = f"BTCUSDT-1m-{year:04d}-{month:02d}.zip"
-            url = f"{ARCHIVE_ROOT}/monthly/klines/BTCUSDT/1m/{name}"
+            name = f"{symbol}-1m-{year:04d}-{month:02d}.zip"
+            url = f"{ARCHIVE_ROOT}/monthly/klines/{symbol}/1m/{name}"
             try:
                 bars.extend(parse_zip(request_bytes(url)))
                 continue
@@ -137,8 +137,8 @@ def download_bars(start: date, end: date) -> list[MinuteBar]:
         day = max(start, month_start)
         last = min(end, month_end)
         while day <= last:
-            name = f"BTCUSDT-1m-{day.isoformat()}.zip"
-            url = f"{ARCHIVE_ROOT}/daily/klines/BTCUSDT/1m/{name}"
+            name = f"{symbol}-1m-{day.isoformat()}.zip"
+            url = f"{ARCHIVE_ROOT}/daily/klines/{symbol}/1m/{name}"
             try:
                 bars.extend(parse_zip(request_bytes(url)))
             except (urllib.error.URLError, urllib.error.HTTPError, TimeoutError, zipfile.BadZipFile) as exc:
@@ -149,8 +149,17 @@ def download_bars(start: date, end: date) -> list[MinuteBar]:
     bars = [bar for bar in bars if start <= bar.opened_at.date() <= end]
     bars.sort(key=lambda bar: bar.opened_at)
     if not bars:
-        raise RuntimeError("No Binance minute archives were available: " + "; ".join(failures[-5:]))
+        raise RuntimeError(
+            f"No Binance minute archives were available for {symbol}: " + "; ".join(failures[-5:])
+        )
     return bars
+
+
+def download_bars(source: dict, start: date, end: date) -> list[MinuteBar]:
+    provider = source["provider"]
+    if provider == "binance_vision":
+        return download_binance_bars(source["symbol"], start, end)
+    raise RuntimeError(f"Unsupported minute-data provider: {provider}")
 
 
 def observed(day: date) -> date:
@@ -222,17 +231,43 @@ def expected_market_session(now_et: datetime) -> date:
     return previous_market_session(today)
 
 
-def published_data_as_of(output_path: Path) -> date | None:
+def read_published_bundle(output_path: Path) -> dict:
     try:
         payload = json.loads(output_path.read_text(encoding="utf-8"))
-        if payload.get("status") != "minute-rolling":
+        return payload if isinstance(payload, dict) else {}
+    except (FileNotFoundError, json.JSONDecodeError, TypeError, ValueError):
+        return {}
+
+
+def published_parameters(bundle: dict, instrument_id: str) -> dict | None:
+    if int(bundle.get("schema_version", 0)) >= 2:
+        instruments = bundle.get("instruments", {})
+        if isinstance(instruments, dict):
+            payload = instruments.get(instrument_id)
+            return payload if isinstance(payload, dict) else None
+        return None
+    # Backward-compatible read of the original single-instrument file.
+    if instrument_id == "ARCX:BTC" and bundle.get("status"):
+        return bundle
+    return None
+
+
+def published_data_as_of(bundle: dict, instrument_id: str) -> date | None:
+    payload = published_parameters(bundle, instrument_id)
+    try:
+        if not payload or payload.get("status") != "minute-rolling":
             return None
         return date.fromisoformat(str(payload["data_as_of"]))
-    except (FileNotFoundError, KeyError, json.JSONDecodeError, TypeError, ValueError):
+    except (KeyError, TypeError, ValueError):
         return None
 
 
-def build_sessions(bars: list[MinuteBar]) -> list[Session]:
+def build_sessions(
+    bars: list[MinuteBar],
+    reference_time: time = time(9, 35),
+    fill_start_time: time = time(9, 36),
+    session_end_time: time = time(16, 0),
+) -> list[Session]:
     by_session: dict[date, dict[time, MinuteBar]] = defaultdict(dict)
     years: set[int] = set()
     for bar in bars:
@@ -246,13 +281,13 @@ def build_sessions(bars: list[MinuteBar]) -> list[Session]:
         if session_date.weekday() >= 5 or session_date in holidays:
             continue
         minute_map = by_session[session_date]
-        ref_bar = minute_map.get(time(9, 35))
+        ref_bar = minute_map.get(reference_time)
         if ref_bar is None:
             continue
         eligible = [
             bar.low
             for minute, bar in minute_map.items()
-            if time(9, 36) <= minute < time(16, 0)
+            if fill_start_time <= minute < session_end_time
         ]
         if len(eligible) < 300:
             continue
@@ -350,19 +385,23 @@ def evaluate_candidate(
     )
 
 
-def previous_parameters(output_path: Path) -> tuple[int, float, float]:
+def previous_parameters(bundle: dict, instrument_id: str) -> tuple[int, float, float] | None:
+    payload = published_parameters(bundle, instrument_id)
+    if payload is None:
+        return None
     try:
-        payload = json.loads(output_path.read_text(encoding="utf-8"))
         return (
             int(payload.get("lookback_sessions", 20)),
             float(payload.get("first_offset_pct", 0.25)) / 100,
             float(payload.get("spacing_pct", 0.80)) / 100,
         )
-    except (FileNotFoundError, json.JSONDecodeError, TypeError, ValueError):
-        return (20, 0.0025, 0.0080)
+    except (TypeError, ValueError):
+        return None
 
 
-def choose_candidate(sessions: list[Session], prior: tuple[int, float, float]) -> CandidateResult:
+def choose_candidate(
+    sessions: list[Session], prior: tuple[int, float, float] | None
+) -> CandidateResult:
     candidates: list[CandidateResult] = []
     for lookback in LOOKBACKS:
         for first_offset in FIRST_OFFSETS:
@@ -376,7 +415,7 @@ def choose_candidate(sessions: list[Session], prior: tuple[int, float, float]) -
     best = min(candidates, key=lambda item: item.mean_cost_bps)
     threshold = best.mean_cost_bps + max(best.stderr_bps, 0.25)
     plateau = [item for item in candidates if item.mean_cost_bps <= threshold]
-    prior_lookback, prior_first, prior_spacing = prior
+    prior_lookback, prior_first, prior_spacing = prior or (20, 0.0025, 0.0080)
 
     def regularization_distance(item: CandidateResult) -> tuple[float, float]:
         distance = (
@@ -393,7 +432,9 @@ def as_percent(value: float, digits: int = 4) -> float:
     return round(value * 100, digits)
 
 
-def build_payload(sessions: list[Session], selected: CandidateResult) -> dict:
+def build_payload(
+    instrument: dict, sessions: list[Session], selected: CandidateResult, generated_at: str
+) -> dict:
     recent = sessions[-selected.lookback :]
     hits = [hit_count(item.drawdown, selected.first_offset, selected.spacing) for item in recent]
     samples = [
@@ -408,17 +449,28 @@ def build_payload(sessions: list[Session], selected: CandidateResult) -> dict:
         }
         for item in sessions[-90:]
     ]
+    source = instrument["scaling_source"]
     return {
         "schema_version": 1,
+        "instrument_id": instrument["instrument_id"],
+        "symbol": instrument["symbol"],
+        "exchange": instrument["exchange"],
+        "exchange_mic": instrument["exchange_mic"],
+        "name": instrument["name"],
+        "asset_class": instrument["asset_class"],
+        "currency": instrument["currency"],
+        "market_calendar": instrument["market_calendar"],
+        "default_reference_price": instrument["default_reference_price"],
         "status": "minute-rolling",
-        "generated_at": datetime.now(UTC).isoformat().replace("+00:00", "Z"),
+        "generated_at": generated_at,
         "data_as_of": sessions[-1].session_date.isoformat(),
-        "market_proxy": "BTCUSDT",
-        "execution_instrument": "Grayscale Bitcoin Mini Trust ETF (BTC)",
-        "timezone": "America/New_York",
-        "reference_time": "09:35",
-        "fill_start_time": "09:36",
-        "session_end_time": "16:00",
+        "market_proxy": source["symbol"],
+        "scaling_source": source,
+        "execution_instrument": f"{instrument['name']} ({instrument['symbol']})",
+        "timezone": instrument["timezone"],
+        "reference_time": instrument["reference_time"],
+        "fill_start_time": instrument["fill_start_time"],
+        "session_end_time": instrument["session_end_time"],
         "lookback_sessions": selected.lookback,
         "first_offset_pct": as_percent(selected.first_offset),
         "spacing_pct": as_percent(selected.spacing),
@@ -432,23 +484,42 @@ def build_payload(sessions: list[Session], selected: CandidateResult) -> dict:
         "selection_rule": "one-standard-error plateau, then minimum distance from prior published parameters",
         "session_samples": samples,
         "notes": [
-            "BTCUSDT is a liquid intraday proxy; order prices are applied to the user-entered BTC ETF reference price.",
-            "The 09:35 bar sets the reference and is excluded from fills; eligible lows begin at 09:36 ET.",
+            f"{source['symbol']} is the registered intraday scaling proxy; order prices are applied to the user-entered {instrument['symbol']} reference price.",
+            f"The {instrument['reference_time']} bar sets the reference and is excluded from fills; eligible lows begin at {instrument['fill_start_time']} ET.",
             "Unfilled weekly quantity is completed at the next available reference in the walk-forward cost calculation.",
         ],
     }
 
 
-def should_run(force: bool, output_path: Path, now_et: datetime | None = None) -> bool:
+def instruments_needing_update(
+    bundle: dict, instruments: list[dict], expected: date
+) -> list[str]:
+    return [
+        item["instrument_id"]
+        for item in instruments
+        if published_data_as_of(bundle, item["instrument_id"]) is None
+        or published_data_as_of(bundle, item["instrument_id"]) < expected
+    ]
+
+
+def should_run(
+    force: bool, bundle: dict, instruments: list[dict], now_et: datetime | None = None
+) -> bool:
     if force:
+        print(f"Forced refit requested for all {len(instruments)} enabled instruments.")
         return True
     current = now_et or datetime.now(ET)
     expected = expected_market_session(current)
-    published = published_data_as_of(output_path)
-    if published is not None and published >= expected:
-        print(f"Execution parameters already cover {published}; expected at least {expected}. Nothing to do.")
+    stale = instruments_needing_update(bundle, instruments, expected)
+    if not stale:
+        print(
+            f"All {len(instruments)} execution instruments already cover {expected}. Nothing to do."
+        )
         return False
-    print(f"Execution parameters are stale ({published or 'missing'}); expected {expected}. Catch-up required.")
+    print(
+        f"Execution parameters require {expected} for {', '.join(stale)}. "
+        "Refitting the full enabled registry."
+    )
     return True
 
 
@@ -457,42 +528,117 @@ def main() -> int:
     parser.add_argument("--force", action="store_true", help="Ignore the freshness guard and refit immediately")
     parser.add_argument("--days", type=int, default=220, help="Calendar days of minute archives to request")
     parser.add_argument(
+        "--registry",
+        type=Path,
+        default=Path(__file__).resolve().parents[1] / "data" / "execution_instruments.json",
+    )
+    parser.add_argument(
         "--output",
         type=Path,
         default=Path(__file__).resolve().parents[1] / "data" / "execution_params.json",
     )
     args = parser.parse_args()
 
+    registry = load_registry(args.registry)
+    instruments = [item for item in registry["instruments"] if item["enabled"]]
+    published_bundle = read_published_bundle(args.output)
     now_et = datetime.now(ET)
     expected_session = expected_market_session(now_et)
-    if not should_run(args.force, args.output, now_et):
+    if not should_run(args.force, published_bundle, instruments, now_et):
         return 0
 
     today_utc = datetime.now(UTC).date()
     start = today_utc - timedelta(days=args.days)
     end = today_utc - timedelta(days=1)
-    bars = download_bars(start, end)
-    sessions = build_sessions(bars)
-    if len(sessions) < 75:
-        raise RuntimeError(f"Only {len(sessions)} complete NY sessions were available; need at least 75")
-    if sessions[-1].session_date < expected_session:
-        raise RuntimeError(
-            f"Latest complete NY session is {sessions[-1].session_date}; expected {expected_session}. "
-            "The source archive is not ready yet, so a later scheduled retry should run again."
-        )
+    groups: dict[tuple[str, ...], list[dict]] = defaultdict(list)
+    for instrument in instruments:
+        source = instrument["scaling_source"]
+        groups[
+            (
+                source["provider"],
+                source["symbol"],
+                source["interval"],
+                instrument["market_calendar"],
+                instrument["timezone"],
+                instrument["reference_time"],
+                instrument["fill_start_time"],
+                instrument["session_end_time"],
+            )
+        ].append(instrument)
 
-    prior = previous_parameters(args.output)
-    selected = choose_candidate(sessions, prior)
-    payload = build_payload(sessions, selected)
+    generated_at = datetime.now(UTC).isoformat().replace("+00:00", "Z")
+    payloads: dict[str, dict] = {}
+    bar_cache: dict[tuple[str, str, str], list[MinuteBar]] = {}
+    for source_key, group in groups.items():
+        (
+            provider,
+            proxy_symbol,
+            interval,
+            market_calendar,
+            session_timezone,
+            reference_clock,
+            fill_clock,
+            end_clock,
+        ) = source_key
+        print(
+            f"Loading {provider}:{proxy_symbol}:{interval} {market_calendar} "
+            f"{reference_clock}-{end_clock} {session_timezone} for "
+            + ", ".join(item["instrument_id"] for item in group)
+        )
+        archive_key = (provider, proxy_symbol, interval)
+        if archive_key not in bar_cache:
+            bar_cache[archive_key] = download_bars(group[0]["scaling_source"], start, end)
+        sessions = build_sessions(
+            bar_cache[archive_key],
+            time.fromisoformat(reference_clock),
+            time.fromisoformat(fill_clock),
+            time.fromisoformat(end_clock),
+        )
+        if len(sessions) < 75:
+            raise RuntimeError(
+                f"Only {len(sessions)} complete NY sessions were available for {proxy_symbol}; need at least 75"
+            )
+        if sessions[-1].session_date < expected_session:
+            raise RuntimeError(
+                f"Latest complete NY session for {proxy_symbol} is {sessions[-1].session_date}; "
+                f"expected {expected_session}. The source archive is not ready yet, so a later "
+                "scheduled retry should run again."
+            )
+
+        # A proxy plus session contract is one market layer. Instruments sharing
+        # both deliberately share the same base scaling; the first available
+        # prior keeps the group stable.
+        prior = next(
+            (
+                value
+                for item in group
+                if (value := previous_parameters(published_bundle, item["instrument_id"]))
+                is not None
+            ),
+            None,
+        )
+        selected = choose_candidate(sessions, prior)
+        for instrument in group:
+            payloads[instrument["instrument_id"]] = build_payload(
+                instrument, sessions, selected, generated_at
+            )
+            print(
+                f"Fitted {instrument['instrument_id']}: "
+                f"offset={payloads[instrument['instrument_id']]['first_offset_pct']:.2f}% "
+                f"spacing={payloads[instrument['instrument_id']]['spacing_pct']:.2f}% "
+                f"lookback={payloads[instrument['instrument_id']]['lookback_sessions']}"
+            )
+
+    payload = {
+        "schema_version": 2,
+        "generated_at": generated_at,
+        "default_instrument_id": registry["default_instrument_id"],
+        "instrument_count": len(payloads),
+        "instruments": payloads,
+    }
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
-    print(
-        "Published",
-        args.output,
-        f"offset={payload['first_offset_pct']:.2f}%",
-        f"spacing={payload['spacing_pct']:.2f}%",
-        f"lookback={payload['lookback_sessions']}",
-    )
+    print(f"Published {len(payloads)} instruments to {args.output}")
     return 0
 
 

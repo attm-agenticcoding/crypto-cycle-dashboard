@@ -1,0 +1,66 @@
+name: Register execution instrument
+
+on:
+  issues:
+    types: [opened, reopened]
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: execution-data-write
+  cancel-in-progress: false
+
+jobs:
+  register:
+    if: >-
+      github.event.issue.user.login == github.repository_owner &&
+      startsWith(github.event.issue.title, '[Execution instrument]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Validate and register instrument
+        run: python scripts/register_execution_instrument.py --event "$GITHUB_EVENT_PATH"
+      - name: Verify updated registry and updater
+        run: python -m unittest discover -s tests -v
+      - name: Publish registry change
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/execution_instruments.json
+          git commit -m "Register execution instrument"
+          git push
+      - name: Confirm registration
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: 'Registered. It will appear in the calculator after the next scheduled scaling run fits the complete ticker list.'
+            });
+            await github.rest.issues.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              state: 'closed'
+            });
+      - name: Report rejected registration
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: `Registration was not applied. Review the validation details in [this workflow run](${runUrl}), correct the form, and reopen or submit it again.`
+            });

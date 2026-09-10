@@ -1,0 +1,120 @@
+name: Add execution instrument
+description: Register an unambiguous execution ticker and its minute-data scaling proxy.
+title: "[Execution instrument] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Ticker alone is not a unique identity. This form records the listed instrument separately from the market proxy used to fit its ladder. After the owner submits a valid request, the instrument joins the registry and appears in the calculator after the next scaling run.
+
+  - type: input
+    id: ticker
+    attributes:
+      label: Execution ticker
+      description: The exact broker/listing symbol, for example BTC or IBIT.
+      placeholder: IBIT
+    validations:
+      required: true
+
+  - type: input
+    id: exchange_name
+    attributes:
+      label: Listing exchange name
+      description: The exchange shown by your broker, for example Nasdaq or NYSE Arca.
+      placeholder: Nasdaq
+    validations:
+      required: true
+
+  - type: input
+    id: exchange_mic
+    attributes:
+      label: Listing exchange MIC
+      description: Four-character ISO market code. Common examples are XNAS for Nasdaq and ARCX for NYSE Arca.
+      placeholder: XNAS
+    validations:
+      required: true
+
+  - type: input
+    id: official_name
+    attributes:
+      label: Official instrument name
+      description: Use the issuer or exchange's full name so the ticker cannot be mistaken for another asset.
+      placeholder: iShares Bitcoin Trust ETF
+    validations:
+      required: true
+
+  - type: dropdown
+    id: asset_class
+    attributes:
+      label: Asset class
+      options:
+        - ETF
+        - ETP
+        - Trust
+        - Stock
+        - Other listed security
+    validations:
+      required: true
+
+  - type: dropdown
+    id: currency
+    attributes:
+      label: Trading currency
+      options:
+        - USD
+    validations:
+      required: true
+
+  - type: input
+    id: default_reference
+    attributes:
+      label: Default reference price
+      description: A positive convenience value for the calculator. You will still replace it with the live reference when creating orders.
+      placeholder: "35"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: calendar
+    attributes:
+      label: Market calendar
+      options:
+        - US equities — NYSE calendar (XNYS)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: source
+    attributes:
+      label: Minute-data source
+      description: More adapters can be added later; the current long-history adapter is Binance Vision.
+      options:
+        - Binance Vision spot archives
+    validations:
+      required: true
+
+  - type: input
+    id: proxy_symbol
+    attributes:
+      label: Scaling proxy symbol
+      description: The exact Binance spot pair whose 1-minute path should fit this instrument, for example BTCUSDT or ETHUSDT.
+      placeholder: BTCUSDT
+    validations:
+      required: true
+
+  - type: textarea
+    id: proxy_rationale
+    attributes:
+      label: Proxy mapping rationale
+      description: Briefly state what exposure the listed instrument provides and why this minute proxy represents it.
+      placeholder: This ETF holds spot Bitcoin, so BTCUSDT represents the underlying intraday exposure used for ladder scaling.
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: confirmation
+    attributes:
+      label: Mapping confirmation
+      options:
+        - label: I verified that the exchange, official name, and scaling proxy all refer to the intended exposure.
+          required: true

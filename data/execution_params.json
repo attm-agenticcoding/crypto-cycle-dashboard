@@ -1,9 +1,30 @@
 {
+  "schema_version": 2,
+  "generated_at": "2026-09-10T05:06:39.584565Z",
+  "default_instrument_id": "ARCX:BTC",
+  "instrument_count": 1,
+  "instruments": {
+    "ARCX:BTC": {
   "schema_version": 1,
+  "instrument_id": "ARCX:BTC",
+  "symbol": "BTC",
+  "exchange": "NYSE Arca",
+  "exchange_mic": "ARCX",
+  "name": "Grayscale Bitcoin Mini Trust ETF",
+  "asset_class": "ETF",
+  "currency": "USD",
+  "market_calendar": "XNYS",
+  "default_reference_price": 35,
   "status": "minute-rolling",
   "generated_at": "2026-09-10T05:06:39.584565Z",
   "data_as_of": "2026-09-09",
   "market_proxy": "BTCUSDT",
+  "scaling_source": {
+    "provider": "binance_vision",
+    "symbol": "BTCUSDT",
+    "interval": "1m",
+    "rationale": "The listed trust provides spot Bitcoin exposure; BTCUSDT supplies a liquid continuous intraday path for ladder scaling."
+  },
   "execution_instrument": "Grayscale Bitcoin Mini Trust ETF (BTC)",
   "timezone": "America/New_York",
   "reference_time": "09:35",
@@ -473,8 +494,10 @@
     }
   ],
   "notes": [
-    "BTCUSDT is a liquid intraday proxy; order prices are applied to the user-entered BTC ETF reference price.",
+    "BTCUSDT is the registered intraday scaling proxy; order prices are applied to the user-entered BTC reference price.",
     "The 09:35 bar sets the reference and is excluded from fills; eligible lows begin at 09:36 ET.",
     "Unfilled weekly quantity is completed at the next available reference in the walk-forward cost calculation."
   ]
+    }
+  }
 }
