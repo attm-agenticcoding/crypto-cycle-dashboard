@@ -33,8 +33,9 @@ from execution_registry import load_registry
 ET = ZoneInfo("America/New_York")
 UTC = timezone.utc
 ARCHIVE_ROOT = "https://data.binance.vision/data/spot"
-USER_AGENT = "crypto-cycle-dashboard-execution/2.0"
+USER_AGENT = "crypto-cycle-dashboard-execution/3.0"
 MAX_RUNGS = 12
+SIDES = ("buy", "sell")
 
 LOOKBACKS = (10, 15, 20, 30, 45, 60)
 FIRST_OFFSETS = tuple(x / 10_000 for x in (10, 15, 20, 25, 30, 35, 40, 50))
@@ -46,6 +47,7 @@ class MinuteBar:
     opened_at: datetime
     low: float
     close: float
+    high: float | None = None
 
 
 @dataclass(frozen=True)
@@ -54,6 +56,7 @@ class Session:
     reference: float
     drawdown: float
     next_reference_return: float | None = None
+    runup: float | None = None
 
 
 @dataclass
@@ -102,7 +105,7 @@ def parse_zip(payload: bytes) -> list[MinuteBar]:
                 if stamp > 10**14:
                     stamp //= 1000
                 opened_at = datetime.fromtimestamp(stamp / 1000, tz=UTC)
-                bars.append(MinuteBar(opened_at, float(fields[3]), float(fields[4])))
+                bars.append(MinuteBar(opened_at, float(fields[3]), float(fields[4]), float(fields[2])))
     return bars
 
 
@@ -239,21 +242,26 @@ def read_published_bundle(output_path: Path) -> dict:
         return {}
 
 
-def published_parameters(bundle: dict, instrument_id: str) -> dict | None:
+def published_parameters(bundle: dict, instrument_id: str, side: str = "buy") -> dict | None:
     if int(bundle.get("schema_version", 0)) >= 2:
         instruments = bundle.get("instruments", {})
         if isinstance(instruments, dict):
             payload = instruments.get(instrument_id)
-            return payload if isinstance(payload, dict) else None
+            if not isinstance(payload, dict):
+                return None
+            if isinstance(payload.get("sides"), dict):
+                result = payload["sides"].get(side)
+                return result if isinstance(result, dict) else None
+            return payload if side == "buy" else None
         return None
     # Backward-compatible read of the original single-instrument file.
-    if instrument_id == "ARCX:BTC" and bundle.get("status"):
+    if side == "buy" and instrument_id == "ARCX:BTC" and bundle.get("status"):
         return bundle
     return None
 
 
-def published_data_as_of(bundle: dict, instrument_id: str) -> date | None:
-    payload = published_parameters(bundle, instrument_id)
+def published_data_as_of(bundle: dict, instrument_id: str, side: str = "buy") -> date | None:
+    payload = published_parameters(bundle, instrument_id, side)
     try:
         if not payload or payload.get("status") != "minute-rolling":
             return None
@@ -285,29 +293,53 @@ def build_sessions(
         if ref_bar is None:
             continue
         eligible = [
-            bar.low
+            bar
             for minute, bar in minute_map.items()
             if fill_start_time <= minute < session_end_time
         ]
         if len(eligible) < 300:
             continue
         reference = ref_bar.close
-        drawdown = max(0.0, (reference - min(eligible)) / reference)
-        provisional.append(Session(session_date, reference, drawdown))
+        drawdown = max(0.0, (reference - min(bar.low for bar in eligible)) / reference)
+        # The original buy calibration retains its historical session contract.
+        # Sell highs must exclude proxy trading after a listed half-day close.
+        sell_end = sell_session_end(session_date, session_end_time)
+        sell_bars = [bar for minute, bar in minute_map.items() if fill_start_time <= minute < sell_end]
+        highs = [bar.high for bar in sell_bars if bar.high is not None]
+        runup = max(0.0, (max(highs) - reference) / reference) if highs and len(highs) == len(sell_bars) else None
+        provisional.append(Session(session_date, reference, drawdown, runup=runup))
 
     sessions: list[Session] = []
     for index, session in enumerate(provisional):
         next_return = None
         if index + 1 < len(provisional):
             next_return = provisional[index + 1].reference / session.reference - 1
-        sessions.append(Session(session.session_date, session.reference, session.drawdown, next_return))
+        sessions.append(Session(session.session_date, session.reference, session.drawdown, next_return, session.runup))
     return sessions
+
+
+def sell_session_end(day: date, normal: time = time(16, 0)) -> time:
+    # https://www.nyse.com/trade/hours-calendars (core equity session)
+    thanksgiving_friday = day.month == 11 and day.weekday() == 4 and 23 <= day.day <= 29
+    christmas_eve = day.month == 12 and day.day == 24 and day.weekday() < 4
+    july_third = day.month == 7 and day.day == 3 and day.weekday() < 4
+    return min(normal, time(13, 0)) if thanksgiving_friday or christmas_eve or july_third else normal
 
 
 def hit_count(drawdown: float, first_offset: float, spacing: float) -> int:
     if drawdown + 1e-12 < first_offset:
         return 0
     return min(MAX_RUNGS, 1 + int((drawdown - first_offset + 1e-12) / spacing))
+
+
+def excursion(session: Session, side: str) -> float:
+    if side == "buy":
+        return session.drawdown
+    if side != "sell":
+        raise ValueError(f"Unknown execution side: {side}")
+    if session.runup is None or not math.isfinite(session.runup):
+        raise ValueError("Sell scaling requires minute highs; buy drawdowns cannot substitute for runups")
+    return session.runup
 
 
 def percentile(values: list[float], probability: float) -> float:
@@ -324,7 +356,7 @@ def percentile(values: list[float], probability: float) -> float:
 
 
 def evaluate_candidate(
-    sessions: list[Session], lookback: int, first_offset: float, spacing: float
+    sessions: list[Session], lookback: int, first_offset: float, spacing: float, side: str = "buy"
 ) -> CandidateResult | None:
     weeks: dict[tuple[int, int], list[int]] = defaultdict(list)
     for index, session in enumerate(sessions):
@@ -339,9 +371,13 @@ def evaluate_candidate(
         start = indices[0]
         if start < lookback or len(indices) < 3:
             continue
+        # A sell backtest may only value unfilled shares at a genuinely later
+        # reference. The current unfinished week has no terminal observation.
+        if side == "sell" and indices[-1] + 1 >= len(sessions):
+            continue
         train = sessions[start - lookback : start]
         expected_hits = statistics.fmean(
-            hit_count(item.drawdown, first_offset, spacing) for item in train
+            hit_count(excursion(item, side), first_offset, spacing) for item in train
         )
         if expected_hits < 0.10:
             continue
@@ -353,7 +389,7 @@ def evaluate_candidate(
             session = sessions[index]
             days_left = len(indices) - day_number
             shares_per_rung = remaining / (days_left * expected_hits)
-            hits = hit_count(session.drawdown, first_offset, spacing)
+            hits = hit_count(excursion(session, side), first_offset, spacing)
             observed_days += 1
             if hits == 0:
                 zero_days += 1
@@ -361,7 +397,8 @@ def evaluate_candidate(
                 if remaining <= 1e-12:
                     break
                 quantity = min(shares_per_rung, remaining)
-                limit = session.reference * (1 - first_offset - rung * spacing)
+                distance = first_offset + rung * spacing
+                limit = session.reference * (1 + distance if side == "sell" else 1 - distance)
                 normalized_cost += quantity * limit / initial_reference
                 remaining -= quantity
 
@@ -371,7 +408,7 @@ def evaluate_candidate(
             sessions[next_index].reference if next_index < len(sessions) else sessions[indices[-1]].reference
         )
         normalized_cost += remaining * completion_reference / initial_reference
-        costs.append((normalized_cost - 1.0) * 10_000)
+        costs.append((1.0 - normalized_cost if side == "sell" else normalized_cost - 1.0) * 10_000)
 
     if len(costs) < 4:
         return None
@@ -385,8 +422,8 @@ def evaluate_candidate(
     )
 
 
-def previous_parameters(bundle: dict, instrument_id: str) -> tuple[int, float, float] | None:
-    payload = published_parameters(bundle, instrument_id)
+def previous_parameters(bundle: dict, instrument_id: str, side: str = "buy") -> tuple[int, float, float] | None:
+    payload = published_parameters(bundle, instrument_id, side)
     if payload is None:
         return None
     try:
@@ -400,13 +437,13 @@ def previous_parameters(bundle: dict, instrument_id: str) -> tuple[int, float, f
 
 
 def choose_candidate(
-    sessions: list[Session], prior: tuple[int, float, float] | None
+    sessions: list[Session], prior: tuple[int, float, float] | None, side: str = "buy"
 ) -> CandidateResult:
     candidates: list[CandidateResult] = []
     for lookback in LOOKBACKS:
         for first_offset in FIRST_OFFSETS:
             for spacing in SPACINGS:
-                result = evaluate_candidate(sessions, lookback, first_offset, spacing)
+                result = evaluate_candidate(sessions, lookback, first_offset, spacing, side)
                 if result is not None:
                     candidates.append(result)
     if not candidates:
@@ -433,14 +470,15 @@ def as_percent(value: float, digits: int = 4) -> float:
 
 
 def build_payload(
-    instrument: dict, sessions: list[Session], selected: CandidateResult, generated_at: str
+    instrument: dict, sessions: list[Session], selected: CandidateResult, generated_at: str, side: str = "buy"
 ) -> dict:
     recent = sessions[-selected.lookback :]
-    hits = [hit_count(item.drawdown, selected.first_offset, selected.spacing) for item in recent]
+    hits = [hit_count(excursion(item, side), selected.first_offset, selected.spacing) for item in recent]
     samples = [
         {
             "date": item.session_date.isoformat(),
             "drawdown_pct": as_percent(item.drawdown, 5),
+            "runup_pct": as_percent(item.runup, 5) if item.runup is not None else None,
             "next_reference_return_pct": (
                 as_percent(item.next_reference_return, 5)
                 if item.next_reference_return is not None
@@ -452,6 +490,7 @@ def build_payload(
     source = instrument["scaling_source"]
     return {
         "schema_version": 1,
+        "trade_side": side,
         "instrument_id": instrument["instrument_id"],
         "symbol": instrument["symbol"],
         "exchange": instrument["exchange"],
@@ -482,11 +521,15 @@ def build_payload(
         "walk_forward_stderr_bps": round(selected.stderr_bps, 3),
         "walk_forward_mean_passive_completion": round(selected.mean_completion, 4),
         "selection_rule": "one-standard-error plateau, then minimum distance from prior published parameters",
+        "excursion_measure": "runup" if side == "sell" else "drawdown",
+        "completion_assumption": "unfilled weekly shares valued at next reference; no automatic broker execution",
         "session_samples": samples,
         "notes": [
             f"{source['symbol']} is the registered intraday scaling proxy; order prices are applied to the user-entered {instrument['symbol']} reference price.",
-            f"The {instrument['reference_time']} bar sets the reference and is excluded from fills; eligible lows begin at {instrument['fill_start_time']} ET.",
+            f"The {instrument['reference_time']} bar sets the reference and is excluded from fills; eligible {'highs' if side == 'sell' else 'lows'} begin at {instrument['fill_start_time']} ET.",
             "Unfilled weekly quantity is completed at the next available reference in the walk-forward cost calculation.",
+            "Proxy price touches approximate rung hits; they do not model the listed instrument's spread, queue position, partial fills, fees or market impact.",
+            "Deadline tightening and the optional sell closeout are execution overlays, not independently optimized backtest policies.",
         ],
     }
 
@@ -497,8 +540,11 @@ def instruments_needing_update(
     return [
         item["instrument_id"]
         for item in instruments
-        if published_data_as_of(bundle, item["instrument_id"]) is None
-        or published_data_as_of(bundle, item["instrument_id"]) < expected
+        if any(
+            published_data_as_of(bundle, item["instrument_id"], side) is None
+            or published_data_as_of(bundle, item["instrument_id"], side) < expected
+            for side in SIDES
+        )
     ]
 
 
@@ -511,7 +557,8 @@ def should_run(
     current = now_et or datetime.now(ET)
     expected = expected_market_session(current)
     stale = instruments_needing_update(bundle, instruments, expected)
-    if not stale:
+    removed_entries = set(bundle.get("instruments", {})) - {item["instrument_id"] for item in instruments}
+    if not stale and not removed_entries:
         print(
             f"All {len(instruments)} execution instruments already cover {expected}. Nothing to do."
         )
@@ -608,29 +655,36 @@ def main() -> int:
         # A proxy plus session contract is one market layer. Instruments sharing
         # both deliberately share the same base scaling; the first available
         # prior keeps the group stable.
-        prior = next(
-            (
-                value
-                for item in group
-                if (value := previous_parameters(published_bundle, item["instrument_id"]))
-                is not None
-            ),
-            None,
-        )
-        selected = choose_candidate(sessions, prior)
+        sides = {}
+        for side in SIDES:
+            prior = next(
+                (
+                    value
+                    for item in group
+                    if (value := previous_parameters(published_bundle, item["instrument_id"], side))
+                    is not None
+                ),
+                None,
+            )
+            sides[side] = choose_candidate(sessions, prior, side)
         for instrument in group:
-            payloads[instrument["instrument_id"]] = build_payload(
-                instrument, sessions, selected, generated_at
-            )
-            print(
-                f"Fitted {instrument['instrument_id']}: "
-                f"offset={payloads[instrument['instrument_id']]['first_offset_pct']:.2f}% "
-                f"spacing={payloads[instrument['instrument_id']]['spacing_pct']:.2f}% "
-                f"lookback={payloads[instrument['instrument_id']]['lookback_sessions']}"
-            )
+            fitted = {
+                side: build_payload(instrument, sessions, selected, generated_at, side)
+                for side, selected in sides.items()
+            }
+            # Retain the root buy fields for existing readers during deployment.
+            payloads[instrument["instrument_id"]] = {**fitted["buy"], "sides": fitted}
+            for side, values in fitted.items():
+                print(
+                    f"Fitted {instrument['instrument_id']} {side.upper()}: "
+                    f"offset={values['first_offset_pct']:.2f}% "
+                    f"spacing={values['spacing_pct']:.2f}% "
+                    f"lookback={values['lookback_sessions']}"
+                )
 
     payload = {
-        "schema_version": 2,
+        "schema_version": 3,
+        "sides": list(SIDES),
         "generated_at": generated_at,
         "default_instrument_id": registry["default_instrument_id"],
         "instrument_count": len(payloads),

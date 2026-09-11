@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 import json
+import io
 import sys
 import tempfile
 import unittest
-from datetime import date, datetime
+import zipfile
+from datetime import date, datetime, timedelta, time
 from pathlib import Path
 from unittest.mock import patch
 from zoneinfo import ZoneInfo
@@ -69,14 +71,19 @@ The ETF holds spot Bitcoin, so BTCUSDT represents its intraday exposure.
 """
 
 
+def base_registry() -> dict:
+    item = build_instrument_from_issue(ISSUE_BODY)
+    item.update(instrument_id="ARCX:BTC", symbol="BTC", exchange="NYSE Arca", exchange_mic="ARCX", name="Grayscale Bitcoin Mini Trust ETF", default_reference_price=35)
+    return {"schema_version": 1, "default_instrument_id": "ARCX:BTC", "instruments": [item]}
+
+
 class RegistryTests(unittest.TestCase):
     def test_checked_in_registry_is_valid(self) -> None:
         registry = load_registry(ROOT / "data" / "execution_instruments.json")
-        self.assertEqual(registry["default_instrument_id"], "ARCX:BTC")
-        self.assertEqual(registry["instruments"][0]["scaling_source"]["symbol"], "BTCUSDT")
+        self.assertIn(registry["default_instrument_id"], [item["instrument_id"] for item in registry["instruments"] if item["enabled"]])
 
     def test_duplicate_instrument_ids_are_rejected(self) -> None:
-        item = load_registry(ROOT / "data" / "execution_instruments.json")["instruments"][0]
+        item = base_registry()["instruments"][0]
         with self.assertRaisesRegex(RegistryError, "duplicate"):
             validate_registry(
                 {
@@ -116,7 +123,7 @@ class RegistrationTests(unittest.TestCase):
                 "body": ISSUE_BODY,
             },
         }
-        original = json.loads((ROOT / "data" / "execution_instruments.json").read_text())
+        original = base_registry()
         with tempfile.TemporaryDirectory() as temp_dir:
             event_path = Path(temp_dir) / "event.json"
             registry_path = Path(temp_dir) / "registry.json"
@@ -132,7 +139,7 @@ class RegistrationTests(unittest.TestCase):
 
 class RemovalTests(unittest.TestCase):
     def two_instrument_registry(self) -> dict:
-        original = load_registry(ROOT / "data" / "execution_instruments.json")
+        original = base_registry()
         return {
             "schema_version": 1,
             "default_instrument_id": "ARCX:BTC",
@@ -166,7 +173,7 @@ class RemovalTests(unittest.TestCase):
                 registry_path = Path(temp_dir) / "registry.json"
                 write_registry(
                     registry_path,
-                    load_registry(ROOT / "data" / "execution_instruments.json"),
+                    base_registry(),
                 )
                 remove_from_registry(registry_path, "ARCX:BTC")
 
@@ -189,7 +196,7 @@ class RemovalTests(unittest.TestCase):
 
 class UpdaterTests(unittest.TestCase):
     def setUp(self) -> None:
-        self.instrument = load_registry(ROOT / "data" / "execution_instruments.json")["instruments"][0]
+        self.instrument = base_registry()["instruments"][0]
 
     def test_v2_bundle_freshness_and_prior(self) -> None:
         payload = {
@@ -205,13 +212,23 @@ class UpdaterTests(unittest.TestCase):
             },
         }
         now_et = datetime(2026, 9, 10, 9, 0, tzinfo=ZoneInfo("America/New_York"))
-        self.assertFalse(should_run(False, payload, [self.instrument], now_et))
+        # A fresh legacy BUY bundle must still run once to obtain SELL scaling.
+        self.assertTrue(should_run(False, payload, [self.instrument], now_et))
         prior = previous_parameters(payload, "ARCX:BTC")
         self.assertIsNotNone(prior)
         self.assertEqual(prior[0], 15)
         self.assertAlmostEqual(prior[1], 0.002)
         self.assertAlmostEqual(prior[2], 0.007)
+        self.assertIsNone(previous_parameters(payload, "ARCX:BTC", "sell"))
         self.assertEqual(instruments_needing_update(payload, [self.instrument], date(2026, 9, 10)), ["ARCX:BTC"])
+
+        buy = payload["instruments"]["ARCX:BTC"]
+        sell = {**buy, "first_offset_pct": 0.4}
+        payload["instruments"]["ARCX:BTC"] = {**buy, "sides": {"buy": buy, "sell": sell}}
+        self.assertFalse(should_run(False, payload, [self.instrument], now_et))
+        self.assertAlmostEqual(previous_parameters(payload, "ARCX:BTC", "sell")[1], 0.004)
+        sell["data_as_of"] = "2026-09-08"
+        self.assertTrue(should_run(False, payload, [self.instrument], now_et))
 
     def test_payload_carries_instrument_and_proxy(self) -> None:
         sessions = [
@@ -232,7 +249,7 @@ class UpdaterTests(unittest.TestCase):
             "instruments": [self.instrument, second],
         }
         sessions = [
-            Session(date(2026, 7, 1) if index == 0 else date(2026, 9, 30), 100 + index, 0.01, 0.001)
+            Session(date(2026, 7, 1) if index == 0 else date(2026, 9, 30), 100 + index, 0.01, 0.001, runup=0.02)
             for index in range(80)
         ]
         selected = CandidateResult(10, 0.0025, 0.008, [1.0, 2.0], [0.9, 1.0], 0.2)
@@ -251,12 +268,58 @@ class UpdaterTests(unittest.TestCase):
             with patch.object(sys, "argv", argv), patch.object(
                 updater, "download_bars", return_value=[]
             ) as download, patch.object(updater, "build_sessions", return_value=sessions), patch.object(
-                updater, "choose_candidate", return_value=selected
-            ):
+                updater, "choose_candidate", side_effect=[selected, CandidateResult(15, .004, .006, [3., 4.], [.8, .9], .3)]
+            ) as choose:
                 self.assertEqual(updater.main(), 0)
             bundle = json.loads(output_path.read_text())
             self.assertEqual(set(bundle["instruments"]), {"ARCX:BTC", "XNAS:IBIT"})
             self.assertEqual(download.call_count, 1)
+            self.assertEqual(choose.call_count, 2)
+            self.assertEqual({call.args[2] for call in choose.call_args_list}, {"buy", "sell"})
+            for item in bundle["instruments"].values():
+                self.assertEqual(set(item["sides"]), {"buy", "sell"})
+                self.assertEqual(item["sides"]["sell"]["first_offset_pct"], .4)
+                self.assertEqual(item["sides"]["buy"]["first_offset_pct"], .25)
+
+
+class SellFittingTests(unittest.TestCase):
+    def test_archive_high_and_reference_exclusion(self) -> None:
+        raw = io.BytesIO()
+        stamp = int(datetime(2026, 9, 10, 13, 35, tzinfo=updater.UTC).timestamp() * 1_000_000)
+        with zipfile.ZipFile(raw, "w") as archive:
+            archive.writestr("sample.csv", f"{stamp},99,103,98,100,20\n")
+        parsed = updater.parse_zip(raw.getvalue())[0]
+        self.assertEqual((parsed.low, parsed.close, parsed.high), (98, 100, 103))
+        bars = [updater.MinuteBar(parsed.opened_at, 1, 100, 900)]
+        bars += [updater.MinuteBar(parsed.opened_at + timedelta(minutes=i), 99, 100, 102) for i in range(1, 385)]
+        sessions = updater.build_sessions(bars)
+        self.assertAlmostEqual(sessions[0].drawdown, .01)
+        self.assertAlmostEqual(sessions[0].runup, .02)
+        self.assertIsNone(sessions[0].next_reference_return)
+
+    def test_half_day_sell_highs_stop_at_core_close(self) -> None:
+        start = datetime(2026, 11, 27, 9, 35, tzinfo=updater.ET)
+        bars = [updater.MinuteBar(start, 100, 100, 100)]
+        bars += [updater.MinuteBar(start + timedelta(minutes=i), 99, 100, 102 if i < 205 else 500) for i in range(1, 385)]
+        self.assertAlmostEqual(updater.build_sessions(bars)[0].runup, .02)
+        self.assertEqual(updater.sell_session_end(date(2026, 11, 27)), time(13))
+
+    def test_sell_cannot_use_buy_drawdowns_as_highs(self) -> None:
+        with self.assertRaisesRegex(ValueError, "minute highs"):
+            updater.excursion(Session(date(2026, 9, 10), 100, .04), "sell")
+
+    def test_shortfall_sign_and_penalty_for_unfilled_declining_inventory(self) -> None:
+        days = [date(2026, 2, 2) + timedelta(days=i) for i in range(75)]
+        days = [day for day in days if updater.is_market_session_day(day)]
+        sessions = [Session(day, 100, .004, runup=.004) for day in days]
+        buy = updater.evaluate_candidate(sessions, 10, .0025, .008, "buy")
+        sell = updater.evaluate_candidate(sessions, 10, .0025, .008, "sell")
+        self.assertAlmostEqual(buy.mean_cost_bps, -25)
+        self.assertAlmostEqual(sell.mean_cost_bps, -25)
+        declining = [Session(day, 100 - i * .8, .01, runup=.004 if i % 5 == 0 else 0) for i, day in enumerate(days)]
+        result = updater.evaluate_candidate(declining, 10, .0025, .008, "sell")
+        self.assertGreater(result.mean_cost_bps, 0)
+        self.assertGreater(result.zero_fill_rate, .5)
 
 
 if __name__ == "__main__":

@@ -28,7 +28,12 @@ jobs:
           python-version: "3.12"
       - name: Verify execution platform
         run: python -m unittest discover -s tests -v
-      - name: Refit every registered execution instrument
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Verify buy and sell calculation guards
+        run: node --test tests/test_execution_core.cjs
+      - name: Refit buy and sell for every registered execution instrument
         shell: bash
         run: |
           if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
