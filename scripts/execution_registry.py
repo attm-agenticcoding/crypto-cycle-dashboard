@@ -4,14 +4,15 @@
 from __future__ import annotations
 
 import json
+import math
 import re
 from pathlib import Path
 from typing import Any
 
 
 SUPPORTED_PROVIDERS = {"binance_vision"}
-SUPPORTED_MARKET_CALENDARS = {"XNYS"}
-SUPPORTED_TIMEZONES = {"America/New_York"}
+SUPPORTED_MARKET_CALENDARS = {"XNYS", "24X7"}
+SUPPORTED_TIMEZONES = {"America/New_York", "UTC"}
 
 
 class RegistryError(ValueError):
@@ -48,10 +49,16 @@ def validate_instrument(raw: Any) -> dict[str, Any]:
     if not isinstance(raw, dict):
         raise RegistryError("each instrument must be an object")
 
-    symbol = _code(raw.get("symbol"), "symbol", r"[A-Z0-9][A-Z0-9.\-]{0,14}", 15)
-    exchange_mic = _code(raw.get("exchange_mic"), "exchange_mic", r"[A-Z0-9]{4}", 4)
-    expected_id = f"{exchange_mic}:{symbol}"
-    supplied_id = _required_text(raw.get("instrument_id", expected_id), "instrument_id", 32).upper()
+    kind = raw.get("instrument_type", "listed_security")
+    if kind not in {"listed_security", "crypto_spot"}:
+        raise RegistryError("instrument_type must be listed_security or crypto_spot; derivatives are not supported")
+    crypto = kind == "crypto_spot"
+    symbol = _code(raw.get("symbol"), "symbol", r"[A-Z0-9][A-Z0-9.\-]{0,24}", 25)
+    exchange_mic = None if crypto else _code(raw.get("exchange_mic"), "exchange_mic", r"[A-Z0-9]{4}", 4)
+    if crypto and raw.get("venue_code") != "BINANCE":
+        raise RegistryError("crypto_spot currently supports the BINANCE venue only")
+    expected_id = f"BINANCE:SPOT:{symbol}" if crypto else f"{exchange_mic}:{symbol}"
+    supplied_id = _required_text(raw.get("instrument_id", expected_id), "instrument_id", 64).upper()
     if supplied_id != expected_id:
         raise RegistryError(f"instrument_id must be {expected_id!r}")
 
@@ -81,6 +88,8 @@ def validate_instrument(raw: Any) -> dict[str, Any]:
     timezone = _required_text(raw.get("timezone"), "timezone", 64)
     if timezone not in SUPPORTED_TIMEZONES:
         raise RegistryError(f"{expected_id}: unsupported timezone {timezone!r}")
+    if (market_calendar, timezone) != (("24X7", "UTC") if crypto else ("XNYS", "America/New_York")):
+        raise RegistryError("crypto_spot requires 24X7/UTC; listed securities require XNYS/America/New_York")
 
     try:
         default_reference_price = float(raw.get("default_reference_price"))
@@ -91,26 +100,49 @@ def validate_instrument(raw: Any) -> dict[str, Any]:
 
     reference_time = _clock(raw.get("reference_time"), "reference_time")
     fill_start_time = _clock(raw.get("fill_start_time"), "fill_start_time")
-    session_end_time = _clock(raw.get("session_end_time"), "session_end_time")
+    session_end_time = "24:00" if crypto and raw.get("session_end_time") == "24:00" else _clock(raw.get("session_end_time"), "session_end_time")
     if not reference_time < fill_start_time < session_end_time:
         raise RegistryError(
             f"{expected_id}: times must satisfy reference_time < fill_start_time < session_end_time"
         )
+    if crypto and (reference_time, fill_start_time, session_end_time) != ("00:00", "00:01", "24:00"):
+        raise RegistryError("crypto_spot uses a 00:00 UTC reference bar, 00:01 fills, and next-midnight reset")
+    rules = {"price_tick": .01, "quantity_step": 1.0, "min_quantity": 1.0, "max_quantity": 0.0, "min_notional": 0.0, "max_notional": 0.0, "min_price": .01, "max_price": 0.0}
+    if crypto:
+        for field in rules:
+            try:
+                value = float(raw[field])
+            except (KeyError, TypeError, ValueError) as exc:
+                raise RegistryError(f"{expected_id}: verified exchange field {field} is required") from exc
+            if not math.isfinite(value) or value < 0 or (field in {"price_tick", "quantity_step", "min_quantity"} and value <= 0):
+                raise RegistryError(f"{expected_id}: invalid exchange field {field}")
+            rules[field] = value
+        base_asset = _code(raw.get("base_asset"), "base_asset", r"[A-Z0-9]{1,20}", 20)
+        quote_asset = _code(raw.get("currency"), "currency", r"[A-Z0-9]{1,20}", 20)
+        if symbol != base_asset + quote_asset or proxy_symbol != symbol:
+            raise RegistryError("crypto_spot must match the exact venue pair and use its own minute data")
 
     return {
+        "instrument_type": kind,
         "instrument_id": expected_id,
         "symbol": symbol,
         "exchange": _required_text(raw.get("exchange"), "exchange", 80),
         "exchange_mic": exchange_mic,
+        "venue_code": "BINANCE" if crypto else exchange_mic,
         "name": _required_text(raw.get("name"), "name", 140),
         "asset_class": _required_text(raw.get("asset_class"), "asset_class", 40),
-        "currency": _code(raw.get("currency"), "currency", r"[A-Z]{3}", 3),
+        "currency": quote_asset if crypto else _code(raw.get("currency"), "currency", r"[A-Z]{3}", 3),
+        "base_asset": base_asset if crypto else symbol,
+        "quantity_unit": base_asset if crypto else "shares",
+        "order_time_in_force": "GTC" if crypto else "DAY",
+        **rules,
+        "exchange_rules_checked_at": raw.get("exchange_rules_checked_at") if crypto else None,
         "market_calendar": market_calendar,
         "timezone": timezone,
         "reference_time": reference_time,
         "fill_start_time": fill_start_time,
         "session_end_time": session_end_time,
-        "default_reference_price": round(default_reference_price, 8),
+        "default_reference_price": default_reference_price if crypto else round(default_reference_price, 8),
         "scaling_source": {
             "provider": provider,
             "symbol": proxy_symbol,
@@ -135,7 +167,7 @@ def validate_registry(raw: Any) -> dict[str, Any]:
     if len(ids) != len(set(ids)):
         raise RegistryError("registry contains duplicate instrument_id values")
 
-    default_id = _required_text(raw.get("default_instrument_id"), "default_instrument_id", 32).upper()
+    default_id = _required_text(raw.get("default_instrument_id"), "default_instrument_id", 64).upper()
     if default_id not in ids:
         raise RegistryError("default_instrument_id must identify a registered instrument")
     if not next(item for item in instruments if item["instrument_id"] == default_id)["enabled"]:

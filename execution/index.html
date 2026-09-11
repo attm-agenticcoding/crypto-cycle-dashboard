@@ -156,7 +156,7 @@
   <main class="shell">
     <div class="topbar">
       <a class="back" href="../">← Crypto Cycle Dashboard</a>
-      <span class="tag">Execution layer · v4</span>
+      <span class="tag">Execution layer · v5</span>
     </div>
 
     <section class="hero">
@@ -168,7 +168,7 @@
       <div class="stamp">
         <div class="stamp-label">Model contract</div>
         <div id="contract-times" class="stamp-value">09:35 reference · fills from 09:36</div>
-        <div class="stamp-sub">The reference minute is never reused as a fill minute. All order totals are capped at the effective weekly target.</div>
+        <div id="contract-note" class="stamp-sub">The reference minute is never reused as a fill minute. All order totals are capped at the effective weekly target.</div>
       </div>
     </section>
 
@@ -186,7 +186,7 @@
             </select>
           </div>
           <div class="instrument-actions">
-            <a class="secondary" href="https://github.com/attm-agenticcoding/crypto-cycle-dashboard/issues/new?template=add-execution-instrument.yml" target="_blank" rel="noopener" aria-label="Add ticker using GitHub; opens in a new tab">＋ Add ticker</a>
+            <a class="secondary" href="https://github.com/attm-agenticcoding/crypto-cycle-dashboard/issues/new/choose" target="_blank" rel="noopener" aria-label="Add ETF, stock or crypto spot pair using GitHub; opens in a new tab">＋ Add ticker</a>
             <a id="remove-ticker" class="secondary danger" href="https://github.com/attm-agenticcoding/crypto-cycle-dashboard/issues/new?template=remove-execution-instrument.yml" target="_blank" rel="noopener" aria-disabled="true" aria-label="Remove selected ticker using GitHub; opens in a new tab">− Remove selected</a>
           </div>
         </div>
@@ -197,6 +197,7 @@
         <span id="side-note" class="side-note">Buy below the reference · dollar targets</span>
         <p id="instrument-meta" class="instrument-meta">Loading the registered execution instrument and scaling proxy…</p>
         <p id="instrument-rationale" class="instrument-meta instrument-rationale"></p>
+        <p id="crypto-contract" class="instrument-meta warning" hidden>24/7 · UTC daily reset. GTC orders do not expire at midnight: cancel or update old orders before replacing the ladder. Quantities and minimum order sizes follow the exchange's published filters.</p>
         <div class="metrics">
           <div class="metric"><div class="metric-label">Base first offset</div><div id="base-first" class="metric-value">—</div></div>
           <div class="metric"><div class="metric-label">Base spacing</div><div id="base-spacing" class="metric-value">—</div></div>
@@ -261,8 +262,8 @@
           <div class="field" data-sell hidden><label for="sell-total-two">Total shares remaining by deadline</label><input id="sell-total-two" type="number" min="0" step="any" placeholder="Optional for price seeking" disabled></div>
           <div class="field" data-sell hidden><label for="sell-held-two">Current held shares</label><input id="sell-held-two" type="number" min="0" step="any" value="0" required disabled></div>
           <div class="field" data-sell hidden><label for="sell-reserved-two">Shares in existing sell orders</label><input id="sell-reserved-two" type="number" min="0" step="any" value="0" required disabled></div>
-          <p class="hint" data-buy>Leave “total remaining by deadline” blank to use only the weekly target. When supplied, a monotone schedule guardrail raises the target only when the current weekly pace is too slow to finish by the selected date. Same-day orders stop at 16:00 ET.</p>
-          <p class="hint" data-sell hidden>Enter remaining quantities, including unfilled sell orders. Existing orders are deducted from both the target and held shares when sizing new orders. Subtract actual fills from both remaining targets and holdings each day. Output uses whole shares; switching ticker clears sale quantities.</p>
+          <p id="buy-hint" class="hint" data-buy>Leave “total remaining by deadline” blank to use only the weekly target. When supplied, a monotone schedule guardrail raises the target only when the current weekly pace is too slow to finish by the selected date. Same-day orders stop at 16:00 ET.</p>
+          <p id="sell-hint" class="hint" data-sell hidden>Enter remaining quantities, including unfilled sell orders. Existing orders are deducted from both the target and held shares when sizing new orders. Subtract actual fills from both remaining targets and holdings each day. Output uses whole shares; switching ticker clears sale quantities.</p>
           <p id="form-error" class="field wide form-error" role="alert" hidden></p>
           <button id="calculate-button" class="primary wide" type="submit">Calculate today's buy orders</button>
         </form>
@@ -279,11 +280,12 @@
         <details>
           <summary>Market spacing, dynamic sizing, and the deadline pace guardrail</summary>
           <div class="method-copy">
-            <p><strong>Market layer.</strong> The updater searches rolling lookback × first offset × spacing on the selected instrument's registered proxy, <strong id="method-proxy">—</strong>. Every historical reference is the close of the <span id="method-reference">09:35</span> ET bar; eligible fills begin at <span id="method-fill">09:36</span>. Candidate ladders are compared by walk-forward weekly implementation shortfall. A one-standard-error plateau and the prior published parameter regularize the result.</p>
-            <p><strong>Sizing layer.</strong> Once spacing is fixed, shares are a control output: remaining target shares divided by remaining sessions and expected rung hits. Buy targets are entered in currency; sell targets are entered in shares and capped at holdings after accounting for existing sell orders. Buy limits round down and passive sell limits round up to cents.</p>
+            <p><strong>Market layer.</strong> The updater searches rolling lookback × first offset × spacing on the selected instrument's minute data, <strong id="method-proxy">—</strong>. Every historical reference is the close of the <span id="method-reference">09:35</span> <span id="method-timezone">ET</span> bar; eligible fills begin at <span id="method-fill">09:36</span>. Candidate ladders are compared by walk-forward weekly implementation shortfall. A one-standard-error plateau and the prior published parameter regularize the result.</p>
+            <p><strong>24/7 spot pairs.</strong> The daily reference is the close of the 00:00 UTC minute, with eligible fills from 00:01 through 23:59. Weekends and holidays count; weeks run Monday–Sunday in UTC. Both directions are fitted separately from the pair's full-day highs and lows. Scaling runs daily at 04:30 UTC with an 08:30 retry after archives become available. GTC orders require manual cancellation or replacement at the next UTC reset. Exchange tick, quantity and notional filters apply; changing market prices can also affect the exchange's dynamic price bands.</p>
+            <p><strong>Sizing layer.</strong> Once spacing is fixed, quantity is a control output: remaining target quantity divided by remaining sessions and expected rung hits. Buy targets use quote currency; sell targets use shares or the crypto base asset and are capped at holdings after accounting for existing sell orders. Buy prices round down and passive sell prices round up: to cents for listed securities, or the exchange price tick for crypto. Crypto quantities follow the exchange step and minimum order size.</p>
             <p><strong>Deadline layer.</strong> Supplying total capital remaining activates an explicit schedule guardrail. The even-pace floor is total remaining × eligible sessions in the current window ÷ sessions to the deadline; the current window ends at the earlier of week-end or the deadline. The effective target is the larger of that floor and the entered weekly target, capped at total remaining. If the floor causes a pace lift, market distances tighten by 1 ÷ √(pace lift), bounded between 0.40× and 1.00×. This rule is deliberately monotone: moving the deadline closer can never reduce the target or widen the ladder.</p>
             <p><strong>Sell scaling.</strong> Sell fits use the largest upward move after the reference, independently of buy drawdowns. The objective minimizes sale shortfall: reference value minus sale proceeds, with unfilled weekly shares valued at the next reference. That terminal valuation is a backtest assumption. Expected hits are proxy price touches, not guaranteed fills; the proxy does not capture the listed instrument's bid–ask spread, queue, partial fills or fees.</p>
-            <p><strong>Sale priority.</strong> Price seeking keeps a passive ladder. Finish by deadline adds a manual closeout 15 minutes before the final eligible session closes: recalculate with updated fills, holdings, outstanding orders and a fresh best bid. It generates a sell limit at that bid, rounded down to cents. Check the broker's allowed tick before placing it. A moving quote can leave it unfilled. The deadline and closeout rules are explicit overlays, not separately fitted optima. Nothing on this page submits or cancels broker orders. See the <a href="https://www.nyse.com/trade/hours-calendars" target="_blank" rel="noopener">NYSE session calendar</a>.</p>
+            <p><strong>Sale priority.</strong> Price seeking keeps a passive ladder. Finish by deadline adds a manual closeout 15 minutes before the final eligible session closes (23:45 UTC for crypto): recalculate with updated fills, holdings, outstanding orders and a fresh best bid. It generates a sell limit at that bid, rounded down to the applicable price tick. Check the broker or exchange preview before placing it. A moving quote can leave it unfilled. The deadline and closeout rules are explicit overlays, not separately fitted optima. Nothing on this page submits or cancels orders. See the <a href="https://www.nyse.com/trade/hours-calendars" target="_blank" rel="noopener">NYSE session calendar</a>.</p>
             <p id="fallback-note" class="warning" hidden>The published JSON is still the daily-OHLC seed. Deadline pacing remains available, but market spacing is using fallback parameters until the first successful minute-data update.</p>
             <p id="pending-note" class="warning" hidden>This instrument is registered but has not completed its first scaling run. Order calculation stays disabled until fitted parameters are published.</p>
           </div>
@@ -294,7 +296,7 @@
     <footer>Research and educational use only; not investment advice. Verify the live quote, tick size, buying power, order duration, and broker preview before submitting any order.</footer>
   </main>
 
-  <script src="./execution-core.js?v=4"></script>
+  <script src="./execution-core.js?v=5"></script>
   <script>
     const PARAMS_URL = "../data/execution_params.json";
     const REGISTRY_URL = "../data/execution_instruments.json";
@@ -327,16 +329,31 @@
     let paramsById = { [FALLBACK.instrument_id]: FALLBACK };
     let side = "buy";
     let selectedInstrumentId = FALLBACK.instrument_id;
+    let lastDailyCycle = "";
+    const isCrypto = () => params.market_calendar === "24X7";
+    const zoneLabel = () => isCrypto() ? "UTC" : "ET";
+    const unitLabel = () => isCrypto() ? params.base_asset : "shares";
+    const qty = value => ExecutionCore.quantityText(value, params.quantity_step || 1);
+    const priceText = value => isCrypto() ? `${Number(value).toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: Math.min(15, ExecutionCore.stepDecimals(params.price_tick || .01)) })} ${params.currency}` : money2.format(value);
 
     let money = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
     let money2 = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
     function setCurrency(currency) {
+      if (isCrypto()) {
+        const formatter = new Intl.NumberFormat("en-US", { maximumFractionDigits: 8 });
+        money = money2 = { format: value => `${formatter.format(value)} ${currency}` };
+        document.querySelectorAll(".currency-prefix").forEach(node => {
+          node.textContent = currency;
+          node.parentNode.querySelector("input").style.paddingLeft = `${20 + currency.length * 9}px`;
+        });
+        return;
+      }
       const safeCurrency = /^[A-Z]{3}$/.test(currency || "") ? currency : "USD";
       money = new Intl.NumberFormat("en-US", { style: "currency", currency: safeCurrency, maximumFractionDigits: 0 });
       money2 = new Intl.NumberFormat("en-US", { style: "currency", currency: safeCurrency, minimumFractionDigits: 2, maximumFractionDigits: 2 });
       const symbol = new Intl.NumberFormat("en-US", { style: "currency", currency: safeCurrency, currencyDisplay: "narrowSymbol", maximumFractionDigits: 0 }).formatToParts(0).find(part => part.type === "currency")?.value || safeCurrency;
-      document.querySelectorAll(".currency-prefix").forEach(node => { node.textContent = symbol; });
+      document.querySelectorAll(".currency-prefix").forEach(node => { node.textContent = symbol; node.parentNode.querySelector("input").style.paddingLeft = "28px"; });
     }
 
     function observedHoliday(d) {
@@ -372,18 +389,18 @@
         key(fixed(7, 4)), key(nthWeekday(year, 9, 1, 1)), key(nthWeekday(year, 11, 4, 4)), key(fixed(12, 25))
       ]);
     }
-    function isSession(d) { return d.getUTCDay() > 0 && d.getUTCDay() < 6 && !holidays(d.getUTCFullYear()).has(key(d)); }
+    function isSession(d) { return isCrypto() || (d.getUTCDay() > 0 && d.getUTCDay() < 6 && !holidays(d.getUTCFullYear()).has(key(d))); }
     function nyParts(at = new Date()) {
-      const parts = Object.fromEntries(new Intl.DateTimeFormat("en-US", {
-        timeZone: "America/New_York", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hourCycle: "h23"
-      }).formatToParts(at).filter(x => x.type !== "literal").map(x => [x.type, x.value]));
-      return { date: new Date(Date.UTC(+parts.year, +parts.month - 1, +parts.day)), hour: +parts.hour, minute: +parts.minute };
+      return ExecutionCore.calendarParts(params, at);
     }
     function parametersReady(item = params) {
       return ExecutionCore.parametersReady(item);
     }
     function tradingWindow(now = nyParts()) {
       const symbol = params.symbol || "selected instrument";
+      if (isCrypto()) return now.hour === 0 && now.minute === 0
+        ? { open: false, label: "Daily reference forming", message: "The 00:00 UTC reference minute is forming. Recalculate from 00:01 with the new reference." }
+        : { open: true, label: "24/7 · UTC", message: "" };
       if (!isSession(now.date)) return { open: false, label: `No ${symbol} session today`, message: `Today is not a ${symbol} trading session, so no same-day DAY orders are generated.` };
       const cutoff = side === "sell" ? ExecutionCore.sellSessionCloseMinutes(now.date) : 16 * 60;
       if (now.hour * 60 + now.minute >= cutoff) return { open: false, label: `${clockLabel(cutoff)} ET cutoff passed`, message: `Today's ${symbol} session is over. Same-day orders are no longer generated.` };
@@ -414,6 +431,7 @@
     }
     function sessionsThrough(endDate) {
       const now = nyParts();
+      if (isCrypto()) return ExecutionCore.cryptoRemainingDays(now, endDate);
       let cursor = now.date;
       const cutoff = side === "sell" ? ExecutionCore.sellSessionCloseMinutes(now.date) : 16 * 60;
       if (!isSession(cursor) || now.hour * 60 + now.minute >= cutoff) do { cursor = addDays(cursor, 1); } while (!isSession(cursor));
@@ -423,6 +441,7 @@
     }
     function remainingWeekSessions() {
       const now = nyParts();
+      if (isCrypto()) return ExecutionCore.cryptoRemainingDays(now);
       let cursor = now.date;
       let count = 0;
       for (let i = 0; i < 7; i++, cursor = addDays(cursor, 1)) {
@@ -495,7 +514,7 @@
       const parsed = new Date(value);
       if (Number.isNaN(parsed.getTime())) return value;
       return new Intl.DateTimeFormat("en-US", {
-        timeZone: "America/New_York",
+        timeZone: isCrypto() ? "UTC" : "America/New_York",
         month: "short",
         day: "numeric",
         hour: "numeric",
@@ -531,6 +550,12 @@
       if (!dataDate) return { label: "Unknown", className: "", title: "The parameter data date is unavailable." };
       const now = nyParts(at);
       const minutes = now.hour * 60 + now.minute;
+      if (isCrypto()) {
+        const expected = addDays(now.date, -1);
+        if (key(dataDate) >= key(expected)) return { label: "Current", className: "current", title: `Complete through ${tradingDateLabel(dataDate)} UTC.` };
+        const pending = minutes < 8 * 60 + 30 && key(dataDate) >= key(addDays(expected, -1));
+        return { label: pending ? "Refresh pending" : "Update delayed", className: pending ? "pending" : "delayed", title: `Expected ${tradingDateLabel(expected)} UTC. Daily archives can arrive after the scheduled refresh.` };
+      }
       const closeRunDue = isSession(now.date) && minutes >= 20 * 60 + 30;
       const priorSession = previousSession(now.date);
       const expectedDate = closeRunDue ? now.date : priorSession;
@@ -543,11 +568,13 @@
       return { label: "Update delayed", className: "delayed", title: `Expected data through ${tradingDateLabel(expectedDate)}, but parameters cover ${tradingDateLabel(dataDate)}.` };
     }
     function nextUpdateLabel(dataAsOf) {
+      if (isCrypto()) return "Daily 04:30 / 08:30 UTC";
       const dataDate = parseTradingDate(dataAsOf);
       if (!dataDate) return "After next market close";
       return `${tradingDateLabel(nextSession(dataDate))} after 8:30 PM ET`;
     }
     function renderAccount(name, weekly, capital, reference, deadlineSessions, weekSessions) {
+      if (isCrypto()) return renderCryptoBuyAccount(name, weekly, capital, reference, deadlineSessions, weekSessions);
       if (weekly <= 0) return "";
       const controller = optimizeDeadline(weekly, capital, weekSessions, deadlineSessions);
       const effectiveWeekly = controller.weekly;
@@ -579,10 +606,29 @@
         <div class="notice">${controllerNote} Maximum outstanding quantity is ${plan.targetShares.toLocaleString()} shares; the final rung is trimmed to prevent over-deployment.</div>
       </article>`;
     }
+    function renderCryptoBuyAccount(name, weekly, capital, reference, horizon, weekSessions) {
+      if (!(+weekly > 0) && !(+capital > 0)) return "";
+      const plan = ExecutionCore.cryptoPlan({weekly, total: capital === "" ? null : capital, reference, horizon, weekSessions, params});
+      const c = plan.controller;
+      const rows = plan.orders.map(o => `<tr><td>Rung ${o.rung}</td><td>${priceText(o.price)}</td><td>${qty(o.shares)}</td><td>${money2.format(o.notional)}</td></tr>`).join("");
+      const remainder = plan.fractionalRemainder + plan.unallocated;
+      return `<article class="account-result">
+        <div class="result-title"><h3>${name} · BUY ${params.symbol} · GTC</h3><span class="urgency ${urgencyClass(c.urgency)}">${c.urgency}</span></div>
+        <div class="result-metrics">
+          <div class="result-metric"><span>Effective weekly target</span><strong>${money.format(c.weekly)}</strong></div>
+          <div class="result-metric"><span>Even-pace floor</span><strong>${c.enabled ? money.format(c.scheduleFloor) : "—"}</strong></div>
+          <div class="result-metric"><span>${unitLabel()} / rung</span><strong>${qty(plan.perRung)}</strong></div>
+          <div class="result-metric"><span>Effective offset / spacing</span><strong>${(plan.first * 100).toFixed(2)}% / ${(plan.spacing * 100).toFixed(2)}%</strong></div>
+          <div class="result-metric"><span>Deadline pace lift</span><strong>${c.enabled ? c.lift.toFixed(2) + "×" : "—"}</strong></div>
+        </div>
+        ${rows ? `<div class="table-wrap"><table><thead><tr><th>Buy order</th><th>Limit</th><th>${unitLabel()}</th><th>Cost at limit</th></tr></thead><tbody>${rows}</tbody></table></div>` : ""}
+        <div class="notice">New orders total ${qty(plan.orderQuantity)} ${unitLabel()}, with cost at their limits of ${money2.format(plan.orders.reduce((sum, o) => sum + o.notional, 0))}, before fees. ${remainder > 1e-12 ? "A remainder is below the permitted order increment or minimum size. " : ""}GTC orders do not expire at UTC midnight. Cancel unfilled orders from the previous plan before placing this replacement ladder. Deduct actual spend from remaining budgets; allow for exchange fees.</div>
+      </article>`;
+    }
     function clockLabel(minutes) { return `${String(Math.floor(minutes / 60)).padStart(2, "0")}:${String(minutes % 60).padStart(2, "0")}`; }
     function sellDeadlineState() {
       const deadline = parseTradingDate(document.getElementById("deadline").value);
-      return deadline ? ExecutionCore.sellCloseoutState(deadline, nyParts(), isSession) : null;
+      return deadline ? ExecutionCore.sellCloseoutState(deadline, nyParts(), isSession, params.market_calendar) : null;
     }
     let lastCloseoutPhase = "";
     let bidUpdatedAt = 0;
@@ -590,7 +636,7 @@
       const hard = side === "sell" && document.getElementById("sell-policy").value === "deadline";
       const state = side === "sell" ? sellDeadlineState() : null;
       const closeout = hard && state?.due;
-      const phase = `${side}:${hard}:${state?.finalDate}:${state?.due}:${state?.expired}`;
+      const phase = `${selectedInstrumentId}:${side}:${hard}:${state?.finalDate}:${state?.due}:${state?.expired}`;
       if (phase !== lastCloseoutPhase) {
         document.getElementById("closeout-bid").value = "";
         bidUpdatedAt = 0;
@@ -604,8 +650,8 @@
       document.getElementById("calculate-button").textContent = closeout ? "Calculate closeout sell order" : `Calculate today's ${side} orders`;
       const note = document.getElementById("sell-policy-note");
       note.textContent = hard && state
-        ? `Final eligible session: ${tradingDateLabel(state.finalDate)}. ${clockLabel(state.startMinutes)}–${clockLabel(state.closeMinutes)} ET is the manual closeout window. Enter total remaining shares for each active account. Recalculate then with a fresh best bid; the page cannot submit orders or guarantee completion.`
-        : "Passive sell limits sit above the reference. Deadline pressure can bring them closer; shares may remain unsold. With total remaining blank, only the weekly share target is used.";
+        ? `Final eligible session: ${tradingDateLabel(state.finalDate)}. ${clockLabel(state.startMinutes)}–${clockLabel(state.closeMinutes)} ${zoneLabel()} is the manual closeout window. Enter total remaining ${unitLabel()} for each active account. Recalculate then with a fresh best bid; the page cannot submit orders or guarantee completion.`
+        : `Passive sell limits sit above the reference. Deadline pressure can bring them closer; ${unitLabel()} may remain unsold. With total remaining blank, only the weekly target is used.`;
     }
     function renderSellAccount(name, suffix, reference, horizon, weekSessions) {
       const value = field => document.getElementById(`sell-${field}-${suffix}`).value;
@@ -613,8 +659,8 @@
       if (+weekly === 0 && (total === null || +total === 0)) return "";
       const hard = document.getElementById("sell-policy").value === "deadline";
       const state = sellDeadlineState();
-      if (hard && total === null) throw new Error(`${name}: total remaining shares are required for Finish by deadline.`);
-      if (!state || state.expired || horizon < 1) throw new Error("The sale deadline has passed. Update the deadline and remaining shares.");
+      if (hard && total === null) throw new Error(`${name}: total remaining ${unitLabel()} are required for Finish by deadline.`);
+      if (!state || state.expired || horizon < 1) throw new Error("The sale deadline has passed. Update the deadline and remaining quantity.");
       const closeout = hard && state.due;
       if (closeout && Date.now() - bidUpdatedAt > 60000) throw new Error("Refresh the current best bid before calculating a closeout order (quote entry expires after 60 seconds).");
       let plan;
@@ -622,32 +668,34 @@
         plan = ExecutionCore.sellPlan({ weekly, total, held: value("held"), reserved: value("reserved"), reference, weekSessions, horizon, params, closeout, bid: document.getElementById("closeout-bid").value });
       } catch (error) { throw new Error(`${name}: ${error.message}`); }
       const c = plan.controller;
-      const shares = value => `${Math.floor(value).toLocaleString()} sh`;
+      const shares = value => `${qty(value)} ${unitLabel()}`;
       let note = c.enabled
-        ? `Deadline pace target: ${shares(c.weekly)}; even-pace floor: ${c.scheduleFloor.toLocaleString(undefined, {maximumFractionDigits: 2})} shares. `
-        : "Weekly share target only; deadline pacing is off. ";
-      note += `New orders total ${shares(plan.targetShares)} after accounting for ${shares(plan.working)} in existing sell orders. `;
-      if (plan.inventoryCapped) note += "Holdings limit the new order size; the intended target cannot be fully covered with the entered available shares. ";
+        ? `Deadline pace target: ${shares(c.weekly)}; even-pace floor: ${shares(c.scheduleFloor)}. `
+        : "Weekly quantity target only; deadline pacing is off. ";
+      note += `New orders total ${shares(plan.orderQuantity ?? plan.targetShares)} after accounting for ${shares(plan.working)} in existing sell orders. `;
+      if (plan.inventoryCapped) note += "Holdings limit the new order size; the intended target cannot be fully covered with the entered available quantity. ";
       if (plan.targetAlreadyCovered) note += "Existing orders already cover the current target; no additional sell order is needed. ";
-      if (plan.fractionalRemainder > 1e-8) note += "A fractional remainder is excluded from whole-share orders. ";
+      if (plan.fractionalRemainder > 1e-12 || plan.unallocated > 0) note += `A remainder of ${Number((plan.fractionalRemainder || 0) + (plan.unallocated || 0)).toPrecision(6)} ${unitLabel()} cannot be allocated within the order increments/minimums. `;
+      if (isCrypto()) note += "GTC orders do not expire at midnight; manage existing orders before replacing the next daily ladder. ";
       if (hard) note += closeout
         ? "Closeout: use the current best bid shown below and review the quote at your broker. Existing orders remain reserved; cancel or amend them at the broker if needed, then update these inputs. A limit order can remain unfilled. "
-        : `Return at ${clockLabel(state.startMinutes)} ET on ${tradingDateLabel(state.finalDate)} for the closeout step. `;
-      const rows = plan.orders.map(o => `<tr><td>${closeout ? "Closeout" : `Rung ${o.rung}`}</td><td>${money2.format(o.price)}</td><td>${o.shares.toLocaleString()}</td><td>${money2.format(o.notional)}</td></tr>`).join("");
+        : `Return at ${clockLabel(state.startMinutes)} ${zoneLabel()} on ${tradingDateLabel(state.finalDate)} for the closeout step. `;
+      const rows = plan.orders.map(o => `<tr><td>${closeout ? "Closeout" : `Rung ${o.rung}`}</td><td>${priceText(o.price)}</td><td>${qty(o.shares)}</td><td>${money2.format(o.notional)}</td></tr>`).join("");
       return `<article class="account-result">
-        <div class="result-title"><h3>${name} · SELL ${params.symbol} · DAY</h3><span class="urgency ${closeout ? "high" : urgencyClass(c.urgency)}">${closeout ? "CLOSEOUT" : c.urgency}</span></div>
+        <div class="result-title"><h3>${name} · SELL ${params.symbol} · ${isCrypto() ? "GTC" : "DAY"}</h3><span class="urgency ${closeout ? "high" : urgencyClass(c.urgency)}">${closeout ? "CLOSEOUT" : c.urgency}</span></div>
         <div class="result-metrics">
           <div class="result-metric"><span>Effective weekly target</span><strong>${shares(c.weekly)}</strong></div>
           <div class="result-metric"><span>Available for new orders</span><strong>${shares(plan.available)}</strong></div>
-          <div class="result-metric"><span>Shares / rung</span><strong>${plan.perRung.toLocaleString()}</strong></div>
+          <div class="result-metric"><span>${unitLabel()} / rung</span><strong>${qty(plan.perRung)}</strong></div>
           <div class="result-metric"><span>${closeout ? "Pricing" : "Effective offset / spacing"}</span><strong>${closeout ? "Live best bid" : `${(plan.first * 100).toFixed(2)}% / ${(plan.spacing * 100).toFixed(2)}%`}</strong></div>
           <div class="result-metric"><span>Deadline pace lift</span><strong>${c.enabled ? c.lift.toFixed(2) + "×" : "—"}</strong></div>
         </div>
-        ${rows ? `<div class="table-wrap"><table><thead><tr><th>Sell order</th><th>Limit</th><th>Shares</th><th>Proceeds at limit</th></tr></thead><tbody>${rows}</tbody></table></div>` : ""}
+        ${rows ? `<div class="table-wrap"><table><thead><tr><th>Sell order</th><th>Limit</th><th>${unitLabel()}</th><th>Proceeds at limit</th></tr></thead><tbody>${rows}</tbody></table></div>` : ""}
         <div class="notice">${note}Subtract actual fills from both remaining targets and current holdings before the next calculation.</div>
       </article>`;
     }
     function selectSide(nextSide) {
+      refreshClock();
       side = nextSide === "sell" ? "sell" : "buy";
       document.body.dataset.side = side;
       for (const current of ["buy", "sell"]) {
@@ -672,7 +720,7 @@
       document.getElementById("base-first").textContent = pending ? "—" : (+params.first_offset_pct).toFixed(2) + "%";
       document.getElementById("base-spacing").textContent = pending ? "—" : (+params.spacing_pct).toFixed(2) + "%";
       document.getElementById("base-hits").textContent = pending ? "—" : (+params.expected_rungs_per_session).toFixed(2) + " / day";
-      document.getElementById("base-lookback").textContent = pending ? "—" : params.lookback_sessions + " sessions";
+      document.getElementById("base-lookback").textContent = pending ? "—" : params.lookback_sessions + (isCrypto() ? " calendar days" : " sessions");
       const freshness = pending
         ? { label: "Pending first fit", className: "pending", title: "The instrument is registered and will be fitted by the next scaling run." }
         : parameterFreshness(params.data_as_of, live);
@@ -698,7 +746,7 @@
       const empty = document.getElementById("empty");
       empty.hidden = false;
       empty.textContent = parametersReady()
-        ? `Enter today's ${params.symbol || "instrument"} reference and ${side === "sell" ? "remaining shares, holdings and existing sell orders" : "remaining amounts"}, then calculate ${side} orders. Accounts are sized independently.`
+        ? `Enter today's ${params.symbol || "instrument"} reference and ${side === "sell" ? `remaining ${unitLabel()}, holdings and existing sell orders` : "remaining amounts"}, then calculate ${side} orders. Accounts are sized independently.`
         : `${params.symbol || "This instrument"} has no fitted ${side} scaling yet. Orders stay disabled until parameters are published.`;
     }
     function updateRemoveLink() {
@@ -714,7 +762,7 @@
         params.instrument_id,
         "",
         "### Selected instrument",
-        `${params.symbol} · ${params.exchange_mic} — ${params.name || params.execution_instrument}`,
+        `${params.symbol} · ${params.venue_code || params.exchange_mic} — ${params.name || params.execution_instrument}`,
         "",
         "### Removal confirmation",
         "Submitting this issue requests removal of the exact instrument shown above."
@@ -728,17 +776,37 @@
           document.getElementById(`sell-${field}-${suffix}`).value = field === "total" ? "" : "0";
         document.getElementById("closeout-bid").value = "";
         bidUpdatedAt = 0;
+        // Amounts in one quote currency must not silently become another.
+        document.getElementById("capital-one").value = "";
+        document.getElementById("capital-two").value = "";
+        document.getElementById("weekly-one").value = selected.market_calendar === "24X7" ? "0" : "10000";
+        document.getElementById("weekly-two").value = selected.market_calendar === "24X7" ? "0" : "10000";
       }
       selectedInstrumentId = instrumentId || selected.instrument_id;
       params = ExecutionCore.sideParameters(selected, side);
+      lastDailyCycle = `${selectedInstrumentId}:${key(nyParts().date)}`;
       setCurrency(params.currency);
-      document.getElementById("reference-price-label").textContent = `${params.reference_time || "09:35"} ${params.symbol} reference`;
-      document.getElementById("contract-times").textContent = `${params.reference_time || "09:35"} reference · fills from ${params.fill_start_time || "09:36"}`;
+      document.getElementById("reference-price-label").textContent = `${params.reference_time || "09:35"} ${zoneLabel()} ${params.symbol} reference`;
+      document.getElementById("contract-times").textContent = `${params.reference_time || "09:35"} reference · fills from ${params.fill_start_time || "09:36"} ${zoneLabel()}`;
+      document.getElementById("contract-note").textContent = isCrypto() ? "24/7 spot · Daily UTC cycle · Reference minute excluded from fills. Reset unfilled GTC orders at next midnight." : "The reference minute is never reused as a fill minute. All order totals are capped at the effective weekly target.";
+      document.getElementById("crypto-contract").hidden = !isCrypto();
+      if (isCrypto()) document.getElementById("crypto-contract").textContent = `24/7 · UTC reset · Quantity step ${params.quantity_step} ${params.base_asset}; price tick ${params.price_tick} ${params.currency}; minimum order ${params.min_notional} ${params.currency}. GTC orders do not expire at midnight: manage old orders before replacing the ladder.`;
+      document.getElementById("deadline-label").textContent = `${side === "sell" ? "Sale completion" : "Capital deployment"} deadline (${zoneLabel()})`;
+      document.getElementById("reference-price").min = params.min_price || params.price_tick || .01;
+      document.getElementById("closeout-bid").min = params.min_price || params.price_tick || .01;
+      document.getElementById("side-note").textContent = side === "sell" ? `Sell above the reference · ${unitLabel()} targets` : `Buy below the reference · ${params.currency || "USD"} budgets`;
+      for (const suffix of ["one", "two"]) {
+        const labels = {weekly: `${unitLabel()} remaining to sell this week`, total: `Total ${unitLabel()} remaining by deadline`, held: `Current held ${unitLabel()}`, reserved: `${unitLabel()} in existing sell orders`};
+        for (const [field, label] of Object.entries(labels)) document.querySelector(`label[for="sell-${field}-${suffix}"]`).textContent = label;
+      }
+      document.getElementById("buy-hint").textContent = `Leave total remaining blank to use only the weekly budget. ${isCrypto() ? "Budgets use the quote asset; weeks end Sunday UTC, including weekends. Cancel old GTC orders before replacing a daily ladder." : "Deadline pacing raises the target only when needed. Same-day orders stop at 16:00 ET."}`;
+      document.getElementById("sell-hint").textContent = `Remaining quantities include unfilled orders. Existing sell orders are deducted from the target and holdings when sizing new orders. Subtract actual fills from both targets and holdings. ${isCrypto() ? "Quantities use the exchange step, including fractions." : "Output uses whole shares."} Switching ticker clears sale quantities.`;
       document.getElementById("method-reference").textContent = params.reference_time || "09:35";
       document.getElementById("method-fill").textContent = params.fill_start_time || "09:36";
+      document.getElementById("method-timezone").textContent = zoneLabel();
       const proxy = params.scaling_source?.symbol || params.market_proxy || "—";
       document.getElementById("method-proxy").textContent = proxy;
-      document.getElementById("instrument-meta").textContent = `${params.exchange || "Unknown exchange"} (${params.exchange_mic || "MIC unknown"}) · ${params.name || params.execution_instrument || params.symbol} · ${params.asset_class || "listed instrument"} · scaling proxy ${proxy}`;
+      document.getElementById("instrument-meta").textContent = `${params.exchange || "Unknown exchange"} (${params.venue_code || params.exchange_mic || "venue unknown"}) · ${params.name || params.execution_instrument || params.symbol} · ${params.asset_class || "listed instrument"} · ${isCrypto() ? "direct pair data" : "scaling proxy"} ${proxy}`;
       document.getElementById("instrument-rationale").textContent = params.scaling_source?.rationale ? `Proxy mapping: ${params.scaling_source.rationale}` : "";
       if (resetReference && Number(params.default_reference_price) > 0) {
         document.getElementById("reference-price").value = params.default_reference_price;
@@ -753,6 +821,7 @@
       renderModel();
       clearResults();
       applyTradingWindow();
+      syncSellPolicy();
     }
     function installParameterPayload(payload, registry) {
       let parameterEntries = [];
@@ -818,6 +887,8 @@
     });
     document.getElementById("calculator-form").addEventListener("submit", event => {
       event.preventDefault();
+      // Recheck the cycle even if a background tab delayed the clock timer.
+      refreshClock();
       document.getElementById("form-error").hidden = true;
       syncSellPolicy();
       const windowState = applyTradingWindow();
@@ -844,8 +915,8 @@
           renderSellAccount("Account 1", "one", reference, deadlineSessions, weekSessions),
           renderSellAccount("Account 2", "two", reference, deadlineSessions, weekSessions)
         ] : [
-        renderAccount("Account 1", values("weekly-one"), values("capital-one"), reference, deadlineSessions, weekSessions),
-        renderAccount("Account 2", values("weekly-two"), values("capital-two"), reference, deadlineSessions, weekSessions)
+        renderAccount("Account 1", values("weekly-one"), isCrypto() ? document.getElementById("capital-one").value : values("capital-one"), reference, deadlineSessions, weekSessions),
+        renderAccount("Account 2", values("weekly-two"), isCrypto() ? document.getElementById("capital-two").value : values("capital-two"), reference, deadlineSessions, weekSessions)
         ]).filter(Boolean).join("");
       } catch (error) {
         clearResults();
@@ -870,6 +941,15 @@
       applyTradingWindow();
     });
     function refreshClock() {
+      const cycle = `${selectedInstrumentId}:${key(nyParts().date)}`;
+      if (isCrypto() && cycle !== lastDailyCycle) {
+        lastDailyCycle = cycle;
+        document.getElementById("reference-price").value = "";
+        document.getElementById("closeout-bid").value = "";
+        bidUpdatedAt = 0;
+        clearResults();
+      }
+      renderModel();
       syncSellPolicy();
       const windowState = applyTradingWindow();
       if (!windowState.open) {

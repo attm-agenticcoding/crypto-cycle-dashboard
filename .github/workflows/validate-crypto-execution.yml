@@ -1,0 +1,31 @@
+name: Validate 24/7 crypto execution
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check execution contracts
+        run: |
+          python -m unittest discover -s tests -v
+          node --test tests/test_execution_core.cjs
+      - name: Fit real crypto data without publishing
+        run: python scripts/validate_crypto_execution.py --report crypto-validation.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: crypto-execution-validation
+          path: crypto-validation.json
+          retention-days: 7

@@ -14,14 +14,14 @@ from register_execution_instrument import issue_sections, required_section, vali
 
 
 ISSUE_TITLE_PREFIX = "[Remove execution instrument]"
-INSTRUMENT_ID_PATTERN = re.compile(r"[A-Z0-9]{4}:[A-Z0-9][A-Z0-9.\-]{0,14}")
+INSTRUMENT_ID_PATTERN = re.compile(r"(?:[A-Z0-9]{4}:[A-Z0-9][A-Z0-9.\-]{0,24}|BINANCE:SPOT:[A-Z0-9]{2,25})")
 
 
 def normalize_instrument_id(value: str, field: str = "Instrument ID") -> str:
     normalized = "".join(value.split()).upper()
     if not INSTRUMENT_ID_PATTERN.fullmatch(normalized):
         raise RegistryError(
-            f"{field} must use EXCHANGE_MIC:TICKER format, for example XNAS:IBIT"
+            f"{field} must use EXCHANGE_MIC:TICKER or BINANCE:SPOT:PAIR format"
         )
     return normalized
 

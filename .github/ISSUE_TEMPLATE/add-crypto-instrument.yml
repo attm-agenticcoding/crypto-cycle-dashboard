@@ -1,0 +1,32 @@
+name: Add crypto spot pair (24/7)
+description: Register a Binance Spot pair with a daily UTC execution cycle.
+title: "[Execution instrument] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This registers the actual spot pair, not an ETF or perpetual contract. Its identity, base/quote assets, price tick, quantity step and minimum order size are checked against the exchange. Each day uses the 00:00 UTC minute's close as reference, with execution from 00:01 until next midnight. GTC orders must be cancelled or updated manually at the reset. Only the repository owner can register a pair.
+  - type: dropdown
+    id: market
+    attributes:
+      label: Execution market
+      options:
+        - Binance Spot — 24/7
+    validations:
+      required: true
+  - type: input
+    id: pair
+    attributes:
+      label: Spot pair
+      description: Exact Binance Spot symbol, without a slash. Other exchanges and futures/perpetuals are not supported by this adapter.
+      placeholder: BTCUSDT
+    validations:
+      required: true
+  - type: input
+    id: reference
+    attributes:
+      label: Default reference price
+      description: Convenience starting price in the pair's quote asset (USDT for BTCUSDT). Replace it with the correct daily reference when planning orders.
+      placeholder: "100000"
+    validations:
+      required: true

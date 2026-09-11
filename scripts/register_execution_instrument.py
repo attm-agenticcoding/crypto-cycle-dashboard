@@ -14,6 +14,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from execution_registry import RegistryError, load_registry, validate_instrument, write_registry
+from crypto_execution import crypto_instrument
 
 
 ARCHIVE_ROOT = "https://data.binance.vision/data/spot/daily/klines"
@@ -146,7 +147,11 @@ def register(event_path: Path, registry_path: Path, check_source: bool = True) -
     except (FileNotFoundError, json.JSONDecodeError) as exc:
         raise RegistryError(f"unable to read GitHub issue event: {exc}") from exc
     body = validate_owner_issue(event)
-    instrument = build_instrument_from_issue(body)
+    sections = issue_sections(body)
+    if sections.get("Execution market") == "Binance Spot — 24/7":
+        instrument = crypto_instrument(required_section(sections, "Spot pair"), float(required_section(sections, "Default reference price")))
+    else:
+        instrument = build_instrument_from_issue(body)
     if check_source:
         source = instrument["scaling_source"]
         if source["provider"] == "binance_vision":

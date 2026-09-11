@@ -9,6 +9,11 @@ on:
       timezone: "America/New_York"
     - cron: "30 22 * * 1-5"
       timezone: "America/New_York"
+    # Crypto daily UTC archives: every calendar day, with a later retry.
+    - cron: "30 4 * * *"
+      timezone: "UTC"
+    - cron: "30 8 * * *"
+      timezone: "UTC"
 
 permissions:
   contents: write
@@ -38,8 +43,10 @@ jobs:
         run: |
           if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
             python scripts/update_execution_params.py --force
+          elif [[ "${{ github.event.schedule }}" == "30 4 * * *" || "${{ github.event.schedule }}" == "30 8 * * *" ]]; then
+            python scripts/update_execution_params.py --calendar 24X7
           else
-            python scripts/update_execution_params.py
+            python scripts/update_execution_params.py --calendar XNYS
           fi
       - name: Publish changed parameters
         shell: bash

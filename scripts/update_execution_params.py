@@ -28,6 +28,7 @@ from typing import Iterable
 from zoneinfo import ZoneInfo
 
 from execution_registry import load_registry
+from crypto_execution import crypto_instrument
 
 
 ET = ZoneInfo("America/New_York")
@@ -57,6 +58,7 @@ class Session:
     drawdown: float
     next_reference_return: float | None = None
     runup: float | None = None
+    market_calendar: str = "XNYS"
 
 
 @dataclass
@@ -226,8 +228,10 @@ def previous_market_session(day: date) -> date:
     return candidate
 
 
-def expected_market_session(now_et: datetime) -> date:
+def expected_market_session(now_et: datetime, market_calendar: str = "XNYS") -> date:
     """Return the latest NYSE session that should be complete at this time."""
+    if market_calendar == "24X7":
+        return now_et.astimezone(UTC).date() - timedelta(days=1)
     today = now_et.date()
     if is_market_session_day(today) and now_et.time() >= time(16, 0):
         return today
@@ -275,18 +279,20 @@ def build_sessions(
     reference_time: time = time(9, 35),
     fill_start_time: time = time(9, 36),
     session_end_time: time = time(16, 0),
+    market_calendar: str = "XNYS",
+    session_timezone: str = "America/New_York",
 ) -> list[Session]:
     by_session: dict[date, dict[time, MinuteBar]] = defaultdict(dict)
     years: set[int] = set()
     for bar in bars:
-        local = bar.opened_at.astimezone(ET)
+        local = bar.opened_at.astimezone(ZoneInfo(session_timezone))
         years.add(local.year)
         by_session[local.date()][local.time().replace(second=0, microsecond=0)] = bar
     holidays = set().union(*(market_holidays(year) for year in years))
 
     provisional: list[Session] = []
     for session_date in sorted(by_session):
-        if session_date.weekday() >= 5 or session_date in holidays:
+        if market_calendar != "24X7" and (session_date.weekday() >= 5 or session_date in holidays):
             continue
         minute_map = by_session[session_date]
         ref_bar = minute_map.get(reference_time)
@@ -297,24 +303,24 @@ def build_sessions(
             for minute, bar in minute_map.items()
             if fill_start_time <= minute < session_end_time
         ]
-        if len(eligible) < 300:
+        if len(eligible) < (1400 if market_calendar == "24X7" else 300):
             continue
         reference = ref_bar.close
         drawdown = max(0.0, (reference - min(bar.low for bar in eligible)) / reference)
         # The original buy calibration retains its historical session contract.
         # Sell highs must exclude proxy trading after a listed half-day close.
-        sell_end = sell_session_end(session_date, session_end_time)
+        sell_end = session_end_time if market_calendar == "24X7" else sell_session_end(session_date, session_end_time)
         sell_bars = [bar for minute, bar in minute_map.items() if fill_start_time <= minute < sell_end]
         highs = [bar.high for bar in sell_bars if bar.high is not None]
         runup = max(0.0, (max(highs) - reference) / reference) if highs and len(highs) == len(sell_bars) else None
-        provisional.append(Session(session_date, reference, drawdown, runup=runup))
+        provisional.append(Session(session_date, reference, drawdown, runup=runup, market_calendar=market_calendar))
 
     sessions: list[Session] = []
     for index, session in enumerate(provisional):
         next_return = None
         if index + 1 < len(provisional):
             next_return = provisional[index + 1].reference / session.reference - 1
-        sessions.append(Session(session.session_date, session.reference, session.drawdown, next_return, session.runup))
+        sessions.append(Session(session.session_date, session.reference, session.drawdown, next_return, session.runup, market_calendar))
     return sessions
 
 
@@ -373,7 +379,7 @@ def evaluate_candidate(
             continue
         # A sell backtest may only value unfilled shares at a genuinely later
         # reference. The current unfinished week has no terminal observation.
-        if side == "sell" and indices[-1] + 1 >= len(sessions):
+        if (side == "sell" or sessions[start].market_calendar == "24X7") and indices[-1] + 1 >= len(sessions):
             continue
         train = sessions[start - lookback : start]
         expected_hits = statistics.fmean(
@@ -490,6 +496,7 @@ def build_payload(
     source = instrument["scaling_source"]
     return {
         "schema_version": 1,
+        **instrument,
         "trade_side": side,
         "instrument_id": instrument["instrument_id"],
         "symbol": instrument["symbol"],
@@ -511,6 +518,7 @@ def build_payload(
         "fill_start_time": instrument["fill_start_time"],
         "session_end_time": instrument["session_end_time"],
         "lookback_sessions": selected.lookback,
+        "lookback_unit": "UTC calendar days" if instrument["market_calendar"] == "24X7" else "trading sessions",
         "first_offset_pct": as_percent(selected.first_offset),
         "spacing_pct": as_percent(selected.spacing),
         "expected_rungs_per_session": round(statistics.fmean(hits), 4),
@@ -526,7 +534,7 @@ def build_payload(
         "session_samples": samples,
         "notes": [
             f"{source['symbol']} is the registered intraday scaling proxy; order prices are applied to the user-entered {instrument['symbol']} reference price.",
-            f"The {instrument['reference_time']} bar sets the reference and is excluded from fills; eligible {'highs' if side == 'sell' else 'lows'} begin at {instrument['fill_start_time']} ET.",
+            f"The {instrument['reference_time']} bar sets the reference and is excluded from fills; eligible {'highs' if side == 'sell' else 'lows'} begin at {instrument['fill_start_time']} {instrument['timezone']}.",
             "Unfilled weekly quantity is completed at the next available reference in the walk-forward cost calculation.",
             "Proxy price touches approximate rung hits; they do not model the listed instrument's spread, queue position, partial fills, fees or market impact.",
             "Deadline tightening and the optional sell closeout are execution overlays, not independently optimized backtest policies.",
@@ -556,7 +564,7 @@ def should_run(
         return True
     current = now_et or datetime.now(ET)
     expected = expected_market_session(current)
-    stale = instruments_needing_update(bundle, instruments, expected)
+    stale = [item["instrument_id"] for item in instruments if instruments_needing_update(bundle, [item], expected_market_session(current, item["market_calendar"]))]
     removed_entries = set(bundle.get("instruments", {})) - {item["instrument_id"] for item in instruments}
     if not stale and not removed_entries:
         print(
@@ -574,6 +582,7 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--force", action="store_true", help="Ignore the freshness guard and refit immediately")
     parser.add_argument("--days", type=int, default=220, help="Calendar days of minute archives to request")
+    parser.add_argument("--calendar", choices=("XNYS", "24X7"), help="Refresh only this calendar, preserving other instruments")
     parser.add_argument(
         "--registry",
         type=Path,
@@ -587,12 +596,17 @@ def main() -> int:
     args = parser.parse_args()
 
     registry = load_registry(args.registry)
-    instruments = [item for item in registry["instruments"] if item["enabled"]]
+    all_instruments = [item for item in registry["instruments"] if item["enabled"]]
+    instruments = [item for item in all_instruments if not args.calendar or item["market_calendar"] == args.calendar]
+    if not instruments:
+        print(f"No enabled instruments for calendar {args.calendar}; nothing to update.")
+        return 0
     published_bundle = read_published_bundle(args.output)
     now_et = datetime.now(ET)
-    expected_session = expected_market_session(now_et)
-    if not should_run(args.force, published_bundle, instruments, now_et):
+    scoped_bundle = {**published_bundle, "instruments": {key: value for key, value in published_bundle.get("instruments", {}).items() if key in {item["instrument_id"] for item in instruments}}} if args.calendar else published_bundle
+    if not should_run(args.force, scoped_bundle, instruments, now_et):
         return 0
+    instruments = [crypto_instrument(item["symbol"], item["default_reference_price"]) if item["market_calendar"] == "24X7" else item for item in instruments]
 
     today_utc = datetime.now(UTC).date()
     start = today_utc - timedelta(days=args.days)
@@ -614,7 +628,8 @@ def main() -> int:
         ].append(instrument)
 
     generated_at = datetime.now(UTC).isoformat().replace("+00:00", "Z")
-    payloads: dict[str, dict] = {}
+    active_ids = {item["instrument_id"] for item in all_instruments}
+    payloads: dict[str, dict] = {key: value for key, value in published_bundle.get("instruments", {}).items() if key in active_ids} if args.calendar else {}
     bar_cache: dict[tuple[str, str, str], list[MinuteBar]] = {}
     for source_key, group in groups.items():
         (
@@ -639,15 +654,18 @@ def main() -> int:
             bar_cache[archive_key],
             time.fromisoformat(reference_clock),
             time.fromisoformat(fill_clock),
-            time.fromisoformat(end_clock),
+            time.max if end_clock == "24:00" else time.fromisoformat(end_clock),
+            market_calendar,
+            session_timezone,
         )
         if len(sessions) < 75:
             raise RuntimeError(
-                f"Only {len(sessions)} complete NY sessions were available for {proxy_symbol}; need at least 75"
+                f"Only {len(sessions)} complete {market_calendar} sessions were available for {proxy_symbol}; need at least 75"
             )
+        expected_session = expected_market_session(now_et, market_calendar)
         if sessions[-1].session_date < expected_session:
             raise RuntimeError(
-                f"Latest complete NY session for {proxy_symbol} is {sessions[-1].session_date}; "
+                f"Latest complete {market_calendar} session for {proxy_symbol} is {sessions[-1].session_date}; "
                 f"expected {expected_session}. The source archive is not ready yet, so a later "
                 "scheduled retry should run again."
             )
