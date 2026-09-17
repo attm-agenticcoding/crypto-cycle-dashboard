@@ -4,9 +4,9 @@
     "buy",
     "sell"
   ],
-  "generated_at": "2026-09-17T05:11:58.304665Z",
+  "generated_at": "2026-09-17T12:08:03.983275Z",
   "default_instrument_id": "ARCX:BTC",
-  "instrument_count": 1,
+  "instrument_count": 4,
   "instruments": {
     "ARCX:BTC": {
       "schema_version": 1,
@@ -46,7 +46,7 @@
       "enabled": true,
       "trade_side": "buy",
       "status": "minute-rolling",
-      "generated_at": "2026-09-17T05:11:58.304665Z",
+      "generated_at": "2026-09-17T12:08:03.983275Z",
       "data_as_of": "2026-09-16",
       "market_proxy": "BTCUSDT",
       "execution_instrument": "Grayscale Bitcoin Mini Trust ETF (BTC)",
@@ -652,7 +652,7 @@
           "enabled": true,
           "trade_side": "buy",
           "status": "minute-rolling",
-          "generated_at": "2026-09-17T05:11:58.304665Z",
+          "generated_at": "2026-09-17T12:08:03.983275Z",
           "data_as_of": "2026-09-16",
           "market_proxy": "BTCUSDT",
           "execution_instrument": "Grayscale Bitcoin Mini Trust ETF (BTC)",
@@ -1258,7 +1258,7 @@
           "enabled": true,
           "trade_side": "sell",
           "status": "minute-rolling",
-          "generated_at": "2026-09-17T05:11:58.304665Z",
+          "generated_at": "2026-09-17T12:08:03.983275Z",
           "data_as_of": "2026-09-16",
           "market_proxy": "BTCUSDT",
           "execution_instrument": "Grayscale Bitcoin Mini Trust ETF (BTC)",
@@ -1821,6 +1821,5466 @@
           "notes": [
             "BTCUSDT is the registered intraday scaling proxy; order prices are applied to the user-entered BTC reference price.",
             "The 09:35 bar sets the reference and is excluded from fills; eligible highs begin at 09:36 America/New_York.",
+            "Unfilled weekly quantity is completed at the next available reference in the walk-forward cost calculation.",
+            "Proxy price touches approximate rung hits; they do not model the listed instrument's spread, queue position, partial fills, fees or market impact.",
+            "Deadline tightening and the optional sell closeout are execution overlays, not independently optimized backtest policies."
+          ]
+        }
+      }
+    },
+    "ARCX:ETH": {
+      "schema_version": 1,
+      "instrument_type": "listed_security",
+      "instrument_id": "ARCX:ETH",
+      "symbol": "ETH",
+      "exchange": "NYSE Arca",
+      "exchange_mic": "ARCX",
+      "venue_code": "ARCX",
+      "name": "Grayscale Ethereum Staking Mini ETH Shares",
+      "asset_class": "ETF",
+      "currency": "USD",
+      "base_asset": "ETH",
+      "quantity_unit": "shares",
+      "order_time_in_force": "DAY",
+      "price_tick": 0.01,
+      "quantity_step": 1.0,
+      "min_quantity": 1.0,
+      "max_quantity": 0.0,
+      "min_notional": 0.0,
+      "max_notional": 0.0,
+      "min_price": 0.01,
+      "max_price": 0.0,
+      "exchange_rules_checked_at": null,
+      "market_calendar": "XNYS",
+      "timezone": "America/New_York",
+      "reference_time": "09:35",
+      "fill_start_time": "09:36",
+      "session_end_time": "16:00",
+      "default_reference_price": 23.32,
+      "scaling_source": {
+        "provider": "binance_vision",
+        "symbol": "ETHUSDT",
+        "interval": "1m",
+        "rationale": "This ETF holds staked spot ETH"
+      },
+      "enabled": true,
+      "trade_side": "buy",
+      "status": "minute-rolling",
+      "generated_at": "2026-09-17T12:08:03.983275Z",
+      "data_as_of": "2026-09-16",
+      "market_proxy": "ETHUSDT",
+      "execution_instrument": "Grayscale Ethereum Staking Mini ETH Shares (ETH)",
+      "lookback_sessions": 20,
+      "lookback_unit": "trading sessions",
+      "first_offset_pct": 0.25,
+      "spacing_pct": 0.8,
+      "expected_rungs_per_session": 1.65,
+      "zero_fill_probability": 0.15,
+      "sample_sessions": 152,
+      "walk_forward_weeks": 27,
+      "walk_forward_mean_implementation_shortfall_bps": 40.748,
+      "walk_forward_stderr_bps": 94.494,
+      "walk_forward_mean_passive_completion": 0.8887,
+      "selection_rule": "one-standard-error plateau, then minimum distance from prior published parameters",
+      "excursion_measure": "drawdown",
+      "completion_assumption": "unfilled weekly shares valued at next reference; no automatic broker execution",
+      "session_samples": [
+        {
+          "date": "2026-05-08",
+          "drawdown_pct": 0.31662,
+          "runup_pct": 1.93442,
+          "next_reference_return_pct": 1.83693
+        },
+        {
+          "date": "2026-05-11",
+          "drawdown_pct": 0.64683,
+          "runup_pct": 1.09314,
+          "next_reference_return_pct": -1.68521
+        },
+        {
+          "date": "2026-05-12",
+          "drawdown_pct": 1.03732,
+          "runup_pct": 0.3294,
+          "next_reference_return_pct": -0.05
+        },
+        {
+          "date": "2026-05-13",
+          "drawdown_pct": 1.95938,
+          "runup_pct": 0.0,
+          "next_reference_return_pct": -1.26252
+        },
+        {
+          "date": "2026-05-14",
+          "drawdown_pct": 0.17244,
+          "runup_pct": 3.08088,
+          "next_reference_return_pct": -0.45689
+        },
+        {
+          "date": "2026-05-15",
+          "drawdown_pct": 1.54572,
+          "runup_pct": 0.05626,
+          "next_reference_return_pct": -4.55591
+        },
+        {
+          "date": "2026-05-18",
+          "drawdown_pct": 2.82829,
+          "runup_pct": 0.0,
+          "next_reference_return_pct": -0.90752
+        },
+        {
+          "date": "2026-05-19",
+          "drawdown_pct": 1.12449,
+          "runup_pct": 0.4362,
+          "next_reference_return_pct": 0.10433
+        },
+        {
+          "date": "2026-05-20",
+          "drawdown_pct": 0.31266,
+          "runup_pct": 1.34402,
+          "next_reference_return_pct": -0.22872
+        },
+        {
+          "date": "2026-05-21",
+          "drawdown_pct": 0.4963,
+          "runup_pct": 1.80086,
+          "next_reference_return_pct": 0.58658
+        },
+        {
+          "date": "2026-05-22",
+          "drawdown_pct": 3.2922,
+          "runup_pct": 0.21851,
+          "next_reference_return_pct": -0.66727
+        },
+        {
+          "date": "2026-05-26",
+          "drawdown_pct": 2.78164,
+          "runup_pct": 1.25978,
+          "next_reference_return_pct": -2.27451
+        },
+        {
+          "date": "2026-05-27",
+          "drawdown_pct": 1.08772,
+          "runup_pct": 0.67529,
+          "next_reference_return_pct": -3.97332
+        },
+        {
+          "date": "2026-05-28",
+          "drawdown_pct": 0.82271,
+          "runup_pct": 2.33402,
+          "next_reference_return_pct": 0.49352
+        },
+        {
+          "date": "2026-05-29",
+          "drawdown_pct": 0.85328,
+          "runup_pct": 2.66367,
+          "next_reference_return_pct": -0.50916
+        },
+        {
+          "date": "2026-06-01",
+          "drawdown_pct": 1.37647,
+          "runup_pct": 1.28521,
+          "next_reference_return_pct": -0.29042
+        },
+        {
+          "date": "2026-06-02",
+          "drawdown_pct": 4.88324,
+          "runup_pct": 0.13805,
+          "next_reference_return_pct": -5.397
+        },
+        {
+          "date": "2026-06-03",
+          "drawdown_pct": 4.04201,
+          "runup_pct": 0.10049,
+          "next_reference_return_pct": -4.86677
+        },
+        {
+          "date": "2026-06-04",
+          "drawdown_pct": 1.4496,
+          "runup_pct": 0.822,
+          "next_reference_return_pct": -5.87201
+        },
+        {
+          "date": "2026-06-05",
+          "drawdown_pct": 8.06428,
+          "runup_pct": 0.00716,
+          "next_reference_return_pct": 0.88283
+        },
+        {
+          "date": "2026-06-08",
+          "drawdown_pct": 0.84493,
+          "runup_pct": 0.95498,
+          "next_reference_return_pct": -1.09344
+        },
+        {
+          "date": "2026-06-09",
+          "drawdown_pct": 3.4446,
+          "runup_pct": 0.41098,
+          "next_reference_return_pct": -1.27961
+        },
+        {
+          "date": "2026-06-10",
+          "drawdown_pct": 1.67857,
+          "runup_pct": 1.07562,
+          "next_reference_return_pct": 0.04605
+        },
+        {
+          "date": "2026-06-11",
+          "drawdown_pct": 1.10602,
+          "runup_pct": 2.58151,
+          "next_reference_return_pct": 0.79044
+        },
+        {
+          "date": "2026-06-12",
+          "drawdown_pct": 0.61778,
+          "runup_pct": 1.62558,
+          "next_reference_return_pct": 9.12549
+        },
+        {
+          "date": "2026-06-15",
+          "drawdown_pct": 0.61458,
+          "runup_pct": 1.85421,
+          "next_reference_return_pct": -0.69939
+        },
+        {
+          "date": "2026-06-16",
+          "drawdown_pct": 2.20778,
+          "runup_pct": 0.29226,
+          "next_reference_return_pct": -2.3076
+        },
+        {
+          "date": "2026-06-17",
+          "drawdown_pct": 1.8336,
+          "runup_pct": 1.95963,
+          "next_reference_return_pct": -1.24776
+        },
+        {
+          "date": "2026-06-18",
+          "drawdown_pct": 3.89692,
+          "runup_pct": 0.33801,
+          "next_reference_return_pct": 1.7464
+        },
+        {
+          "date": "2026-06-22",
+          "drawdown_pct": 2.3057,
+          "runup_pct": 0.56159,
+          "next_reference_return_pct": -6.31201
+        },
+        {
+          "date": "2026-06-23",
+          "drawdown_pct": 0.49691,
+          "runup_pct": 0.94377,
+          "next_reference_return_pct": 0.13086
+        },
+        {
+          "date": "2026-06-24",
+          "drawdown_pct": 6.4719,
+          "runup_pct": 0.16743,
+          "next_reference_return_pct": -2.08382
+        },
+        {
+          "date": "2026-06-25",
+          "drawdown_pct": 5.71469,
+          "runup_pct": 0.06827,
+          "next_reference_return_pct": -5.17219
+        },
+        {
+          "date": "2026-06-26",
+          "drawdown_pct": 0.26788,
+          "runup_pct": 3.43642,
+          "next_reference_return_pct": 2.25592
+        },
+        {
+          "date": "2026-06-29",
+          "drawdown_pct": 1.21472,
+          "runup_pct": 3.87441,
+          "next_reference_return_pct": -1.49445
+        },
+        {
+          "date": "2026-06-30",
+          "drawdown_pct": 0.17644,
+          "runup_pct": 1.86614,
+          "next_reference_return_pct": 1.48557
+        },
+        {
+          "date": "2026-07-01",
+          "drawdown_pct": 0.04188,
+          "runup_pct": 3.48919,
+          "next_reference_return_pct": 8.03485
+        },
+        {
+          "date": "2026-07-02",
+          "drawdown_pct": 0.94853,
+          "runup_pct": 1.31325,
+          "next_reference_return_pct": 2.3164
+        },
+        {
+          "date": "2026-07-06",
+          "drawdown_pct": 0.7537,
+          "runup_pct": 3.61177,
+          "next_reference_return_pct": 1.55217
+        },
+        {
+          "date": "2026-07-07",
+          "drawdown_pct": 0.44825,
+          "runup_pct": 2.48937,
+          "next_reference_return_pct": -1.69689
+        },
+        {
+          "date": "2026-07-08",
+          "drawdown_pct": 1.47548,
+          "runup_pct": 0.42666,
+          "next_reference_return_pct": -0.00115
+        },
+        {
+          "date": "2026-07-09",
+          "drawdown_pct": 0.40769,
+          "runup_pct": 1.19258,
+          "next_reference_return_pct": 3.38915
+        },
+        {
+          "date": "2026-07-10",
+          "drawdown_pct": 1.2803,
+          "runup_pct": 0.77752,
+          "next_reference_return_pct": -1.23636
+        },
+        {
+          "date": "2026-07-13",
+          "drawdown_pct": 1.44105,
+          "runup_pct": 0.6048,
+          "next_reference_return_pct": 5.34917
+        },
+        {
+          "date": "2026-07-14",
+          "drawdown_pct": 0.6051,
+          "runup_pct": 0.96323,
+          "next_reference_return_pct": 3.7316
+        },
+        {
+          "date": "2026-07-15",
+          "drawdown_pct": 1.86696,
+          "runup_pct": 0.084,
+          "next_reference_return_pct": -2.82955
+        },
+        {
+          "date": "2026-07-16",
+          "drawdown_pct": 1.22555,
+          "runup_pct": 0.46137,
+          "next_reference_return_pct": -4.05265
+        },
+        {
+          "date": "2026-07-17",
+          "drawdown_pct": 0.34323,
+          "runup_pct": 2.59277,
+          "next_reference_return_pct": 3.74297
+        },
+        {
+          "date": "2026-07-20",
+          "drawdown_pct": 1.24295,
+          "runup_pct": 2.19395,
+          "next_reference_return_pct": 3.11245
+        },
+        {
+          "date": "2026-07-21",
+          "drawdown_pct": 1.05405,
+          "runup_pct": 0.44435,
+          "next_reference_return_pct": -0.23044
+        },
+        {
+          "date": "2026-07-22",
+          "drawdown_pct": 0.51478,
+          "runup_pct": 1.32112,
+          "next_reference_return_pct": -1.30662
+        },
+        {
+          "date": "2026-07-23",
+          "drawdown_pct": 1.90323,
+          "runup_pct": 0.18261,
+          "next_reference_return_pct": -2.14881
+        },
+        {
+          "date": "2026-07-24",
+          "drawdown_pct": 0.89395,
+          "runup_pct": 0.25043,
+          "next_reference_return_pct": 5.1937
+        },
+        {
+          "date": "2026-07-27",
+          "drawdown_pct": 2.16761,
+          "runup_pct": 0.83503,
+          "next_reference_return_pct": -4.06554
+        },
+        {
+          "date": "2026-07-28",
+          "drawdown_pct": 1.32741,
+          "runup_pct": 2.50231,
+          "next_reference_return_pct": 1.49161
+        },
+        {
+          "date": "2026-07-29",
+          "drawdown_pct": 1.37335,
+          "runup_pct": 1.34822,
+          "next_reference_return_pct": 0.45604
+        },
+        {
+          "date": "2026-07-30",
+          "drawdown_pct": 0.26842,
+          "runup_pct": 0.95641,
+          "next_reference_return_pct": -1.67358
+        },
+        {
+          "date": "2026-07-31",
+          "drawdown_pct": 2.00527,
+          "runup_pct": 0.0,
+          "next_reference_return_pct": -2.08319
+        },
+        {
+          "date": "2026-08-03",
+          "drawdown_pct": 0.14671,
+          "runup_pct": 1.58453,
+          "next_reference_return_pct": 1.42592
+        },
+        {
+          "date": "2026-08-04",
+          "drawdown_pct": 0.7926,
+          "runup_pct": 0.4398,
+          "next_reference_return_pct": -0.90789
+        },
+        {
+          "date": "2026-08-05",
+          "drawdown_pct": 0.05709,
+          "runup_pct": 3.84798,
+          "next_reference_return_pct": 2.26333
+        },
+        {
+          "date": "2026-08-06",
+          "drawdown_pct": 0.34447,
+          "runup_pct": 1.11136,
+          "next_reference_return_pct": 1.83242
+        },
+        {
+          "date": "2026-08-07",
+          "drawdown_pct": 1.4467,
+          "runup_pct": 0.08689,
+          "next_reference_return_pct": -1.61169
+        },
+        {
+          "date": "2026-08-10",
+          "drawdown_pct": 1.80054,
+          "runup_pct": 0.25024,
+          "next_reference_return_pct": -0.92839
+        },
+        {
+          "date": "2026-08-11",
+          "drawdown_pct": 1.64124,
+          "runup_pct": 0.43193,
+          "next_reference_return_pct": 1.09575
+        },
+        {
+          "date": "2026-08-12",
+          "drawdown_pct": 1.42872,
+          "runup_pct": 0.16376,
+          "next_reference_return_pct": -0.68602
+        },
+        {
+          "date": "2026-08-13",
+          "drawdown_pct": 1.50412,
+          "runup_pct": 0.27641,
+          "next_reference_return_pct": -1.25731
+        },
+        {
+          "date": "2026-08-14",
+          "drawdown_pct": 0.21731,
+          "runup_pct": 1.07475,
+          "next_reference_return_pct": 2.04941
+        },
+        {
+          "date": "2026-08-17",
+          "drawdown_pct": 0.43323,
+          "runup_pct": 0.46522,
+          "next_reference_return_pct": -0.65456
+        },
+        {
+          "date": "2026-08-18",
+          "drawdown_pct": 0.00792,
+          "runup_pct": 1.53737,
+          "next_reference_return_pct": 2.27754
+        },
+        {
+          "date": "2026-08-19",
+          "drawdown_pct": 0.47437,
+          "runup_pct": 9.17312,
+          "next_reference_return_pct": 17.48938
+        },
+        {
+          "date": "2026-08-20",
+          "drawdown_pct": 0.89758,
+          "runup_pct": 3.68567,
+          "next_reference_return_pct": 4.04594
+        },
+        {
+          "date": "2026-08-21",
+          "drawdown_pct": 0.0,
+          "runup_pct": 2.70881,
+          "next_reference_return_pct": 5.61186
+        },
+        {
+          "date": "2026-08-24",
+          "drawdown_pct": 1.84319,
+          "runup_pct": 1.27344,
+          "next_reference_return_pct": -1.06073
+        },
+        {
+          "date": "2026-08-25",
+          "drawdown_pct": 1.39701,
+          "runup_pct": 0.44573,
+          "next_reference_return_pct": -0.94845
+        },
+        {
+          "date": "2026-08-26",
+          "drawdown_pct": 0.76619,
+          "runup_pct": 1.32267,
+          "next_reference_return_pct": 1.67313
+        },
+        {
+          "date": "2026-08-27",
+          "drawdown_pct": 0.38401,
+          "runup_pct": 1.67208,
+          "next_reference_return_pct": 0.45303
+        },
+        {
+          "date": "2026-08-28",
+          "drawdown_pct": 3.89191,
+          "runup_pct": 0.92834,
+          "next_reference_return_pct": -2.30247
+        },
+        {
+          "date": "2026-08-31",
+          "drawdown_pct": 0.35613,
+          "runup_pct": 1.8068,
+          "next_reference_return_pct": -0.11816
+        },
+        {
+          "date": "2026-09-01",
+          "drawdown_pct": 2.43689,
+          "runup_pct": 0.60462,
+          "next_reference_return_pct": -2.40127
+        },
+        {
+          "date": "2026-09-02",
+          "drawdown_pct": 0.48905,
+          "runup_pct": 1.48938,
+          "next_reference_return_pct": 1.75236
+        },
+        {
+          "date": "2026-09-03",
+          "drawdown_pct": 0.14386,
+          "runup_pct": 4.28073,
+          "next_reference_return_pct": 0.53875
+        },
+        {
+          "date": "2026-09-04",
+          "drawdown_pct": 0.30545,
+          "runup_pct": 1.04261,
+          "next_reference_return_pct": 0.73594
+        },
+        {
+          "date": "2026-09-08",
+          "drawdown_pct": 0.62393,
+          "runup_pct": 2.05656,
+          "next_reference_return_pct": 2.24419
+        },
+        {
+          "date": "2026-09-09",
+          "drawdown_pct": 1.9756,
+          "runup_pct": 0.08638,
+          "next_reference_return_pct": -3.62319
+        },
+        {
+          "date": "2026-09-10",
+          "drawdown_pct": 0.0223,
+          "runup_pct": 2.22623,
+          "next_reference_return_pct": 3.31209
+        },
+        {
+          "date": "2026-09-11",
+          "drawdown_pct": 0.43297,
+          "runup_pct": 6.58332,
+          "next_reference_return_pct": 0.30744
+        },
+        {
+          "date": "2026-09-14",
+          "drawdown_pct": 0.55839,
+          "runup_pct": 1.61817,
+          "next_reference_return_pct": -1.75248
+        },
+        {
+          "date": "2026-09-15",
+          "drawdown_pct": 4.30662,
+          "runup_pct": 0.02312,
+          "next_reference_return_pct": -2.75979
+        },
+        {
+          "date": "2026-09-16",
+          "drawdown_pct": 1.16395,
+          "runup_pct": 1.403,
+          "next_reference_return_pct": null
+        }
+      ],
+      "notes": [
+        "ETHUSDT is the registered intraday scaling proxy; order prices are applied to the user-entered ETH reference price.",
+        "The 09:35 bar sets the reference and is excluded from fills; eligible lows begin at 09:36 America/New_York.",
+        "Unfilled weekly quantity is completed at the next available reference in the walk-forward cost calculation.",
+        "Proxy price touches approximate rung hits; they do not model the listed instrument's spread, queue position, partial fills, fees or market impact.",
+        "Deadline tightening and the optional sell closeout are execution overlays, not independently optimized backtest policies."
+      ],
+      "sides": {
+        "buy": {
+          "schema_version": 1,
+          "instrument_type": "listed_security",
+          "instrument_id": "ARCX:ETH",
+          "symbol": "ETH",
+          "exchange": "NYSE Arca",
+          "exchange_mic": "ARCX",
+          "venue_code": "ARCX",
+          "name": "Grayscale Ethereum Staking Mini ETH Shares",
+          "asset_class": "ETF",
+          "currency": "USD",
+          "base_asset": "ETH",
+          "quantity_unit": "shares",
+          "order_time_in_force": "DAY",
+          "price_tick": 0.01,
+          "quantity_step": 1.0,
+          "min_quantity": 1.0,
+          "max_quantity": 0.0,
+          "min_notional": 0.0,
+          "max_notional": 0.0,
+          "min_price": 0.01,
+          "max_price": 0.0,
+          "exchange_rules_checked_at": null,
+          "market_calendar": "XNYS",
+          "timezone": "America/New_York",
+          "reference_time": "09:35",
+          "fill_start_time": "09:36",
+          "session_end_time": "16:00",
+          "default_reference_price": 23.32,
+          "scaling_source": {
+            "provider": "binance_vision",
+            "symbol": "ETHUSDT",
+            "interval": "1m",
+            "rationale": "This ETF holds staked spot ETH"
+          },
+          "enabled": true,
+          "trade_side": "buy",
+          "status": "minute-rolling",
+          "generated_at": "2026-09-17T12:08:03.983275Z",
+          "data_as_of": "2026-09-16",
+          "market_proxy": "ETHUSDT",
+          "execution_instrument": "Grayscale Ethereum Staking Mini ETH Shares (ETH)",
+          "lookback_sessions": 20,
+          "lookback_unit": "trading sessions",
+          "first_offset_pct": 0.25,
+          "spacing_pct": 0.8,
+          "expected_rungs_per_session": 1.65,
+          "zero_fill_probability": 0.15,
+          "sample_sessions": 152,
+          "walk_forward_weeks": 27,
+          "walk_forward_mean_implementation_shortfall_bps": 40.748,
+          "walk_forward_stderr_bps": 94.494,
+          "walk_forward_mean_passive_completion": 0.8887,
+          "selection_rule": "one-standard-error plateau, then minimum distance from prior published parameters",
+          "excursion_measure": "drawdown",
+          "completion_assumption": "unfilled weekly shares valued at next reference; no automatic broker execution",
+          "session_samples": [
+            {
+              "date": "2026-05-08",
+              "drawdown_pct": 0.31662,
+              "runup_pct": 1.93442,
+              "next_reference_return_pct": 1.83693
+            },
+            {
+              "date": "2026-05-11",
+              "drawdown_pct": 0.64683,
+              "runup_pct": 1.09314,
+              "next_reference_return_pct": -1.68521
+            },
+            {
+              "date": "2026-05-12",
+              "drawdown_pct": 1.03732,
+              "runup_pct": 0.3294,
+              "next_reference_return_pct": -0.05
+            },
+            {
+              "date": "2026-05-13",
+              "drawdown_pct": 1.95938,
+              "runup_pct": 0.0,
+              "next_reference_return_pct": -1.26252
+            },
+            {
+              "date": "2026-05-14",
+              "drawdown_pct": 0.17244,
+              "runup_pct": 3.08088,
+              "next_reference_return_pct": -0.45689
+            },
+            {
+              "date": "2026-05-15",
+              "drawdown_pct": 1.54572,
+              "runup_pct": 0.05626,
+              "next_reference_return_pct": -4.55591
+            },
+            {
+              "date": "2026-05-18",
+              "drawdown_pct": 2.82829,
+              "runup_pct": 0.0,
+              "next_reference_return_pct": -0.90752
+            },
+            {
+              "date": "2026-05-19",
+              "drawdown_pct": 1.12449,
+              "runup_pct": 0.4362,
+              "next_reference_return_pct": 0.10433
+            },
+            {
+              "date": "2026-05-20",
+              "drawdown_pct": 0.31266,
+              "runup_pct": 1.34402,
+              "next_reference_return_pct": -0.22872
+            },
+            {
+              "date": "2026-05-21",
+              "drawdown_pct": 0.4963,
+              "runup_pct": 1.80086,
+              "next_reference_return_pct": 0.58658
+            },
+            {
+              "date": "2026-05-22",
+              "drawdown_pct": 3.2922,
+              "runup_pct": 0.21851,
+              "next_reference_return_pct": -0.66727
+            },
+            {
+              "date": "2026-05-26",
+              "drawdown_pct": 2.78164,
+              "runup_pct": 1.25978,
+              "next_reference_return_pct": -2.27451
+            },
+            {
+              "date": "2026-05-27",
+              "drawdown_pct": 1.08772,
+              "runup_pct": 0.67529,
+              "next_reference_return_pct": -3.97332
+            },
+            {
+              "date": "2026-05-28",
+              "drawdown_pct": 0.82271,
+              "runup_pct": 2.33402,
+              "next_reference_return_pct": 0.49352
+            },
+            {
+              "date": "2026-05-29",
+              "drawdown_pct": 0.85328,
+              "runup_pct": 2.66367,
+              "next_reference_return_pct": -0.50916
+            },
+            {
+              "date": "2026-06-01",
+              "drawdown_pct": 1.37647,
+              "runup_pct": 1.28521,
+              "next_reference_return_pct": -0.29042
+            },
+            {
+              "date": "2026-06-02",
+              "drawdown_pct": 4.88324,
+              "runup_pct": 0.13805,
+              "next_reference_return_pct": -5.397
+            },
+            {
+              "date": "2026-06-03",
+              "drawdown_pct": 4.04201,
+              "runup_pct": 0.10049,
+              "next_reference_return_pct": -4.86677
+            },
+            {
+              "date": "2026-06-04",
+              "drawdown_pct": 1.4496,
+              "runup_pct": 0.822,
+              "next_reference_return_pct": -5.87201
+            },
+            {
+              "date": "2026-06-05",
+              "drawdown_pct": 8.06428,
+              "runup_pct": 0.00716,
+              "next_reference_return_pct": 0.88283
+            },
+            {
+              "date": "2026-06-08",
+              "drawdown_pct": 0.84493,
+              "runup_pct": 0.95498,
+              "next_reference_return_pct": -1.09344
+            },
+            {
+              "date": "2026-06-09",
+              "drawdown_pct": 3.4446,
+              "runup_pct": 0.41098,
+              "next_reference_return_pct": -1.27961
+            },
+            {
+              "date": "2026-06-10",
+              "drawdown_pct": 1.67857,
+              "runup_pct": 1.07562,
+              "next_reference_return_pct": 0.04605
+            },
+            {
+              "date": "2026-06-11",
+              "drawdown_pct": 1.10602,
+              "runup_pct": 2.58151,
+              "next_reference_return_pct": 0.79044
+            },
+            {
+              "date": "2026-06-12",
+              "drawdown_pct": 0.61778,
+              "runup_pct": 1.62558,
+              "next_reference_return_pct": 9.12549
+            },
+            {
+              "date": "2026-06-15",
+              "drawdown_pct": 0.61458,
+              "runup_pct": 1.85421,
+              "next_reference_return_pct": -0.69939
+            },
+            {
+              "date": "2026-06-16",
+              "drawdown_pct": 2.20778,
+              "runup_pct": 0.29226,
+              "next_reference_return_pct": -2.3076
+            },
+            {
+              "date": "2026-06-17",
+              "drawdown_pct": 1.8336,
+              "runup_pct": 1.95963,
+              "next_reference_return_pct": -1.24776
+            },
+            {
+              "date": "2026-06-18",
+              "drawdown_pct": 3.89692,
+              "runup_pct": 0.33801,
+              "next_reference_return_pct": 1.7464
+            },
+            {
+              "date": "2026-06-22",
+              "drawdown_pct": 2.3057,
+              "runup_pct": 0.56159,
+              "next_reference_return_pct": -6.31201
+            },
+            {
+              "date": "2026-06-23",
+              "drawdown_pct": 0.49691,
+              "runup_pct": 0.94377,
+              "next_reference_return_pct": 0.13086
+            },
+            {
+              "date": "2026-06-24",
+              "drawdown_pct": 6.4719,
+              "runup_pct": 0.16743,
+              "next_reference_return_pct": -2.08382
+            },
+            {
+              "date": "2026-06-25",
+              "drawdown_pct": 5.71469,
+              "runup_pct": 0.06827,
+              "next_reference_return_pct": -5.17219
+            },
+            {
+              "date": "2026-06-26",
+              "drawdown_pct": 0.26788,
+              "runup_pct": 3.43642,
+              "next_reference_return_pct": 2.25592
+            },
+            {
+              "date": "2026-06-29",
+              "drawdown_pct": 1.21472,
+              "runup_pct": 3.87441,
+              "next_reference_return_pct": -1.49445
+            },
+            {
+              "date": "2026-06-30",
+              "drawdown_pct": 0.17644,
+              "runup_pct": 1.86614,
+              "next_reference_return_pct": 1.48557
+            },
+            {
+              "date": "2026-07-01",
+              "drawdown_pct": 0.04188,
+              "runup_pct": 3.48919,
+              "next_reference_return_pct": 8.03485
+            },
+            {
+              "date": "2026-07-02",
+              "drawdown_pct": 0.94853,
+              "runup_pct": 1.31325,
+              "next_reference_return_pct": 2.3164
+            },
+            {
+              "date": "2026-07-06",
+              "drawdown_pct": 0.7537,
+              "runup_pct": 3.61177,
+              "next_reference_return_pct": 1.55217
+            },
+            {
+              "date": "2026-07-07",
+              "drawdown_pct": 0.44825,
+              "runup_pct": 2.48937,
+              "next_reference_return_pct": -1.69689
+            },
+            {
+              "date": "2026-07-08",
+              "drawdown_pct": 1.47548,
+              "runup_pct": 0.42666,
+              "next_reference_return_pct": -0.00115
+            },
+            {
+              "date": "2026-07-09",
+              "drawdown_pct": 0.40769,
+              "runup_pct": 1.19258,
+              "next_reference_return_pct": 3.38915
+            },
+            {
+              "date": "2026-07-10",
+              "drawdown_pct": 1.2803,
+              "runup_pct": 0.77752,
+              "next_reference_return_pct": -1.23636
+            },
+            {
+              "date": "2026-07-13",
+              "drawdown_pct": 1.44105,
+              "runup_pct": 0.6048,
+              "next_reference_return_pct": 5.34917
+            },
+            {
+              "date": "2026-07-14",
+              "drawdown_pct": 0.6051,
+              "runup_pct": 0.96323,
+              "next_reference_return_pct": 3.7316
+            },
+            {
+              "date": "2026-07-15",
+              "drawdown_pct": 1.86696,
+              "runup_pct": 0.084,
+              "next_reference_return_pct": -2.82955
+            },
+            {
+              "date": "2026-07-16",
+              "drawdown_pct": 1.22555,
+              "runup_pct": 0.46137,
+              "next_reference_return_pct": -4.05265
+            },
+            {
+              "date": "2026-07-17",
+              "drawdown_pct": 0.34323,
+              "runup_pct": 2.59277,
+              "next_reference_return_pct": 3.74297
+            },
+            {
+              "date": "2026-07-20",
+              "drawdown_pct": 1.24295,
+              "runup_pct": 2.19395,
+              "next_reference_return_pct": 3.11245
+            },
+            {
+              "date": "2026-07-21",
+              "drawdown_pct": 1.05405,
+              "runup_pct": 0.44435,
+              "next_reference_return_pct": -0.23044
+            },
+            {
+              "date": "2026-07-22",
+              "drawdown_pct": 0.51478,
+              "runup_pct": 1.32112,
+              "next_reference_return_pct": -1.30662
+            },
+            {
+              "date": "2026-07-23",
+              "drawdown_pct": 1.90323,
+              "runup_pct": 0.18261,
+              "next_reference_return_pct": -2.14881
+            },
+            {
+              "date": "2026-07-24",
+              "drawdown_pct": 0.89395,
+              "runup_pct": 0.25043,
+              "next_reference_return_pct": 5.1937
+            },
+            {
+              "date": "2026-07-27",
+              "drawdown_pct": 2.16761,
+              "runup_pct": 0.83503,
+              "next_reference_return_pct": -4.06554
+            },
+            {
+              "date": "2026-07-28",
+              "drawdown_pct": 1.32741,
+              "runup_pct": 2.50231,
+              "next_reference_return_pct": 1.49161
+            },
+            {
+              "date": "2026-07-29",
+              "drawdown_pct": 1.37335,
+              "runup_pct": 1.34822,
+              "next_reference_return_pct": 0.45604
+            },
+            {
+              "date": "2026-07-30",
+              "drawdown_pct": 0.26842,
+              "runup_pct": 0.95641,
+              "next_reference_return_pct": -1.67358
+            },
+            {
+              "date": "2026-07-31",
+              "drawdown_pct": 2.00527,
+              "runup_pct": 0.0,
+              "next_reference_return_pct": -2.08319
+            },
+            {
+              "date": "2026-08-03",
+              "drawdown_pct": 0.14671,
+              "runup_pct": 1.58453,
+              "next_reference_return_pct": 1.42592
+            },
+            {
+              "date": "2026-08-04",
+              "drawdown_pct": 0.7926,
+              "runup_pct": 0.4398,
+              "next_reference_return_pct": -0.90789
+            },
+            {
+              "date": "2026-08-05",
+              "drawdown_pct": 0.05709,
+              "runup_pct": 3.84798,
+              "next_reference_return_pct": 2.26333
+            },
+            {
+              "date": "2026-08-06",
+              "drawdown_pct": 0.34447,
+              "runup_pct": 1.11136,
+              "next_reference_return_pct": 1.83242
+            },
+            {
+              "date": "2026-08-07",
+              "drawdown_pct": 1.4467,
+              "runup_pct": 0.08689,
+              "next_reference_return_pct": -1.61169
+            },
+            {
+              "date": "2026-08-10",
+              "drawdown_pct": 1.80054,
+              "runup_pct": 0.25024,
+              "next_reference_return_pct": -0.92839
+            },
+            {
+              "date": "2026-08-11",
+              "drawdown_pct": 1.64124,
+              "runup_pct": 0.43193,
+              "next_reference_return_pct": 1.09575
+            },
+            {
+              "date": "2026-08-12",
+              "drawdown_pct": 1.42872,
+              "runup_pct": 0.16376,
+              "next_reference_return_pct": -0.68602
+            },
+            {
+              "date": "2026-08-13",
+              "drawdown_pct": 1.50412,
+              "runup_pct": 0.27641,
+              "next_reference_return_pct": -1.25731
+            },
+            {
+              "date": "2026-08-14",
+              "drawdown_pct": 0.21731,
+              "runup_pct": 1.07475,
+              "next_reference_return_pct": 2.04941
+            },
+            {
+              "date": "2026-08-17",
+              "drawdown_pct": 0.43323,
+              "runup_pct": 0.46522,
+              "next_reference_return_pct": -0.65456
+            },
+            {
+              "date": "2026-08-18",
+              "drawdown_pct": 0.00792,
+              "runup_pct": 1.53737,
+              "next_reference_return_pct": 2.27754
+            },
+            {
+              "date": "2026-08-19",
+              "drawdown_pct": 0.47437,
+              "runup_pct": 9.17312,
+              "next_reference_return_pct": 17.48938
+            },
+            {
+              "date": "2026-08-20",
+              "drawdown_pct": 0.89758,
+              "runup_pct": 3.68567,
+              "next_reference_return_pct": 4.04594
+            },
+            {
+              "date": "2026-08-21",
+              "drawdown_pct": 0.0,
+              "runup_pct": 2.70881,
+              "next_reference_return_pct": 5.61186
+            },
+            {
+              "date": "2026-08-24",
+              "drawdown_pct": 1.84319,
+              "runup_pct": 1.27344,
+              "next_reference_return_pct": -1.06073
+            },
+            {
+              "date": "2026-08-25",
+              "drawdown_pct": 1.39701,
+              "runup_pct": 0.44573,
+              "next_reference_return_pct": -0.94845
+            },
+            {
+              "date": "2026-08-26",
+              "drawdown_pct": 0.76619,
+              "runup_pct": 1.32267,
+              "next_reference_return_pct": 1.67313
+            },
+            {
+              "date": "2026-08-27",
+              "drawdown_pct": 0.38401,
+              "runup_pct": 1.67208,
+              "next_reference_return_pct": 0.45303
+            },
+            {
+              "date": "2026-08-28",
+              "drawdown_pct": 3.89191,
+              "runup_pct": 0.92834,
+              "next_reference_return_pct": -2.30247
+            },
+            {
+              "date": "2026-08-31",
+              "drawdown_pct": 0.35613,
+              "runup_pct": 1.8068,
+              "next_reference_return_pct": -0.11816
+            },
+            {
+              "date": "2026-09-01",
+              "drawdown_pct": 2.43689,
+              "runup_pct": 0.60462,
+              "next_reference_return_pct": -2.40127
+            },
+            {
+              "date": "2026-09-02",
+              "drawdown_pct": 0.48905,
+              "runup_pct": 1.48938,
+              "next_reference_return_pct": 1.75236
+            },
+            {
+              "date": "2026-09-03",
+              "drawdown_pct": 0.14386,
+              "runup_pct": 4.28073,
+              "next_reference_return_pct": 0.53875
+            },
+            {
+              "date": "2026-09-04",
+              "drawdown_pct": 0.30545,
+              "runup_pct": 1.04261,
+              "next_reference_return_pct": 0.73594
+            },
+            {
+              "date": "2026-09-08",
+              "drawdown_pct": 0.62393,
+              "runup_pct": 2.05656,
+              "next_reference_return_pct": 2.24419
+            },
+            {
+              "date": "2026-09-09",
+              "drawdown_pct": 1.9756,
+              "runup_pct": 0.08638,
+              "next_reference_return_pct": -3.62319
+            },
+            {
+              "date": "2026-09-10",
+              "drawdown_pct": 0.0223,
+              "runup_pct": 2.22623,
+              "next_reference_return_pct": 3.31209
+            },
+            {
+              "date": "2026-09-11",
+              "drawdown_pct": 0.43297,
+              "runup_pct": 6.58332,
+              "next_reference_return_pct": 0.30744
+            },
+            {
+              "date": "2026-09-14",
+              "drawdown_pct": 0.55839,
+              "runup_pct": 1.61817,
+              "next_reference_return_pct": -1.75248
+            },
+            {
+              "date": "2026-09-15",
+              "drawdown_pct": 4.30662,
+              "runup_pct": 0.02312,
+              "next_reference_return_pct": -2.75979
+            },
+            {
+              "date": "2026-09-16",
+              "drawdown_pct": 1.16395,
+              "runup_pct": 1.403,
+              "next_reference_return_pct": null
+            }
+          ],
+          "notes": [
+            "ETHUSDT is the registered intraday scaling proxy; order prices are applied to the user-entered ETH reference price.",
+            "The 09:35 bar sets the reference and is excluded from fills; eligible lows begin at 09:36 America/New_York.",
+            "Unfilled weekly quantity is completed at the next available reference in the walk-forward cost calculation.",
+            "Proxy price touches approximate rung hits; they do not model the listed instrument's spread, queue position, partial fills, fees or market impact.",
+            "Deadline tightening and the optional sell closeout are execution overlays, not independently optimized backtest policies."
+          ]
+        },
+        "sell": {
+          "schema_version": 1,
+          "instrument_type": "listed_security",
+          "instrument_id": "ARCX:ETH",
+          "symbol": "ETH",
+          "exchange": "NYSE Arca",
+          "exchange_mic": "ARCX",
+          "venue_code": "ARCX",
+          "name": "Grayscale Ethereum Staking Mini ETH Shares",
+          "asset_class": "ETF",
+          "currency": "USD",
+          "base_asset": "ETH",
+          "quantity_unit": "shares",
+          "order_time_in_force": "DAY",
+          "price_tick": 0.01,
+          "quantity_step": 1.0,
+          "min_quantity": 1.0,
+          "max_quantity": 0.0,
+          "min_notional": 0.0,
+          "max_notional": 0.0,
+          "min_price": 0.01,
+          "max_price": 0.0,
+          "exchange_rules_checked_at": null,
+          "market_calendar": "XNYS",
+          "timezone": "America/New_York",
+          "reference_time": "09:35",
+          "fill_start_time": "09:36",
+          "session_end_time": "16:00",
+          "default_reference_price": 23.32,
+          "scaling_source": {
+            "provider": "binance_vision",
+            "symbol": "ETHUSDT",
+            "interval": "1m",
+            "rationale": "This ETF holds staked spot ETH"
+          },
+          "enabled": true,
+          "trade_side": "sell",
+          "status": "minute-rolling",
+          "generated_at": "2026-09-17T12:08:03.983275Z",
+          "data_as_of": "2026-09-16",
+          "market_proxy": "ETHUSDT",
+          "execution_instrument": "Grayscale Ethereum Staking Mini ETH Shares (ETH)",
+          "lookback_sessions": 20,
+          "lookback_unit": "trading sessions",
+          "first_offset_pct": 0.25,
+          "spacing_pct": 0.8,
+          "expected_rungs_per_session": 2.95,
+          "zero_fill_probability": 0.1,
+          "sample_sessions": 152,
+          "walk_forward_weeks": 26,
+          "walk_forward_mean_implementation_shortfall_bps": 61.607,
+          "walk_forward_stderr_bps": 65.906,
+          "walk_forward_mean_passive_completion": 0.9171,
+          "selection_rule": "one-standard-error plateau, then minimum distance from prior published parameters",
+          "excursion_measure": "runup",
+          "completion_assumption": "unfilled weekly shares valued at next reference; no automatic broker execution",
+          "session_samples": [
+            {
+              "date": "2026-05-08",
+              "drawdown_pct": 0.31662,
+              "runup_pct": 1.93442,
+              "next_reference_return_pct": 1.83693
+            },
+            {
+              "date": "2026-05-11",
+              "drawdown_pct": 0.64683,
+              "runup_pct": 1.09314,
+              "next_reference_return_pct": -1.68521
+            },
+            {
+              "date": "2026-05-12",
+              "drawdown_pct": 1.03732,
+              "runup_pct": 0.3294,
+              "next_reference_return_pct": -0.05
+            },
+            {
+              "date": "2026-05-13",
+              "drawdown_pct": 1.95938,
+              "runup_pct": 0.0,
+              "next_reference_return_pct": -1.26252
+            },
+            {
+              "date": "2026-05-14",
+              "drawdown_pct": 0.17244,
+              "runup_pct": 3.08088,
+              "next_reference_return_pct": -0.45689
+            },
+            {
+              "date": "2026-05-15",
+              "drawdown_pct": 1.54572,
+              "runup_pct": 0.05626,
+              "next_reference_return_pct": -4.55591
+            },
+            {
+              "date": "2026-05-18",
+              "drawdown_pct": 2.82829,
+              "runup_pct": 0.0,
+              "next_reference_return_pct": -0.90752
+            },
+            {
+              "date": "2026-05-19",
+              "drawdown_pct": 1.12449,
+              "runup_pct": 0.4362,
+              "next_reference_return_pct": 0.10433
+            },
+            {
+              "date": "2026-05-20",
+              "drawdown_pct": 0.31266,
+              "runup_pct": 1.34402,
+              "next_reference_return_pct": -0.22872
+            },
+            {
+              "date": "2026-05-21",
+              "drawdown_pct": 0.4963,
+              "runup_pct": 1.80086,
+              "next_reference_return_pct": 0.58658
+            },
+            {
+              "date": "2026-05-22",
+              "drawdown_pct": 3.2922,
+              "runup_pct": 0.21851,
+              "next_reference_return_pct": -0.66727
+            },
+            {
+              "date": "2026-05-26",
+              "drawdown_pct": 2.78164,
+              "runup_pct": 1.25978,
+              "next_reference_return_pct": -2.27451
+            },
+            {
+              "date": "2026-05-27",
+              "drawdown_pct": 1.08772,
+              "runup_pct": 0.67529,
+              "next_reference_return_pct": -3.97332
+            },
+            {
+              "date": "2026-05-28",
+              "drawdown_pct": 0.82271,
+              "runup_pct": 2.33402,
+              "next_reference_return_pct": 0.49352
+            },
+            {
+              "date": "2026-05-29",
+              "drawdown_pct": 0.85328,
+              "runup_pct": 2.66367,
+              "next_reference_return_pct": -0.50916
+            },
+            {
+              "date": "2026-06-01",
+              "drawdown_pct": 1.37647,
+              "runup_pct": 1.28521,
+              "next_reference_return_pct": -0.29042
+            },
+            {
+              "date": "2026-06-02",
+              "drawdown_pct": 4.88324,
+              "runup_pct": 0.13805,
+              "next_reference_return_pct": -5.397
+            },
+            {
+              "date": "2026-06-03",
+              "drawdown_pct": 4.04201,
+              "runup_pct": 0.10049,
+              "next_reference_return_pct": -4.86677
+            },
+            {
+              "date": "2026-06-04",
+              "drawdown_pct": 1.4496,
+              "runup_pct": 0.822,
+              "next_reference_return_pct": -5.87201
+            },
+            {
+              "date": "2026-06-05",
+              "drawdown_pct": 8.06428,
+              "runup_pct": 0.00716,
+              "next_reference_return_pct": 0.88283
+            },
+            {
+              "date": "2026-06-08",
+              "drawdown_pct": 0.84493,
+              "runup_pct": 0.95498,
+              "next_reference_return_pct": -1.09344
+            },
+            {
+              "date": "2026-06-09",
+              "drawdown_pct": 3.4446,
+              "runup_pct": 0.41098,
+              "next_reference_return_pct": -1.27961
+            },
+            {
+              "date": "2026-06-10",
+              "drawdown_pct": 1.67857,
+              "runup_pct": 1.07562,
+              "next_reference_return_pct": 0.04605
+            },
+            {
+              "date": "2026-06-11",
+              "drawdown_pct": 1.10602,
+              "runup_pct": 2.58151,
+              "next_reference_return_pct": 0.79044
+            },
+            {
+              "date": "2026-06-12",
+              "drawdown_pct": 0.61778,
+              "runup_pct": 1.62558,
+              "next_reference_return_pct": 9.12549
+            },
+            {
+              "date": "2026-06-15",
+              "drawdown_pct": 0.61458,
+              "runup_pct": 1.85421,
+              "next_reference_return_pct": -0.69939
+            },
+            {
+              "date": "2026-06-16",
+              "drawdown_pct": 2.20778,
+              "runup_pct": 0.29226,
+              "next_reference_return_pct": -2.3076
+            },
+            {
+              "date": "2026-06-17",
+              "drawdown_pct": 1.8336,
+              "runup_pct": 1.95963,
+              "next_reference_return_pct": -1.24776
+            },
+            {
+              "date": "2026-06-18",
+              "drawdown_pct": 3.89692,
+              "runup_pct": 0.33801,
+              "next_reference_return_pct": 1.7464
+            },
+            {
+              "date": "2026-06-22",
+              "drawdown_pct": 2.3057,
+              "runup_pct": 0.56159,
+              "next_reference_return_pct": -6.31201
+            },
+            {
+              "date": "2026-06-23",
+              "drawdown_pct": 0.49691,
+              "runup_pct": 0.94377,
+              "next_reference_return_pct": 0.13086
+            },
+            {
+              "date": "2026-06-24",
+              "drawdown_pct": 6.4719,
+              "runup_pct": 0.16743,
+              "next_reference_return_pct": -2.08382
+            },
+            {
+              "date": "2026-06-25",
+              "drawdown_pct": 5.71469,
+              "runup_pct": 0.06827,
+              "next_reference_return_pct": -5.17219
+            },
+            {
+              "date": "2026-06-26",
+              "drawdown_pct": 0.26788,
+              "runup_pct": 3.43642,
+              "next_reference_return_pct": 2.25592
+            },
+            {
+              "date": "2026-06-29",
+              "drawdown_pct": 1.21472,
+              "runup_pct": 3.87441,
+              "next_reference_return_pct": -1.49445
+            },
+            {
+              "date": "2026-06-30",
+              "drawdown_pct": 0.17644,
+              "runup_pct": 1.86614,
+              "next_reference_return_pct": 1.48557
+            },
+            {
+              "date": "2026-07-01",
+              "drawdown_pct": 0.04188,
+              "runup_pct": 3.48919,
+              "next_reference_return_pct": 8.03485
+            },
+            {
+              "date": "2026-07-02",
+              "drawdown_pct": 0.94853,
+              "runup_pct": 1.31325,
+              "next_reference_return_pct": 2.3164
+            },
+            {
+              "date": "2026-07-06",
+              "drawdown_pct": 0.7537,
+              "runup_pct": 3.61177,
+              "next_reference_return_pct": 1.55217
+            },
+            {
+              "date": "2026-07-07",
+              "drawdown_pct": 0.44825,
+              "runup_pct": 2.48937,
+              "next_reference_return_pct": -1.69689
+            },
+            {
+              "date": "2026-07-08",
+              "drawdown_pct": 1.47548,
+              "runup_pct": 0.42666,
+              "next_reference_return_pct": -0.00115
+            },
+            {
+              "date": "2026-07-09",
+              "drawdown_pct": 0.40769,
+              "runup_pct": 1.19258,
+              "next_reference_return_pct": 3.38915
+            },
+            {
+              "date": "2026-07-10",
+              "drawdown_pct": 1.2803,
+              "runup_pct": 0.77752,
+              "next_reference_return_pct": -1.23636
+            },
+            {
+              "date": "2026-07-13",
+              "drawdown_pct": 1.44105,
+              "runup_pct": 0.6048,
+              "next_reference_return_pct": 5.34917
+            },
+            {
+              "date": "2026-07-14",
+              "drawdown_pct": 0.6051,
+              "runup_pct": 0.96323,
+              "next_reference_return_pct": 3.7316
+            },
+            {
+              "date": "2026-07-15",
+              "drawdown_pct": 1.86696,
+              "runup_pct": 0.084,
+              "next_reference_return_pct": -2.82955
+            },
+            {
+              "date": "2026-07-16",
+              "drawdown_pct": 1.22555,
+              "runup_pct": 0.46137,
+              "next_reference_return_pct": -4.05265
+            },
+            {
+              "date": "2026-07-17",
+              "drawdown_pct": 0.34323,
+              "runup_pct": 2.59277,
+              "next_reference_return_pct": 3.74297
+            },
+            {
+              "date": "2026-07-20",
+              "drawdown_pct": 1.24295,
+              "runup_pct": 2.19395,
+              "next_reference_return_pct": 3.11245
+            },
+            {
+              "date": "2026-07-21",
+              "drawdown_pct": 1.05405,
+              "runup_pct": 0.44435,
+              "next_reference_return_pct": -0.23044
+            },
+            {
+              "date": "2026-07-22",
+              "drawdown_pct": 0.51478,
+              "runup_pct": 1.32112,
+              "next_reference_return_pct": -1.30662
+            },
+            {
+              "date": "2026-07-23",
+              "drawdown_pct": 1.90323,
+              "runup_pct": 0.18261,
+              "next_reference_return_pct": -2.14881
+            },
+            {
+              "date": "2026-07-24",
+              "drawdown_pct": 0.89395,
+              "runup_pct": 0.25043,
+              "next_reference_return_pct": 5.1937
+            },
+            {
+              "date": "2026-07-27",
+              "drawdown_pct": 2.16761,
+              "runup_pct": 0.83503,
+              "next_reference_return_pct": -4.06554
+            },
+            {
+              "date": "2026-07-28",
+              "drawdown_pct": 1.32741,
+              "runup_pct": 2.50231,
+              "next_reference_return_pct": 1.49161
+            },
+            {
+              "date": "2026-07-29",
+              "drawdown_pct": 1.37335,
+              "runup_pct": 1.34822,
+              "next_reference_return_pct": 0.45604
+            },
+            {
+              "date": "2026-07-30",
+              "drawdown_pct": 0.26842,
+              "runup_pct": 0.95641,
+              "next_reference_return_pct": -1.67358
+            },
+            {
+              "date": "2026-07-31",
+              "drawdown_pct": 2.00527,
+              "runup_pct": 0.0,
+              "next_reference_return_pct": -2.08319
+            },
+            {
+              "date": "2026-08-03",
+              "drawdown_pct": 0.14671,
+              "runup_pct": 1.58453,
+              "next_reference_return_pct": 1.42592
+            },
+            {
+              "date": "2026-08-04",
+              "drawdown_pct": 0.7926,
+              "runup_pct": 0.4398,
+              "next_reference_return_pct": -0.90789
+            },
+            {
+              "date": "2026-08-05",
+              "drawdown_pct": 0.05709,
+              "runup_pct": 3.84798,
+              "next_reference_return_pct": 2.26333
+            },
+            {
+              "date": "2026-08-06",
+              "drawdown_pct": 0.34447,
+              "runup_pct": 1.11136,
+              "next_reference_return_pct": 1.83242
+            },
+            {
+              "date": "2026-08-07",
+              "drawdown_pct": 1.4467,
+              "runup_pct": 0.08689,
+              "next_reference_return_pct": -1.61169
+            },
+            {
+              "date": "2026-08-10",
+              "drawdown_pct": 1.80054,
+              "runup_pct": 0.25024,
+              "next_reference_return_pct": -0.92839
+            },
+            {
+              "date": "2026-08-11",
+              "drawdown_pct": 1.64124,
+              "runup_pct": 0.43193,
+              "next_reference_return_pct": 1.09575
+            },
+            {
+              "date": "2026-08-12",
+              "drawdown_pct": 1.42872,
+              "runup_pct": 0.16376,
+              "next_reference_return_pct": -0.68602
+            },
+            {
+              "date": "2026-08-13",
+              "drawdown_pct": 1.50412,
+              "runup_pct": 0.27641,
+              "next_reference_return_pct": -1.25731
+            },
+            {
+              "date": "2026-08-14",
+              "drawdown_pct": 0.21731,
+              "runup_pct": 1.07475,
+              "next_reference_return_pct": 2.04941
+            },
+            {
+              "date": "2026-08-17",
+              "drawdown_pct": 0.43323,
+              "runup_pct": 0.46522,
+              "next_reference_return_pct": -0.65456
+            },
+            {
+              "date": "2026-08-18",
+              "drawdown_pct": 0.00792,
+              "runup_pct": 1.53737,
+              "next_reference_return_pct": 2.27754
+            },
+            {
+              "date": "2026-08-19",
+              "drawdown_pct": 0.47437,
+              "runup_pct": 9.17312,
+              "next_reference_return_pct": 17.48938
+            },
+            {
+              "date": "2026-08-20",
+              "drawdown_pct": 0.89758,
+              "runup_pct": 3.68567,
+              "next_reference_return_pct": 4.04594
+            },
+            {
+              "date": "2026-08-21",
+              "drawdown_pct": 0.0,
+              "runup_pct": 2.70881,
+              "next_reference_return_pct": 5.61186
+            },
+            {
+              "date": "2026-08-24",
+              "drawdown_pct": 1.84319,
+              "runup_pct": 1.27344,
+              "next_reference_return_pct": -1.06073
+            },
+            {
+              "date": "2026-08-25",
+              "drawdown_pct": 1.39701,
+              "runup_pct": 0.44573,
+              "next_reference_return_pct": -0.94845
+            },
+            {
+              "date": "2026-08-26",
+              "drawdown_pct": 0.76619,
+              "runup_pct": 1.32267,
+              "next_reference_return_pct": 1.67313
+            },
+            {
+              "date": "2026-08-27",
+              "drawdown_pct": 0.38401,
+              "runup_pct": 1.67208,
+              "next_reference_return_pct": 0.45303
+            },
+            {
+              "date": "2026-08-28",
+              "drawdown_pct": 3.89191,
+              "runup_pct": 0.92834,
+              "next_reference_return_pct": -2.30247
+            },
+            {
+              "date": "2026-08-31",
+              "drawdown_pct": 0.35613,
+              "runup_pct": 1.8068,
+              "next_reference_return_pct": -0.11816
+            },
+            {
+              "date": "2026-09-01",
+              "drawdown_pct": 2.43689,
+              "runup_pct": 0.60462,
+              "next_reference_return_pct": -2.40127
+            },
+            {
+              "date": "2026-09-02",
+              "drawdown_pct": 0.48905,
+              "runup_pct": 1.48938,
+              "next_reference_return_pct": 1.75236
+            },
+            {
+              "date": "2026-09-03",
+              "drawdown_pct": 0.14386,
+              "runup_pct": 4.28073,
+              "next_reference_return_pct": 0.53875
+            },
+            {
+              "date": "2026-09-04",
+              "drawdown_pct": 0.30545,
+              "runup_pct": 1.04261,
+              "next_reference_return_pct": 0.73594
+            },
+            {
+              "date": "2026-09-08",
+              "drawdown_pct": 0.62393,
+              "runup_pct": 2.05656,
+              "next_reference_return_pct": 2.24419
+            },
+            {
+              "date": "2026-09-09",
+              "drawdown_pct": 1.9756,
+              "runup_pct": 0.08638,
+              "next_reference_return_pct": -3.62319
+            },
+            {
+              "date": "2026-09-10",
+              "drawdown_pct": 0.0223,
+              "runup_pct": 2.22623,
+              "next_reference_return_pct": 3.31209
+            },
+            {
+              "date": "2026-09-11",
+              "drawdown_pct": 0.43297,
+              "runup_pct": 6.58332,
+              "next_reference_return_pct": 0.30744
+            },
+            {
+              "date": "2026-09-14",
+              "drawdown_pct": 0.55839,
+              "runup_pct": 1.61817,
+              "next_reference_return_pct": -1.75248
+            },
+            {
+              "date": "2026-09-15",
+              "drawdown_pct": 4.30662,
+              "runup_pct": 0.02312,
+              "next_reference_return_pct": -2.75979
+            },
+            {
+              "date": "2026-09-16",
+              "drawdown_pct": 1.16395,
+              "runup_pct": 1.403,
+              "next_reference_return_pct": null
+            }
+          ],
+          "notes": [
+            "ETHUSDT is the registered intraday scaling proxy; order prices are applied to the user-entered ETH reference price.",
+            "The 09:35 bar sets the reference and is excluded from fills; eligible highs begin at 09:36 America/New_York.",
+            "Unfilled weekly quantity is completed at the next available reference in the walk-forward cost calculation.",
+            "Proxy price touches approximate rung hits; they do not model the listed instrument's spread, queue position, partial fills, fees or market impact.",
+            "Deadline tightening and the optional sell closeout are execution overlays, not independently optimized backtest policies."
+          ]
+        }
+      }
+    },
+    "BINANCE:SPOT:BTCUSDT": {
+      "schema_version": 1,
+      "instrument_type": "crypto_spot",
+      "instrument_id": "BINANCE:SPOT:BTCUSDT",
+      "symbol": "BTCUSDT",
+      "exchange": "Binance Spot",
+      "exchange_mic": null,
+      "venue_code": "BINANCE",
+      "name": "BTC / USDT spot",
+      "asset_class": "Crypto spot",
+      "currency": "USDT",
+      "base_asset": "BTC",
+      "quantity_unit": "BTC",
+      "order_time_in_force": "GTC",
+      "price_tick": 0.01,
+      "quantity_step": 1e-05,
+      "min_quantity": 1e-05,
+      "max_quantity": 9000.0,
+      "min_notional": 5.0,
+      "max_notional": 9000000.0,
+      "min_price": 0.01,
+      "max_price": 1000000.0,
+      "exchange_rules_checked_at": "2026-09-17T12:08:03.396262+00:00",
+      "market_calendar": "24X7",
+      "timezone": "UTC",
+      "reference_time": "00:00",
+      "fill_start_time": "00:01",
+      "session_end_time": "24:00",
+      "default_reference_price": 76500.0,
+      "scaling_source": {
+        "provider": "binance_vision",
+        "symbol": "BTCUSDT",
+        "interval": "1m",
+        "rationale": "The execution pair and minute-data pair are identical on Binance Spot."
+      },
+      "enabled": true,
+      "trade_side": "buy",
+      "status": "minute-rolling",
+      "generated_at": "2026-09-17T12:08:03.983275Z",
+      "data_as_of": "2026-09-16",
+      "market_proxy": "BTCUSDT",
+      "execution_instrument": "BTC / USDT spot (BTCUSDT)",
+      "lookback_sessions": 20,
+      "lookback_unit": "UTC calendar days",
+      "first_offset_pct": 0.25,
+      "spacing_pct": 0.8,
+      "expected_rungs_per_session": 2.1,
+      "zero_fill_probability": 0.0,
+      "sample_sessions": 220,
+      "walk_forward_weeks": 28,
+      "walk_forward_mean_implementation_shortfall_bps": 81.356,
+      "walk_forward_stderr_bps": 83.311,
+      "walk_forward_mean_passive_completion": 0.9153,
+      "selection_rule": "one-standard-error plateau, then minimum distance from prior published parameters",
+      "excursion_measure": "drawdown",
+      "completion_assumption": "unfilled weekly shares valued at next reference; no automatic broker execution",
+      "session_samples": [
+        {
+          "date": "2026-06-19",
+          "drawdown_pct": 0.98128,
+          "runup_pct": 1.16312,
+          "next_reference_return_pct": 1.06483
+        },
+        {
+          "date": "2026-06-20",
+          "drawdown_pct": 0.66022,
+          "runup_pct": 1.2324,
+          "next_reference_return_pct": 1.09757
+        },
+        {
+          "date": "2026-06-21",
+          "drawdown_pct": 1.60529,
+          "runup_pct": 0.4444,
+          "next_reference_return_pct": -1.45849
+        },
+        {
+          "date": "2026-06-22",
+          "drawdown_pct": 0.01113,
+          "runup_pct": 3.56419,
+          "next_reference_return_pct": 1.02453
+        },
+        {
+          "date": "2026-06-23",
+          "drawdown_pct": 3.24242,
+          "runup_pct": 0.40896,
+          "next_reference_return_pct": -1.90833
+        },
+        {
+          "date": "2026-06-24",
+          "drawdown_pct": 5.87543,
+          "runup_pct": 0.71197,
+          "next_reference_return_pct": -2.7518
+        },
+        {
+          "date": "2026-06-25",
+          "drawdown_pct": 4.82948,
+          "runup_pct": 1.47109,
+          "next_reference_return_pct": -2.06683
+        },
+        {
+          "date": "2026-06-26",
+          "drawdown_pct": 2.44975,
+          "runup_pct": 1.60194,
+          "next_reference_return_pct": 0.53175
+        },
+        {
+          "date": "2026-06-27",
+          "drawdown_pct": 0.44052,
+          "runup_pct": 1.36588,
+          "next_reference_return_pct": -0.12816
+        },
+        {
+          "date": "2026-06-28",
+          "drawdown_pct": 1.89523,
+          "runup_pct": 0.83617,
+          "next_reference_return_pct": -0.93092
+        },
+        {
+          "date": "2026-06-29",
+          "drawdown_pct": 0.98176,
+          "runup_pct": 2.1797,
+          "next_reference_return_pct": 1.22973
+        },
+        {
+          "date": "2026-06-30",
+          "drawdown_pct": 3.34547,
+          "runup_pct": 0.10139,
+          "next_reference_return_pct": -2.5068
+        },
+        {
+          "date": "2026-07-01",
+          "drawdown_pct": 1.54298,
+          "runup_pct": 4.47653,
+          "next_reference_return_pct": 2.20419
+        },
+        {
+          "date": "2026-07-02",
+          "drawdown_pct": 0.68667,
+          "runup_pct": 3.66667,
+          "next_reference_return_pct": 2.58668
+        },
+        {
+          "date": "2026-07-03",
+          "drawdown_pct": 0.49251,
+          "runup_pct": 2.31975,
+          "next_reference_return_pct": 1.70514
+        },
+        {
+          "date": "2026-07-04",
+          "drawdown_pct": 0.4366,
+          "runup_pct": 1.37445,
+          "next_reference_return_pct": 0.78664
+        },
+        {
+          "date": "2026-07-05",
+          "drawdown_pct": 1.04197,
+          "runup_pct": 1.43435,
+          "next_reference_return_pct": 0.80515
+        },
+        {
+          "date": "2026-07-06",
+          "drawdown_pct": 3.60864,
+          "runup_pct": 1.72634,
+          "next_reference_return_pct": 0.7148
+        },
+        {
+          "date": "2026-07-07",
+          "drawdown_pct": 2.16254,
+          "runup_pct": 0.40177,
+          "next_reference_return_pct": -1.1697
+        },
+        {
+          "date": "2026-07-08",
+          "drawdown_pct": 2.78453,
+          "runup_pct": 0.71812,
+          "next_reference_return_pct": -1.61507
+        },
+        {
+          "date": "2026-07-09",
+          "drawdown_pct": 0.93059,
+          "runup_pct": 1.95086,
+          "next_reference_return_pct": 1.51415
+        },
+        {
+          "date": "2026-07-10",
+          "drawdown_pct": 0.47762,
+          "runup_pct": 2.31674,
+          "next_reference_return_pct": 1.48668
+        },
+        {
+          "date": "2026-07-11",
+          "drawdown_pct": 0.54388,
+          "runup_pct": 0.5238,
+          "next_reference_return_pct": -0.48082
+        },
+        {
+          "date": "2026-07-12",
+          "drawdown_pct": 0.34238,
+          "runup_pct": 0.67436,
+          "next_reference_return_pct": -0.20587
+        },
+        {
+          "date": "2026-07-13",
+          "drawdown_pct": 2.98618,
+          "runup_pct": 1.09371,
+          "next_reference_return_pct": -2.16859
+        },
+        {
+          "date": "2026-07-14",
+          "drawdown_pct": 0.11837,
+          "runup_pct": 4.41728,
+          "next_reference_return_pct": 4.31511
+        },
+        {
+          "date": "2026-07-15",
+          "drawdown_pct": 0.84768,
+          "runup_pct": 0.86675,
+          "next_reference_return_pct": -0.41009
+        },
+        {
+          "date": "2026-07-16",
+          "drawdown_pct": 1.57613,
+          "runup_pct": 0.35191,
+          "next_reference_return_pct": -1.42667
+        },
+        {
+          "date": "2026-07-17",
+          "drawdown_pct": 2.04866,
+          "runup_pct": 0.84963,
+          "next_reference_return_pct": 0.16524
+        },
+        {
+          "date": "2026-07-18",
+          "drawdown_pct": 0.10069,
+          "runup_pct": 1.42916,
+          "next_reference_return_pct": 1.39788
+        },
+        {
+          "date": "2026-07-19",
+          "drawdown_pct": 0.87131,
+          "runup_pct": 0.18853,
+          "next_reference_return_pct": -0.26841
+        },
+        {
+          "date": "2026-07-20",
+          "drawdown_pct": 2.42914,
+          "runup_pct": 1.74429,
+          "next_reference_return_pct": 0.79331
+        },
+        {
+          "date": "2026-07-21",
+          "drawdown_pct": 0.05406,
+          "runup_pct": 2.7187,
+          "next_reference_return_pct": 2.0864
+        },
+        {
+          "date": "2026-07-22",
+          "drawdown_pct": 1.48822,
+          "runup_pct": 0.29439,
+          "next_reference_return_pct": -0.6351
+        },
+        {
+          "date": "2026-07-23",
+          "drawdown_pct": 2.22526,
+          "runup_pct": 0.29003,
+          "next_reference_return_pct": -1.55225
+        },
+        {
+          "date": "2026-07-24",
+          "drawdown_pct": 2.08196,
+          "runup_pct": 1.09623,
+          "next_reference_return_pct": -1.46964
+        },
+        {
+          "date": "2026-07-25",
+          "drawdown_pct": 0.51192,
+          "runup_pct": 0.52533,
+          "next_reference_return_pct": 0.35002
+        },
+        {
+          "date": "2026-07-26",
+          "drawdown_pct": 0.10725,
+          "runup_pct": 1.88643,
+          "next_reference_return_pct": 1.58657
+        },
+        {
+          "date": "2026-07-27",
+          "drawdown_pct": 2.71999,
+          "runup_pct": 0.55151,
+          "next_reference_return_pct": -2.47082
+        },
+        {
+          "date": "2026-07-28",
+          "drawdown_pct": 1.60896,
+          "runup_pct": 0.51988,
+          "next_reference_return_pct": 0.3368
+        },
+        {
+          "date": "2026-07-29",
+          "drawdown_pct": 1.1189,
+          "runup_pct": 1.19025,
+          "next_reference_return_pct": 0.07305
+        },
+        {
+          "date": "2026-07-30",
+          "drawdown_pct": 0.66542,
+          "runup_pct": 1.79074,
+          "next_reference_return_pct": 1.24317
+        },
+        {
+          "date": "2026-07-31",
+          "drawdown_pct": 3.6405,
+          "runup_pct": 0.90021,
+          "next_reference_return_pct": -2.98172
+        },
+        {
+          "date": "2026-08-01",
+          "drawdown_pct": 0.98272,
+          "runup_pct": 0.40853,
+          "next_reference_return_pct": -0.08437
+        },
+        {
+          "date": "2026-08-02",
+          "drawdown_pct": 0.05318,
+          "runup_pct": 1.52185,
+          "next_reference_return_pct": 1.12667
+        },
+        {
+          "date": "2026-08-03",
+          "drawdown_pct": 1.96387,
+          "runup_pct": 0.83716,
+          "next_reference_return_pct": -0.08737
+        },
+        {
+          "date": "2026-08-04",
+          "drawdown_pct": 0.26849,
+          "runup_pct": 1.66426,
+          "next_reference_return_pct": 0.95181
+        },
+        {
+          "date": "2026-08-05",
+          "drawdown_pct": 0.33825,
+          "runup_pct": 1.44845,
+          "next_reference_return_pct": 0.88636
+        },
+        {
+          "date": "2026-08-06",
+          "drawdown_pct": 0.7623,
+          "runup_pct": 0.5166,
+          "next_reference_return_pct": -0.53242
+        },
+        {
+          "date": "2026-08-07",
+          "drawdown_pct": 0.24044,
+          "runup_pct": 1.66407,
+          "next_reference_return_pct": 0.91565
+        },
+        {
+          "date": "2026-08-08",
+          "drawdown_pct": 0.19321,
+          "runup_pct": 0.4359,
+          "next_reference_return_pct": 0.0792
+        },
+        {
+          "date": "2026-08-09",
+          "drawdown_pct": 0.35549,
+          "runup_pct": 0.7904,
+          "next_reference_return_pct": -0.13129
+        },
+        {
+          "date": "2026-08-10",
+          "drawdown_pct": 1.64846,
+          "runup_pct": 0.79447,
+          "next_reference_return_pct": -1.4269
+        },
+        {
+          "date": "2026-08-11",
+          "drawdown_pct": 1.11339,
+          "runup_pct": 0.88416,
+          "next_reference_return_pct": -0.58396
+        },
+        {
+          "date": "2026-08-12",
+          "drawdown_pct": 0.41875,
+          "runup_pct": 1.45247,
+          "next_reference_return_pct": -0.12045
+        },
+        {
+          "date": "2026-08-13",
+          "drawdown_pct": 1.09877,
+          "runup_pct": 0.80317,
+          "next_reference_return_pct": 0.00972
+        },
+        {
+          "date": "2026-08-14",
+          "drawdown_pct": 1.52886,
+          "runup_pct": 0.17524,
+          "next_reference_return_pct": -0.74347
+        },
+        {
+          "date": "2026-08-15",
+          "drawdown_pct": 0.18087,
+          "runup_pct": 0.24426,
+          "next_reference_return_pct": 0.07932
+        },
+        {
+          "date": "2026-08-16",
+          "drawdown_pct": 0.58336,
+          "runup_pct": 0.48505,
+          "next_reference_return_pct": -0.29169
+        },
+        {
+          "date": "2026-08-17",
+          "drawdown_pct": 0.23672,
+          "runup_pct": 2.71862,
+          "next_reference_return_pct": 2.62682
+        },
+        {
+          "date": "2026-08-18",
+          "drawdown_pct": 0.8124,
+          "runup_pct": 0.7847,
+          "next_reference_return_pct": 0.28504
+        },
+        {
+          "date": "2026-08-19",
+          "drawdown_pct": 0.88091,
+          "runup_pct": 8.13104,
+          "next_reference_return_pct": 7.18745
+        },
+        {
+          "date": "2026-08-20",
+          "drawdown_pct": 0.70175,
+          "runup_pct": 5.78021,
+          "next_reference_return_pct": 5.29599
+        },
+        {
+          "date": "2026-08-21",
+          "drawdown_pct": 0.0,
+          "runup_pct": 8.80872,
+          "next_reference_return_pct": 7.17511
+        },
+        {
+          "date": "2026-08-22",
+          "drawdown_pct": 2.30686,
+          "runup_pct": 0.66627,
+          "next_reference_return_pct": -1.51768
+        },
+        {
+          "date": "2026-08-23",
+          "drawdown_pct": 2.03884,
+          "runup_pct": 1.21226,
+          "next_reference_return_pct": 0.79102
+        },
+        {
+          "date": "2026-08-24",
+          "drawdown_pct": 1.36114,
+          "runup_pct": 2.92301,
+          "next_reference_return_pct": 1.59016
+        },
+        {
+          "date": "2026-08-25",
+          "drawdown_pct": 1.4095,
+          "runup_pct": 2.92364,
+          "next_reference_return_pct": -0.59268
+        },
+        {
+          "date": "2026-08-26",
+          "drawdown_pct": 1.09995,
+          "runup_pct": 0.9626,
+          "next_reference_return_pct": 0.59532
+        },
+        {
+          "date": "2026-08-27",
+          "drawdown_pct": 0.52831,
+          "runup_pct": 2.38774,
+          "next_reference_return_pct": 1.63962
+        },
+        {
+          "date": "2026-08-28",
+          "drawdown_pct": 4.19896,
+          "runup_pct": 1.52118,
+          "next_reference_return_pct": -3.04194
+        },
+        {
+          "date": "2026-08-29",
+          "drawdown_pct": 0.55802,
+          "runup_pct": 0.65976,
+          "next_reference_return_pct": 0.51973
+        },
+        {
+          "date": "2026-08-30",
+          "drawdown_pct": 1.56101,
+          "runup_pct": 1.50722,
+          "next_reference_return_pct": -0.76081
+        },
+        {
+          "date": "2026-08-31",
+          "drawdown_pct": 0.30136,
+          "runup_pct": 2.09217,
+          "next_reference_return_pct": 1.20587
+        },
+        {
+          "date": "2026-09-01",
+          "drawdown_pct": 2.72651,
+          "runup_pct": 0.83833,
+          "next_reference_return_pct": -1.36487
+        },
+        {
+          "date": "2026-09-02",
+          "drawdown_pct": 1.5818,
+          "runup_pct": 0.39008,
+          "next_reference_return_pct": -0.20759
+        },
+        {
+          "date": "2026-09-03",
+          "drawdown_pct": 0.46667,
+          "runup_pct": 6.42856,
+          "next_reference_return_pct": 5.03414
+        },
+        {
+          "date": "2026-09-04",
+          "drawdown_pct": 3.15397,
+          "runup_pct": 0.25368,
+          "next_reference_return_pct": -1.92183
+        },
+        {
+          "date": "2026-09-05",
+          "drawdown_pct": 0.27463,
+          "runup_pct": 0.67691,
+          "next_reference_return_pct": 0.21243
+        },
+        {
+          "date": "2026-09-06",
+          "drawdown_pct": 0.74783,
+          "runup_pct": 0.91444,
+          "next_reference_return_pct": 0.52112
+        },
+        {
+          "date": "2026-09-07",
+          "drawdown_pct": 1.9515,
+          "runup_pct": 0.24673,
+          "next_reference_return_pct": -1.41815
+        },
+        {
+          "date": "2026-09-08",
+          "drawdown_pct": 1.88095,
+          "runup_pct": 0.47658,
+          "next_reference_return_pct": -0.82418
+        },
+        {
+          "date": "2026-09-09",
+          "drawdown_pct": 0.87438,
+          "runup_pct": 1.66208,
+          "next_reference_return_pct": -0.1863
+        },
+        {
+          "date": "2026-09-10",
+          "drawdown_pct": 2.3571,
+          "runup_pct": 0.32505,
+          "next_reference_return_pct": -2.11505
+        },
+        {
+          "date": "2026-09-11",
+          "drawdown_pct": 0.79184,
+          "runup_pct": 4.22218,
+          "next_reference_return_pct": 0.78424
+        },
+        {
+          "date": "2026-09-12",
+          "drawdown_pct": 0.25235,
+          "runup_pct": 0.32486,
+          "next_reference_return_pct": 0.01652
+        },
+        {
+          "date": "2026-09-13",
+          "drawdown_pct": 0.99325,
+          "runup_pct": 0.23624,
+          "next_reference_return_pct": -0.55063
+        },
+        {
+          "date": "2026-09-14",
+          "drawdown_pct": 0.58989,
+          "runup_pct": 3.58918,
+          "next_reference_return_pct": 1.76682
+        },
+        {
+          "date": "2026-09-15",
+          "drawdown_pct": 4.13261,
+          "runup_pct": 0.06496,
+          "next_reference_return_pct": -3.27802
+        },
+        {
+          "date": "2026-09-16",
+          "drawdown_pct": 0.75551,
+          "runup_pct": 1.2223,
+          "next_reference_return_pct": null
+        }
+      ],
+      "notes": [
+        "BTCUSDT is the registered intraday scaling proxy; order prices are applied to the user-entered BTCUSDT reference price.",
+        "The 00:00 bar sets the reference and is excluded from fills; eligible lows begin at 00:01 UTC.",
+        "Unfilled weekly quantity is completed at the next available reference in the walk-forward cost calculation.",
+        "Proxy price touches approximate rung hits; they do not model the listed instrument's spread, queue position, partial fills, fees or market impact.",
+        "Deadline tightening and the optional sell closeout are execution overlays, not independently optimized backtest policies."
+      ],
+      "sides": {
+        "buy": {
+          "schema_version": 1,
+          "instrument_type": "crypto_spot",
+          "instrument_id": "BINANCE:SPOT:BTCUSDT",
+          "symbol": "BTCUSDT",
+          "exchange": "Binance Spot",
+          "exchange_mic": null,
+          "venue_code": "BINANCE",
+          "name": "BTC / USDT spot",
+          "asset_class": "Crypto spot",
+          "currency": "USDT",
+          "base_asset": "BTC",
+          "quantity_unit": "BTC",
+          "order_time_in_force": "GTC",
+          "price_tick": 0.01,
+          "quantity_step": 1e-05,
+          "min_quantity": 1e-05,
+          "max_quantity": 9000.0,
+          "min_notional": 5.0,
+          "max_notional": 9000000.0,
+          "min_price": 0.01,
+          "max_price": 1000000.0,
+          "exchange_rules_checked_at": "2026-09-17T12:08:03.396262+00:00",
+          "market_calendar": "24X7",
+          "timezone": "UTC",
+          "reference_time": "00:00",
+          "fill_start_time": "00:01",
+          "session_end_time": "24:00",
+          "default_reference_price": 76500.0,
+          "scaling_source": {
+            "provider": "binance_vision",
+            "symbol": "BTCUSDT",
+            "interval": "1m",
+            "rationale": "The execution pair and minute-data pair are identical on Binance Spot."
+          },
+          "enabled": true,
+          "trade_side": "buy",
+          "status": "minute-rolling",
+          "generated_at": "2026-09-17T12:08:03.983275Z",
+          "data_as_of": "2026-09-16",
+          "market_proxy": "BTCUSDT",
+          "execution_instrument": "BTC / USDT spot (BTCUSDT)",
+          "lookback_sessions": 20,
+          "lookback_unit": "UTC calendar days",
+          "first_offset_pct": 0.25,
+          "spacing_pct": 0.8,
+          "expected_rungs_per_session": 2.1,
+          "zero_fill_probability": 0.0,
+          "sample_sessions": 220,
+          "walk_forward_weeks": 28,
+          "walk_forward_mean_implementation_shortfall_bps": 81.356,
+          "walk_forward_stderr_bps": 83.311,
+          "walk_forward_mean_passive_completion": 0.9153,
+          "selection_rule": "one-standard-error plateau, then minimum distance from prior published parameters",
+          "excursion_measure": "drawdown",
+          "completion_assumption": "unfilled weekly shares valued at next reference; no automatic broker execution",
+          "session_samples": [
+            {
+              "date": "2026-06-19",
+              "drawdown_pct": 0.98128,
+              "runup_pct": 1.16312,
+              "next_reference_return_pct": 1.06483
+            },
+            {
+              "date": "2026-06-20",
+              "drawdown_pct": 0.66022,
+              "runup_pct": 1.2324,
+              "next_reference_return_pct": 1.09757
+            },
+            {
+              "date": "2026-06-21",
+              "drawdown_pct": 1.60529,
+              "runup_pct": 0.4444,
+              "next_reference_return_pct": -1.45849
+            },
+            {
+              "date": "2026-06-22",
+              "drawdown_pct": 0.01113,
+              "runup_pct": 3.56419,
+              "next_reference_return_pct": 1.02453
+            },
+            {
+              "date": "2026-06-23",
+              "drawdown_pct": 3.24242,
+              "runup_pct": 0.40896,
+              "next_reference_return_pct": -1.90833
+            },
+            {
+              "date": "2026-06-24",
+              "drawdown_pct": 5.87543,
+              "runup_pct": 0.71197,
+              "next_reference_return_pct": -2.7518
+            },
+            {
+              "date": "2026-06-25",
+              "drawdown_pct": 4.82948,
+              "runup_pct": 1.47109,
+              "next_reference_return_pct": -2.06683
+            },
+            {
+              "date": "2026-06-26",
+              "drawdown_pct": 2.44975,
+              "runup_pct": 1.60194,
+              "next_reference_return_pct": 0.53175
+            },
+            {
+              "date": "2026-06-27",
+              "drawdown_pct": 0.44052,
+              "runup_pct": 1.36588,
+              "next_reference_return_pct": -0.12816
+            },
+            {
+              "date": "2026-06-28",
+              "drawdown_pct": 1.89523,
+              "runup_pct": 0.83617,
+              "next_reference_return_pct": -0.93092
+            },
+            {
+              "date": "2026-06-29",
+              "drawdown_pct": 0.98176,
+              "runup_pct": 2.1797,
+              "next_reference_return_pct": 1.22973
+            },
+            {
+              "date": "2026-06-30",
+              "drawdown_pct": 3.34547,
+              "runup_pct": 0.10139,
+              "next_reference_return_pct": -2.5068
+            },
+            {
+              "date": "2026-07-01",
+              "drawdown_pct": 1.54298,
+              "runup_pct": 4.47653,
+              "next_reference_return_pct": 2.20419
+            },
+            {
+              "date": "2026-07-02",
+              "drawdown_pct": 0.68667,
+              "runup_pct": 3.66667,
+              "next_reference_return_pct": 2.58668
+            },
+            {
+              "date": "2026-07-03",
+              "drawdown_pct": 0.49251,
+              "runup_pct": 2.31975,
+              "next_reference_return_pct": 1.70514
+            },
+            {
+              "date": "2026-07-04",
+              "drawdown_pct": 0.4366,
+              "runup_pct": 1.37445,
+              "next_reference_return_pct": 0.78664
+            },
+            {
+              "date": "2026-07-05",
+              "drawdown_pct": 1.04197,
+              "runup_pct": 1.43435,
+              "next_reference_return_pct": 0.80515
+            },
+            {
+              "date": "2026-07-06",
+              "drawdown_pct": 3.60864,
+              "runup_pct": 1.72634,
+              "next_reference_return_pct": 0.7148
+            },
+            {
+              "date": "2026-07-07",
+              "drawdown_pct": 2.16254,
+              "runup_pct": 0.40177,
+              "next_reference_return_pct": -1.1697
+            },
+            {
+              "date": "2026-07-08",
+              "drawdown_pct": 2.78453,
+              "runup_pct": 0.71812,
+              "next_reference_return_pct": -1.61507
+            },
+            {
+              "date": "2026-07-09",
+              "drawdown_pct": 0.93059,
+              "runup_pct": 1.95086,
+              "next_reference_return_pct": 1.51415
+            },
+            {
+              "date": "2026-07-10",
+              "drawdown_pct": 0.47762,
+              "runup_pct": 2.31674,
+              "next_reference_return_pct": 1.48668
+            },
+            {
+              "date": "2026-07-11",
+              "drawdown_pct": 0.54388,
+              "runup_pct": 0.5238,
+              "next_reference_return_pct": -0.48082
+            },
+            {
+              "date": "2026-07-12",
+              "drawdown_pct": 0.34238,
+              "runup_pct": 0.67436,
+              "next_reference_return_pct": -0.20587
+            },
+            {
+              "date": "2026-07-13",
+              "drawdown_pct": 2.98618,
+              "runup_pct": 1.09371,
+              "next_reference_return_pct": -2.16859
+            },
+            {
+              "date": "2026-07-14",
+              "drawdown_pct": 0.11837,
+              "runup_pct": 4.41728,
+              "next_reference_return_pct": 4.31511
+            },
+            {
+              "date": "2026-07-15",
+              "drawdown_pct": 0.84768,
+              "runup_pct": 0.86675,
+              "next_reference_return_pct": -0.41009
+            },
+            {
+              "date": "2026-07-16",
+              "drawdown_pct": 1.57613,
+              "runup_pct": 0.35191,
+              "next_reference_return_pct": -1.42667
+            },
+            {
+              "date": "2026-07-17",
+              "drawdown_pct": 2.04866,
+              "runup_pct": 0.84963,
+              "next_reference_return_pct": 0.16524
+            },
+            {
+              "date": "2026-07-18",
+              "drawdown_pct": 0.10069,
+              "runup_pct": 1.42916,
+              "next_reference_return_pct": 1.39788
+            },
+            {
+              "date": "2026-07-19",
+              "drawdown_pct": 0.87131,
+              "runup_pct": 0.18853,
+              "next_reference_return_pct": -0.26841
+            },
+            {
+              "date": "2026-07-20",
+              "drawdown_pct": 2.42914,
+              "runup_pct": 1.74429,
+              "next_reference_return_pct": 0.79331
+            },
+            {
+              "date": "2026-07-21",
+              "drawdown_pct": 0.05406,
+              "runup_pct": 2.7187,
+              "next_reference_return_pct": 2.0864
+            },
+            {
+              "date": "2026-07-22",
+              "drawdown_pct": 1.48822,
+              "runup_pct": 0.29439,
+              "next_reference_return_pct": -0.6351
+            },
+            {
+              "date": "2026-07-23",
+              "drawdown_pct": 2.22526,
+              "runup_pct": 0.29003,
+              "next_reference_return_pct": -1.55225
+            },
+            {
+              "date": "2026-07-24",
+              "drawdown_pct": 2.08196,
+              "runup_pct": 1.09623,
+              "next_reference_return_pct": -1.46964
+            },
+            {
+              "date": "2026-07-25",
+              "drawdown_pct": 0.51192,
+              "runup_pct": 0.52533,
+              "next_reference_return_pct": 0.35002
+            },
+            {
+              "date": "2026-07-26",
+              "drawdown_pct": 0.10725,
+              "runup_pct": 1.88643,
+              "next_reference_return_pct": 1.58657
+            },
+            {
+              "date": "2026-07-27",
+              "drawdown_pct": 2.71999,
+              "runup_pct": 0.55151,
+              "next_reference_return_pct": -2.47082
+            },
+            {
+              "date": "2026-07-28",
+              "drawdown_pct": 1.60896,
+              "runup_pct": 0.51988,
+              "next_reference_return_pct": 0.3368
+            },
+            {
+              "date": "2026-07-29",
+              "drawdown_pct": 1.1189,
+              "runup_pct": 1.19025,
+              "next_reference_return_pct": 0.07305
+            },
+            {
+              "date": "2026-07-30",
+              "drawdown_pct": 0.66542,
+              "runup_pct": 1.79074,
+              "next_reference_return_pct": 1.24317
+            },
+            {
+              "date": "2026-07-31",
+              "drawdown_pct": 3.6405,
+              "runup_pct": 0.90021,
+              "next_reference_return_pct": -2.98172
+            },
+            {
+              "date": "2026-08-01",
+              "drawdown_pct": 0.98272,
+              "runup_pct": 0.40853,
+              "next_reference_return_pct": -0.08437
+            },
+            {
+              "date": "2026-08-02",
+              "drawdown_pct": 0.05318,
+              "runup_pct": 1.52185,
+              "next_reference_return_pct": 1.12667
+            },
+            {
+              "date": "2026-08-03",
+              "drawdown_pct": 1.96387,
+              "runup_pct": 0.83716,
+              "next_reference_return_pct": -0.08737
+            },
+            {
+              "date": "2026-08-04",
+              "drawdown_pct": 0.26849,
+              "runup_pct": 1.66426,
+              "next_reference_return_pct": 0.95181
+            },
+            {
+              "date": "2026-08-05",
+              "drawdown_pct": 0.33825,
+              "runup_pct": 1.44845,
+              "next_reference_return_pct": 0.88636
+            },
+            {
+              "date": "2026-08-06",
+              "drawdown_pct": 0.7623,
+              "runup_pct": 0.5166,
+              "next_reference_return_pct": -0.53242
+            },
+            {
+              "date": "2026-08-07",
+              "drawdown_pct": 0.24044,
+              "runup_pct": 1.66407,
+              "next_reference_return_pct": 0.91565
+            },
+            {
+              "date": "2026-08-08",
+              "drawdown_pct": 0.19321,
+              "runup_pct": 0.4359,
+              "next_reference_return_pct": 0.0792
+            },
+            {
+              "date": "2026-08-09",
+              "drawdown_pct": 0.35549,
+              "runup_pct": 0.7904,
+              "next_reference_return_pct": -0.13129
+            },
+            {
+              "date": "2026-08-10",
+              "drawdown_pct": 1.64846,
+              "runup_pct": 0.79447,
+              "next_reference_return_pct": -1.4269
+            },
+            {
+              "date": "2026-08-11",
+              "drawdown_pct": 1.11339,
+              "runup_pct": 0.88416,
+              "next_reference_return_pct": -0.58396
+            },
+            {
+              "date": "2026-08-12",
+              "drawdown_pct": 0.41875,
+              "runup_pct": 1.45247,
+              "next_reference_return_pct": -0.12045
+            },
+            {
+              "date": "2026-08-13",
+              "drawdown_pct": 1.09877,
+              "runup_pct": 0.80317,
+              "next_reference_return_pct": 0.00972
+            },
+            {
+              "date": "2026-08-14",
+              "drawdown_pct": 1.52886,
+              "runup_pct": 0.17524,
+              "next_reference_return_pct": -0.74347
+            },
+            {
+              "date": "2026-08-15",
+              "drawdown_pct": 0.18087,
+              "runup_pct": 0.24426,
+              "next_reference_return_pct": 0.07932
+            },
+            {
+              "date": "2026-08-16",
+              "drawdown_pct": 0.58336,
+              "runup_pct": 0.48505,
+              "next_reference_return_pct": -0.29169
+            },
+            {
+              "date": "2026-08-17",
+              "drawdown_pct": 0.23672,
+              "runup_pct": 2.71862,
+              "next_reference_return_pct": 2.62682
+            },
+            {
+              "date": "2026-08-18",
+              "drawdown_pct": 0.8124,
+              "runup_pct": 0.7847,
+              "next_reference_return_pct": 0.28504
+            },
+            {
+              "date": "2026-08-19",
+              "drawdown_pct": 0.88091,
+              "runup_pct": 8.13104,
+              "next_reference_return_pct": 7.18745
+            },
+            {
+              "date": "2026-08-20",
+              "drawdown_pct": 0.70175,
+              "runup_pct": 5.78021,
+              "next_reference_return_pct": 5.29599
+            },
+            {
+              "date": "2026-08-21",
+              "drawdown_pct": 0.0,
+              "runup_pct": 8.80872,
+              "next_reference_return_pct": 7.17511
+            },
+            {
+              "date": "2026-08-22",
+              "drawdown_pct": 2.30686,
+              "runup_pct": 0.66627,
+              "next_reference_return_pct": -1.51768
+            },
+            {
+              "date": "2026-08-23",
+              "drawdown_pct": 2.03884,
+              "runup_pct": 1.21226,
+              "next_reference_return_pct": 0.79102
+            },
+            {
+              "date": "2026-08-24",
+              "drawdown_pct": 1.36114,
+              "runup_pct": 2.92301,
+              "next_reference_return_pct": 1.59016
+            },
+            {
+              "date": "2026-08-25",
+              "drawdown_pct": 1.4095,
+              "runup_pct": 2.92364,
+              "next_reference_return_pct": -0.59268
+            },
+            {
+              "date": "2026-08-26",
+              "drawdown_pct": 1.09995,
+              "runup_pct": 0.9626,
+              "next_reference_return_pct": 0.59532
+            },
+            {
+              "date": "2026-08-27",
+              "drawdown_pct": 0.52831,
+              "runup_pct": 2.38774,
+              "next_reference_return_pct": 1.63962
+            },
+            {
+              "date": "2026-08-28",
+              "drawdown_pct": 4.19896,
+              "runup_pct": 1.52118,
+              "next_reference_return_pct": -3.04194
+            },
+            {
+              "date": "2026-08-29",
+              "drawdown_pct": 0.55802,
+              "runup_pct": 0.65976,
+              "next_reference_return_pct": 0.51973
+            },
+            {
+              "date": "2026-08-30",
+              "drawdown_pct": 1.56101,
+              "runup_pct": 1.50722,
+              "next_reference_return_pct": -0.76081
+            },
+            {
+              "date": "2026-08-31",
+              "drawdown_pct": 0.30136,
+              "runup_pct": 2.09217,
+              "next_reference_return_pct": 1.20587
+            },
+            {
+              "date": "2026-09-01",
+              "drawdown_pct": 2.72651,
+              "runup_pct": 0.83833,
+              "next_reference_return_pct": -1.36487
+            },
+            {
+              "date": "2026-09-02",
+              "drawdown_pct": 1.5818,
+              "runup_pct": 0.39008,
+              "next_reference_return_pct": -0.20759
+            },
+            {
+              "date": "2026-09-03",
+              "drawdown_pct": 0.46667,
+              "runup_pct": 6.42856,
+              "next_reference_return_pct": 5.03414
+            },
+            {
+              "date": "2026-09-04",
+              "drawdown_pct": 3.15397,
+              "runup_pct": 0.25368,
+              "next_reference_return_pct": -1.92183
+            },
+            {
+              "date": "2026-09-05",
+              "drawdown_pct": 0.27463,
+              "runup_pct": 0.67691,
+              "next_reference_return_pct": 0.21243
+            },
+            {
+              "date": "2026-09-06",
+              "drawdown_pct": 0.74783,
+              "runup_pct": 0.91444,
+              "next_reference_return_pct": 0.52112
+            },
+            {
+              "date": "2026-09-07",
+              "drawdown_pct": 1.9515,
+              "runup_pct": 0.24673,
+              "next_reference_return_pct": -1.41815
+            },
+            {
+              "date": "2026-09-08",
+              "drawdown_pct": 1.88095,
+              "runup_pct": 0.47658,
+              "next_reference_return_pct": -0.82418
+            },
+            {
+              "date": "2026-09-09",
+              "drawdown_pct": 0.87438,
+              "runup_pct": 1.66208,
+              "next_reference_return_pct": -0.1863
+            },
+            {
+              "date": "2026-09-10",
+              "drawdown_pct": 2.3571,
+              "runup_pct": 0.32505,
+              "next_reference_return_pct": -2.11505
+            },
+            {
+              "date": "2026-09-11",
+              "drawdown_pct": 0.79184,
+              "runup_pct": 4.22218,
+              "next_reference_return_pct": 0.78424
+            },
+            {
+              "date": "2026-09-12",
+              "drawdown_pct": 0.25235,
+              "runup_pct": 0.32486,
+              "next_reference_return_pct": 0.01652
+            },
+            {
+              "date": "2026-09-13",
+              "drawdown_pct": 0.99325,
+              "runup_pct": 0.23624,
+              "next_reference_return_pct": -0.55063
+            },
+            {
+              "date": "2026-09-14",
+              "drawdown_pct": 0.58989,
+              "runup_pct": 3.58918,
+              "next_reference_return_pct": 1.76682
+            },
+            {
+              "date": "2026-09-15",
+              "drawdown_pct": 4.13261,
+              "runup_pct": 0.06496,
+              "next_reference_return_pct": -3.27802
+            },
+            {
+              "date": "2026-09-16",
+              "drawdown_pct": 0.75551,
+              "runup_pct": 1.2223,
+              "next_reference_return_pct": null
+            }
+          ],
+          "notes": [
+            "BTCUSDT is the registered intraday scaling proxy; order prices are applied to the user-entered BTCUSDT reference price.",
+            "The 00:00 bar sets the reference and is excluded from fills; eligible lows begin at 00:01 UTC.",
+            "Unfilled weekly quantity is completed at the next available reference in the walk-forward cost calculation.",
+            "Proxy price touches approximate rung hits; they do not model the listed instrument's spread, queue position, partial fills, fees or market impact.",
+            "Deadline tightening and the optional sell closeout are execution overlays, not independently optimized backtest policies."
+          ]
+        },
+        "sell": {
+          "schema_version": 1,
+          "instrument_type": "crypto_spot",
+          "instrument_id": "BINANCE:SPOT:BTCUSDT",
+          "symbol": "BTCUSDT",
+          "exchange": "Binance Spot",
+          "exchange_mic": null,
+          "venue_code": "BINANCE",
+          "name": "BTC / USDT spot",
+          "asset_class": "Crypto spot",
+          "currency": "USDT",
+          "base_asset": "BTC",
+          "quantity_unit": "BTC",
+          "order_time_in_force": "GTC",
+          "price_tick": 0.01,
+          "quantity_step": 1e-05,
+          "min_quantity": 1e-05,
+          "max_quantity": 9000.0,
+          "min_notional": 5.0,
+          "max_notional": 9000000.0,
+          "min_price": 0.01,
+          "max_price": 1000000.0,
+          "exchange_rules_checked_at": "2026-09-17T12:08:03.396262+00:00",
+          "market_calendar": "24X7",
+          "timezone": "UTC",
+          "reference_time": "00:00",
+          "fill_start_time": "00:01",
+          "session_end_time": "24:00",
+          "default_reference_price": 76500.0,
+          "scaling_source": {
+            "provider": "binance_vision",
+            "symbol": "BTCUSDT",
+            "interval": "1m",
+            "rationale": "The execution pair and minute-data pair are identical on Binance Spot."
+          },
+          "enabled": true,
+          "trade_side": "sell",
+          "status": "minute-rolling",
+          "generated_at": "2026-09-17T12:08:03.983275Z",
+          "data_as_of": "2026-09-16",
+          "market_proxy": "BTCUSDT",
+          "execution_instrument": "BTC / USDT spot (BTCUSDT)",
+          "lookback_sessions": 20,
+          "lookback_unit": "UTC calendar days",
+          "first_offset_pct": 0.25,
+          "spacing_pct": 0.8,
+          "expected_rungs_per_session": 1.9,
+          "zero_fill_probability": 0.15,
+          "sample_sessions": 220,
+          "walk_forward_weeks": 28,
+          "walk_forward_mean_implementation_shortfall_bps": -34.866,
+          "walk_forward_stderr_bps": 69.975,
+          "walk_forward_mean_passive_completion": 0.9252,
+          "selection_rule": "one-standard-error plateau, then minimum distance from prior published parameters",
+          "excursion_measure": "runup",
+          "completion_assumption": "unfilled weekly shares valued at next reference; no automatic broker execution",
+          "session_samples": [
+            {
+              "date": "2026-06-19",
+              "drawdown_pct": 0.98128,
+              "runup_pct": 1.16312,
+              "next_reference_return_pct": 1.06483
+            },
+            {
+              "date": "2026-06-20",
+              "drawdown_pct": 0.66022,
+              "runup_pct": 1.2324,
+              "next_reference_return_pct": 1.09757
+            },
+            {
+              "date": "2026-06-21",
+              "drawdown_pct": 1.60529,
+              "runup_pct": 0.4444,
+              "next_reference_return_pct": -1.45849
+            },
+            {
+              "date": "2026-06-22",
+              "drawdown_pct": 0.01113,
+              "runup_pct": 3.56419,
+              "next_reference_return_pct": 1.02453
+            },
+            {
+              "date": "2026-06-23",
+              "drawdown_pct": 3.24242,
+              "runup_pct": 0.40896,
+              "next_reference_return_pct": -1.90833
+            },
+            {
+              "date": "2026-06-24",
+              "drawdown_pct": 5.87543,
+              "runup_pct": 0.71197,
+              "next_reference_return_pct": -2.7518
+            },
+            {
+              "date": "2026-06-25",
+              "drawdown_pct": 4.82948,
+              "runup_pct": 1.47109,
+              "next_reference_return_pct": -2.06683
+            },
+            {
+              "date": "2026-06-26",
+              "drawdown_pct": 2.44975,
+              "runup_pct": 1.60194,
+              "next_reference_return_pct": 0.53175
+            },
+            {
+              "date": "2026-06-27",
+              "drawdown_pct": 0.44052,
+              "runup_pct": 1.36588,
+              "next_reference_return_pct": -0.12816
+            },
+            {
+              "date": "2026-06-28",
+              "drawdown_pct": 1.89523,
+              "runup_pct": 0.83617,
+              "next_reference_return_pct": -0.93092
+            },
+            {
+              "date": "2026-06-29",
+              "drawdown_pct": 0.98176,
+              "runup_pct": 2.1797,
+              "next_reference_return_pct": 1.22973
+            },
+            {
+              "date": "2026-06-30",
+              "drawdown_pct": 3.34547,
+              "runup_pct": 0.10139,
+              "next_reference_return_pct": -2.5068
+            },
+            {
+              "date": "2026-07-01",
+              "drawdown_pct": 1.54298,
+              "runup_pct": 4.47653,
+              "next_reference_return_pct": 2.20419
+            },
+            {
+              "date": "2026-07-02",
+              "drawdown_pct": 0.68667,
+              "runup_pct": 3.66667,
+              "next_reference_return_pct": 2.58668
+            },
+            {
+              "date": "2026-07-03",
+              "drawdown_pct": 0.49251,
+              "runup_pct": 2.31975,
+              "next_reference_return_pct": 1.70514
+            },
+            {
+              "date": "2026-07-04",
+              "drawdown_pct": 0.4366,
+              "runup_pct": 1.37445,
+              "next_reference_return_pct": 0.78664
+            },
+            {
+              "date": "2026-07-05",
+              "drawdown_pct": 1.04197,
+              "runup_pct": 1.43435,
+              "next_reference_return_pct": 0.80515
+            },
+            {
+              "date": "2026-07-06",
+              "drawdown_pct": 3.60864,
+              "runup_pct": 1.72634,
+              "next_reference_return_pct": 0.7148
+            },
+            {
+              "date": "2026-07-07",
+              "drawdown_pct": 2.16254,
+              "runup_pct": 0.40177,
+              "next_reference_return_pct": -1.1697
+            },
+            {
+              "date": "2026-07-08",
+              "drawdown_pct": 2.78453,
+              "runup_pct": 0.71812,
+              "next_reference_return_pct": -1.61507
+            },
+            {
+              "date": "2026-07-09",
+              "drawdown_pct": 0.93059,
+              "runup_pct": 1.95086,
+              "next_reference_return_pct": 1.51415
+            },
+            {
+              "date": "2026-07-10",
+              "drawdown_pct": 0.47762,
+              "runup_pct": 2.31674,
+              "next_reference_return_pct": 1.48668
+            },
+            {
+              "date": "2026-07-11",
+              "drawdown_pct": 0.54388,
+              "runup_pct": 0.5238,
+              "next_reference_return_pct": -0.48082
+            },
+            {
+              "date": "2026-07-12",
+              "drawdown_pct": 0.34238,
+              "runup_pct": 0.67436,
+              "next_reference_return_pct": -0.20587
+            },
+            {
+              "date": "2026-07-13",
+              "drawdown_pct": 2.98618,
+              "runup_pct": 1.09371,
+              "next_reference_return_pct": -2.16859
+            },
+            {
+              "date": "2026-07-14",
+              "drawdown_pct": 0.11837,
+              "runup_pct": 4.41728,
+              "next_reference_return_pct": 4.31511
+            },
+            {
+              "date": "2026-07-15",
+              "drawdown_pct": 0.84768,
+              "runup_pct": 0.86675,
+              "next_reference_return_pct": -0.41009
+            },
+            {
+              "date": "2026-07-16",
+              "drawdown_pct": 1.57613,
+              "runup_pct": 0.35191,
+              "next_reference_return_pct": -1.42667
+            },
+            {
+              "date": "2026-07-17",
+              "drawdown_pct": 2.04866,
+              "runup_pct": 0.84963,
+              "next_reference_return_pct": 0.16524
+            },
+            {
+              "date": "2026-07-18",
+              "drawdown_pct": 0.10069,
+              "runup_pct": 1.42916,
+              "next_reference_return_pct": 1.39788
+            },
+            {
+              "date": "2026-07-19",
+              "drawdown_pct": 0.87131,
+              "runup_pct": 0.18853,
+              "next_reference_return_pct": -0.26841
+            },
+            {
+              "date": "2026-07-20",
+              "drawdown_pct": 2.42914,
+              "runup_pct": 1.74429,
+              "next_reference_return_pct": 0.79331
+            },
+            {
+              "date": "2026-07-21",
+              "drawdown_pct": 0.05406,
+              "runup_pct": 2.7187,
+              "next_reference_return_pct": 2.0864
+            },
+            {
+              "date": "2026-07-22",
+              "drawdown_pct": 1.48822,
+              "runup_pct": 0.29439,
+              "next_reference_return_pct": -0.6351
+            },
+            {
+              "date": "2026-07-23",
+              "drawdown_pct": 2.22526,
+              "runup_pct": 0.29003,
+              "next_reference_return_pct": -1.55225
+            },
+            {
+              "date": "2026-07-24",
+              "drawdown_pct": 2.08196,
+              "runup_pct": 1.09623,
+              "next_reference_return_pct": -1.46964
+            },
+            {
+              "date": "2026-07-25",
+              "drawdown_pct": 0.51192,
+              "runup_pct": 0.52533,
+              "next_reference_return_pct": 0.35002
+            },
+            {
+              "date": "2026-07-26",
+              "drawdown_pct": 0.10725,
+              "runup_pct": 1.88643,
+              "next_reference_return_pct": 1.58657
+            },
+            {
+              "date": "2026-07-27",
+              "drawdown_pct": 2.71999,
+              "runup_pct": 0.55151,
+              "next_reference_return_pct": -2.47082
+            },
+            {
+              "date": "2026-07-28",
+              "drawdown_pct": 1.60896,
+              "runup_pct": 0.51988,
+              "next_reference_return_pct": 0.3368
+            },
+            {
+              "date": "2026-07-29",
+              "drawdown_pct": 1.1189,
+              "runup_pct": 1.19025,
+              "next_reference_return_pct": 0.07305
+            },
+            {
+              "date": "2026-07-30",
+              "drawdown_pct": 0.66542,
+              "runup_pct": 1.79074,
+              "next_reference_return_pct": 1.24317
+            },
+            {
+              "date": "2026-07-31",
+              "drawdown_pct": 3.6405,
+              "runup_pct": 0.90021,
+              "next_reference_return_pct": -2.98172
+            },
+            {
+              "date": "2026-08-01",
+              "drawdown_pct": 0.98272,
+              "runup_pct": 0.40853,
+              "next_reference_return_pct": -0.08437
+            },
+            {
+              "date": "2026-08-02",
+              "drawdown_pct": 0.05318,
+              "runup_pct": 1.52185,
+              "next_reference_return_pct": 1.12667
+            },
+            {
+              "date": "2026-08-03",
+              "drawdown_pct": 1.96387,
+              "runup_pct": 0.83716,
+              "next_reference_return_pct": -0.08737
+            },
+            {
+              "date": "2026-08-04",
+              "drawdown_pct": 0.26849,
+              "runup_pct": 1.66426,
+              "next_reference_return_pct": 0.95181
+            },
+            {
+              "date": "2026-08-05",
+              "drawdown_pct": 0.33825,
+              "runup_pct": 1.44845,
+              "next_reference_return_pct": 0.88636
+            },
+            {
+              "date": "2026-08-06",
+              "drawdown_pct": 0.7623,
+              "runup_pct": 0.5166,
+              "next_reference_return_pct": -0.53242
+            },
+            {
+              "date": "2026-08-07",
+              "drawdown_pct": 0.24044,
+              "runup_pct": 1.66407,
+              "next_reference_return_pct": 0.91565
+            },
+            {
+              "date": "2026-08-08",
+              "drawdown_pct": 0.19321,
+              "runup_pct": 0.4359,
+              "next_reference_return_pct": 0.0792
+            },
+            {
+              "date": "2026-08-09",
+              "drawdown_pct": 0.35549,
+              "runup_pct": 0.7904,
+              "next_reference_return_pct": -0.13129
+            },
+            {
+              "date": "2026-08-10",
+              "drawdown_pct": 1.64846,
+              "runup_pct": 0.79447,
+              "next_reference_return_pct": -1.4269
+            },
+            {
+              "date": "2026-08-11",
+              "drawdown_pct": 1.11339,
+              "runup_pct": 0.88416,
+              "next_reference_return_pct": -0.58396
+            },
+            {
+              "date": "2026-08-12",
+              "drawdown_pct": 0.41875,
+              "runup_pct": 1.45247,
+              "next_reference_return_pct": -0.12045
+            },
+            {
+              "date": "2026-08-13",
+              "drawdown_pct": 1.09877,
+              "runup_pct": 0.80317,
+              "next_reference_return_pct": 0.00972
+            },
+            {
+              "date": "2026-08-14",
+              "drawdown_pct": 1.52886,
+              "runup_pct": 0.17524,
+              "next_reference_return_pct": -0.74347
+            },
+            {
+              "date": "2026-08-15",
+              "drawdown_pct": 0.18087,
+              "runup_pct": 0.24426,
+              "next_reference_return_pct": 0.07932
+            },
+            {
+              "date": "2026-08-16",
+              "drawdown_pct": 0.58336,
+              "runup_pct": 0.48505,
+              "next_reference_return_pct": -0.29169
+            },
+            {
+              "date": "2026-08-17",
+              "drawdown_pct": 0.23672,
+              "runup_pct": 2.71862,
+              "next_reference_return_pct": 2.62682
+            },
+            {
+              "date": "2026-08-18",
+              "drawdown_pct": 0.8124,
+              "runup_pct": 0.7847,
+              "next_reference_return_pct": 0.28504
+            },
+            {
+              "date": "2026-08-19",
+              "drawdown_pct": 0.88091,
+              "runup_pct": 8.13104,
+              "next_reference_return_pct": 7.18745
+            },
+            {
+              "date": "2026-08-20",
+              "drawdown_pct": 0.70175,
+              "runup_pct": 5.78021,
+              "next_reference_return_pct": 5.29599
+            },
+            {
+              "date": "2026-08-21",
+              "drawdown_pct": 0.0,
+              "runup_pct": 8.80872,
+              "next_reference_return_pct": 7.17511
+            },
+            {
+              "date": "2026-08-22",
+              "drawdown_pct": 2.30686,
+              "runup_pct": 0.66627,
+              "next_reference_return_pct": -1.51768
+            },
+            {
+              "date": "2026-08-23",
+              "drawdown_pct": 2.03884,
+              "runup_pct": 1.21226,
+              "next_reference_return_pct": 0.79102
+            },
+            {
+              "date": "2026-08-24",
+              "drawdown_pct": 1.36114,
+              "runup_pct": 2.92301,
+              "next_reference_return_pct": 1.59016
+            },
+            {
+              "date": "2026-08-25",
+              "drawdown_pct": 1.4095,
+              "runup_pct": 2.92364,
+              "next_reference_return_pct": -0.59268
+            },
+            {
+              "date": "2026-08-26",
+              "drawdown_pct": 1.09995,
+              "runup_pct": 0.9626,
+              "next_reference_return_pct": 0.59532
+            },
+            {
+              "date": "2026-08-27",
+              "drawdown_pct": 0.52831,
+              "runup_pct": 2.38774,
+              "next_reference_return_pct": 1.63962
+            },
+            {
+              "date": "2026-08-28",
+              "drawdown_pct": 4.19896,
+              "runup_pct": 1.52118,
+              "next_reference_return_pct": -3.04194
+            },
+            {
+              "date": "2026-08-29",
+              "drawdown_pct": 0.55802,
+              "runup_pct": 0.65976,
+              "next_reference_return_pct": 0.51973
+            },
+            {
+              "date": "2026-08-30",
+              "drawdown_pct": 1.56101,
+              "runup_pct": 1.50722,
+              "next_reference_return_pct": -0.76081
+            },
+            {
+              "date": "2026-08-31",
+              "drawdown_pct": 0.30136,
+              "runup_pct": 2.09217,
+              "next_reference_return_pct": 1.20587
+            },
+            {
+              "date": "2026-09-01",
+              "drawdown_pct": 2.72651,
+              "runup_pct": 0.83833,
+              "next_reference_return_pct": -1.36487
+            },
+            {
+              "date": "2026-09-02",
+              "drawdown_pct": 1.5818,
+              "runup_pct": 0.39008,
+              "next_reference_return_pct": -0.20759
+            },
+            {
+              "date": "2026-09-03",
+              "drawdown_pct": 0.46667,
+              "runup_pct": 6.42856,
+              "next_reference_return_pct": 5.03414
+            },
+            {
+              "date": "2026-09-04",
+              "drawdown_pct": 3.15397,
+              "runup_pct": 0.25368,
+              "next_reference_return_pct": -1.92183
+            },
+            {
+              "date": "2026-09-05",
+              "drawdown_pct": 0.27463,
+              "runup_pct": 0.67691,
+              "next_reference_return_pct": 0.21243
+            },
+            {
+              "date": "2026-09-06",
+              "drawdown_pct": 0.74783,
+              "runup_pct": 0.91444,
+              "next_reference_return_pct": 0.52112
+            },
+            {
+              "date": "2026-09-07",
+              "drawdown_pct": 1.9515,
+              "runup_pct": 0.24673,
+              "next_reference_return_pct": -1.41815
+            },
+            {
+              "date": "2026-09-08",
+              "drawdown_pct": 1.88095,
+              "runup_pct": 0.47658,
+              "next_reference_return_pct": -0.82418
+            },
+            {
+              "date": "2026-09-09",
+              "drawdown_pct": 0.87438,
+              "runup_pct": 1.66208,
+              "next_reference_return_pct": -0.1863
+            },
+            {
+              "date": "2026-09-10",
+              "drawdown_pct": 2.3571,
+              "runup_pct": 0.32505,
+              "next_reference_return_pct": -2.11505
+            },
+            {
+              "date": "2026-09-11",
+              "drawdown_pct": 0.79184,
+              "runup_pct": 4.22218,
+              "next_reference_return_pct": 0.78424
+            },
+            {
+              "date": "2026-09-12",
+              "drawdown_pct": 0.25235,
+              "runup_pct": 0.32486,
+              "next_reference_return_pct": 0.01652
+            },
+            {
+              "date": "2026-09-13",
+              "drawdown_pct": 0.99325,
+              "runup_pct": 0.23624,
+              "next_reference_return_pct": -0.55063
+            },
+            {
+              "date": "2026-09-14",
+              "drawdown_pct": 0.58989,
+              "runup_pct": 3.58918,
+              "next_reference_return_pct": 1.76682
+            },
+            {
+              "date": "2026-09-15",
+              "drawdown_pct": 4.13261,
+              "runup_pct": 0.06496,
+              "next_reference_return_pct": -3.27802
+            },
+            {
+              "date": "2026-09-16",
+              "drawdown_pct": 0.75551,
+              "runup_pct": 1.2223,
+              "next_reference_return_pct": null
+            }
+          ],
+          "notes": [
+            "BTCUSDT is the registered intraday scaling proxy; order prices are applied to the user-entered BTCUSDT reference price.",
+            "The 00:00 bar sets the reference and is excluded from fills; eligible highs begin at 00:01 UTC.",
+            "Unfilled weekly quantity is completed at the next available reference in the walk-forward cost calculation.",
+            "Proxy price touches approximate rung hits; they do not model the listed instrument's spread, queue position, partial fills, fees or market impact.",
+            "Deadline tightening and the optional sell closeout are execution overlays, not independently optimized backtest policies."
+          ]
+        }
+      }
+    },
+    "BINANCE:SPOT:ETHUSDT": {
+      "schema_version": 1,
+      "instrument_type": "crypto_spot",
+      "instrument_id": "BINANCE:SPOT:ETHUSDT",
+      "symbol": "ETHUSDT",
+      "exchange": "Binance Spot",
+      "exchange_mic": null,
+      "venue_code": "BINANCE",
+      "name": "ETH / USDT spot",
+      "asset_class": "Crypto spot",
+      "currency": "USDT",
+      "base_asset": "ETH",
+      "quantity_unit": "ETH",
+      "order_time_in_force": "GTC",
+      "price_tick": 0.01,
+      "quantity_step": 0.0001,
+      "min_quantity": 0.0001,
+      "max_quantity": 9000.0,
+      "min_notional": 5.0,
+      "max_notional": 9000000.0,
+      "min_price": 0.01,
+      "max_price": 1000000.0,
+      "exchange_rules_checked_at": "2026-09-17T12:08:03.983177+00:00",
+      "market_calendar": "24X7",
+      "timezone": "UTC",
+      "reference_time": "00:00",
+      "fill_start_time": "00:01",
+      "session_end_time": "24:00",
+      "default_reference_price": 2440.0,
+      "scaling_source": {
+        "provider": "binance_vision",
+        "symbol": "ETHUSDT",
+        "interval": "1m",
+        "rationale": "The execution pair and minute-data pair are identical on Binance Spot."
+      },
+      "enabled": true,
+      "trade_side": "buy",
+      "status": "minute-rolling",
+      "generated_at": "2026-09-17T12:08:03.983275Z",
+      "data_as_of": "2026-09-16",
+      "market_proxy": "ETHUSDT",
+      "execution_instrument": "ETH / USDT spot (ETHUSDT)",
+      "lookback_sessions": 20,
+      "lookback_unit": "UTC calendar days",
+      "first_offset_pct": 0.25,
+      "spacing_pct": 0.8,
+      "expected_rungs_per_session": 2.55,
+      "zero_fill_probability": 0.0,
+      "sample_sessions": 220,
+      "walk_forward_weeks": 28,
+      "walk_forward_mean_implementation_shortfall_bps": 123.608,
+      "walk_forward_stderr_bps": 99.666,
+      "walk_forward_mean_passive_completion": 0.907,
+      "selection_rule": "one-standard-error plateau, then minimum distance from prior published parameters",
+      "excursion_measure": "drawdown",
+      "completion_assumption": "unfilled weekly shares valued at next reference; no automatic broker execution",
+      "session_samples": [
+        {
+          "date": "2026-06-19",
+          "drawdown_pct": 1.85005,
+          "runup_pct": 0.51147,
+          "next_reference_return_pct": 0.12743
+        },
+        {
+          "date": "2026-06-20",
+          "drawdown_pct": 0.51841,
+          "runup_pct": 2.13726,
+          "next_reference_return_pct": 1.64279
+        },
+        {
+          "date": "2026-06-21",
+          "drawdown_pct": 2.24458,
+          "runup_pct": 0.02125,
+          "next_reference_return_pct": -1.81669
+        },
+        {
+          "date": "2026-06-22",
+          "drawdown_pct": 0.01521,
+          "runup_pct": 4.12121,
+          "next_reference_return_pct": 1.06642
+        },
+        {
+          "date": "2026-06-23",
+          "drawdown_pct": 5.3268,
+          "runup_pct": 0.49604,
+          "next_reference_return_pct": -3.34032
+        },
+        {
+          "date": "2026-06-24",
+          "drawdown_pct": 7.00731,
+          "runup_pct": 1.41919,
+          "next_reference_return_pct": -2.86173
+        },
+        {
+          "date": "2026-06-25",
+          "drawdown_pct": 5.5037,
+          "runup_pct": 2.36472,
+          "next_reference_return_pct": -3.28632
+        },
+        {
+          "date": "2026-06-26",
+          "drawdown_pct": 3.6249,
+          "runup_pct": 1.64641,
+          "next_reference_return_pct": 0.65525
+        },
+        {
+          "date": "2026-06-27",
+          "drawdown_pct": 1.03157,
+          "runup_pct": 2.01817,
+          "next_reference_return_pct": -0.36729
+        },
+        {
+          "date": "2026-06-28",
+          "drawdown_pct": 1.5877,
+          "runup_pct": 0.98325,
+          "next_reference_return_pct": -0.25995
+        },
+        {
+          "date": "2026-06-29",
+          "drawdown_pct": 1.19993,
+          "runup_pct": 4.35364,
+          "next_reference_return_pct": 2.73314
+        },
+        {
+          "date": "2026-06-30",
+          "drawdown_pct": 3.84269,
+          "runup_pct": 0.14019,
+          "next_reference_return_pct": -2.4061
+        },
+        {
+          "date": "2026-07-01",
+          "drawdown_pct": 1.29913,
+          "runup_pct": 4.6334,
+          "next_reference_return_pct": 2.16162
+        },
+        {
+          "date": "2026-07-02",
+          "drawdown_pct": 0.63147,
+          "runup_pct": 7.31817,
+          "next_reference_return_pct": 5.84309
+        },
+        {
+          "date": "2026-07-03",
+          "drawdown_pct": 0.38618,
+          "runup_pct": 4.37844,
+          "next_reference_return_pct": 3.37156
+        },
+        {
+          "date": "2026-07-04",
+          "drawdown_pct": 0.82791,
+          "runup_pct": 2.78623,
+          "next_reference_return_pct": 1.15714
+        },
+        {
+          "date": "2026-07-05",
+          "drawdown_pct": 1.69815,
+          "runup_pct": 1.63013,
+          "next_reference_return_pct": 0.24283
+        },
+        {
+          "date": "2026-07-06",
+          "drawdown_pct": 3.04881,
+          "runup_pct": 2.80825,
+          "next_reference_return_pct": 0.8972
+        },
+        {
+          "date": "2026-07-07",
+          "drawdown_pct": 2.32032,
+          "runup_pct": 0.76918,
+          "next_reference_return_pct": -1.62395
+        },
+        {
+          "date": "2026-07-08",
+          "drawdown_pct": 3.20095,
+          "runup_pct": 0.84176,
+          "next_reference_return_pct": -1.51517
+        },
+        {
+          "date": "2026-07-09",
+          "drawdown_pct": 1.2247,
+          "runup_pct": 1.09449,
+          "next_reference_return_pct": 0.06998
+        },
+        {
+          "date": "2026-07-10",
+          "drawdown_pct": 0.39094,
+          "runup_pct": 3.8693,
+          "next_reference_return_pct": 3.00545
+        },
+        {
+          "date": "2026-07-11",
+          "drawdown_pct": 0.57598,
+          "runup_pct": 1.84036,
+          "next_reference_return_pct": -0.39957
+        },
+        {
+          "date": "2026-07-12",
+          "drawdown_pct": 0.57494,
+          "runup_pct": 2.07683,
+          "next_reference_return_pct": 0.84369
+        },
+        {
+          "date": "2026-07-13",
+          "drawdown_pct": 3.02795,
+          "runup_pct": 2.27997,
+          "next_reference_return_pct": -1.54916
+        },
+        {
+          "date": "2026-07-14",
+          "drawdown_pct": 0.19585,
+          "runup_pct": 6.71116,
+          "next_reference_return_pct": 6.41514
+        },
+        {
+          "date": "2026-07-15",
+          "drawdown_pct": 1.40146,
+          "runup_pct": 2.94255,
+          "next_reference_return_pct": 1.48502
+        },
+        {
+          "date": "2026-07-16",
+          "drawdown_pct": 3.20069,
+          "runup_pct": 0.54821,
+          "next_reference_return_pct": -2.74941
+        },
+        {
+          "date": "2026-07-17",
+          "drawdown_pct": 3.38388,
+          "runup_pct": 0.26149,
+          "next_reference_return_pct": -1.31926
+        },
+        {
+          "date": "2026-07-18",
+          "drawdown_pct": 0.2172,
+          "runup_pct": 1.41183,
+          "next_reference_return_pct": 1.17291
+        },
+        {
+          "date": "2026-07-19",
+          "drawdown_pct": 0.61561,
+          "runup_pct": 0.86948,
+          "next_reference_return_pct": 0.41059
+        },
+        {
+          "date": "2026-07-20",
+          "drawdown_pct": 1.48009,
+          "runup_pct": 2.52989,
+          "next_reference_return_pct": 1.66076
+        },
+        {
+          "date": "2026-07-21",
+          "drawdown_pct": 0.06099,
+          "runup_pct": 2.68679,
+          "next_reference_return_pct": 1.4333
+        },
+        {
+          "date": "2026-07-22",
+          "drawdown_pct": 0.95793,
+          "runup_pct": 1.41461,
+          "next_reference_return_pct": 0.28562
+        },
+        {
+          "date": "2026-07-23",
+          "drawdown_pct": 3.37163,
+          "runup_pct": 0.35303,
+          "next_reference_return_pct": -2.89869
+        },
+        {
+          "date": "2026-07-24",
+          "drawdown_pct": 1.62356,
+          "runup_pct": 1.66135,
+          "next_reference_return_pct": -0.92516
+        },
+        {
+          "date": "2026-07-25",
+          "drawdown_pct": 0.53675,
+          "runup_pct": 0.85213,
+          "next_reference_return_pct": 0.72157
+        },
+        {
+          "date": "2026-07-26",
+          "drawdown_pct": 0.04214,
+          "runup_pct": 4.94602,
+          "next_reference_return_pct": 4.17467
+        },
+        {
+          "date": "2026-07-27",
+          "drawdown_pct": 3.60541,
+          "runup_pct": 1.45118,
+          "next_reference_return_pct": -3.0191
+        },
+        {
+          "date": "2026-07-28",
+          "drawdown_pct": 1.95677,
+          "runup_pct": 1.88654,
+          "next_reference_return_pct": 1.55971
+        },
+        {
+          "date": "2026-07-29",
+          "drawdown_pct": 2.6764,
+          "runup_pct": 0.63427,
+          "next_reference_return_pct": -0.60151
+        },
+        {
+          "date": "2026-07-30",
+          "drawdown_pct": 0.93728,
+          "runup_pct": 1.31178,
+          "next_reference_return_pct": 0.42889
+        },
+        {
+          "date": "2026-07-31",
+          "drawdown_pct": 3.71906,
+          "runup_pct": 0.83537,
+          "next_reference_return_pct": -2.94619
+        },
+        {
+          "date": "2026-08-01",
+          "drawdown_pct": 2.22587,
+          "runup_pct": 0.63911,
+          "next_reference_return_pct": -0.96859
+        },
+        {
+          "date": "2026-08-02",
+          "drawdown_pct": 0.09862,
+          "runup_pct": 2.87241,
+          "next_reference_return_pct": 2.09755
+        },
+        {
+          "date": "2026-08-03",
+          "drawdown_pct": 2.94979,
+          "runup_pct": 0.09288,
+          "next_reference_return_pct": -1.34381
+        },
+        {
+          "date": "2026-08-04",
+          "drawdown_pct": 0.56486,
+          "runup_pct": 1.26743,
+          "next_reference_return_pct": 0.61542
+        },
+        {
+          "date": "2026-08-05",
+          "drawdown_pct": 0.79238,
+          "runup_pct": 3.08396,
+          "next_reference_return_pct": 2.07932
+        },
+        {
+          "date": "2026-08-06",
+          "drawdown_pct": 0.89932,
+          "runup_pct": 0.59187,
+          "next_reference_return_pct": -0.33888
+        },
+        {
+          "date": "2026-08-07",
+          "drawdown_pct": 0.44094,
+          "runup_pct": 2.11695,
+          "next_reference_return_pct": 0.57549
+        },
+        {
+          "date": "2026-08-08",
+          "drawdown_pct": 0.0742,
+          "runup_pct": 0.68088,
+          "next_reference_return_pct": 0.16095
+        },
+        {
+          "date": "2026-08-09",
+          "drawdown_pct": 0.4805,
+          "runup_pct": 1.11907,
+          "next_reference_return_pct": -0.37146
+        },
+        {
+          "date": "2026-08-10",
+          "drawdown_pct": 2.18312,
+          "runup_pct": 1.14785,
+          "next_reference_return_pct": -1.91344
+        },
+        {
+          "date": "2026-08-11",
+          "drawdown_pct": 1.04052,
+          "runup_pct": 1.31813,
+          "next_reference_return_pct": 0.44792
+        },
+        {
+          "date": "2026-08-12",
+          "drawdown_pct": 0.43635,
+          "runup_pct": 2.31199,
+          "next_reference_return_pct": -0.06697
+        },
+        {
+          "date": "2026-08-13",
+          "drawdown_pct": 0.88127,
+          "runup_pct": 1.05093,
+          "next_reference_return_pct": 0.35634
+        },
+        {
+          "date": "2026-08-14",
+          "drawdown_pct": 1.20089,
+          "runup_pct": 0.23106,
+          "next_reference_return_pct": -0.27452
+        },
+        {
+          "date": "2026-08-15",
+          "drawdown_pct": 0.30557,
+          "runup_pct": 0.25667,
+          "next_reference_return_pct": 0.03773
+        },
+        {
+          "date": "2026-08-16",
+          "drawdown_pct": 0.70652,
+          "runup_pct": 0.52272,
+          "next_reference_return_pct": -0.34051
+        },
+        {
+          "date": "2026-08-17",
+          "drawdown_pct": 0.19189,
+          "runup_pct": 2.27338,
+          "next_reference_return_pct": 2.01699
+        },
+        {
+          "date": "2026-08-18",
+          "drawdown_pct": 1.46925,
+          "runup_pct": 0.48958,
+          "next_reference_return_pct": 0.22885
+        },
+        {
+          "date": "2026-08-19",
+          "drawdown_pct": 0.64016,
+          "runup_pct": 21.65325,
+          "next_reference_return_pct": 17.45366
+        },
+        {
+          "date": "2026-08-20",
+          "drawdown_pct": 1.4003,
+          "runup_pct": 4.74504,
+          "next_reference_return_pct": 3.26973
+        },
+        {
+          "date": "2026-08-21",
+          "drawdown_pct": 0.07607,
+          "runup_pct": 9.45607,
+          "next_reference_return_pct": 8.04939
+        },
+        {
+          "date": "2026-08-22",
+          "drawdown_pct": 5.13315,
+          "runup_pct": 0.63404,
+          "next_reference_return_pct": -3.57193
+        },
+        {
+          "date": "2026-08-23",
+          "drawdown_pct": 2.82727,
+          "runup_pct": 2.49025,
+          "next_reference_return_pct": 1.63803
+        },
+        {
+          "date": "2026-08-24",
+          "drawdown_pct": 1.59215,
+          "runup_pct": 2.79996,
+          "next_reference_return_pct": 0.70537
+        },
+        {
+          "date": "2026-08-25",
+          "drawdown_pct": 2.68806,
+          "runup_pct": 2.06179,
+          "next_reference_return_pct": -1.64024
+        },
+        {
+          "date": "2026-08-26",
+          "drawdown_pct": 0.34089,
+          "runup_pct": 3.06231,
+          "next_reference_return_pct": 2.59604
+        },
+        {
+          "date": "2026-08-27",
+          "drawdown_pct": 0.88898,
+          "runup_pct": 2.4972,
+          "next_reference_return_pct": 0.26917
+        },
+        {
+          "date": "2026-08-28",
+          "drawdown_pct": 4.17287,
+          "runup_pct": 0.96824,
+          "next_reference_return_pct": -2.69801
+        },
+        {
+          "date": "2026-08-29",
+          "drawdown_pct": 0.51371,
+          "runup_pct": 0.68604,
+          "next_reference_return_pct": 0.58207
+        },
+        {
+          "date": "2026-08-30",
+          "drawdown_pct": 2.84631,
+          "runup_pct": 3.16455,
+          "next_reference_return_pct": -1.75361
+        },
+        {
+          "date": "2026-08-31",
+          "drawdown_pct": 0.52938,
+          "runup_pct": 3.14068,
+          "next_reference_return_pct": 2.1254
+        },
+        {
+          "date": "2026-09-01",
+          "drawdown_pct": 3.33003,
+          "runup_pct": 0.81365,
+          "next_reference_return_pct": -1.82483
+        },
+        {
+          "date": "2026-09-02",
+          "drawdown_pct": 2.64579,
+          "runup_pct": 0.35324,
+          "next_reference_return_pct": -1.1973
+        },
+        {
+          "date": "2026-09-03",
+          "drawdown_pct": 0.89192,
+          "runup_pct": 5.78598,
+          "next_reference_return_pct": 4.7937
+        },
+        {
+          "date": "2026-09-04",
+          "drawdown_pct": 2.97273,
+          "runup_pct": 1.61805,
+          "next_reference_return_pct": -2.01986
+        },
+        {
+          "date": "2026-09-05",
+          "drawdown_pct": 0.44879,
+          "runup_pct": 1.55081,
+          "next_reference_return_pct": 1.00387
+        },
+        {
+          "date": "2026-09-06",
+          "drawdown_pct": 0.77496,
+          "runup_pct": 1.85715,
+          "next_reference_return_pct": 1.22291
+        },
+        {
+          "date": "2026-09-07",
+          "drawdown_pct": 1.77138,
+          "runup_pct": 1.04243,
+          "next_reference_return_pct": -0.78591
+        },
+        {
+          "date": "2026-09-08",
+          "drawdown_pct": 1.9697,
+          "runup_pct": 0.69257,
+          "next_reference_return_pct": -0.19753
+        },
+        {
+          "date": "2026-09-09",
+          "drawdown_pct": 1.7451,
+          "runup_pct": 1.50775,
+          "next_reference_return_pct": -0.6875
+        },
+        {
+          "date": "2026-09-10",
+          "drawdown_pct": 2.54706,
+          "runup_pct": 0.64932,
+          "next_reference_return_pct": -1.1273
+        },
+        {
+          "date": "2026-09-11",
+          "drawdown_pct": 0.29211,
+          "runup_pct": 9.2216,
+          "next_reference_return_pct": 3.05666
+        },
+        {
+          "date": "2026-09-12",
+          "drawdown_pct": 0.27311,
+          "runup_pct": 1.21248,
+          "next_reference_return_pct": 0.40946
+        },
+        {
+          "date": "2026-09-13",
+          "drawdown_pct": 2.52553,
+          "runup_pct": 0.06928,
+          "next_reference_return_pct": -1.95858
+        },
+        {
+          "date": "2026-09-14",
+          "drawdown_pct": 0.46964,
+          "runup_pct": 5.59939,
+          "next_reference_return_pct": 1.59671
+        },
+        {
+          "date": "2026-09-15",
+          "drawdown_pct": 6.24036,
+          "runup_pct": 0.16376,
+          "next_reference_return_pct": -4.63019
+        },
+        {
+          "date": "2026-09-16",
+          "drawdown_pct": 1.26199,
+          "runup_pct": 1.30241,
+          "next_reference_return_pct": null
+        }
+      ],
+      "notes": [
+        "ETHUSDT is the registered intraday scaling proxy; order prices are applied to the user-entered ETHUSDT reference price.",
+        "The 00:00 bar sets the reference and is excluded from fills; eligible lows begin at 00:01 UTC.",
+        "Unfilled weekly quantity is completed at the next available reference in the walk-forward cost calculation.",
+        "Proxy price touches approximate rung hits; they do not model the listed instrument's spread, queue position, partial fills, fees or market impact.",
+        "Deadline tightening and the optional sell closeout are execution overlays, not independently optimized backtest policies."
+      ],
+      "sides": {
+        "buy": {
+          "schema_version": 1,
+          "instrument_type": "crypto_spot",
+          "instrument_id": "BINANCE:SPOT:ETHUSDT",
+          "symbol": "ETHUSDT",
+          "exchange": "Binance Spot",
+          "exchange_mic": null,
+          "venue_code": "BINANCE",
+          "name": "ETH / USDT spot",
+          "asset_class": "Crypto spot",
+          "currency": "USDT",
+          "base_asset": "ETH",
+          "quantity_unit": "ETH",
+          "order_time_in_force": "GTC",
+          "price_tick": 0.01,
+          "quantity_step": 0.0001,
+          "min_quantity": 0.0001,
+          "max_quantity": 9000.0,
+          "min_notional": 5.0,
+          "max_notional": 9000000.0,
+          "min_price": 0.01,
+          "max_price": 1000000.0,
+          "exchange_rules_checked_at": "2026-09-17T12:08:03.983177+00:00",
+          "market_calendar": "24X7",
+          "timezone": "UTC",
+          "reference_time": "00:00",
+          "fill_start_time": "00:01",
+          "session_end_time": "24:00",
+          "default_reference_price": 2440.0,
+          "scaling_source": {
+            "provider": "binance_vision",
+            "symbol": "ETHUSDT",
+            "interval": "1m",
+            "rationale": "The execution pair and minute-data pair are identical on Binance Spot."
+          },
+          "enabled": true,
+          "trade_side": "buy",
+          "status": "minute-rolling",
+          "generated_at": "2026-09-17T12:08:03.983275Z",
+          "data_as_of": "2026-09-16",
+          "market_proxy": "ETHUSDT",
+          "execution_instrument": "ETH / USDT spot (ETHUSDT)",
+          "lookback_sessions": 20,
+          "lookback_unit": "UTC calendar days",
+          "first_offset_pct": 0.25,
+          "spacing_pct": 0.8,
+          "expected_rungs_per_session": 2.55,
+          "zero_fill_probability": 0.0,
+          "sample_sessions": 220,
+          "walk_forward_weeks": 28,
+          "walk_forward_mean_implementation_shortfall_bps": 123.608,
+          "walk_forward_stderr_bps": 99.666,
+          "walk_forward_mean_passive_completion": 0.907,
+          "selection_rule": "one-standard-error plateau, then minimum distance from prior published parameters",
+          "excursion_measure": "drawdown",
+          "completion_assumption": "unfilled weekly shares valued at next reference; no automatic broker execution",
+          "session_samples": [
+            {
+              "date": "2026-06-19",
+              "drawdown_pct": 1.85005,
+              "runup_pct": 0.51147,
+              "next_reference_return_pct": 0.12743
+            },
+            {
+              "date": "2026-06-20",
+              "drawdown_pct": 0.51841,
+              "runup_pct": 2.13726,
+              "next_reference_return_pct": 1.64279
+            },
+            {
+              "date": "2026-06-21",
+              "drawdown_pct": 2.24458,
+              "runup_pct": 0.02125,
+              "next_reference_return_pct": -1.81669
+            },
+            {
+              "date": "2026-06-22",
+              "drawdown_pct": 0.01521,
+              "runup_pct": 4.12121,
+              "next_reference_return_pct": 1.06642
+            },
+            {
+              "date": "2026-06-23",
+              "drawdown_pct": 5.3268,
+              "runup_pct": 0.49604,
+              "next_reference_return_pct": -3.34032
+            },
+            {
+              "date": "2026-06-24",
+              "drawdown_pct": 7.00731,
+              "runup_pct": 1.41919,
+              "next_reference_return_pct": -2.86173
+            },
+            {
+              "date": "2026-06-25",
+              "drawdown_pct": 5.5037,
+              "runup_pct": 2.36472,
+              "next_reference_return_pct": -3.28632
+            },
+            {
+              "date": "2026-06-26",
+              "drawdown_pct": 3.6249,
+              "runup_pct": 1.64641,
+              "next_reference_return_pct": 0.65525
+            },
+            {
+              "date": "2026-06-27",
+              "drawdown_pct": 1.03157,
+              "runup_pct": 2.01817,
+              "next_reference_return_pct": -0.36729
+            },
+            {
+              "date": "2026-06-28",
+              "drawdown_pct": 1.5877,
+              "runup_pct": 0.98325,
+              "next_reference_return_pct": -0.25995
+            },
+            {
+              "date": "2026-06-29",
+              "drawdown_pct": 1.19993,
+              "runup_pct": 4.35364,
+              "next_reference_return_pct": 2.73314
+            },
+            {
+              "date": "2026-06-30",
+              "drawdown_pct": 3.84269,
+              "runup_pct": 0.14019,
+              "next_reference_return_pct": -2.4061
+            },
+            {
+              "date": "2026-07-01",
+              "drawdown_pct": 1.29913,
+              "runup_pct": 4.6334,
+              "next_reference_return_pct": 2.16162
+            },
+            {
+              "date": "2026-07-02",
+              "drawdown_pct": 0.63147,
+              "runup_pct": 7.31817,
+              "next_reference_return_pct": 5.84309
+            },
+            {
+              "date": "2026-07-03",
+              "drawdown_pct": 0.38618,
+              "runup_pct": 4.37844,
+              "next_reference_return_pct": 3.37156
+            },
+            {
+              "date": "2026-07-04",
+              "drawdown_pct": 0.82791,
+              "runup_pct": 2.78623,
+              "next_reference_return_pct": 1.15714
+            },
+            {
+              "date": "2026-07-05",
+              "drawdown_pct": 1.69815,
+              "runup_pct": 1.63013,
+              "next_reference_return_pct": 0.24283
+            },
+            {
+              "date": "2026-07-06",
+              "drawdown_pct": 3.04881,
+              "runup_pct": 2.80825,
+              "next_reference_return_pct": 0.8972
+            },
+            {
+              "date": "2026-07-07",
+              "drawdown_pct": 2.32032,
+              "runup_pct": 0.76918,
+              "next_reference_return_pct": -1.62395
+            },
+            {
+              "date": "2026-07-08",
+              "drawdown_pct": 3.20095,
+              "runup_pct": 0.84176,
+              "next_reference_return_pct": -1.51517
+            },
+            {
+              "date": "2026-07-09",
+              "drawdown_pct": 1.2247,
+              "runup_pct": 1.09449,
+              "next_reference_return_pct": 0.06998
+            },
+            {
+              "date": "2026-07-10",
+              "drawdown_pct": 0.39094,
+              "runup_pct": 3.8693,
+              "next_reference_return_pct": 3.00545
+            },
+            {
+              "date": "2026-07-11",
+              "drawdown_pct": 0.57598,
+              "runup_pct": 1.84036,
+              "next_reference_return_pct": -0.39957
+            },
+            {
+              "date": "2026-07-12",
+              "drawdown_pct": 0.57494,
+              "runup_pct": 2.07683,
+              "next_reference_return_pct": 0.84369
+            },
+            {
+              "date": "2026-07-13",
+              "drawdown_pct": 3.02795,
+              "runup_pct": 2.27997,
+              "next_reference_return_pct": -1.54916
+            },
+            {
+              "date": "2026-07-14",
+              "drawdown_pct": 0.19585,
+              "runup_pct": 6.71116,
+              "next_reference_return_pct": 6.41514
+            },
+            {
+              "date": "2026-07-15",
+              "drawdown_pct": 1.40146,
+              "runup_pct": 2.94255,
+              "next_reference_return_pct": 1.48502
+            },
+            {
+              "date": "2026-07-16",
+              "drawdown_pct": 3.20069,
+              "runup_pct": 0.54821,
+              "next_reference_return_pct": -2.74941
+            },
+            {
+              "date": "2026-07-17",
+              "drawdown_pct": 3.38388,
+              "runup_pct": 0.26149,
+              "next_reference_return_pct": -1.31926
+            },
+            {
+              "date": "2026-07-18",
+              "drawdown_pct": 0.2172,
+              "runup_pct": 1.41183,
+              "next_reference_return_pct": 1.17291
+            },
+            {
+              "date": "2026-07-19",
+              "drawdown_pct": 0.61561,
+              "runup_pct": 0.86948,
+              "next_reference_return_pct": 0.41059
+            },
+            {
+              "date": "2026-07-20",
+              "drawdown_pct": 1.48009,
+              "runup_pct": 2.52989,
+              "next_reference_return_pct": 1.66076
+            },
+            {
+              "date": "2026-07-21",
+              "drawdown_pct": 0.06099,
+              "runup_pct": 2.68679,
+              "next_reference_return_pct": 1.4333
+            },
+            {
+              "date": "2026-07-22",
+              "drawdown_pct": 0.95793,
+              "runup_pct": 1.41461,
+              "next_reference_return_pct": 0.28562
+            },
+            {
+              "date": "2026-07-23",
+              "drawdown_pct": 3.37163,
+              "runup_pct": 0.35303,
+              "next_reference_return_pct": -2.89869
+            },
+            {
+              "date": "2026-07-24",
+              "drawdown_pct": 1.62356,
+              "runup_pct": 1.66135,
+              "next_reference_return_pct": -0.92516
+            },
+            {
+              "date": "2026-07-25",
+              "drawdown_pct": 0.53675,
+              "runup_pct": 0.85213,
+              "next_reference_return_pct": 0.72157
+            },
+            {
+              "date": "2026-07-26",
+              "drawdown_pct": 0.04214,
+              "runup_pct": 4.94602,
+              "next_reference_return_pct": 4.17467
+            },
+            {
+              "date": "2026-07-27",
+              "drawdown_pct": 3.60541,
+              "runup_pct": 1.45118,
+              "next_reference_return_pct": -3.0191
+            },
+            {
+              "date": "2026-07-28",
+              "drawdown_pct": 1.95677,
+              "runup_pct": 1.88654,
+              "next_reference_return_pct": 1.55971
+            },
+            {
+              "date": "2026-07-29",
+              "drawdown_pct": 2.6764,
+              "runup_pct": 0.63427,
+              "next_reference_return_pct": -0.60151
+            },
+            {
+              "date": "2026-07-30",
+              "drawdown_pct": 0.93728,
+              "runup_pct": 1.31178,
+              "next_reference_return_pct": 0.42889
+            },
+            {
+              "date": "2026-07-31",
+              "drawdown_pct": 3.71906,
+              "runup_pct": 0.83537,
+              "next_reference_return_pct": -2.94619
+            },
+            {
+              "date": "2026-08-01",
+              "drawdown_pct": 2.22587,
+              "runup_pct": 0.63911,
+              "next_reference_return_pct": -0.96859
+            },
+            {
+              "date": "2026-08-02",
+              "drawdown_pct": 0.09862,
+              "runup_pct": 2.87241,
+              "next_reference_return_pct": 2.09755
+            },
+            {
+              "date": "2026-08-03",
+              "drawdown_pct": 2.94979,
+              "runup_pct": 0.09288,
+              "next_reference_return_pct": -1.34381
+            },
+            {
+              "date": "2026-08-04",
+              "drawdown_pct": 0.56486,
+              "runup_pct": 1.26743,
+              "next_reference_return_pct": 0.61542
+            },
+            {
+              "date": "2026-08-05",
+              "drawdown_pct": 0.79238,
+              "runup_pct": 3.08396,
+              "next_reference_return_pct": 2.07932
+            },
+            {
+              "date": "2026-08-06",
+              "drawdown_pct": 0.89932,
+              "runup_pct": 0.59187,
+              "next_reference_return_pct": -0.33888
+            },
+            {
+              "date": "2026-08-07",
+              "drawdown_pct": 0.44094,
+              "runup_pct": 2.11695,
+              "next_reference_return_pct": 0.57549
+            },
+            {
+              "date": "2026-08-08",
+              "drawdown_pct": 0.0742,
+              "runup_pct": 0.68088,
+              "next_reference_return_pct": 0.16095
+            },
+            {
+              "date": "2026-08-09",
+              "drawdown_pct": 0.4805,
+              "runup_pct": 1.11907,
+              "next_reference_return_pct": -0.37146
+            },
+            {
+              "date": "2026-08-10",
+              "drawdown_pct": 2.18312,
+              "runup_pct": 1.14785,
+              "next_reference_return_pct": -1.91344
+            },
+            {
+              "date": "2026-08-11",
+              "drawdown_pct": 1.04052,
+              "runup_pct": 1.31813,
+              "next_reference_return_pct": 0.44792
+            },
+            {
+              "date": "2026-08-12",
+              "drawdown_pct": 0.43635,
+              "runup_pct": 2.31199,
+              "next_reference_return_pct": -0.06697
+            },
+            {
+              "date": "2026-08-13",
+              "drawdown_pct": 0.88127,
+              "runup_pct": 1.05093,
+              "next_reference_return_pct": 0.35634
+            },
+            {
+              "date": "2026-08-14",
+              "drawdown_pct": 1.20089,
+              "runup_pct": 0.23106,
+              "next_reference_return_pct": -0.27452
+            },
+            {
+              "date": "2026-08-15",
+              "drawdown_pct": 0.30557,
+              "runup_pct": 0.25667,
+              "next_reference_return_pct": 0.03773
+            },
+            {
+              "date": "2026-08-16",
+              "drawdown_pct": 0.70652,
+              "runup_pct": 0.52272,
+              "next_reference_return_pct": -0.34051
+            },
+            {
+              "date": "2026-08-17",
+              "drawdown_pct": 0.19189,
+              "runup_pct": 2.27338,
+              "next_reference_return_pct": 2.01699
+            },
+            {
+              "date": "2026-08-18",
+              "drawdown_pct": 1.46925,
+              "runup_pct": 0.48958,
+              "next_reference_return_pct": 0.22885
+            },
+            {
+              "date": "2026-08-19",
+              "drawdown_pct": 0.64016,
+              "runup_pct": 21.65325,
+              "next_reference_return_pct": 17.45366
+            },
+            {
+              "date": "2026-08-20",
+              "drawdown_pct": 1.4003,
+              "runup_pct": 4.74504,
+              "next_reference_return_pct": 3.26973
+            },
+            {
+              "date": "2026-08-21",
+              "drawdown_pct": 0.07607,
+              "runup_pct": 9.45607,
+              "next_reference_return_pct": 8.04939
+            },
+            {
+              "date": "2026-08-22",
+              "drawdown_pct": 5.13315,
+              "runup_pct": 0.63404,
+              "next_reference_return_pct": -3.57193
+            },
+            {
+              "date": "2026-08-23",
+              "drawdown_pct": 2.82727,
+              "runup_pct": 2.49025,
+              "next_reference_return_pct": 1.63803
+            },
+            {
+              "date": "2026-08-24",
+              "drawdown_pct": 1.59215,
+              "runup_pct": 2.79996,
+              "next_reference_return_pct": 0.70537
+            },
+            {
+              "date": "2026-08-25",
+              "drawdown_pct": 2.68806,
+              "runup_pct": 2.06179,
+              "next_reference_return_pct": -1.64024
+            },
+            {
+              "date": "2026-08-26",
+              "drawdown_pct": 0.34089,
+              "runup_pct": 3.06231,
+              "next_reference_return_pct": 2.59604
+            },
+            {
+              "date": "2026-08-27",
+              "drawdown_pct": 0.88898,
+              "runup_pct": 2.4972,
+              "next_reference_return_pct": 0.26917
+            },
+            {
+              "date": "2026-08-28",
+              "drawdown_pct": 4.17287,
+              "runup_pct": 0.96824,
+              "next_reference_return_pct": -2.69801
+            },
+            {
+              "date": "2026-08-29",
+              "drawdown_pct": 0.51371,
+              "runup_pct": 0.68604,
+              "next_reference_return_pct": 0.58207
+            },
+            {
+              "date": "2026-08-30",
+              "drawdown_pct": 2.84631,
+              "runup_pct": 3.16455,
+              "next_reference_return_pct": -1.75361
+            },
+            {
+              "date": "2026-08-31",
+              "drawdown_pct": 0.52938,
+              "runup_pct": 3.14068,
+              "next_reference_return_pct": 2.1254
+            },
+            {
+              "date": "2026-09-01",
+              "drawdown_pct": 3.33003,
+              "runup_pct": 0.81365,
+              "next_reference_return_pct": -1.82483
+            },
+            {
+              "date": "2026-09-02",
+              "drawdown_pct": 2.64579,
+              "runup_pct": 0.35324,
+              "next_reference_return_pct": -1.1973
+            },
+            {
+              "date": "2026-09-03",
+              "drawdown_pct": 0.89192,
+              "runup_pct": 5.78598,
+              "next_reference_return_pct": 4.7937
+            },
+            {
+              "date": "2026-09-04",
+              "drawdown_pct": 2.97273,
+              "runup_pct": 1.61805,
+              "next_reference_return_pct": -2.01986
+            },
+            {
+              "date": "2026-09-05",
+              "drawdown_pct": 0.44879,
+              "runup_pct": 1.55081,
+              "next_reference_return_pct": 1.00387
+            },
+            {
+              "date": "2026-09-06",
+              "drawdown_pct": 0.77496,
+              "runup_pct": 1.85715,
+              "next_reference_return_pct": 1.22291
+            },
+            {
+              "date": "2026-09-07",
+              "drawdown_pct": 1.77138,
+              "runup_pct": 1.04243,
+              "next_reference_return_pct": -0.78591
+            },
+            {
+              "date": "2026-09-08",
+              "drawdown_pct": 1.9697,
+              "runup_pct": 0.69257,
+              "next_reference_return_pct": -0.19753
+            },
+            {
+              "date": "2026-09-09",
+              "drawdown_pct": 1.7451,
+              "runup_pct": 1.50775,
+              "next_reference_return_pct": -0.6875
+            },
+            {
+              "date": "2026-09-10",
+              "drawdown_pct": 2.54706,
+              "runup_pct": 0.64932,
+              "next_reference_return_pct": -1.1273
+            },
+            {
+              "date": "2026-09-11",
+              "drawdown_pct": 0.29211,
+              "runup_pct": 9.2216,
+              "next_reference_return_pct": 3.05666
+            },
+            {
+              "date": "2026-09-12",
+              "drawdown_pct": 0.27311,
+              "runup_pct": 1.21248,
+              "next_reference_return_pct": 0.40946
+            },
+            {
+              "date": "2026-09-13",
+              "drawdown_pct": 2.52553,
+              "runup_pct": 0.06928,
+              "next_reference_return_pct": -1.95858
+            },
+            {
+              "date": "2026-09-14",
+              "drawdown_pct": 0.46964,
+              "runup_pct": 5.59939,
+              "next_reference_return_pct": 1.59671
+            },
+            {
+              "date": "2026-09-15",
+              "drawdown_pct": 6.24036,
+              "runup_pct": 0.16376,
+              "next_reference_return_pct": -4.63019
+            },
+            {
+              "date": "2026-09-16",
+              "drawdown_pct": 1.26199,
+              "runup_pct": 1.30241,
+              "next_reference_return_pct": null
+            }
+          ],
+          "notes": [
+            "ETHUSDT is the registered intraday scaling proxy; order prices are applied to the user-entered ETHUSDT reference price.",
+            "The 00:00 bar sets the reference and is excluded from fills; eligible lows begin at 00:01 UTC.",
+            "Unfilled weekly quantity is completed at the next available reference in the walk-forward cost calculation.",
+            "Proxy price touches approximate rung hits; they do not model the listed instrument's spread, queue position, partial fills, fees or market impact.",
+            "Deadline tightening and the optional sell closeout are execution overlays, not independently optimized backtest policies."
+          ]
+        },
+        "sell": {
+          "schema_version": 1,
+          "instrument_type": "crypto_spot",
+          "instrument_id": "BINANCE:SPOT:ETHUSDT",
+          "symbol": "ETHUSDT",
+          "exchange": "Binance Spot",
+          "exchange_mic": null,
+          "venue_code": "BINANCE",
+          "name": "ETH / USDT spot",
+          "asset_class": "Crypto spot",
+          "currency": "USDT",
+          "base_asset": "ETH",
+          "quantity_unit": "ETH",
+          "order_time_in_force": "GTC",
+          "price_tick": 0.01,
+          "quantity_step": 0.0001,
+          "min_quantity": 0.0001,
+          "max_quantity": 9000.0,
+          "min_notional": 5.0,
+          "max_notional": 9000000.0,
+          "min_price": 0.01,
+          "max_price": 1000000.0,
+          "exchange_rules_checked_at": "2026-09-17T12:08:03.983177+00:00",
+          "market_calendar": "24X7",
+          "timezone": "UTC",
+          "reference_time": "00:00",
+          "fill_start_time": "00:01",
+          "session_end_time": "24:00",
+          "default_reference_price": 2440.0,
+          "scaling_source": {
+            "provider": "binance_vision",
+            "symbol": "ETHUSDT",
+            "interval": "1m",
+            "rationale": "The execution pair and minute-data pair are identical on Binance Spot."
+          },
+          "enabled": true,
+          "trade_side": "sell",
+          "status": "minute-rolling",
+          "generated_at": "2026-09-17T12:08:03.983275Z",
+          "data_as_of": "2026-09-16",
+          "market_proxy": "ETHUSDT",
+          "execution_instrument": "ETH / USDT spot (ETHUSDT)",
+          "lookback_sessions": 20,
+          "lookback_unit": "UTC calendar days",
+          "first_offset_pct": 0.25,
+          "spacing_pct": 0.8,
+          "expected_rungs_per_session": 2.7,
+          "zero_fill_probability": 0.1,
+          "sample_sessions": 220,
+          "walk_forward_weeks": 28,
+          "walk_forward_mean_implementation_shortfall_bps": -74.913,
+          "walk_forward_stderr_bps": 79.703,
+          "walk_forward_mean_passive_completion": 0.9533,
+          "selection_rule": "one-standard-error plateau, then minimum distance from prior published parameters",
+          "excursion_measure": "runup",
+          "completion_assumption": "unfilled weekly shares valued at next reference; no automatic broker execution",
+          "session_samples": [
+            {
+              "date": "2026-06-19",
+              "drawdown_pct": 1.85005,
+              "runup_pct": 0.51147,
+              "next_reference_return_pct": 0.12743
+            },
+            {
+              "date": "2026-06-20",
+              "drawdown_pct": 0.51841,
+              "runup_pct": 2.13726,
+              "next_reference_return_pct": 1.64279
+            },
+            {
+              "date": "2026-06-21",
+              "drawdown_pct": 2.24458,
+              "runup_pct": 0.02125,
+              "next_reference_return_pct": -1.81669
+            },
+            {
+              "date": "2026-06-22",
+              "drawdown_pct": 0.01521,
+              "runup_pct": 4.12121,
+              "next_reference_return_pct": 1.06642
+            },
+            {
+              "date": "2026-06-23",
+              "drawdown_pct": 5.3268,
+              "runup_pct": 0.49604,
+              "next_reference_return_pct": -3.34032
+            },
+            {
+              "date": "2026-06-24",
+              "drawdown_pct": 7.00731,
+              "runup_pct": 1.41919,
+              "next_reference_return_pct": -2.86173
+            },
+            {
+              "date": "2026-06-25",
+              "drawdown_pct": 5.5037,
+              "runup_pct": 2.36472,
+              "next_reference_return_pct": -3.28632
+            },
+            {
+              "date": "2026-06-26",
+              "drawdown_pct": 3.6249,
+              "runup_pct": 1.64641,
+              "next_reference_return_pct": 0.65525
+            },
+            {
+              "date": "2026-06-27",
+              "drawdown_pct": 1.03157,
+              "runup_pct": 2.01817,
+              "next_reference_return_pct": -0.36729
+            },
+            {
+              "date": "2026-06-28",
+              "drawdown_pct": 1.5877,
+              "runup_pct": 0.98325,
+              "next_reference_return_pct": -0.25995
+            },
+            {
+              "date": "2026-06-29",
+              "drawdown_pct": 1.19993,
+              "runup_pct": 4.35364,
+              "next_reference_return_pct": 2.73314
+            },
+            {
+              "date": "2026-06-30",
+              "drawdown_pct": 3.84269,
+              "runup_pct": 0.14019,
+              "next_reference_return_pct": -2.4061
+            },
+            {
+              "date": "2026-07-01",
+              "drawdown_pct": 1.29913,
+              "runup_pct": 4.6334,
+              "next_reference_return_pct": 2.16162
+            },
+            {
+              "date": "2026-07-02",
+              "drawdown_pct": 0.63147,
+              "runup_pct": 7.31817,
+              "next_reference_return_pct": 5.84309
+            },
+            {
+              "date": "2026-07-03",
+              "drawdown_pct": 0.38618,
+              "runup_pct": 4.37844,
+              "next_reference_return_pct": 3.37156
+            },
+            {
+              "date": "2026-07-04",
+              "drawdown_pct": 0.82791,
+              "runup_pct": 2.78623,
+              "next_reference_return_pct": 1.15714
+            },
+            {
+              "date": "2026-07-05",
+              "drawdown_pct": 1.69815,
+              "runup_pct": 1.63013,
+              "next_reference_return_pct": 0.24283
+            },
+            {
+              "date": "2026-07-06",
+              "drawdown_pct": 3.04881,
+              "runup_pct": 2.80825,
+              "next_reference_return_pct": 0.8972
+            },
+            {
+              "date": "2026-07-07",
+              "drawdown_pct": 2.32032,
+              "runup_pct": 0.76918,
+              "next_reference_return_pct": -1.62395
+            },
+            {
+              "date": "2026-07-08",
+              "drawdown_pct": 3.20095,
+              "runup_pct": 0.84176,
+              "next_reference_return_pct": -1.51517
+            },
+            {
+              "date": "2026-07-09",
+              "drawdown_pct": 1.2247,
+              "runup_pct": 1.09449,
+              "next_reference_return_pct": 0.06998
+            },
+            {
+              "date": "2026-07-10",
+              "drawdown_pct": 0.39094,
+              "runup_pct": 3.8693,
+              "next_reference_return_pct": 3.00545
+            },
+            {
+              "date": "2026-07-11",
+              "drawdown_pct": 0.57598,
+              "runup_pct": 1.84036,
+              "next_reference_return_pct": -0.39957
+            },
+            {
+              "date": "2026-07-12",
+              "drawdown_pct": 0.57494,
+              "runup_pct": 2.07683,
+              "next_reference_return_pct": 0.84369
+            },
+            {
+              "date": "2026-07-13",
+              "drawdown_pct": 3.02795,
+              "runup_pct": 2.27997,
+              "next_reference_return_pct": -1.54916
+            },
+            {
+              "date": "2026-07-14",
+              "drawdown_pct": 0.19585,
+              "runup_pct": 6.71116,
+              "next_reference_return_pct": 6.41514
+            },
+            {
+              "date": "2026-07-15",
+              "drawdown_pct": 1.40146,
+              "runup_pct": 2.94255,
+              "next_reference_return_pct": 1.48502
+            },
+            {
+              "date": "2026-07-16",
+              "drawdown_pct": 3.20069,
+              "runup_pct": 0.54821,
+              "next_reference_return_pct": -2.74941
+            },
+            {
+              "date": "2026-07-17",
+              "drawdown_pct": 3.38388,
+              "runup_pct": 0.26149,
+              "next_reference_return_pct": -1.31926
+            },
+            {
+              "date": "2026-07-18",
+              "drawdown_pct": 0.2172,
+              "runup_pct": 1.41183,
+              "next_reference_return_pct": 1.17291
+            },
+            {
+              "date": "2026-07-19",
+              "drawdown_pct": 0.61561,
+              "runup_pct": 0.86948,
+              "next_reference_return_pct": 0.41059
+            },
+            {
+              "date": "2026-07-20",
+              "drawdown_pct": 1.48009,
+              "runup_pct": 2.52989,
+              "next_reference_return_pct": 1.66076
+            },
+            {
+              "date": "2026-07-21",
+              "drawdown_pct": 0.06099,
+              "runup_pct": 2.68679,
+              "next_reference_return_pct": 1.4333
+            },
+            {
+              "date": "2026-07-22",
+              "drawdown_pct": 0.95793,
+              "runup_pct": 1.41461,
+              "next_reference_return_pct": 0.28562
+            },
+            {
+              "date": "2026-07-23",
+              "drawdown_pct": 3.37163,
+              "runup_pct": 0.35303,
+              "next_reference_return_pct": -2.89869
+            },
+            {
+              "date": "2026-07-24",
+              "drawdown_pct": 1.62356,
+              "runup_pct": 1.66135,
+              "next_reference_return_pct": -0.92516
+            },
+            {
+              "date": "2026-07-25",
+              "drawdown_pct": 0.53675,
+              "runup_pct": 0.85213,
+              "next_reference_return_pct": 0.72157
+            },
+            {
+              "date": "2026-07-26",
+              "drawdown_pct": 0.04214,
+              "runup_pct": 4.94602,
+              "next_reference_return_pct": 4.17467
+            },
+            {
+              "date": "2026-07-27",
+              "drawdown_pct": 3.60541,
+              "runup_pct": 1.45118,
+              "next_reference_return_pct": -3.0191
+            },
+            {
+              "date": "2026-07-28",
+              "drawdown_pct": 1.95677,
+              "runup_pct": 1.88654,
+              "next_reference_return_pct": 1.55971
+            },
+            {
+              "date": "2026-07-29",
+              "drawdown_pct": 2.6764,
+              "runup_pct": 0.63427,
+              "next_reference_return_pct": -0.60151
+            },
+            {
+              "date": "2026-07-30",
+              "drawdown_pct": 0.93728,
+              "runup_pct": 1.31178,
+              "next_reference_return_pct": 0.42889
+            },
+            {
+              "date": "2026-07-31",
+              "drawdown_pct": 3.71906,
+              "runup_pct": 0.83537,
+              "next_reference_return_pct": -2.94619
+            },
+            {
+              "date": "2026-08-01",
+              "drawdown_pct": 2.22587,
+              "runup_pct": 0.63911,
+              "next_reference_return_pct": -0.96859
+            },
+            {
+              "date": "2026-08-02",
+              "drawdown_pct": 0.09862,
+              "runup_pct": 2.87241,
+              "next_reference_return_pct": 2.09755
+            },
+            {
+              "date": "2026-08-03",
+              "drawdown_pct": 2.94979,
+              "runup_pct": 0.09288,
+              "next_reference_return_pct": -1.34381
+            },
+            {
+              "date": "2026-08-04",
+              "drawdown_pct": 0.56486,
+              "runup_pct": 1.26743,
+              "next_reference_return_pct": 0.61542
+            },
+            {
+              "date": "2026-08-05",
+              "drawdown_pct": 0.79238,
+              "runup_pct": 3.08396,
+              "next_reference_return_pct": 2.07932
+            },
+            {
+              "date": "2026-08-06",
+              "drawdown_pct": 0.89932,
+              "runup_pct": 0.59187,
+              "next_reference_return_pct": -0.33888
+            },
+            {
+              "date": "2026-08-07",
+              "drawdown_pct": 0.44094,
+              "runup_pct": 2.11695,
+              "next_reference_return_pct": 0.57549
+            },
+            {
+              "date": "2026-08-08",
+              "drawdown_pct": 0.0742,
+              "runup_pct": 0.68088,
+              "next_reference_return_pct": 0.16095
+            },
+            {
+              "date": "2026-08-09",
+              "drawdown_pct": 0.4805,
+              "runup_pct": 1.11907,
+              "next_reference_return_pct": -0.37146
+            },
+            {
+              "date": "2026-08-10",
+              "drawdown_pct": 2.18312,
+              "runup_pct": 1.14785,
+              "next_reference_return_pct": -1.91344
+            },
+            {
+              "date": "2026-08-11",
+              "drawdown_pct": 1.04052,
+              "runup_pct": 1.31813,
+              "next_reference_return_pct": 0.44792
+            },
+            {
+              "date": "2026-08-12",
+              "drawdown_pct": 0.43635,
+              "runup_pct": 2.31199,
+              "next_reference_return_pct": -0.06697
+            },
+            {
+              "date": "2026-08-13",
+              "drawdown_pct": 0.88127,
+              "runup_pct": 1.05093,
+              "next_reference_return_pct": 0.35634
+            },
+            {
+              "date": "2026-08-14",
+              "drawdown_pct": 1.20089,
+              "runup_pct": 0.23106,
+              "next_reference_return_pct": -0.27452
+            },
+            {
+              "date": "2026-08-15",
+              "drawdown_pct": 0.30557,
+              "runup_pct": 0.25667,
+              "next_reference_return_pct": 0.03773
+            },
+            {
+              "date": "2026-08-16",
+              "drawdown_pct": 0.70652,
+              "runup_pct": 0.52272,
+              "next_reference_return_pct": -0.34051
+            },
+            {
+              "date": "2026-08-17",
+              "drawdown_pct": 0.19189,
+              "runup_pct": 2.27338,
+              "next_reference_return_pct": 2.01699
+            },
+            {
+              "date": "2026-08-18",
+              "drawdown_pct": 1.46925,
+              "runup_pct": 0.48958,
+              "next_reference_return_pct": 0.22885
+            },
+            {
+              "date": "2026-08-19",
+              "drawdown_pct": 0.64016,
+              "runup_pct": 21.65325,
+              "next_reference_return_pct": 17.45366
+            },
+            {
+              "date": "2026-08-20",
+              "drawdown_pct": 1.4003,
+              "runup_pct": 4.74504,
+              "next_reference_return_pct": 3.26973
+            },
+            {
+              "date": "2026-08-21",
+              "drawdown_pct": 0.07607,
+              "runup_pct": 9.45607,
+              "next_reference_return_pct": 8.04939
+            },
+            {
+              "date": "2026-08-22",
+              "drawdown_pct": 5.13315,
+              "runup_pct": 0.63404,
+              "next_reference_return_pct": -3.57193
+            },
+            {
+              "date": "2026-08-23",
+              "drawdown_pct": 2.82727,
+              "runup_pct": 2.49025,
+              "next_reference_return_pct": 1.63803
+            },
+            {
+              "date": "2026-08-24",
+              "drawdown_pct": 1.59215,
+              "runup_pct": 2.79996,
+              "next_reference_return_pct": 0.70537
+            },
+            {
+              "date": "2026-08-25",
+              "drawdown_pct": 2.68806,
+              "runup_pct": 2.06179,
+              "next_reference_return_pct": -1.64024
+            },
+            {
+              "date": "2026-08-26",
+              "drawdown_pct": 0.34089,
+              "runup_pct": 3.06231,
+              "next_reference_return_pct": 2.59604
+            },
+            {
+              "date": "2026-08-27",
+              "drawdown_pct": 0.88898,
+              "runup_pct": 2.4972,
+              "next_reference_return_pct": 0.26917
+            },
+            {
+              "date": "2026-08-28",
+              "drawdown_pct": 4.17287,
+              "runup_pct": 0.96824,
+              "next_reference_return_pct": -2.69801
+            },
+            {
+              "date": "2026-08-29",
+              "drawdown_pct": 0.51371,
+              "runup_pct": 0.68604,
+              "next_reference_return_pct": 0.58207
+            },
+            {
+              "date": "2026-08-30",
+              "drawdown_pct": 2.84631,
+              "runup_pct": 3.16455,
+              "next_reference_return_pct": -1.75361
+            },
+            {
+              "date": "2026-08-31",
+              "drawdown_pct": 0.52938,
+              "runup_pct": 3.14068,
+              "next_reference_return_pct": 2.1254
+            },
+            {
+              "date": "2026-09-01",
+              "drawdown_pct": 3.33003,
+              "runup_pct": 0.81365,
+              "next_reference_return_pct": -1.82483
+            },
+            {
+              "date": "2026-09-02",
+              "drawdown_pct": 2.64579,
+              "runup_pct": 0.35324,
+              "next_reference_return_pct": -1.1973
+            },
+            {
+              "date": "2026-09-03",
+              "drawdown_pct": 0.89192,
+              "runup_pct": 5.78598,
+              "next_reference_return_pct": 4.7937
+            },
+            {
+              "date": "2026-09-04",
+              "drawdown_pct": 2.97273,
+              "runup_pct": 1.61805,
+              "next_reference_return_pct": -2.01986
+            },
+            {
+              "date": "2026-09-05",
+              "drawdown_pct": 0.44879,
+              "runup_pct": 1.55081,
+              "next_reference_return_pct": 1.00387
+            },
+            {
+              "date": "2026-09-06",
+              "drawdown_pct": 0.77496,
+              "runup_pct": 1.85715,
+              "next_reference_return_pct": 1.22291
+            },
+            {
+              "date": "2026-09-07",
+              "drawdown_pct": 1.77138,
+              "runup_pct": 1.04243,
+              "next_reference_return_pct": -0.78591
+            },
+            {
+              "date": "2026-09-08",
+              "drawdown_pct": 1.9697,
+              "runup_pct": 0.69257,
+              "next_reference_return_pct": -0.19753
+            },
+            {
+              "date": "2026-09-09",
+              "drawdown_pct": 1.7451,
+              "runup_pct": 1.50775,
+              "next_reference_return_pct": -0.6875
+            },
+            {
+              "date": "2026-09-10",
+              "drawdown_pct": 2.54706,
+              "runup_pct": 0.64932,
+              "next_reference_return_pct": -1.1273
+            },
+            {
+              "date": "2026-09-11",
+              "drawdown_pct": 0.29211,
+              "runup_pct": 9.2216,
+              "next_reference_return_pct": 3.05666
+            },
+            {
+              "date": "2026-09-12",
+              "drawdown_pct": 0.27311,
+              "runup_pct": 1.21248,
+              "next_reference_return_pct": 0.40946
+            },
+            {
+              "date": "2026-09-13",
+              "drawdown_pct": 2.52553,
+              "runup_pct": 0.06928,
+              "next_reference_return_pct": -1.95858
+            },
+            {
+              "date": "2026-09-14",
+              "drawdown_pct": 0.46964,
+              "runup_pct": 5.59939,
+              "next_reference_return_pct": 1.59671
+            },
+            {
+              "date": "2026-09-15",
+              "drawdown_pct": 6.24036,
+              "runup_pct": 0.16376,
+              "next_reference_return_pct": -4.63019
+            },
+            {
+              "date": "2026-09-16",
+              "drawdown_pct": 1.26199,
+              "runup_pct": 1.30241,
+              "next_reference_return_pct": null
+            }
+          ],
+          "notes": [
+            "ETHUSDT is the registered intraday scaling proxy; order prices are applied to the user-entered ETHUSDT reference price.",
+            "The 00:00 bar sets the reference and is excluded from fills; eligible highs begin at 00:01 UTC.",
             "Unfilled weekly quantity is completed at the next available reference in the walk-forward cost calculation.",
             "Proxy price touches approximate rung hits; they do not model the listed instrument's spread, queue position, partial fills, fees or market impact.",
             "Deadline tightening and the optional sell closeout are execution overlays, not independently optimized backtest policies."
