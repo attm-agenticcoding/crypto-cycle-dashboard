@@ -17,6 +17,7 @@ from datetime import date, datetime, time, timedelta, timezone
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
+from execution_registry import load_registry
 from update_execution_params import (
     ARCHIVE_ROOT, is_market_session_day, month_sequence, parse_zip,
     request_bytes, sell_session_end,
@@ -28,6 +29,15 @@ CALENDAR_SOURCES = [
     "https://www.nyse.com/publicdocs/ICE_NYSE_2025_Yearly_Trading_Calendar.pdf",
     "https://ir.theice.com/press/news-details/2024/The-New-York-Stock-Exchange-Will-Close-Markets-on-January-9-to-Honor-the-Passing-of-Former-President-Jimmy-Carter-on-National-Day-of-Mourning/default.aspx",
 ]
+
+
+def validate_research_contract(instrument: dict) -> None:
+    expected = (("UTC", "00:00", "00:01", "24:00") if instrument["market_calendar"] == "24X7"
+                else ("America/New_York", "09:35", "09:36", "16:00"))
+    actual = tuple(instrument[key] for key in ("timezone", "reference_time", "fill_start_time", "session_end_time"))
+    source = instrument["scaling_source"]
+    if actual != expected or source["provider"] != "binance_vision" or source["interval"] != "1m":
+        raise ValueError(f"Unsupported research data/session contract for {instrument['instrument_id']}; do not silently substitute a different window")
 
 
 def session_day(day: date, market: str) -> bool:
@@ -143,13 +153,15 @@ def main():
     parser.add_argument("--cache", type=Path, default=ROOT / ".research/archives")
     parser.add_argument("--output", type=Path, default=ROOT / ".research/sessions.json")
     args = parser.parse_args()
-    if args.output.resolve().is_relative_to(ROOT / "data"):
-        parser.error("Research output cannot be placed in production data/")
+    if not all(p.resolve().is_relative_to(ROOT / ".research") for p in (args.output, args.cache)):
+        parser.error("Research output and cache must remain inside the ignored .research/ tree")
     raw_protocol = args.protocol.read_bytes()
     protocol = json.loads(raw_protocol)
     start, end = date.fromisoformat(protocol["start"]), date.fromisoformat(protocol["as_of"])
     registry_raw = (ROOT / "data/execution_instruments.json").read_bytes()
-    instruments = [i for i in json.loads(registry_raw)["instruments"] if i.get("enabled", True)]
+    instruments = [i for i in load_registry(ROOT / "data/execution_instruments.json")["instruments"] if i.get("enabled", True)]
+    for instrument in instruments:
+        validate_research_contract(instrument)
     args.cache.mkdir(parents=True, exist_ok=True)
     result = {"schema_version": 1, "protocol_sha256": hashlib.sha256(raw_protocol).hexdigest(),
               "registry_sha256": hashlib.sha256(registry_raw).hexdigest(),

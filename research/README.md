@@ -26,6 +26,10 @@ retains an artifact for 30 days. It has no production schedule or publishing
 step. Pushes to the validation branch run the experiment; pull requests run
 regression tests only. No secrets are required.
 
+The loader validates the registry and rejects unsupported providers or custom
+session anchors instead of silently substituting its fixed 09:35 ET / 00:00 UTC
+research contracts. Both cache and output paths are restricted to `.research/`.
+
 ## Locked experiment
 
 `execution-v2-protocol.json` was fixed before inspecting this implementation's

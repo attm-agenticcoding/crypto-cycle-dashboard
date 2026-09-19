@@ -1,11 +1,12 @@
 import sys
+import json
 import unittest
 from datetime import date, datetime, timedelta
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
-from prepare_execution_v2 import build_research_sessions, session_day
+from prepare_execution_v2 import build_research_sessions, session_day, validate_research_contract
 from update_execution_params import MinuteBar
 
 
@@ -16,6 +17,15 @@ def bars(day, zone, start, end, adverse_after=None):
 
 
 class ResearchDataTests(unittest.TestCase):
+    def test_custom_session_or_provider_requires_explicit_research_support(self):
+        registry = json.loads((Path(__file__).resolve().parents[1] / "data/execution_instruments.json").read_text())
+        for item in registry["instruments"]:
+            validate_research_contract(item)
+            with self.assertRaises(ValueError):
+                validate_research_contract({**item, "reference_time": "09:00"})
+            with self.assertRaises(ValueError):
+                validate_research_contract({**item, "scaling_source": {**item["scaling_source"], "provider": "unverified"}})
+
     def test_half_day_applies_to_both_sides(self):
         day = date(2025, 11, 28)
         data = build_research_sessions(bars(str(day), "America/New_York", 575, 960, 780), "XNYS", day, day)
