@@ -1,0 +1,40 @@
+{
+  "version": "execution-v2-shadow-1",
+  "locked_on": "2026-09-19",
+  "start": "2025-01-01",
+  "as_of": "2026-09-18",
+  "evaluation_end": "2026-09-13",
+  "holdout_start": "2026-06-22",
+  "score_weeks": 26,
+  "confirmation_weeks": 8,
+  "max_lookback": 60,
+  "task_notional": 10000,
+  "weekly_fraction_of_deadline_target": 0.6,
+  "switch_materiality_bps": 5,
+  "block_weeks": 4,
+  "bootstrap_replicates": 1024,
+  "seed": 19092026,
+  "minimum_holdout_weeks": 12,
+  "maximum_tail_deterioration_bps": 10,
+  "maximum_completion_deterioration": 0.01,
+  "modes": ["price_seeking", "finish_by_deadline"],
+  "scenarios": [
+    {"name": "nominal", "passive_fee_bps": 1, "aggressive_fee_bps": 5, "aggressive_slippage_bps": 2, "penetration_bps": 0, "fill_fraction": 1},
+    {"name": "frictionless_touch", "passive_fee_bps": 0, "aggressive_fee_bps": 0, "aggressive_slippage_bps": 0, "penetration_bps": 0, "fill_fraction": 1},
+    {"name": "adverse_fills", "passive_fee_bps": 10, "aggressive_fee_bps": 10, "aggressive_slippage_bps": 10, "penetration_bps": 5, "fill_fraction": 0.5}
+  ],
+  "notes": [
+    "Research only. No production writes, live orders, or automatic promotion.",
+    "This is a newly reserved retrospective suffix, NOT untouched by all prior project research. Prospective shadow evidence is still required.",
+    "Fees, penetration and partial fills are hypothetical sensitivity assumptions, not calibrated venue costs or fill probabilities.",
+    "5 bp is a predeclared materiality requirement, not an assumed parameter-switching fee. Switching fee is zero.",
+    "Buy is a quote-currency budget task; sell is a fixed-inventory task of matching initial notional. Their scores are not interchangeable.",
+    "Daily reset assumes all prior passive orders have been cancelled before new orders. Reservations are tested separately.",
+    "Finish mode starts with 60% weekly target and 100% remaining to a same-week deadline; both remaining inputs decrease only on fills.",
+    "Finish mode models an explicit aggressive completion intervention 15 minutes before close for BOTH sides. This is not currently an automatic page or broker action.",
+    "Price-seeking residual is valued at the next session reference for opportunity-cost accounting, not called a passive fill.",
+    "ETF prices are indexed spot proxies anchored to registry convenience prices at the start of the dataset, not historical ETF quotes.",
+    "Current registry filters are held constant; historical exchange rule changes and archive publication delays are not reconstructed.",
+    "No strategy is promoted by this runner, even if its provisional statistical checks pass. Independent data, live-policy parity and prospective validation are separate gates."
+  ]
+}
