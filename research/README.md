@@ -12,6 +12,8 @@ The next-stage [prospective shadow contract](prospective-shadow.md) freezes
 future policies before their sessions and later evaluates those exact receipts.
 Its separate workflow is test-only on the research branch; scheduled collection
 requires an approved merge to main. It never promotes or publishes parameters.
+The [2026-09-19 readiness check](results/2026-09-19-prospective-readiness.md)
+records exact local/cloud dry-run parity and unchanged retrospective results.
 
 ## Reproduce
 
