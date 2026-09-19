@@ -27,6 +27,9 @@ Current display contract:
 
 Execution calculator:
 
+- An isolated [execution v2 validation experiment](research/README.md) compares
+  selection rules with common-week, causal daily replay. It does not replace
+  the live parameters or change the production schedules;
 - `execution/` is a multi-instrument daily limit-ladder calculator;
 - **Buy / Sell** selects separately fitted market parameters. Buy keeps the
   existing currency-target calculation. Sell uses remaining asset quantity, current

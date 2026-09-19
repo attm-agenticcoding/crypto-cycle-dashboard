@@ -1,0 +1,56 @@
+name: Execution v2 isolated research
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [codex/execution-v2-validation]
+    paths:
+      - 'research/execution-v2-protocol.json'
+      - 'scripts/*execution_v2*'
+      - 'tests/test_execution_v2*'
+      - '.github/workflows/validate-execution-v2.yml'
+  pull_request:
+    paths:
+      - 'research/**'
+      - 'scripts/*execution_v2*'
+      - 'tests/test_execution_v2*'
+      - 'execution/execution-core.js'
+      - 'execution/index.html'
+      - '.github/workflows/validate-execution-v2.yml'
+
+# This job cannot push source, publish Pages, dispatch production, or trade.
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Existing and research regression tests
+        run: |
+          python -m unittest discover -s tests -v
+          node --test tests/test_execution_core.cjs tests/test_execution_v2.cjs
+      - name: Prepare reproducible public-market sessions
+        if: github.event_name != 'pull_request'
+        run: python scripts/prepare_execution_v2.py
+      - name: Causal comparison without publishing
+        if: github.event_name != 'pull_request'
+        run: node scripts/validate_execution_v2.cjs
+      - name: Verify tracked production files remain unchanged
+        run: git diff --exit-code -- data execution scripts/update_execution_params.py
+      - uses: actions/upload-artifact@v4
+        if: github.event_name != 'pull_request'
+        with:
+          name: execution-v2-validation-${{ github.run_id }}
+          path: .research/report/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 30
