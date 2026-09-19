@@ -8,13 +8,18 @@ The initial [2026-09-19 comparison report](results/2026-09-19-report.md) found n
 replacement clearing the predeclared checks. This does not establish that the
 old selector is optimal; it means this experiment does not support a cutover.
 
+The next-stage [prospective shadow contract](prospective-shadow.md) freezes
+future policies before their sessions and later evaluates those exact receipts.
+Its separate workflow is test-only on the research branch; scheduled collection
+requires an approved merge to main. It never promotes or publishes parameters.
+
 ## Reproduce
 
 Python 3.12+ (standard library) and Node 22+ are sufficient.
 
 ```sh
 python -m unittest discover -s tests -v
-node --test tests/test_execution_core.cjs tests/test_execution_v2.cjs
+node --test tests/test_execution_*.cjs
 python scripts/prepare_execution_v2.py
 node scripts/validate_execution_v2.cjs
 ```

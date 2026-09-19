@@ -132,16 +132,20 @@ def build_research_sessions(bars, market: str, start: date, end: date):
                         "accepted_sessions": len(sessions), "complete_weeks": len(episodes)}}
 
 
-def archive_specs(symbol, start, end):
-    # Monthly only after that entire UTC month has completed. Daily otherwise.
-    current = datetime.now(timezone.utc).date()
+def archive_specs(symbol, start, end, current=None):
+    # Monthly archives are published on the first Monday, not at month-end.
+    # Keep using the prior month's daily archives through day 8 of this month.
+    current = current or datetime.now(timezone.utc).date()
+    prior_month = (current.replace(day=1) - timedelta(days=1)).replace(day=1)
     for year, month in month_sequence(start, end):
-        if (year, month) < (current.year, current.month):
+        monthly_ready = (year, month) < (current.year, current.month) and not (
+            (year, month) == (prior_month.year, prior_month.month) and current.day <= 8)
+        if monthly_ready:
             name = f"{symbol}-1m-{year:04d}-{month:02d}.zip"
             yield name, f"{ARCHIVE_ROOT}/monthly/klines/{symbol}/1m/{name}"
         else:
             day = max(start, date(year, month, 1))
-            while day <= end and day.month == month:
+            while day <= end and (day.year, day.month) == (year, month):
                 name = f"{symbol}-1m-{day.isoformat()}.zip"
                 yield name, f"{ARCHIVE_ROOT}/daily/klines/{symbol}/1m/{name}"
                 day += timedelta(days=1)

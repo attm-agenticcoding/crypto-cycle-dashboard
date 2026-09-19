@@ -1,0 +1,67 @@
+name: Execution prospective shadow
+
+on:
+  workflow_dispatch:
+  schedule:
+    # UTC: before the listed-session freeze in both EST and EDT. Crypto fits
+    # apply to the NEXT UTC day. The second run retries, never overwrites.
+    - cron: '17 9 * * *'
+    - cron: '17 13 * * *'
+  push:
+    branches: [codex/execution-v2-validation]
+    paths:
+      - 'research/execution-shadow-protocol.json'
+      - 'scripts/*execution_shadow*'
+      - 'scripts/*execution_v2*'
+      - 'tests/test_execution_shadow*'
+      - '.github/workflows/execution-prospective-shadow.yml'
+  pull_request:
+    paths:
+      - 'research/execution-shadow-protocol.json'
+      - 'scripts/*execution_shadow*'
+      - 'scripts/*execution_v2*'
+      - 'tests/test_execution_shadow*'
+      - '.github/workflows/execution-prospective-shadow.yml'
+
+# No repository writes, secrets, Pages publishing, dispatching, or trading.
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: execution-prospective-shadow-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  shadow:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Regression and prospective-integrity tests
+        run: |
+          python -m unittest discover -s tests -v
+          node --test tests/test_execution_*.cjs
+      - name: Freeze decisions and evaluate earlier sealed decisions
+        id: collect
+        if: github.event_name != 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python scripts/run_execution_shadow.py
+      - name: Verify production is untouched
+        run: git diff --exit-code -- data execution scripts/update_execution_params.py .github/workflows/update-execution-params.yml
+      - uses: actions/upload-artifact@v4
+        if: steps.collect.outputs.active == 'true'
+        with:
+          name: ${{ steps.collect.outputs.artifact_name }}
+          path: ${{ steps.collect.outputs.output_path }}
+          include-hidden-files: true
+          if-no-files-found: error
+          overwrite: false
+          retention-days: 90

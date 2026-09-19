@@ -92,7 +92,9 @@ function dailyPlan({instrument, side, candidate, history, weekly, total, held, r
 function availableHistory(dataset, side, index) {
   // Listed BUY currently drops the newest nightly sample because its next-ref
   // label is absent. Preserve that production quirk rather than silently fixing it.
-  const end = index - (side === "buy" && dataset.instrument.market_calendar === "XNYS" ? 1 : 0);
+  const lag = Math.max(dataset.observation_lag_sessions || 0,
+    side === "buy" && dataset.instrument.market_calendar === "XNYS" ? 1 : 0);
+  const end = Math.max(0, index - lag);
   return dataset.sessions.slice(Math.max(0, end - 60), end);
 }
 function canonicalWeeks(dataset, protocol) {
@@ -142,6 +144,8 @@ function simulateWeek(dataset, week, side, mode, scenario, protocol, choose, tra
   for (let day = 0; day < week.indices.length; day++) {
     const index = week.indices[day], session = sessions[index], daysLeft = week.indices.length - day;
     const selection = choose(index), choice = selection.choice;
+    if (selection.history && selection.history.some(row => !row.date || row.date >= session.date))
+      throw new Error("A frozen history sample is not strictly before its execution day");
     if (trace) decisions.push({date: session.date, ...selection, remaining_before: remaining, weekly_before: weeklyRemaining});
     const before = remaining;
     if (BASELINES.includes(choice)) {
@@ -151,7 +155,7 @@ function simulateWeek(dataset, week, side, mode, scenario, protocol, choose, tra
       // calculator itself does not currently reserve fees.
       const divisor = side === "buy" ? 1 + scenario.passive_fee_bps / 10000 : 1;
       const plan = dailyPlan({instrument, side, candidate: GRID[choice],
-        history: availableHistory(dataset, side, index), weekly: weeklyRemaining / divisor,
+        history: selection.history || availableHistory(dataset, side, index), weekly: weeklyRemaining / divisor,
         total: mode === "finish_by_deadline" ? remaining / divisor : null,
         held: side === "sell" ? remaining : 0, reference: session.reference, daysLeft});
       const finalCloseout = mode === "finish_by_deadline" && daysLeft === 1;

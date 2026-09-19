@@ -1,0 +1,30 @@
+{
+  "experiment_id": "execution-prospective-2026-09-v1",
+  "base_protocol_sha256": "0dd6e27f4a167a0bda43b712475f227fb265d6ecb6a8b2b68535604d35312ef9",
+  "registry_sha256": "414594a79e7767e538d85f309cd362e701f3657920b2fb1d0a96b6219b86e527",
+  "starts_on": "2026-09-21",
+  "ends_on": "2026-12-13",
+  "collect_until": "2026-12-16",
+  "artifact_retention_days": 90,
+  "minimum_complete_weeks": 12,
+  "crypto_historical_observation_lag_sessions": 1,
+  "source_data_cutoff": "previous completed UTC day, downloaded before freezing",
+  "xnys_freeze_before": "09:30 America/New_York",
+  "xnys_reference": "09:35 minute close; execute from 09:36",
+  "crypto_freeze_before": "00:00 UTC of the following day",
+  "crypto_reference": "00:00 minute close; execute from 00:01",
+  "receipt_policy": "first immutable receipt per calendar/session; no replacement or backfill",
+  "initial_paired_incumbent": "equal_paced",
+  "initial_control_incumbent": "legacy seed (20, 0.25%, 0.80%), control only",
+  "promotion_allowed": false,
+  "notes": [
+    "Prospective parameter/policy freezing followed by simulated evaluation, not live orders or broker fills.",
+    "Crypto day-D fits apply no earlier than D+1 and use archives only through D-1. Training replays that observation lag.",
+    "Stock/ETF receipts freeze before 09:30 ET. Listed-buy sample lag is retained. Half-day closes apply to both sides.",
+    "GitHub artifact creation must precede the freeze deadline. Unsealed records are pending, never prospective evidence.",
+    "All methods share frozen receipt coverage. Missing/late receipts are failures, never retrospectively filled.",
+    "First receipt wins across retries. Registry or execution-code changes require a new experiment.",
+    "ETF inputs remain spot proxies. Fees and fills are hypothetical. No proxy or paper result is actual execution performance.",
+    "Existing production workflows, pages, parameters and broker behavior are outside this experiment's write scope."
+  ]
+}

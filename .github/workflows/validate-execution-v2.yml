@@ -37,7 +37,7 @@ jobs:
       - name: Existing and research regression tests
         run: |
           python -m unittest discover -s tests -v
-          node --test tests/test_execution_core.cjs tests/test_execution_v2.cjs
+          node --test tests/test_execution_*.cjs
       - name: Prepare reproducible public-market sessions
         if: github.event_name != 'pull_request'
         run: python scripts/prepare_execution_v2.py
