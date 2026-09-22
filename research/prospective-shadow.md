@@ -24,7 +24,10 @@ existing main-dashboard and scaling producers remain in place.
 
 Once approved and merged, a manual main-branch run can initialize the ledger;
 subsequent scheduled runs are independent of the user's computer. The daily
-times are **09:17 UTC** and **13:17 UTC** (retry). They are research collection
+times are **05:17 UTC** and **07:17 UTC** (retry), with UTC explicitly declared.
+These earlier attempts provide buffer for the multi-hour dispatch delays
+observed on September 20–21; they do not guarantee punctual execution.
+They are research collection
 times, not a new production schedule. GitHub may delay or drop scheduled jobs;
 on-time artifacts, not scheduled start times, determine eligibility.
 
@@ -58,7 +61,12 @@ BINANCE:SPOT:ETHUSDT, each independently fitted for buy/sell and
 price-seeking/finish-by-deadline tasks. Fit code, calendar helpers, and the live
 planning functions are hashed into the experiment contract. A changed registry
 or implementation stops collection; a different experiment/version must be
-declared rather than silently mixing it into this one.
+declared rather than silently mixing it into this one. The sole maintenance
+exception is the exact old/new code-contract pair in
+`execution-shadow-compatibility.json`: the September 21 timestamp-precision
+repair leaves the study protocol and execution policy unchanged. It records a
+hashed migration audit while preserving every frozen receipt and settled result.
+Unknown future code hashes still fail closed.
 
 The predeclared 12 full weeks are **2026-09-21 through 2026-12-13**. Earlier
 receipts are pilot records only. Collection continues through December 16 to
@@ -92,6 +100,10 @@ always has `promotion_allowed: false`.
   A newly uploaded receipt initially says `awaiting_immutable_artifact_seal`;
   the next trusted restore reads GitHub metadata and seals it. That one-run
   reporting lag is not a missed scaling run.
+  GitHub's second-resolution timestamp denotes a one-second precision interval;
+  it can overlap a generation timestamp in the same second without predating it.
+  The entire artifact interval must still be before the freeze deadline. Raw
+  timestamps are retained; actual reversals and late/ambiguous seals remain invalid.
 - Only a trusted successful main-branch workflow artifact can restore state.
   Failed runs without artifacts may be retried. An unsuccessful run that already
   published decisions stops for review, rather than allowing replacement.
@@ -116,6 +128,22 @@ Each artifact contains:
 - `sessions.json`: that run's input snapshot, archive URLs, and SHA-256 hashes.
 - `request.json`, `input-protocol.json`, `shadow-protocol.json`: fixed contract,
   target sessions, code hashes and provenance.
+- `compatibility.json`: the exact permitted maintenance migration, with its hash
+  pinned in the request and any migration audit. `request.json` and `report.json`
+  also distinguish server run creation/start from the inferred daily cron slot.
+  GitHub does not expose the original nominal scheduled instant; a delay of a
+  full day or more cannot be inferred unambiguously.
+
+For recovery without new observations, manually dispatch with `restore_only`
+set to `true`. This still restores only the trusted successful main-branch
+artifact; it validates/migrates the contract and seals already-frozen decisions,
+then uploads a cumulative ledger. It downloads no market observations, fits no
+new decisions, and settles no new outcomes. Its `report.md`/`report.json` are
+**recovery proofs, not performance reports**, and there is no `sessions.json`.
+The original artifact metadata is retained in `prior-artifact.json`. Normal
+scheduled runs retain their usual data/fitting/settlement path. A local or
+branch recovery test can read official state but exports `test_only` artifacts;
+those artifacts can never become an official restore source.
 
 Retention is **90 days per artifact**, not permanent storage. Every successful
 run carries the small cumulative ledger/results forward. Earlier full input
@@ -128,11 +156,15 @@ Local verification (never counts as prospective evidence):
 python -m unittest discover -s tests -v
 node --test tests/test_execution_*.cjs
 python scripts/run_execution_shadow.py --local-test
+python scripts/run_execution_shadow.py --local-test --restore-only
 ```
 
 These commands write only ignored `.research/` research outputs. Cloud/local
 generation timestamps and run IDs differ; on identical observations, compare
 the frozen task selections, score fingerprints, histories and target sessions.
+The restore-only test requires authenticated `gh` read access to the official
+workflow artifacts. The repair branch runs this same recovery test in GitHub;
+PR checks run the offline regression/integrity tests only.
 
 ## Limitations
 

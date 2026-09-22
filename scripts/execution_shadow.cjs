@@ -14,6 +14,23 @@ const sha = bytes => crypto.createHash("sha256").update(bytes).digest("hex");
 const digest = value => sha(canonical(value));
 const key = (calendar, day) => `${calendar}:${day}`;
 
+// An API timestamp without fractional digits identifies a whole second, not
+// its first millisecond. Keep the raw timestamp and compare precision bounds.
+function timestampBounds(value) {
+  const match = typeof value === "string" && /^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})(?:\.(\d{1,3}))?Z$/.exec(value);
+  const lower = match ? Date.parse(value) : NaN;
+  if (!Number.isFinite(lower) || new Date(lower).toISOString().slice(0, 19) !== match[1]) return null;
+  const precisionMs = 10 ** (3 - (match[2]?.length || 0));
+  return {lower, upperExclusive: lower + precisionMs, precisionMs};
+}
+function sealTiming(receipt, createdAt) {
+  const artifact = timestampBounds(createdAt), generated = timestampBounds(receipt.payload.generated_at),
+    deadline = timestampBounds(receipt.payload.freeze_before);
+  if (!artifact || !generated || !deadline) return {valid: false, predates: false};
+  const predates = artifact.upperExclusive <= generated.lower;
+  return {predates, valid: !predates && generated.lower < deadline.lower && artifact.upperExclusive <= deadline.lower};
+}
+
 function verifyState(state, contract) {
   if (!state || state.schema_version !== 1 || state.contract_hash !== contract) throw new Error("Different or invalid experiment/code contract; never blend versions");
   const ids = new Set();
@@ -32,24 +49,49 @@ function verifyState(state, contract) {
     if (weeks.has(id)) throw new Error("Duplicate settled result");
     weeks.add(id);
   }
+  let priorContract = state.origin_contract_hash || state.contract_hash;
+  for (const migration of state.contract_migrations || []) {
+    if (migration.hash !== digest(migration.payload) || migration.payload.from_contract !== priorContract)
+      throw new Error("Operational migration audit was altered");
+    priorContract = migration.payload.to_contract;
+  }
+  if (priorContract !== state.contract_hash) throw new Error("Operational migration does not reach the current contract");
+}
+function migrateOperationalContract(state, contract, manifest, manifestHash, runId, clock = () => new Date()) {
+  verifyState(state, state.contract_hash);
+  if (state.contract_hash === contract) return false;
+  const allowed = manifest?.migrations?.find(m => m.from_contract === state.contract_hash && m.to_contract === contract &&
+    m.experiment_id === state.experiment_id && m.decision_policy_changed === false);
+  if (!allowed) throw new Error("Unapproved experiment/code contract change; never blend versions");
+  const payload = {from_contract: state.contract_hash, to_contract: contract, reason: allowed.reason,
+    manifest_sha256: manifestHash, run_id: runId, migrated_at: clock().toISOString(),
+    preserved_receipt_count: state.receipts.length, preserved_tip_hash: state.receipts.at(-1)?.hash ?? null,
+    preserved_evaluations_sha256: digest(state.evaluations), decision_policy_changed: false};
+  state.origin_contract_hash ||= state.contract_hash;
+  state.contract_migrations ||= [];
+  state.contract_migrations.push({hash: digest(payload), payload});
+  state.contract_hash = contract;
+  verifyState(state, contract);
+  return true;
 }
 function sealImported(state, metadata) {
-  if (!metadata?.verified_github_source || !metadata.created_at || !Number.isFinite(Date.parse(metadata.created_at)))
+  if (!metadata?.verified_github_source || !timestampBounds(metadata.created_at))
     throw new Error("Official immutable artifact metadata required");
-  for (const receipt of state.receipts) {
-    if (receipt.seal || receipt.payload.run_id !== metadata.run_id) continue;
+  const pending = state.receipts.filter(r => !r.seal && r.payload.run_id === metadata.run_id);
+  // Validate the full import first. An error must not partially seal a ledger.
+  for (const receipt of pending) {
     if (receipt.payload.source_commit !== metadata.source_commit) throw new Error("Artifact and receipt source commits differ");
-    if (Date.parse(metadata.created_at) < Date.parse(receipt.payload.generated_at)) throw new Error("Artifact predates its payload");
+    if (!timestampBounds(receipt.payload.generated_at) || !timestampBounds(receipt.payload.freeze_before)) throw new Error("Invalid receipt timestamp");
+    if (sealTiming(receipt, metadata.created_at).predates) throw new Error("Artifact predates its payload");
+  }
+  for (const receipt of pending) {
     receipt.seal = {artifact_id: metadata.artifact_id, run_id: metadata.run_id,
-      created_at: metadata.created_at, verified_github_source: true};
+      created_at: metadata.created_at, timestamp_comparison: "precision_interval_v1", verified_github_source: true};
   }
 }
 function validReceipt(receipt) {
   return !!receipt && receipt.payload.record_kind === "prospective" && receipt.seal?.verified_github_source === true &&
-    receipt.seal.run_id === receipt.payload.run_id && Number.isFinite(Date.parse(receipt.seal.created_at)) &&
-    Date.parse(receipt.seal.created_at) >= Date.parse(receipt.payload.generated_at) &&
-    Date.parse(receipt.seal.created_at) < Date.parse(receipt.payload.freeze_before) &&
-    Date.parse(receipt.payload.generated_at) < Date.parse(receipt.payload.freeze_before);
+    receipt.seal.run_id === receipt.payload.run_id && sealTiming(receipt, receipt.seal.created_at).valid;
 }
 
 function fitTask(dataset, side, mode, protocol, previous) {
@@ -232,17 +274,45 @@ function main(directory) {
   if (!folder.startsWith(path.join(ROOT, ".research") + path.sep)) throw new Error("Shadow output must remain in .research/");
   const read = name => JSON.parse(fs.readFileSync(path.join(folder, name)));
   const request = read("request.json"), config = read("shadow-protocol.json"), protocol = read("input-protocol.json");
+  for (const [file, expected] of Object.entries(request.implementation_sha256))
+    if (sha(fs.readFileSync(path.join(ROOT, file))) !== expected) throw new Error("Implementation changed during the run");
+  const compatibilityRaw = fs.readFileSync(path.join(folder, "compatibility.json"));
+  if (sha(compatibilityRaw) !== request.compatibility_manifest_sha256) throw new Error("Compatibility manifest changed during the run");
+  const contract = digest({config, code: request.implementation_sha256});
+  const state = fs.existsSync(path.join(folder, "prior-state.json")) ? read("prior-state.json") :
+    {schema_version: 1, contract_hash: contract, experiment_id: config.experiment_id, receipts: [], evaluations: [], events: []};
+  const before = {payloads: state.receipts.map(r => r.payload), hashes: state.receipts.map(r => r.hash), evaluations: state.evaluations};
+  const beforeDigest = digest(before);
+  migrateOperationalContract(state, contract, JSON.parse(compatibilityRaw), sha(compatibilityRaw), request.run_id);
+  verifyState(state, contract);
+  if (fs.existsSync(path.join(folder, "prior-artifact.json"))) sealImported(state, read("prior-artifact.json"));
+  if (digest({payloads: state.receipts.map(r => r.payload), hashes: state.receipts.map(r => r.hash), evaluations: state.evaluations}) !== beforeDigest)
+    throw new Error("Restoration changed an existing decision or settled result");
+  verifyState(state, contract);
+  const output = path.join(folder, "export"); fs.mkdirSync(output, {recursive: true});
+  if (request.restore_only) {
+    if (!fs.existsSync(path.join(folder, "prior-state.json"))) throw new Error("Restore-only requires an existing official ledger");
+    const proof = {mode: "restore_only", record_kind: request.record_kind, source_artifact: read("prior-artifact.json"),
+      record_count: state.receipts.length, on_time_receipts: state.receipts.filter(validReceipt).length,
+      payloads_and_hashes_preserved: true, original_decisions_sha256: beforeDigest,
+      contract_hash: state.contract_hash, contract_migrations: state.contract_migrations || [],
+      fitted_new_decisions: false, evaluated_new_market_data: false, settled_task_weeks: state.evaluations.length,
+      complete_week_count: null, production_modified: false, promotion_allowed: false, dispatch: request.dispatch};
+    fs.writeFileSync(path.join(output, "report.json"), JSON.stringify(proof, null, 2) + "\n");
+    fs.writeFileSync(path.join(output, "report.md"), "# Shadow recovery-only verification\n\n" +
+      `Run kind: ${request.record_kind}. Restored ${state.receipts.length} receipts; ${proof.on_time_receipts} pass the timing check.\n\n` +
+      "Existing payloads, hashes, parameters, and settled results are unchanged. No new parameter fitting or market-data evaluation was performed; this is not a performance report. Production is unchanged.\n\n" +
+      "The original artifact timestamps are retained. Their precision intervals must be entirely before the freeze deadline.\n");
+    fs.writeFileSync(path.join(output, "shadow-state.json"), JSON.stringify(state));
+    for (const file of ["shadow-protocol.json", "input-protocol.json", "request.json", "compatibility.json", "prior-artifact.json"])
+      fs.copyFileSync(path.join(folder, file), path.join(output, file));
+    console.log(JSON.stringify(proof));
+    return;
+  }
   const raw = fs.readFileSync(path.join(folder, "sessions.json")), dataset = JSON.parse(raw);
   if (sha(fs.readFileSync(path.join(folder, "input-protocol.json"))) !== dataset.protocol_sha256) throw new Error("Input protocol mismatch");
   if (dataset.registry_sha256 !== config.registry_sha256 || dataset.registry_sha256 !== request.registry_sha256) throw new Error("Registry mismatch");
   if (canonical(dataset.instruments.map(i => i.instrument.instrument_id).sort()) !== canonical([...request.instrument_ids].sort())) throw new Error("Incomplete instrument cohort");
-  for (const [file, expected] of Object.entries(request.implementation_sha256))
-    if (sha(fs.readFileSync(path.join(ROOT, file))) !== expected) throw new Error("Implementation changed during the run");
-  const contract = digest({config, code: request.implementation_sha256});
-  const state = fs.existsSync(path.join(folder, "prior-state.json")) ? read("prior-state.json") :
-    {schema_version: 1, contract_hash: contract, experiment_id: config.experiment_id, receipts: [], evaluations: [], events: []};
-  verifyState(state, contract);
-  if (fs.existsSync(path.join(folder, "prior-artifact.json"))) sealImported(state, read("prior-artifact.json"));
   request.input_snapshot_sha256 = sha(raw);
   for (const target of request.targets) {
     console.log(`Freeze ${target.calendar} for ${target.date}`);
@@ -251,15 +321,16 @@ function main(directory) {
   const coverage = settle(dataset, protocol, config, state, request.mature_weeks);
   verifyState(state, contract);
   const report = reportState(state, config, coverage, protocol, request.instrument_ids, request.planned_at.slice(0, 10));
-  const output = path.join(folder, "export"); fs.mkdirSync(output, {recursive: true});
+  report.summary.dispatch = request.dispatch;
+  report.summary.contract_migrations = state.contract_migrations || [];
   fs.writeFileSync(path.join(output, "shadow-state.json"), JSON.stringify(state));
   fs.writeFileSync(path.join(output, "report.json"), JSON.stringify(report.summary, null, 2) + "\n");
   fs.writeFileSync(path.join(output, "report.md"), report.markdown);
   fs.writeFileSync(path.join(output, "request.json"), JSON.stringify(request, null, 2) + "\n");
-  for (const file of ["sessions.json", "shadow-protocol.json", "input-protocol.json"])
+  for (const file of ["sessions.json", "shadow-protocol.json", "input-protocol.json", "compatibility.json"])
     fs.copyFileSync(path.join(folder, file), path.join(output, file));
   console.log(JSON.stringify({records: state.receipts.length, complete_weeks: report.summary.complete_week_count,
     record_kind: request.record_kind, promotion_allowed: false, production_modified: false}));
 }
 if (require.main === module) main(process.argv[2] || path.join(ROOT, ".research/shadow"));
-module.exports = {canonical, digest, verifyState, sealImported, validReceipt, fitTask, freezeCalendar, settle, reportState};
+module.exports = {canonical, digest, verifyState, migrateOperationalContract, timestampBounds, sealTiming, sealImported, validReceipt, fitTask, freezeCalendar, settle, reportState};

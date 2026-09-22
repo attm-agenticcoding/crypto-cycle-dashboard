@@ -11,6 +11,7 @@ import hashlib
 import io
 import json
 import os
+import re
 import subprocess
 import sys
 import zipfile
@@ -147,9 +148,47 @@ def workflow_output(name, value):
             stream.write(f"{name}={value}\n")
 
 
+def dispatch_diagnostics(now: datetime) -> dict:
+    """Observe GitHub dispatch latency; the nominal daily slot is only inferred."""
+    result = {"event": os.environ.get("GITHUB_EVENT_NAME", "local"), "collector_started_at": iso(now)}
+    if os.environ.get("GITHUB_ACTIONS") != "true":
+        return result
+    try:
+        run = gh_api(f"repos/{REPOSITORY}/actions/runs/{int(os.environ['GITHUB_RUN_ID'])}")
+        created = datetime.fromisoformat(run["created_at"].replace("Z", "+00:00"))
+        started = datetime.fromisoformat(run["run_started_at"].replace("Z", "+00:00"))
+        result.update(run_created_at=run["created_at"], run_started_at=run["run_started_at"],
+                      creation_to_start_seconds=(started - created).total_seconds())
+        if result["event"] == "schedule":
+            event = json.loads(Path(os.environ["GITHUB_EVENT_PATH"]).read_text())
+            cron = event.get("schedule", "")
+            result["cron_utc"] = cron
+            match = re.fullmatch(r"(\d{1,2}) (\d{1,2}) \* \* \*", cron)
+            if match:
+                nominal = created.astimezone(UTC).replace(hour=int(match[2]), minute=int(match[1]), second=0, microsecond=0)
+                if nominal > created:
+                    nominal -= timedelta(days=1)
+                result.update(nominal_slot_inferred=iso(nominal),
+                              schedule_to_creation_seconds_inferred=(created - nominal).total_seconds(),
+                              inference_note="Nearest prior daily UTC slot; GitHub does not expose the original scheduled instant. Delays of 24h+ are ambiguous.")
+    except (OSError, ValueError, KeyError, subprocess.CalledProcessError) as error:
+        # Optional observability must not stop collection. Do not log credentials
+        # or the API response body if diagnostics are temporarily unavailable.
+        result["diagnostics_unavailable"] = type(error).__name__
+    return result
+
+
+def collect(folder: Path, restore_only: bool) -> None:
+    if not restore_only:
+        subprocess.run([sys.executable, str(ROOT / "scripts/prepare_execution_v2.py"),
+                        "--protocol", str(folder / "input-protocol.json"), "--output", str(folder / "sessions.json")], check=True)
+    subprocess.run(["node", str(ROOT / "scripts/execution_shadow.cjs"), str(folder)], check=True)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--local-test", action="store_true", help="Never create prospective evidence")
+    parser.add_argument("--restore-only", action="store_true", help="Verify/seal existing official receipts; do not download observations, fit, or settle")
     args = parser.parse_args()
     config_bytes = (ROOT / "research/execution-shadow-protocol.json").read_bytes()
     config = json.loads(config_bytes)
@@ -177,12 +216,17 @@ def main():
     folder = ROOT / ".research" / "shadow-runs" / (str(run_id) + "-" + now.strftime("%Y%m%dT%H%M%S%f"))
     folder.mkdir(parents=True)
     workflow_output("output_path", str(folder / "export"))
-    if official:
+    if official or args.restore_only:
         restore_latest(folder)
+    if args.restore_only and not all((folder / f).is_file() for f in ("prior-state.json", "prior-artifact.json")):
+        raise RuntimeError("Restore-only requires an existing official ledger")
+    compatibility_bytes = (ROOT / "research/execution-shadow-compatibility.json").read_bytes()
     protocol = json.loads(base_bytes)
     protocol["as_of"] = (now.date() - timedelta(days=1)).isoformat()
     protocol["evaluation_end"] = protocol["as_of"]
     request = {"record_kind": kind, "run_id": run_id, "planned_at": iso(now), "as_of": protocol["as_of"],
+               "restore_only": args.restore_only, "dispatch": dispatch_diagnostics(now),
+               "compatibility_manifest_sha256": sha(compatibility_bytes),
                "targets": plan_targets(now, config), "registry_sha256": registry_sha,
                "mature_weeks": mature_weeks(date.fromisoformat(protocol["as_of"]), config),
                "instrument_ids": sorted(i["instrument_id"] for i in json.loads((ROOT / "data/execution_instruments.json").read_bytes())["instruments"] if i.get("enabled", True)),
@@ -191,10 +235,9 @@ def main():
     protected = {f: sha((ROOT / f).read_bytes()) for f in PROTECTED}
     (folder / "request.json").write_text(json.dumps(request, indent=2) + "\n")
     (folder / "shadow-protocol.json").write_bytes(config_bytes)
+    (folder / "compatibility.json").write_bytes(compatibility_bytes)
     (folder / "input-protocol.json").write_text(json.dumps(protocol, indent=2) + "\n")
-    subprocess.run([sys.executable, str(ROOT / "scripts/prepare_execution_v2.py"),
-                    "--protocol", str(folder / "input-protocol.json"), "--output", str(folder / "sessions.json")], check=True)
-    subprocess.run(["node", str(ROOT / "scripts/execution_shadow.cjs"), str(folder)], check=True)
+    collect(folder, args.restore_only)
     if protected != {f: sha((ROOT / f).read_bytes()) for f in PROTECTED}:
         raise RuntimeError("Protected production files changed")
     print(f"Shadow artifact directory: {folder / 'export'}", flush=True)
