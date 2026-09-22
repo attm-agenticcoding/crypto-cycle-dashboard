@@ -1,4 +1,5 @@
 const test = require("node:test"), assert = require("node:assert/strict");
+const fs = require("node:fs"), path = require("node:path"), crypto = require("node:crypto"), {execFileSync} = require("node:child_process");
 const shadow = require("../scripts/execution_shadow.cjs"), engine = require("../scripts/execution_v2.cjs");
 const config = require("../research/execution-shadow-protocol.json"), protocol = require("../research/execution-v2-protocol.json");
 const instruments = require("../data/execution_instruments.json").instruments;
@@ -63,6 +64,138 @@ test("only an on-time immutable server seal can make a receipt prospective", () 
   r.seal.created_at = "2026-09-21T09:25:00Z";
   r.payload.record_kind = "test_only";
   assert.equal(shadow.validReceipt(r), false);
+});
+
+test("GitHub whole-second seals accept the real 218ms precision-loss case without changing payloads", () => {
+  const ledger = state(), generated = "2026-09-21T15:56:35.218Z";
+  const payload = {record_kind: "prospective", calendar: "24X7", effective_date: "2026-09-22",
+    generated_at: generated, freeze_before: "2026-09-22T00:00:00Z", run_id: "35622136814",
+    source_commit: "1b8cb762acce4cbb1b5923b833ffbf3b8fa7fd30", previous_receipt_hash: null};
+  const receipt = {payload, hash: shadow.digest(payload), seal: null};
+  ledger.receipts.push(receipt);
+  const before = shadow.digest(payload);
+  shadow.sealImported(ledger, {verified_github_source: true, artifact_id: 10649937490,
+    run_id: payload.run_id, source_commit: payload.source_commit, created_at: "2026-09-21T15:56:35Z"});
+  assert.equal(shadow.validReceipt(receipt), true);
+  assert.equal(receipt.seal.created_at, "2026-09-21T15:56:35Z");
+  assert.equal(receipt.payload.generated_at, generated);
+  assert.equal(receipt.hash, before);
+  shadow.verifyState(ledger, "locked");
+});
+
+test("timestamp bounds reject invalid calendars, offsets and unsupported precision", () => {
+  for (const invalid of [null, 123, "not-a-date", "2026-02-30T00:00:00Z", "2026-09-21T24:00:00Z",
+    "2026-09-21T00:00:00+00:00", "2026-09-21T00:00:00.1234Z"])
+    assert.equal(shadow.timestampBounds(invalid), null);
+  for (const [fraction, ms] of [["", 1000], [".2", 100], [".21", 10], [".218", 1]]) {
+    const b = shadow.timestampBounds("2026-09-21T15:56:35" + fraction + "Z");
+    assert.equal(b.precisionMs, ms); assert.equal(b.upperExclusive - b.lower, ms);
+  }
+});
+
+test("precision-aware comparisons still reject real reversal and all late/deadline-ambiguous seals", () => {
+  const {ledger} = fixture(), receipt = ledger.receipts[0];
+  receipt.payload.generated_at = "2026-09-21T13:29:59.218Z";
+  for (const [stamp, valid] of [
+    ["2026-09-21T13:29:58Z", false], ["2026-09-21T13:29:59.217Z", false],
+    ["2026-09-21T13:29:59.218Z", true], ["2026-09-21T13:29:59Z", true],
+    ["2026-09-21T13:29:59.999Z", true], ["2026-09-21T13:30:00Z", false],
+    ["2026-09-21T13:30:00.000Z", false], ["2026-09-21T13:30:01Z", false], ["bad", false]]) {
+    receipt.seal.created_at = stamp;
+    assert.equal(shadow.validReceipt(receipt), valid, stamp);
+  }
+  receipt.payload.freeze_before = "2026-09-21T13:29:59.500Z";
+  receipt.seal.created_at = "2026-09-21T13:29:59Z";
+  assert.equal(shadow.validReceipt(receipt), false); // Unknown part of the same second crosses the cutoff.
+  receipt.payload.generated_at = receipt.payload.freeze_before;
+  receipt.seal.created_at = "2026-09-21T13:29:59.500Z";
+  assert.equal(shadow.validReceipt(receipt), false);
+});
+
+test("a failed import leaves every pending seal untouched", () => {
+  const {ledger} = fixture(), first = ledger.receipts[0], second = ledger.receipts[1];
+  first.seal = second.seal = null;
+  second.payload.run_id = first.payload.run_id;
+  second.payload.generated_at = "2026-09-21T09:25:01.001Z";
+  const before = shadow.digest(ledger);
+  assert.throws(() => shadow.sealImported(ledger, {verified_github_source: true, artifact_id: 100,
+    run_id: first.payload.run_id, source_commit: "abc", created_at: "2026-09-21T09:25:00Z"}), /predates/);
+  assert.equal(shadow.digest(ledger), before);
+});
+
+test("only an exact predeclared maintenance migration is allowed, with immutable decisions and audit", () => {
+  const {ledger} = fixture(); ledger.experiment_id = config.experiment_id;
+  const entry = {experiment_id: config.experiment_id, from_contract: "locked", to_contract: "repaired",
+    decision_policy_changed: false, reason: "precision-only test"};
+  const manifest = {migrations: [entry]}, original = shadow.digest({receipts: ledger.receipts, evaluations: ledger.evaluations});
+  for (const rejected of [[], [{...entry, to_contract: "other"}], [{...entry, experiment_id: "other"}],
+    [{...entry, decision_policy_changed: true}]]) {
+    const copy = clone(ledger), before = shadow.digest(copy);
+    assert.throws(() => shadow.migrateOperationalContract(copy, "repaired", {migrations: rejected}, "manifest", "test"), /Unapproved/);
+    assert.equal(shadow.digest(copy), before);
+  }
+  assert.equal(shadow.migrateOperationalContract(ledger, "repaired", manifest, "manifest", "test",
+    () => new Date("2026-09-22T02:00:00Z")), true);
+  assert.equal(ledger.origin_contract_hash, "locked");
+  assert.equal(ledger.contract_hash, "repaired");
+  assert.equal(ledger.contract_migrations.length, 1);
+  assert.equal(ledger.contract_migrations[0].payload.preserved_tip_hash, ledger.receipts.at(-1).hash);
+  assert.equal(shadow.digest({receipts: ledger.receipts, evaluations: ledger.evaluations}), original);
+  assert.equal(shadow.migrateOperationalContract(ledger, "repaired", manifest, "manifest", "test"), false);
+  assert.equal(ledger.contract_migrations.length, 1);
+  assert.throws(() => shadow.migrateOperationalContract(ledger, "unreviewed-future-code", manifest, "manifest", "test"), /Unapproved/);
+  shadow.verifyState(ledger, "repaired");
+  ledger.contract_migrations[0].payload.reason = "changed";
+  assert.throws(() => shadow.verifyState(ledger, "repaired"), /audit/);
+});
+
+test("the maintenance release does not change fitting, freezing or settlement policy functions", () => {
+  const manifest = require("../research/execution-shadow-compatibility.json");
+  for (const [name, expected] of Object.entries(manifest.unchanged_shadow_functions))
+    assert.equal(crypto.createHash("sha256").update(shadow[name].toString()).digest("hex"), expected, name);
+});
+
+test("restore-only CLI recovers an old contract without any sessions file and is idempotent", () => {
+  const root = path.resolve(__dirname, ".."), manifest = require("../research/execution-shadow-compatibility.json");
+  const hash = x => crypto.createHash("sha256").update(x).digest("hex");
+  const files = JSON.parse(fs.readFileSync(path.join(root, "scripts/run_execution_shadow.py"), "utf8").match(/CODE_FILES = (\[[\s\S]*?\])/)[1]);
+  const request = {record_kind: "test_only", run_id: "recovery-test", restore_only: true,
+    dispatch: {event: "local"}, compatibility_manifest_sha256: hash(fs.readFileSync(path.join(root, "research/execution-shadow-compatibility.json"))),
+    implementation_sha256: Object.fromEntries(files.map(f => [f, hash(fs.readFileSync(path.join(root, f)))]))};
+  const {ledger} = fixture(); ledger.receipts = ledger.receipts.slice(0, 1);
+  ledger.contract_hash = manifest.migrations[0].from_contract; ledger.experiment_id = config.experiment_id;
+  ledger.receipts[0].seal = null;
+  ledger.receipts[0].payload.generated_at = "2026-09-21T09:25:00.218Z";
+  ledger.receipts[0].hash = shadow.digest(ledger.receipts[0].payload);
+  const original = clone(ledger.receipts[0]);
+  fs.mkdirSync(path.join(root, ".research"), {recursive: true});
+  const folder = fs.mkdtempSync(path.join(root, ".research/shadow-restore-test-"));
+  try {
+    const content = {"request.json": request, "shadow-protocol.json": config, "input-protocol.json": protocol,
+      "prior-state.json": ledger, "prior-artifact.json": {verified_github_source: true, run_id: dates[0],
+        artifact_id: 100, source_commit: "abc", created_at: "2026-09-21T09:25:00Z"}};
+    for (const [file, value] of Object.entries(content)) fs.writeFileSync(path.join(folder, file), JSON.stringify(value));
+    fs.copyFileSync(path.join(root, "research/execution-shadow-compatibility.json"), path.join(folder, "compatibility.json"));
+    const run = () => {
+      execFileSync(process.execPath, [path.join(root, "scripts/execution_shadow.cjs"), folder]);
+      return JSON.parse(fs.readFileSync(path.join(folder, "export/shadow-state.json")));
+    };
+    const recovered = run(), report = JSON.parse(fs.readFileSync(path.join(folder, "export/report.json")));
+    assert.deepEqual(recovered.receipts[0].payload, original.payload);
+    assert.equal(recovered.receipts[0].hash, original.hash);
+    assert.equal(recovered.contract_hash, manifest.migrations[0].to_contract);
+    assert.equal(recovered.contract_migrations.length, 1);
+    assert.equal(report.on_time_receipts, 1);
+    assert.equal(report.fitted_new_decisions, false);
+    assert.equal(report.evaluated_new_market_data, false);
+    assert.equal(report.production_modified, false);
+    assert.equal(report.promotion_allowed, false);
+    assert.equal(fs.existsSync(path.join(folder, "sessions.json")), false);
+    fs.writeFileSync(path.join(folder, "prior-state.json"), JSON.stringify(recovered));
+    assert.deepEqual(run(), recovered);
+  } finally {
+    fs.rmSync(folder, {recursive: true, force: true}); // Only this generated test directory.
+  }
 });
 
 test("retry cannot refit or replace an existing receipt, even if it was late", () => {

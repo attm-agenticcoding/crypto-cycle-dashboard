@@ -1,5 +1,6 @@
 import io
 import json
+import os
 import sys
 import tempfile
 import unittest
@@ -10,7 +11,7 @@ from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 from prepare_execution_v2 import archive_specs
-from run_execution_shadow import plan_targets, mature_weeks, trusted_run, restore_latest, sha, WORKFLOW
+from run_execution_shadow import plan_targets, mature_weeks, trusted_run, restore_latest, sha, WORKFLOW, collect, dispatch_diagnostics, CODE_FILES, ROOT
 
 CONFIG = json.loads((Path(__file__).resolve().parents[1] / "research/execution-shadow-protocol.json").read_text())
 
@@ -108,6 +109,66 @@ class ShadowRestoreTests(unittest.TestCase):
             {"workflow_runs": [{**self.run_fixture, "conclusion": "cancelled"}]}, {"artifacts": [artifact]}]):
             with self.assertRaisesRegex(RuntimeError, "unsuccessful run already published"):
                 restore_latest(Path(tmp))
+
+
+class ShadowMaintenanceTests(unittest.TestCase):
+    def test_restore_only_does_not_download_or_fit_new_data(self):
+        with patch("run_execution_shadow.subprocess.run") as run:
+            collect(Path("fixture"), restore_only=True)
+            self.assertEqual(run.call_count, 1)
+            self.assertEqual(run.call_args.args[0][0], "node")
+            self.assertTrue(run.call_args.args[0][1].endswith("execution_shadow.cjs"))
+
+    def test_normal_collection_still_prepares_observations(self):
+        with patch("run_execution_shadow.subprocess.run") as run:
+            collect(Path("fixture"), restore_only=False)
+            self.assertEqual(run.call_count, 2)
+            self.assertTrue(run.call_args_list[0].args[0][1].endswith("prepare_execution_v2.py"))
+            self.assertEqual(run.call_args_list[1].args[0][0], "node")
+
+    def test_manifest_pins_exact_current_contract_and_unchanged_policy_files(self):
+        manifest = json.loads((ROOT / "research/execution-shadow-compatibility.json").read_bytes())
+        contract = sha(json.dumps({"config": CONFIG, "code": {f: sha((ROOT / f).read_bytes()) for f in CODE_FILES}},
+                                  sort_keys=True, separators=(",", ":")).encode())
+        self.assertEqual(len(manifest["migrations"]), 1)
+        entry = manifest["migrations"][0]
+        self.assertEqual(entry["from_contract"], "ef59324da0b2b97145d0369e88d2c90052d7aa3d40393bfa9d85907abb1fbd37")
+        self.assertEqual(entry["to_contract"], contract)
+        self.assertEqual(entry["experiment_id"], CONFIG["experiment_id"])
+        self.assertIs(entry["decision_policy_changed"], False)
+        for path, digest in manifest["unchanged_policy_files"].items():
+            self.assertEqual(sha((ROOT / path).read_bytes()), digest, path)
+
+    def test_dispatch_diagnostics_distinguishes_dispatch_delay_from_runner_start(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            event = Path(tmp) / "event.json"
+            event.write_text(json.dumps({"schedule": "17 5 * * *"}))
+            env = {"GITHUB_ACTIONS": "true", "GITHUB_EVENT_NAME": "schedule", "GITHUB_RUN_ID": "123", "GITHUB_EVENT_PATH": str(event)}
+            with patch.dict(os.environ, env, clear=True), patch("run_execution_shadow.gh_api", return_value={
+                "created_at": "2026-09-21T11:54:46Z", "run_started_at": "2026-09-21T11:54:47Z"}):
+                result = dispatch_diagnostics(datetime.fromisoformat("2026-09-21T11:55:00+00:00"))
+            self.assertEqual(result["nominal_slot_inferred"], "2026-09-21T05:17:00Z")
+            self.assertEqual(result["schedule_to_creation_seconds_inferred"], 23866)
+            self.assertEqual(result["creation_to_start_seconds"], 1)
+            self.assertIn("24h+", result["inference_note"])
+
+    def test_diagnostics_never_invent_a_cron_time_for_manual_or_local_runs(self):
+        now = datetime.fromisoformat("2026-09-21T11:55:00+00:00")
+        with patch.dict(os.environ, {}, clear=True), patch("run_execution_shadow.gh_api") as api:
+            result = dispatch_diagnostics(now)
+            api.assert_not_called()
+            self.assertEqual(result["event"], "local")
+            self.assertNotIn("nominal_slot_inferred", result)
+        with patch.dict(os.environ, {"GITHUB_ACTIONS": "true", "GITHUB_EVENT_NAME": "workflow_dispatch", "GITHUB_RUN_ID": "123"}, clear=True), \
+            patch("run_execution_shadow.gh_api", return_value={"created_at": "2026-09-21T11:54:46Z", "run_started_at": "2026-09-21T11:54:46Z"}):
+            self.assertNotIn("nominal_slot_inferred", dispatch_diagnostics(now))
+
+    def test_unavailable_optional_diagnostics_do_not_stop_collection(self):
+        with patch.dict(os.environ, {"GITHUB_ACTIONS": "true", "GITHUB_RUN_ID": "123"}, clear=True), \
+            patch("run_execution_shadow.gh_api", side_effect=OSError("must not expose response")):
+            result = dispatch_diagnostics(datetime.fromisoformat("2026-09-21T11:55:00+00:00"))
+            self.assertEqual(result["diagnostics_unavailable"], "OSError")
+            self.assertNotIn("must not expose response", json.dumps(result))
 
 
 if __name__ == "__main__":

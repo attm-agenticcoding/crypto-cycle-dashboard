@@ -2,15 +2,25 @@ name: Execution prospective shadow
 
 on:
   workflow_dispatch:
+    inputs:
+      restore_only:
+        description: 'Verify/seal existing state only (no new data, fitting, or settlement)'
+        type: boolean
+        required: false
+        default: false
   schedule:
-    # UTC: before the listed-session freeze in both EST and EDT. Crypto fits
-    # apply to the NEXT UTC day. The second run retries, never overwrites.
-    - cron: '17 9 * * *'
-    - cron: '17 13 * * *'
+    # Two earlier attempts leave buffer for observed multi-hour dispatch delays.
+    # GitHub cron is best-effort, not a guarantee. Deadlines remain unchanged.
+    # Crypto fits apply to the NEXT UTC day. Retries never overwrite decisions.
+    - cron: '17 5 * * *'
+      timezone: 'UTC'
+    - cron: '17 7 * * *'
+      timezone: 'UTC'
   push:
-    branches: [codex/execution-v2-validation]
+    branches: [codex/execution-v2-validation, codex/fix-shadow-seal-precision]
     paths:
       - 'research/execution-shadow-protocol.json'
+      - 'research/execution-shadow-compatibility.json'
       - 'scripts/*execution_shadow*'
       - 'scripts/*execution_v2*'
       - 'tests/test_execution_shadow*'
@@ -18,6 +28,7 @@ on:
   pull_request:
     paths:
       - 'research/execution-shadow-protocol.json'
+      - 'research/execution-shadow-compatibility.json'
       - 'scripts/*execution_shadow*'
       - 'scripts/*execution_v2*'
       - 'tests/test_execution_shadow*'
@@ -53,7 +64,13 @@ jobs:
         if: github.event_name != 'pull_request'
         env:
           GH_TOKEN: ${{ github.token }}
-        run: python scripts/run_execution_shadow.py
+          RESTORE_ONLY: ${{ inputs.restore_only || (github.event_name == 'push' && github.ref == 'refs/heads/codex/fix-shadow-seal-precision') }}
+        run: |
+          if [ "$RESTORE_ONLY" = "true" ]; then
+            python scripts/run_execution_shadow.py --restore-only
+          else
+            python scripts/run_execution_shadow.py
+          fi
       - name: Verify production is untouched
         run: git diff --exit-code -- data execution scripts/update_execution_params.py .github/workflows/update-execution-params.yml
       - uses: actions/upload-artifact@v4
