@@ -6,7 +6,7 @@
     "engaged": true,
     "numeric_tolerance": 1e-09,
     "packet": "docs/COMMON_EXAM_FRONTIER_AWARE_ADJUDICATION_PACKET_2026-07-07.md",
-    "post_adjudication_status": "PASS_FRONTIER_SCOPED",
+    "post_adjudication_status": "FAIL",
     "pre_adjudication_status": "FAIL",
     "ratchets": {
       "parameter_plateau_25pct": {
@@ -37,14 +37,6 @@
     "scope_note": "Extends the packet's pre-registered Option A (delayed-premium primary gate) to the other two standing style-gate misses (false-bottom 4w unlock, parameter-plateau held-out delta) via achieved-value ratchets. Recorded explicitly as a wider act than the packet's literal text.",
     "watch_rows": [
       {
-        "aspirational_threshold": -0.05,
-        "effect": "WATCH_SENSITIVITY_ONLY",
-        "gate": "parameter_plateau_25pct",
-        "metric": "worst_heldout_terminal_edge_delta_vs_live",
-        "observed": -0.12907,
-        "ratchet": -0.12907
-      },
-      {
         "aspirational_threshold": 0.6,
         "effect": "WATCH_SENSITIVITY_ONLY",
         "gate": "synthetic_delayed_lower_low",
@@ -74,8 +66,8 @@
         "implementation_status": "ENFORCED",
         "metric": "weighted calibration MAE",
         "metric_is_standard": true,
-        "observed_status": "TRIGGERED",
-        "observed_value": 0.19587,
+        "observed_status": "PASS",
+        "observed_value": 0.17722,
         "rationale": "Calibration MAE is a standard reliability summary, but the 0.18 watch cap is a local tolerance chosen for dashboard governance.",
         "recommendation": "Keep as WATCH until paired with relative log-loss/ECE and uncertainty-aware sample support; do not treat 0.18 as an industry constant.",
         "review_required": true,
@@ -94,7 +86,7 @@
         "metric": "weighted calibration MAE",
         "metric_is_standard": true,
         "observed_status": "PASS",
-        "observed_value": 0.16814,
+        "observed_value": 0.17298,
         "rationale": "Same governance tolerance as the bottom calibration cap; the metric is standard, the exact cap is local.",
         "recommendation": "Prefer baseline-relative calibration diagnostics before promotion.",
         "review_required": true,
@@ -113,7 +105,7 @@
         "metric": "LOCO log-loss delta versus null",
         "metric_is_standard": true,
         "observed_status": "TRIGGERED",
-        "observed_value": 0.03939,
+        "observed_value": 0.04411,
         "rationale": "Log-loss and leave-one-cluster-out are standard anti-overfit tools; the meaningful test is whether the model beats raw/null baselines out of cluster.",
         "recommendation": "Promote probability changes only when LOCO log-loss beats null with stable folds.",
         "review_required": false,
@@ -132,7 +124,7 @@
         "metric": "p10-p90 realized low interval coverage",
         "metric_is_standard": true,
         "observed_status": "TRIGGERED",
-        "observed_value": 0.52941,
+        "observed_value": 0.54135,
         "rationale": "The 80% target follows the label of a p10-p90 interval. It is a nominal statistical target, not proof that every historical cluster must clear 80%.",
         "recommendation": "Use as calibration evidence; inspect cluster failures before treating it as a blocker.",
         "review_required": false,
@@ -151,7 +143,7 @@
         "metric": "research conformal interval coverage",
         "metric_is_standard": true,
         "observed_status": "PASS",
-        "observed_value": 0.84234,
+        "observed_value": 0.84071,
         "rationale": "The target is nominal coverage; the conformal method is research-only and not a live default.",
         "recommendation": "Require cluster stability before using a conformal scale in production.",
         "review_required": false,
@@ -227,7 +219,7 @@
         "metric": "worst terminal edge versus median simple baseline",
         "metric_is_standard": false,
         "observed_status": "PASS",
-        "observed_value": -0.017668,
+        "observed_value": -0.019716,
         "rationale": "Left-tail guard versus simple baselines; -15% is a local drawdown tolerance.",
         "recommendation": "",
         "review_required": false,
@@ -303,7 +295,7 @@
         "metric": "window jitter worst terminal edge",
         "metric_is_standard": false,
         "observed_status": "PASS",
-        "observed_value": -0.108472,
+        "observed_value": -0.035872,
         "rationale": "Window Jitter left-tail guard; -15% is a local risk tolerance.",
         "recommendation": "",
         "review_required": true,
@@ -341,7 +333,7 @@
         "metric": "target perturbation minimum cost win-rate",
         "metric_is_standard": false,
         "observed_status": "PASS",
-        "observed_value": 0.625,
+        "observed_value": 0.75,
         "rationale": "Target Perturbation entry-quality check; 50% is a local floor.",
         "recommendation": "",
         "review_required": true,
@@ -360,7 +352,7 @@
         "metric": "target perturbation worst terminal edge",
         "metric_is_standard": false,
         "observed_status": "PASS",
-        "observed_value": -0.02555,
+        "observed_value": -0.037067,
         "rationale": "Target Perturbation left-tail guard; -15% is a local risk tolerance.",
         "recommendation": "",
         "review_required": true,
@@ -379,7 +371,7 @@
         "metric": "leave-one-episode-out worst held-out terminal edge",
         "metric_is_standard": false,
         "observed_status": "PASS",
-        "observed_value": -0.017668,
+        "observed_value": -0.019716,
         "rationale": "Small-sample LOO stress check; threshold is local and should remain reviewable.",
         "recommendation": "",
         "review_required": true,
@@ -455,7 +447,7 @@
         "metric": "parameter-stability worst end value versus hold",
         "metric_is_standard": false,
         "observed_status": "PASS",
-        "observed_value": 1.092727,
+        "observed_value": 0.857212,
         "rationale": "Distribution left-tail perturbation gate; threshold is local.",
         "recommendation": "",
         "review_required": true,
@@ -493,7 +485,7 @@
         "metric": "top-date jitter worst end value versus hold",
         "metric_is_standard": false,
         "observed_status": "PASS",
-        "observed_value": 1.143258,
+        "observed_value": 1.140173,
         "rationale": "Date-jitter left-tail gate; threshold is local.",
         "recommendation": "",
         "review_required": true,
@@ -512,7 +504,7 @@
         "metric": "leave-one-top-out worst value at low versus hold",
         "metric_is_standard": false,
         "observed_status": "PASS",
-        "observed_value": 1.422153,
+        "observed_value": 1.531599,
         "rationale": "Out-of-window utility must beat hold at post-top low; baseline-relative, not canonical.",
         "recommendation": "",
         "review_required": false,
@@ -550,7 +542,7 @@
         "metric": "worst terminal-ratio shift versus live policy",
         "metric_is_standard": false,
         "observed_status": "PASS",
-        "observed_value": 0.099563,
+        "observed_value": 0.099286,
         "rationale": "Terminal-ratio stability cap is local; it guards sensitivity, not a standard threshold.",
         "recommendation": "Current materiality status: DELTA_ONLY_REVIEW.",
         "review_required": true,
@@ -569,7 +561,7 @@
         "metric": "held-out terminal edge deterioration versus live policy",
         "metric_is_standard": false,
         "observed_status": "TRIGGERED",
-        "observed_value": -0.12907,
+        "observed_value": -0.12986,
         "rationale": "5pp deterioration cap is a local promotion brake and currently drives delta-only review.",
         "recommendation": "Before changing it, pre-register a materiality-aware replacement gate.",
         "review_required": true,
@@ -798,8 +790,8 @@
         "implementation_status": "ENFORCED",
         "metric": "weighted calibration MAE",
         "metric_is_standard": true,
-        "observed_status": "TRIGGERED",
-        "observed_value": 0.19587,
+        "observed_status": "PASS",
+        "observed_value": 0.17722,
         "rationale": "Calibration MAE is a standard reliability summary, but the 0.18 watch cap is a local tolerance chosen for dashboard governance.",
         "recommendation": "Keep as WATCH until paired with relative log-loss/ECE and uncertainty-aware sample support; do not treat 0.18 as an industry constant.",
         "review_required": true,
@@ -818,7 +810,7 @@
         "metric": "weighted calibration MAE",
         "metric_is_standard": true,
         "observed_status": "PASS",
-        "observed_value": 0.16814,
+        "observed_value": 0.17298,
         "rationale": "Same governance tolerance as the bottom calibration cap; the metric is standard, the exact cap is local.",
         "recommendation": "Prefer baseline-relative calibration diagnostics before promotion.",
         "review_required": true,
@@ -913,7 +905,7 @@
         "metric": "window jitter worst terminal edge",
         "metric_is_standard": false,
         "observed_status": "PASS",
-        "observed_value": -0.108472,
+        "observed_value": -0.035872,
         "rationale": "Window Jitter left-tail guard; -15% is a local risk tolerance.",
         "recommendation": "",
         "review_required": true,
@@ -951,7 +943,7 @@
         "metric": "target perturbation minimum cost win-rate",
         "metric_is_standard": false,
         "observed_status": "PASS",
-        "observed_value": 0.625,
+        "observed_value": 0.75,
         "rationale": "Target Perturbation entry-quality check; 50% is a local floor.",
         "recommendation": "",
         "review_required": true,
@@ -970,7 +962,7 @@
         "metric": "target perturbation worst terminal edge",
         "metric_is_standard": false,
         "observed_status": "PASS",
-        "observed_value": -0.02555,
+        "observed_value": -0.037067,
         "rationale": "Target Perturbation left-tail guard; -15% is a local risk tolerance.",
         "recommendation": "",
         "review_required": true,
@@ -989,7 +981,7 @@
         "metric": "leave-one-episode-out worst held-out terminal edge",
         "metric_is_standard": false,
         "observed_status": "PASS",
-        "observed_value": -0.017668,
+        "observed_value": -0.019716,
         "rationale": "Small-sample LOO stress check; threshold is local and should remain reviewable.",
         "recommendation": "",
         "review_required": true,
@@ -1027,7 +1019,7 @@
         "metric": "parameter-stability worst end value versus hold",
         "metric_is_standard": false,
         "observed_status": "PASS",
-        "observed_value": 1.092727,
+        "observed_value": 0.857212,
         "rationale": "Distribution left-tail perturbation gate; threshold is local.",
         "recommendation": "",
         "review_required": true,
@@ -1065,7 +1057,7 @@
         "metric": "top-date jitter worst end value versus hold",
         "metric_is_standard": false,
         "observed_status": "PASS",
-        "observed_value": 1.143258,
+        "observed_value": 1.140173,
         "rationale": "Date-jitter left-tail gate; threshold is local.",
         "recommendation": "",
         "review_required": true,
@@ -1103,7 +1095,7 @@
         "metric": "worst terminal-ratio shift versus live policy",
         "metric_is_standard": false,
         "observed_status": "PASS",
-        "observed_value": 0.099563,
+        "observed_value": 0.099286,
         "rationale": "Terminal-ratio stability cap is local; it guards sensitivity, not a standard threshold.",
         "recommendation": "Current materiality status: DELTA_ONLY_REVIEW.",
         "review_required": true,
@@ -1122,7 +1114,7 @@
         "metric": "held-out terminal edge deterioration versus live policy",
         "metric_is_standard": false,
         "observed_status": "TRIGGERED",
-        "observed_value": -0.12907,
+        "observed_value": -0.12986,
         "rationale": "5pp deterioration cap is a local promotion brake and currently drives delta-only review.",
         "recommendation": "Before changing it, pre-register a materiality-aware replacement gate.",
         "review_required": true,
@@ -1294,28 +1286,9 @@
       "noncanonical_threshold_count": 38,
       "review_required_count": 25,
       "standard_metric_count": 6,
-      "triggered_count": 7
+      "triggered_count": 6
     },
     "triggered_rows": [
-      {
-        "comparator": "<=",
-        "family": "forecast_calibration",
-        "gate_effect": "WATCH_ONLY",
-        "id": "forecast.bottom_down20_calibration_mae_0_18",
-        "implementation_status": "ENFORCED",
-        "metric": "weighted calibration MAE",
-        "metric_is_standard": true,
-        "observed_status": "TRIGGERED",
-        "observed_value": 0.19587,
-        "rationale": "Calibration MAE is a standard reliability summary, but the 0.18 watch cap is a local tolerance chosen for dashboard governance.",
-        "recommendation": "Keep as WATCH until paired with relative log-loss/ECE and uncertainty-aware sample support; do not treat 0.18 as an industry constant.",
-        "review_required": true,
-        "source_note": "The threshold encodes a local risk tolerance; it is not an industry constant.",
-        "source_type": "policy_risk_tolerance",
-        "threshold": 0.18,
-        "threshold_display": null,
-        "threshold_is_canonical": false
-      },
       {
         "comparator": "<=",
         "family": "forecast_calibration",
@@ -1325,7 +1298,7 @@
         "metric": "LOCO log-loss delta versus null",
         "metric_is_standard": true,
         "observed_status": "TRIGGERED",
-        "observed_value": 0.03939,
+        "observed_value": 0.04411,
         "rationale": "Log-loss and leave-one-cluster-out are standard anti-overfit tools; the meaningful test is whether the model beats raw/null baselines out of cluster.",
         "recommendation": "Promote probability changes only when LOCO log-loss beats null with stable folds.",
         "review_required": false,
@@ -1344,7 +1317,7 @@
         "metric": "p10-p90 realized low interval coverage",
         "metric_is_standard": true,
         "observed_status": "TRIGGERED",
-        "observed_value": 0.52941,
+        "observed_value": 0.54135,
         "rationale": "The 80% target follows the label of a p10-p90 interval. It is a nominal statistical target, not proof that every historical cluster must clear 80%.",
         "recommendation": "Use as calibration evidence; inspect cluster failures before treating it as a blocker.",
         "review_required": false,
@@ -1382,7 +1355,7 @@
         "metric": "held-out terminal edge deterioration versus live policy",
         "metric_is_standard": false,
         "observed_status": "TRIGGERED",
-        "observed_value": -0.12907,
+        "observed_value": -0.12986,
         "rationale": "5pp deterioration cap is a local promotion brake and currently drives delta-only review.",
         "recommendation": "Before changing it, pre-register a materiality-aware replacement gate.",
         "review_required": true,
@@ -1434,14 +1407,14 @@
   },
   "current_utility_audit_snapshot": {
     "accumulation_target_perturbation_min_terminal_win_rate": 0.75,
-    "accumulation_target_perturbation_worst_terminal_edge": -0.02555,
+    "accumulation_target_perturbation_worst_terminal_edge": -0.037067,
     "accumulation_terminal_win_rate_vs_median_baseline": 0.875,
     "accumulation_window_jitter_min_terminal_win_rate": 0.75,
-    "accumulation_window_jitter_worst_terminal_edge": -0.108472,
-    "accumulation_worst_terminal_edge_vs_median_baseline": -0.017668,
-    "btc_avg_accumulation_utility": 0.288151,
+    "accumulation_window_jitter_worst_terminal_edge": -0.035872,
+    "accumulation_worst_terminal_edge_vs_median_baseline": -0.019716,
+    "btc_avg_accumulation_utility": 0.275421,
     "early_exhaustion_status": "PASS",
-    "eth_avg_accumulation_utility": 0.092177,
+    "eth_avg_accumulation_utility": 0.033213,
     "parameter_plateau_status": "FAIL",
     "synthetic_stress_status": "FAIL"
   },
@@ -1452,7 +1425,7 @@
       "new_early_exhaustion_episodes": 0,
       "synthetic_common_exam": "all synthetic gates PASS"
     },
-    "best_recipe_id": "library_p75_blend_50",
+    "best_recipe_id": "library_max_blend_35",
     "historical_pass": true,
     "id": "decoupled_deep_anchor",
     "interpretation": "The decoupled-deep-anchor sweep tests whether replacing the fixed forecast multiplier with asset-library support can solve the open synthetic gates without touching release mechanics. A rejected result means the remaining failure is not explained by the deep anchor alone; the evidence should be used before proposing a broader production policy change.",
@@ -1481,7 +1454,7 @@
     "results": [
       {
         "historical": {
-          "cost_win_rate_vs_live": 0.625,
+          "cost_win_rate_vs_live": 0.5,
           "episodes": [
             {
               "anchor_diag": {
@@ -1495,16 +1468,16 @@
                 "support_weight": 0.5
               },
               "asset": "BTC",
-              "avg_cost_premium_delta_vs_live": -0.010119,
-              "candidate_avg_cost_premium_to_low": 0.724211,
+              "avg_cost_premium_delta_vs_live": -0.012723,
+              "candidate_avg_cost_premium_to_low": 0.729955,
               "candidate_early_exhaustion": false,
-              "candidate_spent_by_low": 0.81,
-              "candidate_terminal": 1.30396,
+              "candidate_spent_by_low": 0.808904,
+              "candidate_terminal": 1.317634,
               "episode": "2018 bear (single low)",
-              "live_avg_cost_premium_to_low": 0.73433,
-              "live_spent_by_low": 0.796243,
-              "live_terminal": 1.296353,
-              "terminal_delta_vs_live": 0.005868
+              "live_avg_cost_premium_to_low": 0.742678,
+              "live_spent_by_low": 0.793415,
+              "live_terminal": 1.307935,
+              "terminal_delta_vs_live": 0.007416
             },
             {
               "anchor_diag": {
@@ -1518,16 +1491,16 @@
                 "support_weight": 0.5
               },
               "asset": "ETH",
-              "avg_cost_premium_delta_vs_live": 0.059262,
-              "candidate_avg_cost_premium_to_low": 1.726224,
+              "avg_cost_premium_delta_vs_live": 0.061677,
+              "candidate_avg_cost_premium_to_low": 1.744371,
               "candidate_early_exhaustion": false,
               "candidate_spent_by_low": 0.715,
-              "candidate_terminal": 0.553484,
+              "candidate_terminal": 0.575911,
               "episode": "2018 bear (single low)",
-              "live_avg_cost_premium_to_low": 1.666962,
+              "live_avg_cost_premium_to_low": 1.682694,
               "live_spent_by_low": 0.715,
-              "live_terminal": 0.565783,
-              "terminal_delta_vs_live": -0.021738
+              "live_terminal": 0.589152,
+              "terminal_delta_vs_live": -0.022475
             },
             {
               "anchor_diag": {
@@ -1541,16 +1514,16 @@
                 "support_weight": 0.5
               },
               "asset": "BTC",
-              "avg_cost_premium_delta_vs_live": -0.002037,
-              "candidate_avg_cost_premium_to_low": 0.392908,
+              "avg_cost_premium_delta_vs_live": -0.001318,
+              "candidate_avg_cost_premium_to_low": 0.513813,
               "candidate_early_exhaustion": false,
-              "candidate_spent_by_low": 0.744,
-              "candidate_terminal": 1.829343,
+              "candidate_spent_by_low": 0.667179,
+              "candidate_terminal": 1.713723,
               "episode": "2022 bear (DOUBLE bottom)",
-              "live_avg_cost_premium_to_low": 0.394945,
-              "live_spent_by_low": 0.744,
-              "live_terminal": 1.826671,
-              "terminal_delta_vs_live": 0.001463
+              "live_avg_cost_premium_to_low": 0.515131,
+              "live_spent_by_low": 0.667179,
+              "live_terminal": 1.712232,
+              "terminal_delta_vs_live": 0.000871
             },
             {
               "anchor_diag": {
@@ -1564,16 +1537,16 @@
                 "support_weight": 0.5
               },
               "asset": "ETH",
-              "avg_cost_premium_delta_vs_live": -0.068323,
-              "candidate_avg_cost_premium_to_low": 0.282686,
+              "avg_cost_premium_delta_vs_live": -0.045309,
+              "candidate_avg_cost_premium_to_low": 0.328698,
               "candidate_early_exhaustion": false,
-              "candidate_spent_by_low": 0.400377,
-              "candidate_terminal": 1.692495,
+              "candidate_spent_by_low": 0.386549,
+              "candidate_terminal": 1.599111,
               "episode": "2022 bear (DOUBLE bottom)",
-              "live_avg_cost_premium_to_low": 0.351009,
-              "live_spent_by_low": 0.438121,
-              "live_terminal": 1.606902,
-              "terminal_delta_vs_live": 0.053266
+              "live_avg_cost_premium_to_low": 0.374007,
+              "live_spent_by_low": 0.427616,
+              "live_terminal": 1.54638,
+              "terminal_delta_vs_live": 0.0341
             },
             {
               "anchor_diag": {
@@ -1587,16 +1560,16 @@
                 "support_weight": 0.5
               },
               "asset": "BTC",
-              "avg_cost_premium_delta_vs_live": 0.000111,
-              "candidate_avg_cost_premium_to_low": 0.165957,
+              "avg_cost_premium_delta_vs_live": 0.000309,
+              "candidate_avg_cost_premium_to_low": 0.173304,
               "candidate_early_exhaustion": false,
-              "candidate_spent_by_low": 0.466198,
-              "candidate_terminal": 1.130773,
+              "candidate_spent_by_low": 0.5739,
+              "candidate_terminal": 1.14284,
               "episode": "2019 H2 correction (mid-cycle)",
-              "live_avg_cost_premium_to_low": 0.165846,
-              "live_spent_by_low": 0.466449,
-              "live_terminal": 1.130885,
-              "terminal_delta_vs_live": -9.9e-05
+              "live_avg_cost_premium_to_low": 0.172995,
+              "live_spent_by_low": 0.5739,
+              "live_terminal": 1.143225,
+              "terminal_delta_vs_live": -0.000337
             },
             {
               "anchor_diag": {
@@ -1610,16 +1583,16 @@
                 "support_weight": 0.5
               },
               "asset": "ETH",
-              "avg_cost_premium_delta_vs_live": 0.085631,
-              "candidate_avg_cost_premium_to_low": 0.534768,
+              "avg_cost_premium_delta_vs_live": 0.050019,
+              "candidate_avg_cost_premium_to_low": 0.445598,
               "candidate_early_exhaustion": false,
-              "candidate_spent_by_low": 0.435068,
-              "candidate_terminal": 1.25896,
+              "candidate_spent_by_low": 0.454086,
+              "candidate_terminal": 1.107801,
               "episode": "2019 H2 correction (mid-cycle)",
-              "live_avg_cost_premium_to_low": 0.449137,
-              "live_spent_by_low": 0.493192,
-              "live_terminal": 1.336451,
-              "terminal_delta_vs_live": -0.057983
+              "live_avg_cost_premium_to_low": 0.395579,
+              "live_spent_by_low": 0.488019,
+              "live_terminal": 1.141032,
+              "terminal_delta_vs_live": -0.029124
             },
             {
               "anchor_diag": {
@@ -1634,14 +1607,14 @@
               },
               "asset": "BTC",
               "avg_cost_premium_delta_vs_live": 0.0,
-              "candidate_avg_cost_premium_to_low": 0.258969,
+              "candidate_avg_cost_premium_to_low": 0.248911,
               "candidate_early_exhaustion": false,
-              "candidate_spent_by_low": 0.17231,
-              "candidate_terminal": 1.479569,
+              "candidate_spent_by_low": 0.30065,
+              "candidate_terminal": 1.547084,
               "episode": "2020 COVID crash (fast V)",
-              "live_avg_cost_premium_to_low": 0.258969,
-              "live_spent_by_low": 0.17231,
-              "live_terminal": 1.479569,
+              "live_avg_cost_premium_to_low": 0.248911,
+              "live_spent_by_low": 0.30065,
+              "live_terminal": 1.547084,
               "terminal_delta_vs_live": 0.0
             },
             {
@@ -1656,28 +1629,28 @@
                 "support_weight": 0.5
               },
               "asset": "ETH",
-              "avg_cost_premium_delta_vs_live": 0.0,
-              "candidate_avg_cost_premium_to_low": 0.335463,
+              "avg_cost_premium_delta_vs_live": 0.00728,
+              "candidate_avg_cost_premium_to_low": 0.450113,
               "candidate_early_exhaustion": false,
-              "candidate_spent_by_low": 0.381428,
-              "candidate_terminal": 1.849287,
+              "candidate_spent_by_low": 0.457822,
+              "candidate_terminal": 1.86192,
               "episode": "2020 COVID crash (fast V)",
-              "live_avg_cost_premium_to_low": 0.335463,
-              "live_spent_by_low": 0.381428,
-              "live_terminal": 1.849287,
-              "terminal_delta_vs_live": 0.0
+              "live_avg_cost_premium_to_low": 0.442833,
+              "live_spent_by_low": 0.46389,
+              "live_terminal": 1.87217,
+              "terminal_delta_vs_live": -0.005475
             }
           ],
-          "mean_cost_premium_delta_vs_live": 0.008066,
-          "mean_terminal_delta_vs_live": -0.002403,
+          "mean_cost_premium_delta_vs_live": 0.007492,
+          "mean_terminal_delta_vs_live": -0.001878,
           "n": 8,
           "new_early_exhaustion_episodes": 0,
           "scope": "historical_accumulation_episodes_vs_live",
-          "terminal_win_rate_vs_live": 0.625,
-          "worst_cost_premium_delta_vs_live": 0.085631,
-          "worst_terminal_delta_vs_live": -0.057983
+          "terminal_win_rate_vs_live": 0.5,
+          "worst_cost_premium_delta_vs_live": 0.061677,
+          "worst_terminal_delta_vs_live": -0.029124
         },
-        "historical_pass": true,
+        "historical_pass": false,
         "id": "library_median_blend_50",
         "recipe": {
           "drawdown_quantile": 0.5,
@@ -2369,7 +2342,7 @@
       },
       {
         "historical": {
-          "cost_win_rate_vs_live": 0.625,
+          "cost_win_rate_vs_live": 0.5,
           "episodes": [
             {
               "anchor_diag": {
@@ -2383,16 +2356,16 @@
                 "support_weight": 0.5
               },
               "asset": "BTC",
-              "avg_cost_premium_delta_vs_live": 0.066839,
-              "candidate_avg_cost_premium_to_low": 0.801169,
+              "avg_cost_premium_delta_vs_live": 0.075678,
+              "candidate_avg_cost_premium_to_low": 0.818356,
               "candidate_early_exhaustion": false,
-              "candidate_spent_by_low": 0.735722,
-              "candidate_terminal": 1.248247,
+              "candidate_spent_by_low": 0.733109,
+              "candidate_terminal": 1.254924,
               "episode": "2018 bear (single low)",
-              "live_avg_cost_premium_to_low": 0.73433,
-              "live_spent_by_low": 0.796243,
-              "live_terminal": 1.296353,
-              "terminal_delta_vs_live": -0.037109
+              "live_avg_cost_premium_to_low": 0.742678,
+              "live_spent_by_low": 0.793415,
+              "live_terminal": 1.307935,
+              "terminal_delta_vs_live": -0.04053
             },
             {
               "anchor_diag": {
@@ -2406,16 +2379,16 @@
                 "support_weight": 0.5
               },
               "asset": "ETH",
-              "avg_cost_premium_delta_vs_live": -0.125358,
-              "candidate_avg_cost_premium_to_low": 1.541604,
+              "avg_cost_premium_delta_vs_live": -0.130165,
+              "candidate_avg_cost_premium_to_low": 1.552529,
               "candidate_early_exhaustion": false,
               "candidate_spent_by_low": 0.715,
-              "candidate_terminal": 0.593689,
+              "candidate_terminal": 0.619195,
               "episode": "2018 bear (single low)",
-              "live_avg_cost_premium_to_low": 1.666962,
+              "live_avg_cost_premium_to_low": 1.682694,
               "live_spent_by_low": 0.715,
-              "live_terminal": 0.565783,
-              "terminal_delta_vs_live": 0.049323
+              "live_terminal": 0.589152,
+              "terminal_delta_vs_live": 0.050994
             },
             {
               "anchor_diag": {
@@ -2429,16 +2402,16 @@
                 "support_weight": 0.5
               },
               "asset": "BTC",
-              "avg_cost_premium_delta_vs_live": -0.000149,
-              "candidate_avg_cost_premium_to_low": 0.394796,
+              "avg_cost_premium_delta_vs_live": -6.7e-05,
+              "candidate_avg_cost_premium_to_low": 0.515064,
               "candidate_early_exhaustion": false,
-              "candidate_spent_by_low": 0.744,
-              "candidate_terminal": 1.826866,
+              "candidate_spent_by_low": 0.667179,
+              "candidate_terminal": 1.712308,
               "episode": "2022 bear (DOUBLE bottom)",
-              "live_avg_cost_premium_to_low": 0.394945,
-              "live_spent_by_low": 0.744,
-              "live_terminal": 1.826671,
-              "terminal_delta_vs_live": 0.000107
+              "live_avg_cost_premium_to_low": 0.515131,
+              "live_spent_by_low": 0.667179,
+              "live_terminal": 1.712232,
+              "terminal_delta_vs_live": 4.4e-05
             },
             {
               "anchor_diag": {
@@ -2452,16 +2425,16 @@
                 "support_weight": 0.5
               },
               "asset": "ETH",
-              "avg_cost_premium_delta_vs_live": -0.021448,
-              "candidate_avg_cost_premium_to_low": 0.329561,
+              "avg_cost_premium_delta_vs_live": -0.01866,
+              "candidate_avg_cost_premium_to_low": 0.355347,
               "candidate_early_exhaustion": false,
-              "candidate_spent_by_low": 0.387869,
-              "candidate_terminal": 1.632825,
+              "candidate_spent_by_low": 0.394026,
+              "candidate_terminal": 1.567669,
               "episode": "2022 bear (DOUBLE bottom)",
-              "live_avg_cost_premium_to_low": 0.351009,
-              "live_spent_by_low": 0.438121,
-              "live_terminal": 1.606902,
-              "terminal_delta_vs_live": 0.016132
+              "live_avg_cost_premium_to_low": 0.374007,
+              "live_spent_by_low": 0.427616,
+              "live_terminal": 1.54638,
+              "terminal_delta_vs_live": 0.013767
             },
             {
               "anchor_diag": {
@@ -2475,16 +2448,16 @@
                 "support_weight": 0.5
               },
               "asset": "BTC",
-              "avg_cost_premium_delta_vs_live": 6e-06,
-              "candidate_avg_cost_premium_to_low": 0.165852,
+              "avg_cost_premium_delta_vs_live": 4.1e-05,
+              "candidate_avg_cost_premium_to_low": 0.173036,
               "candidate_early_exhaustion": false,
-              "candidate_spent_by_low": 0.466434,
-              "candidate_terminal": 1.130879,
+              "candidate_spent_by_low": 0.5739,
+              "candidate_terminal": 1.143174,
               "episode": "2019 H2 correction (mid-cycle)",
-              "live_avg_cost_premium_to_low": 0.165846,
-              "live_spent_by_low": 0.466449,
-              "live_terminal": 1.130885,
-              "terminal_delta_vs_live": -5e-06
+              "live_avg_cost_premium_to_low": 0.172995,
+              "live_spent_by_low": 0.5739,
+              "live_terminal": 1.143225,
+              "terminal_delta_vs_live": -4.5e-05
             },
             {
               "anchor_diag": {
@@ -2498,16 +2471,16 @@
                 "support_weight": 0.5
               },
               "asset": "ETH",
-              "avg_cost_premium_delta_vs_live": 0.035538,
-              "candidate_avg_cost_premium_to_low": 0.484675,
+              "avg_cost_premium_delta_vs_live": 0.020547,
+              "candidate_avg_cost_premium_to_low": 0.416126,
               "candidate_early_exhaustion": false,
-              "candidate_spent_by_low": 0.465724,
-              "candidate_terminal": 1.301648,
+              "candidate_spent_by_low": 0.471983,
+              "candidate_terminal": 1.126576,
               "episode": "2019 H2 correction (mid-cycle)",
-              "live_avg_cost_premium_to_low": 0.449137,
-              "live_spent_by_low": 0.493192,
-              "live_terminal": 1.336451,
-              "terminal_delta_vs_live": -0.026041
+              "live_avg_cost_premium_to_low": 0.395579,
+              "live_spent_by_low": 0.488019,
+              "live_terminal": 1.141032,
+              "terminal_delta_vs_live": -0.012669
             },
             {
               "anchor_diag": {
@@ -2522,14 +2495,14 @@
               },
               "asset": "BTC",
               "avg_cost_premium_delta_vs_live": 0.0,
-              "candidate_avg_cost_premium_to_low": 0.258969,
+              "candidate_avg_cost_premium_to_low": 0.248911,
               "candidate_early_exhaustion": false,
-              "candidate_spent_by_low": 0.17231,
-              "candidate_terminal": 1.479569,
+              "candidate_spent_by_low": 0.30065,
+              "candidate_terminal": 1.547084,
               "episode": "2020 COVID crash (fast V)",
-              "live_avg_cost_premium_to_low": 0.258969,
-              "live_spent_by_low": 0.17231,
-              "live_terminal": 1.479569,
+              "live_avg_cost_premium_to_low": 0.248911,
+              "live_spent_by_low": 0.30065,
+              "live_terminal": 1.547084,
               "terminal_delta_vs_live": 0.0
             },
             {
@@ -2544,28 +2517,28 @@
                 "support_weight": 0.5
               },
               "asset": "ETH",
-              "avg_cost_premium_delta_vs_live": 0.0,
-              "candidate_avg_cost_premium_to_low": 0.335463,
+              "avg_cost_premium_delta_vs_live": 0.003428,
+              "candidate_avg_cost_premium_to_low": 0.446261,
               "candidate_early_exhaustion": false,
-              "candidate_spent_by_low": 0.381428,
-              "candidate_terminal": 1.849287,
+              "candidate_spent_by_low": 0.461022,
+              "candidate_terminal": 1.867326,
               "episode": "2020 COVID crash (fast V)",
-              "live_avg_cost_premium_to_low": 0.335463,
-              "live_spent_by_low": 0.381428,
-              "live_terminal": 1.849287,
-              "terminal_delta_vs_live": 0.0
+              "live_avg_cost_premium_to_low": 0.442833,
+              "live_spent_by_low": 0.46389,
+              "live_terminal": 1.87217,
+              "terminal_delta_vs_live": -0.002587
             }
           ],
-          "mean_cost_premium_delta_vs_live": -0.005571,
-          "mean_terminal_delta_vs_live": 0.000301,
+          "mean_cost_premium_delta_vs_live": -0.00615,
+          "mean_terminal_delta_vs_live": 0.001122,
           "n": 8,
           "new_early_exhaustion_episodes": 0,
           "scope": "historical_accumulation_episodes_vs_live",
-          "terminal_win_rate_vs_live": 0.625,
-          "worst_cost_premium_delta_vs_live": 0.066839,
-          "worst_terminal_delta_vs_live": -0.037109
+          "terminal_win_rate_vs_live": 0.5,
+          "worst_cost_premium_delta_vs_live": 0.075678,
+          "worst_terminal_delta_vs_live": -0.04053
         },
-        "historical_pass": true,
+        "historical_pass": false,
         "id": "library_p75_blend_50",
         "recipe": {
           "drawdown_quantile": 0.75,
@@ -3271,16 +3244,16 @@
                 "support_weight": 0.35
               },
               "asset": "BTC",
-              "avg_cost_premium_delta_vs_live": 0.127426,
-              "candidate_avg_cost_premium_to_low": 0.861756,
+              "avg_cost_premium_delta_vs_live": 0.132862,
+              "candidate_avg_cost_premium_to_low": 0.87554,
               "candidate_early_exhaustion": false,
-              "candidate_spent_by_low": 0.581263,
-              "candidate_terminal": 1.207625,
+              "candidate_spent_by_low": 0.579199,
+              "candidate_terminal": 1.216663,
               "episode": "2018 bear (single low)",
-              "live_avg_cost_premium_to_low": 0.73433,
-              "live_spent_by_low": 0.796243,
-              "live_terminal": 1.296353,
-              "terminal_delta_vs_live": -0.068444
+              "live_avg_cost_premium_to_low": 0.742678,
+              "live_spent_by_low": 0.793415,
+              "live_terminal": 1.307935,
+              "terminal_delta_vs_live": -0.069783
             },
             {
               "anchor_diag": {
@@ -3294,16 +3267,16 @@
                 "support_weight": 0.35
               },
               "asset": "ETH",
-              "avg_cost_premium_delta_vs_live": -0.194648,
-              "candidate_avg_cost_premium_to_low": 1.472314,
+              "avg_cost_premium_delta_vs_live": -0.203745,
+              "candidate_avg_cost_premium_to_low": 1.478949,
               "candidate_early_exhaustion": false,
               "candidate_spent_by_low": 0.715,
-              "candidate_terminal": 0.610328,
+              "candidate_terminal": 0.637574,
               "episode": "2018 bear (single low)",
-              "live_avg_cost_premium_to_low": 1.666962,
+              "live_avg_cost_premium_to_low": 1.682694,
               "live_spent_by_low": 0.715,
-              "live_terminal": 0.565783,
-              "terminal_delta_vs_live": 0.078732
+              "live_terminal": 0.589152,
+              "terminal_delta_vs_live": 0.082189
             },
             {
               "anchor_diag": {
@@ -3317,16 +3290,16 @@
                 "support_weight": 0.35
               },
               "asset": "BTC",
-              "avg_cost_premium_delta_vs_live": 0.002048,
-              "candidate_avg_cost_premium_to_low": 0.396993,
+              "avg_cost_premium_delta_vs_live": 0.001377,
+              "candidate_avg_cost_premium_to_low": 0.516508,
               "candidate_early_exhaustion": false,
-              "candidate_spent_by_low": 0.744,
-              "candidate_terminal": 1.823993,
+              "candidate_spent_by_low": 0.667179,
+              "candidate_terminal": 1.710678,
               "episode": "2022 bear (DOUBLE bottom)",
-              "live_avg_cost_premium_to_low": 0.394945,
-              "live_spent_by_low": 0.744,
-              "live_terminal": 1.826671,
-              "terminal_delta_vs_live": -0.001466
+              "live_avg_cost_premium_to_low": 0.515131,
+              "live_spent_by_low": 0.667179,
+              "live_terminal": 1.712232,
+              "terminal_delta_vs_live": -0.000908
             },
             {
               "anchor_diag": {
@@ -3340,16 +3313,16 @@
                 "support_weight": 0.35
               },
               "asset": "ETH",
-              "avg_cost_premium_delta_vs_live": 0.007559,
-              "candidate_avg_cost_premium_to_low": 0.358568,
+              "avg_cost_premium_delta_vs_live": 0.007252,
+              "candidate_avg_cost_premium_to_low": 0.381259,
               "candidate_early_exhaustion": false,
-              "candidate_spent_by_low": 0.450698,
-              "candidate_terminal": 1.597962,
+              "candidate_spent_by_low": 0.447189,
+              "candidate_terminal": 1.53826,
               "episode": "2022 bear (DOUBLE bottom)",
-              "live_avg_cost_premium_to_low": 0.351009,
-              "live_spent_by_low": 0.438121,
-              "live_terminal": 1.606902,
-              "terminal_delta_vs_live": -0.005564
+              "live_avg_cost_premium_to_low": 0.374007,
+              "live_spent_by_low": 0.427616,
+              "live_terminal": 1.54638,
+              "terminal_delta_vs_live": -0.005251
             },
             {
               "anchor_diag": {
@@ -3363,16 +3336,16 @@
                 "support_weight": 0.35
               },
               "asset": "BTC",
-              "avg_cost_premium_delta_vs_live": 0.0,
-              "candidate_avg_cost_premium_to_low": 0.165846,
+              "avg_cost_premium_delta_vs_live": -0.000179,
+              "candidate_avg_cost_premium_to_low": 0.172816,
               "candidate_early_exhaustion": false,
-              "candidate_spent_by_low": 0.466449,
-              "candidate_terminal": 1.130885,
+              "candidate_spent_by_low": 0.5739,
+              "candidate_terminal": 1.143448,
               "episode": "2019 H2 correction (mid-cycle)",
-              "live_avg_cost_premium_to_low": 0.165846,
-              "live_spent_by_low": 0.466449,
-              "live_terminal": 1.130885,
-              "terminal_delta_vs_live": 0.0
+              "live_avg_cost_premium_to_low": 0.172995,
+              "live_spent_by_low": 0.5739,
+              "live_terminal": 1.143225,
+              "terminal_delta_vs_live": 0.000195
             },
             {
               "anchor_diag": {
@@ -3386,16 +3359,16 @@
                 "support_weight": 0.35
               },
               "asset": "ETH",
-              "avg_cost_premium_delta_vs_live": -0.008526,
-              "candidate_avg_cost_premium_to_low": 0.440611,
+              "avg_cost_premium_delta_vs_live": -0.005093,
+              "candidate_avg_cost_premium_to_low": 0.390486,
               "candidate_early_exhaustion": false,
-              "candidate_spent_by_low": 0.501089,
-              "candidate_terminal": 1.345418,
+              "candidate_spent_by_low": 0.492629,
+              "candidate_terminal": 1.144809,
               "episode": "2019 H2 correction (mid-cycle)",
-              "live_avg_cost_premium_to_low": 0.449137,
-              "live_spent_by_low": 0.493192,
-              "live_terminal": 1.336451,
-              "terminal_delta_vs_live": 0.00671
+              "live_avg_cost_premium_to_low": 0.395579,
+              "live_spent_by_low": 0.488019,
+              "live_terminal": 1.141032,
+              "terminal_delta_vs_live": 0.00331
             },
             {
               "anchor_diag": {
@@ -3410,14 +3383,14 @@
               },
               "asset": "BTC",
               "avg_cost_premium_delta_vs_live": 0.0,
-              "candidate_avg_cost_premium_to_low": 0.258969,
+              "candidate_avg_cost_premium_to_low": 0.248911,
               "candidate_early_exhaustion": false,
-              "candidate_spent_by_low": 0.17231,
-              "candidate_terminal": 1.479569,
+              "candidate_spent_by_low": 0.30065,
+              "candidate_terminal": 1.547084,
               "episode": "2020 COVID crash (fast V)",
-              "live_avg_cost_premium_to_low": 0.258969,
-              "live_spent_by_low": 0.17231,
-              "live_terminal": 1.479569,
+              "live_avg_cost_premium_to_low": 0.248911,
+              "live_spent_by_low": 0.30065,
+              "live_terminal": 1.547084,
               "terminal_delta_vs_live": 0.0
             },
             {
@@ -3432,26 +3405,26 @@
                 "support_weight": 0.35
               },
               "asset": "ETH",
-              "avg_cost_premium_delta_vs_live": 0.0,
-              "candidate_avg_cost_premium_to_low": 0.335463,
+              "avg_cost_premium_delta_vs_live": -0.000981,
+              "candidate_avg_cost_premium_to_low": 0.441852,
               "candidate_early_exhaustion": false,
-              "candidate_spent_by_low": 0.381428,
-              "candidate_terminal": 1.849287,
+              "candidate_spent_by_low": 0.464714,
+              "candidate_terminal": 1.873562,
               "episode": "2020 COVID crash (fast V)",
-              "live_avg_cost_premium_to_low": 0.335463,
-              "live_spent_by_low": 0.381428,
-              "live_terminal": 1.849287,
-              "terminal_delta_vs_live": 0.0
+              "live_avg_cost_premium_to_low": 0.442833,
+              "live_spent_by_low": 0.46389,
+              "live_terminal": 1.87217,
+              "terminal_delta_vs_live": 0.000744
             }
           ],
-          "mean_cost_premium_delta_vs_live": -0.008268,
-          "mean_terminal_delta_vs_live": 0.001246,
+          "mean_cost_premium_delta_vs_live": -0.008563,
+          "mean_terminal_delta_vs_live": 0.001312,
           "n": 8,
           "new_early_exhaustion_episodes": 0,
           "scope": "historical_accumulation_episodes_vs_live",
           "terminal_win_rate_vs_live": 0.625,
-          "worst_cost_premium_delta_vs_live": 0.127426,
-          "worst_terminal_delta_vs_live": -0.068444
+          "worst_cost_premium_delta_vs_live": 0.132862,
+          "worst_terminal_delta_vs_live": -0.069783
         },
         "historical_pass": true,
         "id": "library_max_blend_35",
@@ -4159,16 +4132,16 @@
                 "support_weight": 0.5
               },
               "asset": "BTC",
-              "avg_cost_premium_delta_vs_live": 0.1418,
-              "candidate_avg_cost_premium_to_low": 0.87613,
+              "avg_cost_premium_delta_vs_live": 0.148332,
+              "candidate_avg_cost_premium_to_low": 0.89101,
               "candidate_early_exhaustion": false,
               "candidate_spent_by_low": 0.547179,
-              "candidate_terminal": 1.198373,
+              "candidate_terminal": 1.206709,
               "episode": "2018 bear (single low)",
-              "live_avg_cost_premium_to_low": 0.73433,
-              "live_spent_by_low": 0.796243,
-              "live_terminal": 1.296353,
-              "terminal_delta_vs_live": -0.075581
+              "live_avg_cost_premium_to_low": 0.742678,
+              "live_spent_by_low": 0.793415,
+              "live_terminal": 1.307935,
+              "terminal_delta_vs_live": -0.077394
             },
             {
               "anchor_diag": {
@@ -4182,16 +4155,16 @@
                 "support_weight": 0.5
               },
               "asset": "ETH",
-              "avg_cost_premium_delta_vs_live": -0.194506,
-              "candidate_avg_cost_premium_to_low": 1.472456,
+              "avg_cost_premium_delta_vs_live": -0.191219,
+              "candidate_avg_cost_premium_to_low": 1.491475,
               "candidate_early_exhaustion": false,
               "candidate_spent_by_low": 0.715,
-              "candidate_terminal": 0.610293,
+              "candidate_terminal": 0.634369,
               "episode": "2018 bear (single low)",
-              "live_avg_cost_premium_to_low": 1.666962,
+              "live_avg_cost_premium_to_low": 1.682694,
               "live_spent_by_low": 0.715,
-              "live_terminal": 0.565783,
-              "terminal_delta_vs_live": 0.07867
+              "live_terminal": 0.589152,
+              "terminal_delta_vs_live": 0.076749
             },
             {
               "anchor_diag": {
@@ -4205,16 +4178,16 @@
                 "support_weight": 0.5
               },
               "asset": "BTC",
-              "avg_cost_premium_delta_vs_live": 0.002767,
-              "candidate_avg_cost_premium_to_low": 0.397712,
+              "avg_cost_premium_delta_vs_live": 0.003532,
+              "candidate_avg_cost_premium_to_low": 0.518663,
               "candidate_early_exhaustion": false,
-              "candidate_spent_by_low": 0.744,
-              "candidate_terminal": 1.823055,
+              "candidate_spent_by_low": 0.667179,
+              "candidate_terminal": 1.708251,
               "episode": "2022 bear (DOUBLE bottom)",
-              "live_avg_cost_premium_to_low": 0.394945,
-              "live_spent_by_low": 0.744,
-              "live_terminal": 1.826671,
-              "terminal_delta_vs_live": -0.00198
+              "live_avg_cost_premium_to_low": 0.515131,
+              "live_spent_by_low": 0.667179,
+              "live_terminal": 1.712232,
+              "terminal_delta_vs_live": -0.002325
             },
             {
               "anchor_diag": {
@@ -4228,16 +4201,16 @@
                 "support_weight": 0.5
               },
               "asset": "ETH",
-              "avg_cost_premium_delta_vs_live": 0.01064,
-              "candidate_avg_cost_premium_to_low": 0.361649,
+              "avg_cost_premium_delta_vs_live": 0.010202,
+              "candidate_avg_cost_premium_to_low": 0.384209,
               "candidate_early_exhaustion": false,
-              "candidate_spent_by_low": 0.455742,
-              "candidate_terminal": 1.594346,
+              "candidate_spent_by_low": 0.455438,
+              "candidate_terminal": 1.534982,
               "episode": "2022 bear (DOUBLE bottom)",
-              "live_avg_cost_premium_to_low": 0.351009,
-              "live_spent_by_low": 0.438121,
-              "live_terminal": 1.606902,
-              "terminal_delta_vs_live": -0.007814
+              "live_avg_cost_premium_to_low": 0.374007,
+              "live_spent_by_low": 0.427616,
+              "live_terminal": 1.54638,
+              "terminal_delta_vs_live": -0.007371
             },
             {
               "anchor_diag": {
@@ -4251,16 +4224,16 @@
                 "support_weight": 0.5
               },
               "asset": "BTC",
-              "avg_cost_premium_delta_vs_live": 0.0,
-              "candidate_avg_cost_premium_to_low": 0.165846,
+              "avg_cost_premium_delta_vs_live": -0.000179,
+              "candidate_avg_cost_premium_to_low": 0.172816,
               "candidate_early_exhaustion": false,
-              "candidate_spent_by_low": 0.466449,
-              "candidate_terminal": 1.130885,
+              "candidate_spent_by_low": 0.5739,
+              "candidate_terminal": 1.143448,
               "episode": "2019 H2 correction (mid-cycle)",
-              "live_avg_cost_premium_to_low": 0.165846,
-              "live_spent_by_low": 0.466449,
-              "live_terminal": 1.130885,
-              "terminal_delta_vs_live": 0.0
+              "live_avg_cost_premium_to_low": 0.172995,
+              "live_spent_by_low": 0.5739,
+              "live_terminal": 1.143225,
+              "terminal_delta_vs_live": 0.000195
             },
             {
               "anchor_diag": {
@@ -4274,16 +4247,16 @@
                 "support_weight": 0.5
               },
               "asset": "ETH",
-              "avg_cost_premium_delta_vs_live": -0.012021,
-              "candidate_avg_cost_premium_to_low": 0.437116,
+              "avg_cost_premium_delta_vs_live": -0.007106,
+              "candidate_avg_cost_premium_to_low": 0.388473,
               "candidate_early_exhaustion": false,
-              "candidate_spent_by_low": 0.504385,
-              "candidate_terminal": 1.349145,
+              "candidate_spent_by_low": 0.494553,
+              "candidate_terminal": 1.146324,
               "episode": "2019 H2 correction (mid-cycle)",
-              "live_avg_cost_premium_to_low": 0.449137,
-              "live_spent_by_low": 0.493192,
-              "live_terminal": 1.336451,
-              "terminal_delta_vs_live": 0.009498
+              "live_avg_cost_premium_to_low": 0.395579,
+              "live_spent_by_low": 0.488019,
+              "live_terminal": 1.141032,
+              "terminal_delta_vs_live": 0.004638
             },
             {
               "anchor_diag": {
@@ -4298,14 +4271,14 @@
               },
               "asset": "BTC",
               "avg_cost_premium_delta_vs_live": 0.0,
-              "candidate_avg_cost_premium_to_low": 0.258969,
+              "candidate_avg_cost_premium_to_low": 0.248911,
               "candidate_early_exhaustion": false,
-              "candidate_spent_by_low": 0.17231,
-              "candidate_terminal": 1.479569,
+              "candidate_spent_by_low": 0.30065,
+              "candidate_terminal": 1.547084,
               "episode": "2020 COVID crash (fast V)",
-              "live_avg_cost_premium_to_low": 0.258969,
-              "live_spent_by_low": 0.17231,
-              "live_terminal": 1.479569,
+              "live_avg_cost_premium_to_low": 0.248911,
+              "live_spent_by_low": 0.30065,
+              "live_terminal": 1.547084,
               "terminal_delta_vs_live": 0.0
             },
             {
@@ -4320,26 +4293,26 @@
                 "support_weight": 0.5
               },
               "asset": "ETH",
-              "avg_cost_premium_delta_vs_live": 0.0,
-              "candidate_avg_cost_premium_to_low": 0.335463,
+              "avg_cost_premium_delta_vs_live": -0.00139,
+              "candidate_avg_cost_premium_to_low": 0.441443,
               "candidate_early_exhaustion": false,
-              "candidate_spent_by_low": 0.381428,
-              "candidate_terminal": 1.849287,
+              "candidate_spent_by_low": 0.465058,
+              "candidate_terminal": 1.874144,
               "episode": "2020 COVID crash (fast V)",
-              "live_avg_cost_premium_to_low": 0.335463,
-              "live_spent_by_low": 0.381428,
-              "live_terminal": 1.849287,
-              "terminal_delta_vs_live": 0.0
+              "live_avg_cost_premium_to_low": 0.442833,
+              "live_spent_by_low": 0.46389,
+              "live_terminal": 1.87217,
+              "terminal_delta_vs_live": 0.001054
             }
           ],
-          "mean_cost_premium_delta_vs_live": -0.006415,
-          "mean_terminal_delta_vs_live": 0.000349,
+          "mean_cost_premium_delta_vs_live": -0.004729,
+          "mean_terminal_delta_vs_live": -0.000557,
           "n": 8,
           "new_early_exhaustion_episodes": 0,
           "scope": "historical_accumulation_episodes_vs_live",
           "terminal_win_rate_vs_live": 0.625,
-          "worst_cost_premium_delta_vs_live": 0.1418,
-          "worst_terminal_delta_vs_live": -0.075581
+          "worst_cost_premium_delta_vs_live": 0.148332,
+          "worst_terminal_delta_vs_live": -0.077394
         },
         "historical_pass": true,
         "id": "library_max_blend_50",
@@ -5049,8 +5022,8 @@
           "cost_win_rate_vs_median_baseline": 0.75,
           "reference": "current_policy_vs_median_simple_baseline",
           "terminal_win_rate_vs_median_baseline": 0.875,
-          "worst_cost_edge_vs_median_baseline": 0.148104,
-          "worst_terminal_edge_vs_median_baseline": -0.017668
+          "worst_cost_edge_vs_median_baseline": 0.179053,
+          "worst_terminal_edge_vs_median_baseline": -0.019716
         },
         "historical_utility_preserved": true,
         "historical_verdict": "CURRENT_POLICY",
@@ -5062,16 +5035,16 @@
         "decision_label": "Accept target-zero lower bound behavior",
         "delayed_avg_premium": 0.663994,
         "historical_cost": "historical_utility_not_preserved",
-        "historical_cost_summary": "historical utility not preserved; verdict REJECTED_SYNTHETIC_GATES; terminal win-rate vs live 25%; worst terminal delta -14.3%; cost win-rate vs live 38%; worst cost-premium delta 19.6%",
+        "historical_cost_summary": "historical utility not preserved; verdict REJECTED_SYNTHETIC_GATES; terminal win-rate vs live 25%; worst terminal delta -14.1%; cost win-rate vs live 38%; worst cost-premium delta 17.9%",
         "historical_metrics": {
           "cost_win_rate_vs_live": 0.375,
-          "mean_cost_premium_delta_vs_live": 0.044439,
-          "mean_terminal_delta_vs_live": -0.047827,
+          "mean_cost_premium_delta_vs_live": 0.036049,
+          "mean_terminal_delta_vs_live": -0.040002,
           "new_early_exhaustion_episodes": 0,
           "reference": "candidate_vs_live_policy",
           "terminal_win_rate_vs_live": 0.25,
-          "worst_cost_premium_delta_vs_live": 0.196198,
-          "worst_terminal_delta_vs_live": -0.142617
+          "worst_cost_premium_delta_vs_live": 0.179397,
+          "worst_terminal_delta_vs_live": -0.140647
         },
         "historical_utility_preserved": false,
         "historical_verdict": "REJECTED_SYNTHETIC_GATES",
@@ -5083,16 +5056,16 @@
         "decision_label": "Accept release-hardening throttle behavior",
         "delayed_avg_premium": 0.545428,
         "historical_cost": "historical_utility_not_preserved",
-        "historical_cost_summary": "historical utility not preserved; verdict REJECTED_HISTORICAL_UTILITY; terminal win-rate vs live 38%; worst terminal delta -25.2%; cost win-rate vs live 38%; worst cost-premium delta 74.4%",
+        "historical_cost_summary": "historical utility not preserved; verdict REJECTED_HISTORICAL_UTILITY; terminal win-rate vs live 38%; worst terminal delta -19.5%; cost win-rate vs live 38%; worst cost-premium delta 64.8%",
         "historical_metrics": {
           "cost_win_rate_vs_live": 0.375,
-          "mean_cost_premium_delta_vs_live": 0.164531,
-          "mean_terminal_delta_vs_live": -0.060031,
+          "mean_cost_premium_delta_vs_live": 0.107196,
+          "mean_terminal_delta_vs_live": -0.037372,
           "new_early_exhaustion_episodes": 0,
           "reference": "candidate_vs_live_policy",
           "terminal_win_rate_vs_live": 0.375,
-          "worst_cost_premium_delta_vs_live": 0.744265,
-          "worst_terminal_delta_vs_live": -0.251707
+          "worst_cost_premium_delta_vs_live": 0.648288,
+          "worst_terminal_delta_vs_live": -0.194624
         },
         "historical_utility_preserved": false,
         "historical_verdict": "REJECTED_HISTORICAL_UTILITY",
@@ -5241,7 +5214,7 @@
     "scope": "research_only_governance_proposal",
     "status": "PROPOSED_FRONTIER_AWARE_PASS"
   },
-  "generated_at": "2026-07-07T02:21:56.438466+00:00",
+  "generated_at": "2026-08-31T18:59:30.515444+00:00",
   "known_risks": [
     {
       "evidence": "The live policy now uses deploy_duration_cdf_floor() with horizon multipliers (1.0, 1.5, 2.0) instead of a single linear 52-week clock.",
@@ -5303,136 +5276,136 @@
     "results": [
       {
         "historical": {
-          "cost_win_rate_vs_live": 0.625,
+          "cost_win_rate_vs_live": 0.5,
           "episodes": [
             {
               "asset": "BTC",
               "avg_cost_premium_delta_vs_live": 0.0,
-              "candidate_avg_cost_premium_to_low": 0.73433,
+              "candidate_avg_cost_premium_to_low": 0.742678,
               "candidate_early_exhaustion": false,
-              "candidate_spent_by_low": 0.796243,
-              "candidate_terminal": 1.296353,
+              "candidate_spent_by_low": 0.793415,
+              "candidate_terminal": 1.307935,
               "episode": "2018 bear (single low)",
-              "live_avg_cost_premium_to_low": 0.73433,
-              "live_spent_by_low": 0.796243,
-              "live_terminal": 1.296353,
+              "live_avg_cost_premium_to_low": 0.742678,
+              "live_spent_by_low": 0.793415,
+              "live_terminal": 1.307935,
               "target_governor_diag": {
-                "governed_final": 0.6789,
+                "governed_final": 0.5408,
                 "max_4w_cap": 0.16,
-                "max_4w_increase": 0.1315,
+                "max_4w_increase": 0.1393,
                 "max_weekly_increase": 0.04,
                 "mode": "rate_limit",
-                "raw_final": 0.4547,
-                "raw_max_4w_increase": 0.1315,
+                "raw_final": 0.4494,
+                "raw_max_4w_increase": 0.1393,
                 "recipe_id": "rate_limited_fast_bypass"
               },
               "terminal_delta_vs_live": 0.0
             },
             {
               "asset": "ETH",
-              "avg_cost_premium_delta_vs_live": 0.0,
-              "candidate_avg_cost_premium_to_low": 1.666962,
+              "avg_cost_premium_delta_vs_live": -0.003066,
+              "candidate_avg_cost_premium_to_low": 1.679628,
               "candidate_early_exhaustion": false,
               "candidate_spent_by_low": 0.715,
-              "candidate_terminal": 0.565783,
+              "candidate_terminal": 0.589826,
               "episode": "2018 bear (single low)",
-              "live_avg_cost_premium_to_low": 1.666962,
+              "live_avg_cost_premium_to_low": 1.682694,
               "live_spent_by_low": 0.715,
-              "live_terminal": 0.565783,
+              "live_terminal": 0.589152,
               "target_governor_diag": {
-                "governed_final": 0.5972,
+                "governed_final": 0.5563,
                 "max_4w_cap": 0.16,
-                "max_4w_increase": 0.1986,
+                "max_4w_increase": 0.1969,
                 "max_weekly_increase": 0.04,
                 "mode": "rate_limit",
-                "raw_final": 0.3342,
-                "raw_max_4w_increase": 0.2088,
+                "raw_final": 0.3288,
+                "raw_max_4w_increase": 0.2105,
+                "recipe_id": "rate_limited_fast_bypass"
+              },
+              "terminal_delta_vs_live": 0.001144
+            },
+            {
+              "asset": "BTC",
+              "avg_cost_premium_delta_vs_live": 0.001495,
+              "candidate_avg_cost_premium_to_low": 0.516626,
+              "candidate_early_exhaustion": false,
+              "candidate_spent_by_low": 0.667179,
+              "candidate_terminal": 1.710544,
+              "episode": "2022 bear (DOUBLE bottom)",
+              "live_avg_cost_premium_to_low": 0.515131,
+              "live_spent_by_low": 0.667179,
+              "live_terminal": 1.712232,
+              "target_governor_diag": {
+                "governed_final": 0.5843,
+                "max_4w_cap": 0.16,
+                "max_4w_increase": 0.1871,
+                "max_weekly_increase": 0.04,
+                "mode": "rate_limit",
+                "raw_final": 0.3814,
+                "raw_max_4w_increase": 0.1944,
+                "recipe_id": "rate_limited_fast_bypass"
+              },
+              "terminal_delta_vs_live": -0.000986
+            },
+            {
+              "asset": "ETH",
+              "avg_cost_premium_delta_vs_live": 0.018883,
+              "candidate_avg_cost_premium_to_low": 0.39289,
+              "candidate_early_exhaustion": false,
+              "candidate_spent_by_low": 0.427616,
+              "candidate_terminal": 1.525416,
+              "episode": "2022 bear (DOUBLE bottom)",
+              "live_avg_cost_premium_to_low": 0.374007,
+              "live_spent_by_low": 0.427616,
+              "live_terminal": 1.54638,
+              "target_governor_diag": {
+                "governed_final": 0.6899,
+                "max_4w_cap": 0.16,
+                "max_4w_increase": 0.1508,
+                "max_weekly_increase": 0.04,
+                "mode": "rate_limit",
+                "raw_final": 0.5149,
+                "raw_max_4w_increase": 0.2756,
+                "recipe_id": "rate_limited_fast_bypass"
+              },
+              "terminal_delta_vs_live": -0.013557
+            },
+            {
+              "asset": "BTC",
+              "avg_cost_premium_delta_vs_live": 0.0,
+              "candidate_avg_cost_premium_to_low": 0.172995,
+              "candidate_early_exhaustion": false,
+              "candidate_spent_by_low": 0.5739,
+              "candidate_terminal": 1.143225,
+              "episode": "2019 H2 correction (mid-cycle)",
+              "live_avg_cost_premium_to_low": 0.172995,
+              "live_spent_by_low": 0.5739,
+              "live_terminal": 1.143225,
+              "target_governor_diag": {
+                "governed_final": 0.4646,
+                "max_4w_cap": 0.16,
+                "max_4w_increase": 0.16,
+                "max_weekly_increase": 0.04,
+                "mode": "rate_limit",
+                "raw_final": 0.39,
+                "raw_max_4w_increase": 0.0622,
                 "recipe_id": "rate_limited_fast_bypass"
               },
               "terminal_delta_vs_live": 0.0
             },
             {
-              "asset": "BTC",
-              "avg_cost_premium_delta_vs_live": -0.002568,
-              "candidate_avg_cost_premium_to_low": 0.392377,
-              "candidate_early_exhaustion": false,
-              "candidate_spent_by_low": 0.744,
-              "candidate_terminal": 1.83004,
-              "episode": "2022 bear (DOUBLE bottom)",
-              "live_avg_cost_premium_to_low": 0.394945,
-              "live_spent_by_low": 0.744,
-              "live_terminal": 1.826671,
-              "target_governor_diag": {
-                "governed_final": 0.7021,
-                "max_4w_cap": 0.16,
-                "max_4w_increase": 0.1583,
-                "max_weekly_increase": 0.04,
-                "mode": "rate_limit",
-                "raw_final": 0.3815,
-                "raw_max_4w_increase": 0.1652,
-                "recipe_id": "rate_limited_fast_bypass"
-              },
-              "terminal_delta_vs_live": 0.001844
-            },
-            {
               "asset": "ETH",
-              "avg_cost_premium_delta_vs_live": 0.025381,
-              "candidate_avg_cost_premium_to_low": 0.37639,
+              "avg_cost_premium_delta_vs_live": -0.00306,
+              "candidate_avg_cost_premium_to_low": 0.392519,
               "candidate_early_exhaustion": false,
-              "candidate_spent_by_low": 0.438121,
-              "candidate_terminal": 1.577271,
-              "episode": "2022 bear (DOUBLE bottom)",
-              "live_avg_cost_premium_to_low": 0.351009,
-              "live_spent_by_low": 0.438121,
-              "live_terminal": 1.606902,
-              "target_governor_diag": {
-                "governed_final": 0.6827,
-                "max_4w_cap": 0.16,
-                "max_4w_increase": 0.16,
-                "max_weekly_increase": 0.04,
-                "mode": "rate_limit",
-                "raw_final": 0.5084,
-                "raw_max_4w_increase": 0.2811,
-                "recipe_id": "rate_limited_fast_bypass"
-              },
-              "terminal_delta_vs_live": -0.01844
-            },
-            {
-              "asset": "BTC",
-              "avg_cost_premium_delta_vs_live": 0.0,
-              "candidate_avg_cost_premium_to_low": 0.165846,
-              "candidate_early_exhaustion": false,
-              "candidate_spent_by_low": 0.466449,
-              "candidate_terminal": 1.130885,
+              "candidate_spent_by_low": 0.479469,
+              "candidate_terminal": 1.140943,
               "episode": "2019 H2 correction (mid-cycle)",
-              "live_avg_cost_premium_to_low": 0.165846,
-              "live_spent_by_low": 0.466449,
-              "live_terminal": 1.130885,
+              "live_avg_cost_premium_to_low": 0.395579,
+              "live_spent_by_low": 0.488019,
+              "live_terminal": 1.141032,
               "target_governor_diag": {
-                "governed_final": 0.4641,
-                "max_4w_cap": 0.16,
-                "max_4w_increase": 0.16,
-                "max_weekly_increase": 0.04,
-                "mode": "rate_limit",
-                "raw_final": 0.3796,
-                "raw_max_4w_increase": 0.0583,
-                "recipe_id": "rate_limited_fast_bypass"
-              },
-              "terminal_delta_vs_live": 0.0
-            },
-            {
-              "asset": "ETH",
-              "avg_cost_premium_delta_vs_live": 0.0,
-              "candidate_avg_cost_premium_to_low": 0.449137,
-              "candidate_early_exhaustion": false,
-              "candidate_spent_by_low": 0.493192,
-              "candidate_terminal": 1.336451,
-              "episode": "2019 H2 correction (mid-cycle)",
-              "live_avg_cost_premium_to_low": 0.449137,
-              "live_spent_by_low": 0.493192,
-              "live_terminal": 1.336451,
-              "target_governor_diag": {
-                "governed_final": 0.3342,
+                "governed_final": 0.3338,
                 "max_4w_cap": 0.16,
                 "max_4w_increase": 0.16,
                 "max_weekly_increase": 0.04,
@@ -5441,65 +5414,65 @@
                 "raw_max_4w_increase": 0.017,
                 "recipe_id": "rate_limited_fast_bypass"
               },
-              "terminal_delta_vs_live": 0.0
+              "terminal_delta_vs_live": -7.8e-05
             },
             {
               "asset": "BTC",
-              "avg_cost_premium_delta_vs_live": 0.081673,
-              "candidate_avg_cost_premium_to_low": 0.340642,
+              "avg_cost_premium_delta_vs_live": 0.066424,
+              "candidate_avg_cost_premium_to_low": 0.315335,
               "candidate_early_exhaustion": false,
-              "candidate_spent_by_low": 0.17231,
-              "candidate_terminal": 1.371665,
+              "candidate_spent_by_low": 0.30065,
+              "candidate_terminal": 1.458188,
               "episode": "2020 COVID crash (fast V)",
-              "live_avg_cost_premium_to_low": 0.258969,
-              "live_spent_by_low": 0.17231,
-              "live_terminal": 1.479569,
+              "live_avg_cost_premium_to_low": 0.248911,
+              "live_spent_by_low": 0.30065,
+              "live_terminal": 1.547084,
               "target_governor_diag": {
-                "governed_final": 0.4848,
+                "governed_final": 0.517,
                 "max_4w_cap": 0.16,
-                "max_4w_increase": 0.3574,
+                "max_4w_increase": 0.397,
                 "max_weekly_increase": 0.04,
                 "mode": "rate_limit",
-                "raw_final": 0.4583,
-                "raw_max_4w_increase": 0.2124,
+                "raw_final": 0.4565,
+                "raw_max_4w_increase": 0.178,
                 "recipe_id": "rate_limited_fast_bypass"
               },
-              "terminal_delta_vs_live": -0.072929
+              "terminal_delta_vs_live": -0.05746
             },
             {
               "asset": "ETH",
-              "avg_cost_premium_delta_vs_live": 0.024607,
-              "candidate_avg_cost_premium_to_low": 0.36007,
+              "avg_cost_premium_delta_vs_live": 0.010549,
+              "candidate_avg_cost_premium_to_low": 0.453382,
               "candidate_early_exhaustion": false,
-              "candidate_spent_by_low": 0.381428,
-              "candidate_terminal": 1.812094,
+              "candidate_spent_by_low": 0.455124,
+              "candidate_terminal": 1.857363,
               "episode": "2020 COVID crash (fast V)",
-              "live_avg_cost_premium_to_low": 0.335463,
-              "live_spent_by_low": 0.381428,
-              "live_terminal": 1.849287,
+              "live_avg_cost_premium_to_low": 0.442833,
+              "live_spent_by_low": 0.46389,
+              "live_terminal": 1.87217,
               "target_governor_diag": {
-                "governed_final": 0.3591,
+                "governed_final": 0.3633,
                 "max_4w_cap": 0.16,
-                "max_4w_increase": 0.2737,
+                "max_4w_increase": 0.2806,
                 "max_weekly_increase": 0.04,
                 "mode": "rate_limit",
-                "raw_final": 0.309,
-                "raw_max_4w_increase": 0.0894,
+                "raw_final": 0.3086,
+                "raw_max_4w_increase": 0.0668,
                 "recipe_id": "rate_limited_fast_bypass"
               },
-              "terminal_delta_vs_live": -0.020112
+              "terminal_delta_vs_live": -0.007909
             }
           ],
-          "mean_cost_premium_delta_vs_live": 0.016137,
-          "mean_terminal_delta_vs_live": -0.013705,
+          "mean_cost_premium_delta_vs_live": 0.011403,
+          "mean_terminal_delta_vs_live": -0.009856,
           "n": 8,
           "new_early_exhaustion_episodes": 0,
           "scope": "historical_accumulation_episodes_vs_live",
-          "terminal_win_rate_vs_live": 0.625,
-          "worst_cost_premium_delta_vs_live": 0.081673,
-          "worst_terminal_delta_vs_live": -0.072929
+          "terminal_win_rate_vs_live": 0.375,
+          "worst_cost_premium_delta_vs_live": 0.066424,
+          "worst_terminal_delta_vs_live": -0.05746
         },
-        "historical_pass": true,
+        "historical_pass": false,
         "id": "rate_limited_fast_bypass",
         "recipe": {
           "fast_4w_drawdown": 0.25,
@@ -6198,114 +6171,114 @@
             {
               "asset": "BTC",
               "avg_cost_premium_delta_vs_live": 0.0,
-              "candidate_avg_cost_premium_to_low": 0.73433,
+              "candidate_avg_cost_premium_to_low": 0.742678,
               "candidate_early_exhaustion": false,
-              "candidate_spent_by_low": 0.796243,
-              "candidate_terminal": 1.296353,
+              "candidate_spent_by_low": 0.793415,
+              "candidate_terminal": 1.307935,
               "episode": "2018 bear (single low)",
-              "live_avg_cost_premium_to_low": 0.73433,
-              "live_spent_by_low": 0.796243,
-              "live_terminal": 1.296353,
+              "live_avg_cost_premium_to_low": 0.742678,
+              "live_spent_by_low": 0.793415,
+              "live_terminal": 1.307935,
               "target_governor_diag": {
                 "governed_final": 0.0,
                 "max_4w_increase": 0.0,
                 "mode": "zero",
-                "raw_final": 0.4547,
+                "raw_final": 0.4494,
                 "recipe_id": "zero_posterior_lower_bound"
               },
               "terminal_delta_vs_live": 0.0
             },
             {
               "asset": "ETH",
-              "avg_cost_premium_delta_vs_live": -0.048356,
-              "candidate_avg_cost_premium_to_low": 1.618606,
+              "avg_cost_premium_delta_vs_live": -0.00314,
+              "candidate_avg_cost_premium_to_low": 1.679554,
               "candidate_early_exhaustion": false,
               "candidate_spent_by_low": 0.715,
-              "candidate_terminal": 0.576231,
+              "candidate_terminal": 0.589842,
               "episode": "2018 bear (single low)",
-              "live_avg_cost_premium_to_low": 1.666962,
+              "live_avg_cost_premium_to_low": 1.682694,
               "live_spent_by_low": 0.715,
-              "live_terminal": 0.565783,
+              "live_terminal": 0.589152,
               "target_governor_diag": {
                 "governed_final": 0.0,
                 "max_4w_increase": 0.0,
                 "mode": "zero",
-                "raw_final": 0.3342,
+                "raw_final": 0.3288,
                 "recipe_id": "zero_posterior_lower_bound"
               },
-              "terminal_delta_vs_live": 0.018466
+              "terminal_delta_vs_live": 0.001171
             },
             {
               "asset": "BTC",
-              "avg_cost_premium_delta_vs_live": 0.03226,
-              "candidate_avg_cost_premium_to_low": 0.427205,
+              "avg_cost_premium_delta_vs_live": 0.004009,
+              "candidate_avg_cost_premium_to_low": 0.51914,
               "candidate_early_exhaustion": false,
-              "candidate_spent_by_low": 0.654744,
-              "candidate_terminal": 1.785382,
+              "candidate_spent_by_low": 0.667179,
+              "candidate_terminal": 1.707714,
               "episode": "2022 bear (DOUBLE bottom)",
-              "live_avg_cost_premium_to_low": 0.394945,
-              "live_spent_by_low": 0.744,
-              "live_terminal": 1.826671,
+              "live_avg_cost_premium_to_low": 0.515131,
+              "live_spent_by_low": 0.667179,
+              "live_terminal": 1.712232,
               "target_governor_diag": {
                 "governed_final": 0.0,
                 "max_4w_increase": 0.0,
                 "mode": "zero",
-                "raw_final": 0.3815,
+                "raw_final": 0.3814,
                 "recipe_id": "zero_posterior_lower_bound"
               },
-              "terminal_delta_vs_live": -0.022603
+              "terminal_delta_vs_live": -0.002639
             },
             {
               "asset": "ETH",
-              "avg_cost_premium_delta_vs_live": 0.025427,
-              "candidate_avg_cost_premium_to_low": 0.376436,
+              "avg_cost_premium_delta_vs_live": 0.019323,
+              "candidate_avg_cost_premium_to_low": 0.39333,
               "candidate_early_exhaustion": false,
-              "candidate_spent_by_low": 0.437816,
-              "candidate_terminal": 1.577218,
+              "candidate_spent_by_low": 0.427616,
+              "candidate_terminal": 1.524933,
               "episode": "2022 bear (DOUBLE bottom)",
-              "live_avg_cost_premium_to_low": 0.351009,
-              "live_spent_by_low": 0.438121,
-              "live_terminal": 1.606902,
+              "live_avg_cost_premium_to_low": 0.374007,
+              "live_spent_by_low": 0.427616,
+              "live_terminal": 1.54638,
               "target_governor_diag": {
                 "governed_final": 0.0,
                 "max_4w_increase": 0.0,
                 "mode": "zero",
-                "raw_final": 0.5084,
+                "raw_final": 0.5149,
                 "recipe_id": "zero_posterior_lower_bound"
               },
-              "terminal_delta_vs_live": -0.018473
+              "terminal_delta_vs_live": -0.013869
             },
             {
               "asset": "BTC",
-              "avg_cost_premium_delta_vs_live": 0.027419,
-              "candidate_avg_cost_premium_to_low": 0.193265,
+              "avg_cost_premium_delta_vs_live": 0.025507,
+              "candidate_avg_cost_premium_to_low": 0.198502,
               "candidate_early_exhaustion": false,
-              "candidate_spent_by_low": 0.248291,
-              "candidate_terminal": 1.08075,
+              "candidate_spent_by_low": 0.33141,
+              "candidate_terminal": 1.085069,
               "episode": "2019 H2 correction (mid-cycle)",
-              "live_avg_cost_premium_to_low": 0.165846,
-              "live_spent_by_low": 0.466449,
-              "live_terminal": 1.130885,
+              "live_avg_cost_premium_to_low": 0.172995,
+              "live_spent_by_low": 0.5739,
+              "live_terminal": 1.143225,
               "target_governor_diag": {
                 "governed_final": 0.0,
                 "max_4w_increase": 0.0,
                 "mode": "zero",
-                "raw_final": 0.3796,
+                "raw_final": 0.39,
                 "recipe_id": "zero_posterior_lower_bound"
               },
-              "terminal_delta_vs_live": -0.044333
+              "terminal_delta_vs_live": -0.05087
             },
             {
               "asset": "ETH",
-              "avg_cost_premium_delta_vs_live": -0.064011,
-              "candidate_avg_cost_premium_to_low": 0.385126,
+              "avg_cost_premium_delta_vs_live": -0.07061,
+              "candidate_avg_cost_premium_to_low": 0.324969,
               "candidate_early_exhaustion": false,
-              "candidate_spent_by_low": 0.317854,
-              "candidate_terminal": 1.286764,
+              "candidate_spent_by_low": 0.296234,
+              "candidate_terminal": 1.123258,
               "episode": "2019 H2 correction (mid-cycle)",
-              "live_avg_cost_premium_to_low": 0.449137,
-              "live_spent_by_low": 0.493192,
-              "live_terminal": 1.336451,
+              "live_avg_cost_premium_to_low": 0.395579,
+              "live_spent_by_low": 0.488019,
+              "live_terminal": 1.141032,
               "target_governor_diag": {
                 "governed_final": 0.0,
                 "max_4w_increase": 0.0,
@@ -6313,57 +6286,57 @@
                 "raw_final": 0.3119,
                 "recipe_id": "zero_posterior_lower_bound"
               },
-              "terminal_delta_vs_live": -0.037178
+              "terminal_delta_vs_live": -0.015577
             },
             {
               "asset": "BTC",
-              "avg_cost_premium_delta_vs_live": 0.186572,
-              "candidate_avg_cost_premium_to_low": 0.445541,
+              "avg_cost_premium_delta_vs_live": 0.179397,
+              "candidate_avg_cost_premium_to_low": 0.428308,
               "candidate_early_exhaustion": false,
-              "candidate_spent_by_low": 0.17231,
-              "candidate_terminal": 1.268558,
+              "candidate_spent_by_low": 0.212653,
+              "candidate_terminal": 1.329492,
               "episode": "2020 COVID crash (fast V)",
-              "live_avg_cost_premium_to_low": 0.258969,
-              "live_spent_by_low": 0.17231,
-              "live_terminal": 1.479569,
+              "live_avg_cost_premium_to_low": 0.248911,
+              "live_spent_by_low": 0.30065,
+              "live_terminal": 1.547084,
               "target_governor_diag": {
                 "governed_final": 0.0,
                 "max_4w_increase": 0.0,
                 "mode": "zero",
-                "raw_final": 0.4583,
+                "raw_final": 0.4565,
                 "recipe_id": "zero_posterior_lower_bound"
               },
-              "terminal_delta_vs_live": -0.142617
+              "terminal_delta_vs_live": -0.140647
             },
             {
               "asset": "ETH",
-              "avg_cost_premium_delta_vs_live": 0.196198,
-              "candidate_avg_cost_premium_to_low": 0.531661,
+              "avg_cost_premium_delta_vs_live": 0.133905,
+              "candidate_avg_cost_premium_to_low": 0.576738,
               "candidate_early_exhaustion": false,
-              "candidate_spent_by_low": 0.274497,
-              "candidate_terminal": 1.598006,
+              "candidate_spent_by_low": 0.289532,
+              "candidate_terminal": 1.689475,
               "episode": "2020 COVID crash (fast V)",
-              "live_avg_cost_premium_to_low": 0.335463,
-              "live_spent_by_low": 0.381428,
-              "live_terminal": 1.849287,
+              "live_avg_cost_premium_to_low": 0.442833,
+              "live_spent_by_low": 0.46389,
+              "live_terminal": 1.87217,
               "target_governor_diag": {
                 "governed_final": 0.0,
                 "max_4w_increase": 0.0,
                 "mode": "zero",
-                "raw_final": 0.309,
+                "raw_final": 0.3086,
                 "recipe_id": "zero_posterior_lower_bound"
               },
-              "terminal_delta_vs_live": -0.13588
+              "terminal_delta_vs_live": -0.097585
             }
           ],
-          "mean_cost_premium_delta_vs_live": 0.044439,
-          "mean_terminal_delta_vs_live": -0.047827,
+          "mean_cost_premium_delta_vs_live": 0.036049,
+          "mean_terminal_delta_vs_live": -0.040002,
           "n": 8,
           "new_early_exhaustion_episodes": 0,
           "scope": "historical_accumulation_episodes_vs_live",
           "terminal_win_rate_vs_live": 0.25,
-          "worst_cost_premium_delta_vs_live": 0.196198,
-          "worst_terminal_delta_vs_live": -0.142617
+          "worst_cost_premium_delta_vs_live": 0.179397,
+          "worst_terminal_delta_vs_live": -0.140647
         },
         "historical_pass": false,
         "id": "zero_posterior_lower_bound",
@@ -7030,16 +7003,6 @@
   },
   "pre_registered_gates": [
     {
-      "absolute_status": "FAIL",
-      "adjudication": {
-        "all_failing_cells_heldout_delta_only": true,
-        "aspirational_threshold": -0.05,
-        "failing_cells": 4,
-        "max_failing_cells": 4,
-        "metric": "worst_heldout_terminal_edge_delta_vs_live",
-        "observed": -0.12907,
-        "ratchet_min": -0.12907
-      },
       "description": "Run a grid around deployment-policy parameters at 0.75x, 1.00x, and 1.25x. Include horizon, floor/release speed, deep-anchor multiplier, hard-reserve floor, catch-up speed, and late-start trigger parameters where applicable.",
       "id": "parameter_plateau_25pct",
       "pass_criteria": [
@@ -7080,26 +7043,26 @@
             "status": "PASS",
             "summary": {
               "cost_win_rate_vs_median_baseline": 0.75,
-              "mean_cost_edge_vs_median_baseline": -0.765734,
-              "mean_terminal_edge_vs_median_baseline": 0.223828,
+              "mean_cost_edge_vs_median_baseline": -0.725132,
+              "mean_terminal_edge_vs_median_baseline": 0.203557,
               "n": 8,
               "terminal_win_rate_vs_median_baseline": 0.875,
-              "worst_cost_edge_vs_median_baseline": 0.148104,
-              "worst_terminal_edge_vs_median_baseline": -0.017668
+              "worst_cost_edge_vs_median_baseline": 0.179053,
+              "worst_terminal_edge_vs_median_baseline": -0.019716
             },
             "terminal_ratio_shift": 0.0,
             "worst_heldout_deterioration_row": {
               "asset": "BTC",
-              "cell_heldout_terminal_edge": 0.377043,
+              "cell_heldout_terminal_edge": 0.383976,
               "delta_vs_live": 0.0,
               "episode": "2018 bear (single low)",
-              "live_heldout_terminal_edge": 0.377043
+              "live_heldout_terminal_edge": 0.383976
             },
             "worst_terminal_ratio_shift_row": {
               "asset": "BTC",
-              "cell_terminal_value": 1.296353,
+              "cell_terminal_value": 1.307935,
               "episode": "2018 bear (single low)",
-              "live_terminal_value": 1.296353,
+              "live_terminal_value": 1.307935,
               "terminal_ratio_shift": 0.0
             }
           },
@@ -7119,7 +7082,7 @@
               "terminal_ratio_shift": false
             },
             "failures": [],
-            "heldout_terminal_edge_delta_vs_live": -0.045346,
+            "heldout_terminal_edge_delta_vs_live": -0.034362,
             "name": "gamma_0.75|deep_anchor_m_1.00|reserve_floor_1.00|floor_w_1.00|max_horizon_weeks_1.00",
             "params": {
               "deep_anchor_m": 0.6,
@@ -7134,27 +7097,27 @@
             "status": "PASS",
             "summary": {
               "cost_win_rate_vs_median_baseline": 0.75,
-              "mean_cost_edge_vs_median_baseline": -0.753514,
-              "mean_terminal_edge_vs_median_baseline": 0.220069,
+              "mean_cost_edge_vs_median_baseline": -0.712916,
+              "mean_terminal_edge_vs_median_baseline": 0.201303,
               "n": 8,
               "terminal_win_rate_vs_median_baseline": 0.875,
-              "worst_cost_edge_vs_median_baseline": 0.148104,
-              "worst_terminal_edge_vs_median_baseline": -0.017668
+              "worst_cost_edge_vs_median_baseline": 0.179053,
+              "worst_terminal_edge_vs_median_baseline": -0.019716
             },
-            "terminal_ratio_shift": 0.034979,
+            "terminal_ratio_shift": 0.028789,
             "worst_heldout_deterioration_row": {
               "asset": "BTC",
-              "cell_heldout_terminal_edge": 0.331697,
-              "delta_vs_live": -0.045346,
+              "cell_heldout_terminal_edge": 0.349614,
+              "delta_vs_live": -0.034362,
               "episode": "2018 bear (single low)",
-              "live_heldout_terminal_edge": 0.377043
+              "live_heldout_terminal_edge": 0.383976
             },
             "worst_terminal_ratio_shift_row": {
-              "asset": "BTC",
-              "cell_terminal_value": 1.251008,
+              "asset": "ETH",
+              "cell_terminal_value": 0.572191,
               "episode": "2018 bear (single low)",
-              "live_terminal_value": 1.296353,
-              "terminal_ratio_shift": 0.034979
+              "live_terminal_value": 0.589152,
+              "terminal_ratio_shift": 0.028789
             }
           },
           {
@@ -7173,7 +7136,7 @@
               "terminal_ratio_shift": false
             },
             "failures": [],
-            "heldout_terminal_edge_delta_vs_live": -0.003953,
+            "heldout_terminal_edge_delta_vs_live": -0.022588,
             "name": "gamma_1.25|deep_anchor_m_1.00|reserve_floor_1.00|floor_w_1.00|max_horizon_weeks_1.00",
             "params": {
               "deep_anchor_m": 0.6,
@@ -7188,27 +7151,27 @@
             "status": "PASS",
             "summary": {
               "cost_win_rate_vs_median_baseline": 0.75,
-              "mean_cost_edge_vs_median_baseline": -0.77159,
-              "mean_terminal_edge_vs_median_baseline": 0.226169,
+              "mean_cost_edge_vs_median_baseline": -0.727558,
+              "mean_terminal_edge_vs_median_baseline": 0.202982,
               "n": 8,
               "terminal_win_rate_vs_median_baseline": 0.875,
-              "worst_cost_edge_vs_median_baseline": 0.148104,
-              "worst_terminal_edge_vs_median_baseline": -0.017668
+              "worst_cost_edge_vs_median_baseline": 0.179053,
+              "worst_terminal_edge_vs_median_baseline": -0.019716
             },
-            "terminal_ratio_shift": 0.014694,
+            "terminal_ratio_shift": 0.014606,
             "worst_heldout_deterioration_row": {
               "asset": "ETH",
-              "cell_heldout_terminal_edge": 0.504148,
-              "delta_vs_live": -0.003953,
+              "cell_heldout_terminal_edge": 0.446196,
+              "delta_vs_live": -0.022588,
               "episode": "2022 bear (DOUBLE bottom)",
-              "live_heldout_terminal_edge": 0.508101
+              "live_heldout_terminal_edge": 0.468784
             },
             "worst_terminal_ratio_shift_row": {
-              "asset": "BTC",
-              "cell_terminal_value": 1.315401,
-              "episode": "2018 bear (single low)",
-              "live_terminal_value": 1.296353,
-              "terminal_ratio_shift": 0.014694
+              "asset": "ETH",
+              "cell_terminal_value": 1.523793,
+              "episode": "2022 bear (DOUBLE bottom)",
+              "live_terminal_value": 1.54638,
+              "terminal_ratio_shift": 0.014606
             }
           },
           {
@@ -7229,7 +7192,7 @@
             "failures": [
               "held-out terminal edge deterioration above 5pp"
             ],
-            "heldout_terminal_edge_delta_vs_live": -0.087094,
+            "heldout_terminal_edge_delta_vs_live": -0.088336,
             "name": "gamma_1.00|deep_anchor_m_0.75|reserve_floor_1.00|floor_w_1.00|max_horizon_weeks_1.00",
             "params": {
               "deep_anchor_m": 0.45,
@@ -7243,28 +7206,28 @@
             },
             "status": "FAIL",
             "summary": {
-              "cost_win_rate_vs_median_baseline": 0.875,
-              "mean_cost_edge_vs_median_baseline": -0.775512,
-              "mean_terminal_edge_vs_median_baseline": 0.219392,
+              "cost_win_rate_vs_median_baseline": 0.75,
+              "mean_cost_edge_vs_median_baseline": -0.732517,
+              "mean_terminal_edge_vs_median_baseline": 0.196016,
               "n": 8,
-              "terminal_win_rate_vs_median_baseline": 1.0,
-              "worst_cost_edge_vs_median_baseline": 0.148104,
-              "worst_terminal_edge_vs_median_baseline": 0.011403
+              "terminal_win_rate_vs_median_baseline": 0.875,
+              "worst_cost_edge_vs_median_baseline": 0.176895,
+              "worst_terminal_edge_vs_median_baseline": -0.001098
             },
-            "terminal_ratio_shift": 0.078703,
+            "terminal_ratio_shift": 0.079769,
             "worst_heldout_deterioration_row": {
               "asset": "BTC",
-              "cell_heldout_terminal_edge": 0.289949,
-              "delta_vs_live": -0.087094,
+              "cell_heldout_terminal_edge": 0.29564,
+              "delta_vs_live": -0.088336,
               "episode": "2018 bear (single low)",
-              "live_heldout_terminal_edge": 0.377043
+              "live_heldout_terminal_edge": 0.383976
             },
             "worst_terminal_ratio_shift_row": {
               "asset": "ETH",
-              "cell_terminal_value": 0.610312,
+              "cell_terminal_value": 0.636148,
               "episode": "2018 bear (single low)",
-              "live_terminal_value": 0.565783,
-              "terminal_ratio_shift": 0.078703
+              "live_terminal_value": 0.589152,
+              "terminal_ratio_shift": 0.079769
             }
           },
           {
@@ -7276,16 +7239,14 @@
               "reserve_floor": 1.0
             },
             "failure_flags": {
-              "heldout_delta_only": true,
+              "heldout_delta_only": false,
               "heldout_delta_only_positive_edge": false,
-              "heldout_edge_deterioration": true,
+              "heldout_edge_deterioration": false,
               "historical_thresholds": false,
               "terminal_ratio_shift": false
             },
-            "failures": [
-              "held-out terminal edge deterioration above 5pp"
-            ],
-            "heldout_terminal_edge_delta_vs_live": -0.050561,
+            "failures": [],
+            "heldout_terminal_edge_delta_vs_live": -0.040853,
             "name": "gamma_1.00|deep_anchor_m_1.25|reserve_floor_1.00|floor_w_1.00|max_horizon_weeks_1.00",
             "params": {
               "deep_anchor_m": 0.75,
@@ -7297,30 +7258,30 @@
                 "ETH": 0.3
               }
             },
-            "status": "FAIL",
+            "status": "PASS",
             "summary": {
               "cost_win_rate_vs_median_baseline": 0.75,
-              "mean_cost_edge_vs_median_baseline": -0.741138,
-              "mean_terminal_edge_vs_median_baseline": 0.219866,
+              "mean_cost_edge_vs_median_baseline": -0.70179,
+              "mean_terminal_edge_vs_median_baseline": 0.201304,
               "n": 8,
               "terminal_win_rate_vs_median_baseline": 0.875,
-              "worst_cost_edge_vs_median_baseline": 0.148104,
-              "worst_terminal_edge_vs_median_baseline": -0.068229
+              "worst_cost_edge_vs_median_baseline": 0.183939,
+              "worst_terminal_edge_vs_median_baseline": -0.040888
             },
-            "terminal_ratio_shift": 0.068058,
+            "terminal_ratio_shift": 0.069342,
             "worst_heldout_deterioration_row": {
               "asset": "ETH",
-              "cell_heldout_terminal_edge": -0.068229,
-              "delta_vs_live": -0.050561,
-              "episode": "2019 H2 correction (mid-cycle)",
-              "live_heldout_terminal_edge": -0.017668
+              "cell_heldout_terminal_edge": 0.171457,
+              "delta_vs_live": -0.040853,
+              "episode": "2018 bear (single low)",
+              "live_heldout_terminal_edge": 0.21231
             },
             "worst_terminal_ratio_shift_row": {
               "asset": "ETH",
-              "cell_terminal_value": 0.527277,
+              "cell_terminal_value": 0.548299,
               "episode": "2018 bear (single low)",
-              "live_terminal_value": 0.565783,
-              "terminal_ratio_shift": 0.068058
+              "live_terminal_value": 0.589152,
+              "terminal_ratio_shift": 0.069342
             }
           },
           {
@@ -7339,7 +7300,7 @@
               "terminal_ratio_shift": false
             },
             "failures": [],
-            "heldout_terminal_edge_delta_vs_live": -0.029331,
+            "heldout_terminal_edge_delta_vs_live": -0.036521,
             "name": "gamma_1.00|deep_anchor_m_1.00|reserve_floor_0.75|floor_w_1.00|max_horizon_weeks_1.00",
             "params": {
               "deep_anchor_m": 0.6,
@@ -7354,27 +7315,27 @@
             "status": "PASS",
             "summary": {
               "cost_win_rate_vs_median_baseline": 0.75,
-              "mean_cost_edge_vs_median_baseline": -0.748147,
-              "mean_terminal_edge_vs_median_baseline": 0.220686,
+              "mean_cost_edge_vs_median_baseline": -0.703085,
+              "mean_terminal_edge_vs_median_baseline": 0.199459,
               "n": 8,
-              "terminal_win_rate_vs_median_baseline": 1.0,
-              "worst_cost_edge_vs_median_baseline": 0.148104,
-              "worst_terminal_edge_vs_median_baseline": 0.005471
+              "terminal_win_rate_vs_median_baseline": 0.875,
+              "worst_cost_edge_vs_median_baseline": 0.17655,
+              "worst_terminal_edge_vs_median_baseline": -0.007351
             },
-            "terminal_ratio_shift": 0.05184,
+            "terminal_ratio_shift": 0.061989,
             "worst_heldout_deterioration_row": {
               "asset": "ETH",
-              "cell_heldout_terminal_edge": 0.165363,
-              "delta_vs_live": -0.029331,
+              "cell_heldout_terminal_edge": 0.175789,
+              "delta_vs_live": -0.036521,
               "episode": "2018 bear (single low)",
-              "live_heldout_terminal_edge": 0.194694
+              "live_heldout_terminal_edge": 0.21231
             },
             "worst_terminal_ratio_shift_row": {
               "asset": "ETH",
-              "cell_terminal_value": 0.536453,
+              "cell_terminal_value": 0.552631,
               "episode": "2018 bear (single low)",
-              "live_terminal_value": 0.565783,
-              "terminal_ratio_shift": 0.05184
+              "live_terminal_value": 0.589152,
+              "terminal_ratio_shift": 0.061989
             }
           },
           {
@@ -7393,7 +7354,7 @@
               "terminal_ratio_shift": false
             },
             "failures": [],
-            "heldout_terminal_edge_delta_vs_live": -0.024937,
+            "heldout_terminal_edge_delta_vs_live": -0.016359,
             "name": "gamma_1.00|deep_anchor_m_1.00|reserve_floor_1.25|floor_w_1.00|max_horizon_weeks_1.00",
             "params": {
               "deep_anchor_m": 0.6,
@@ -7408,27 +7369,27 @@
             "status": "PASS",
             "summary": {
               "cost_win_rate_vs_median_baseline": 0.75,
-              "mean_cost_edge_vs_median_baseline": -0.778505,
-              "mean_terminal_edge_vs_median_baseline": 0.225064,
+              "mean_cost_edge_vs_median_baseline": -0.739052,
+              "mean_terminal_edge_vs_median_baseline": 0.205708,
               "n": 8,
               "terminal_win_rate_vs_median_baseline": 0.875,
-              "worst_cost_edge_vs_median_baseline": 0.148104,
-              "worst_terminal_edge_vs_median_baseline": -0.042605
+              "worst_cost_edge_vs_median_baseline": 0.182324,
+              "worst_terminal_edge_vs_median_baseline": -0.032045
             },
-            "terminal_ratio_shift": 0.044826,
+            "terminal_ratio_shift": 0.045355,
             "worst_heldout_deterioration_row": {
-              "asset": "ETH",
-              "cell_heldout_terminal_edge": -0.042605,
-              "delta_vs_live": -0.024937,
-              "episode": "2019 H2 correction (mid-cycle)",
-              "live_heldout_terminal_edge": -0.017668
+              "asset": "BTC",
+              "cell_heldout_terminal_edge": 0.367617,
+              "delta_vs_live": -0.016359,
+              "episode": "2018 bear (single low)",
+              "live_heldout_terminal_edge": 0.383976
             },
             "worst_terminal_ratio_shift_row": {
               "asset": "ETH",
-              "cell_terminal_value": 0.591145,
+              "cell_terminal_value": 0.615873,
               "episode": "2018 bear (single low)",
-              "live_terminal_value": 0.565783,
-              "terminal_ratio_shift": 0.044826
+              "live_terminal_value": 0.589152,
+              "terminal_ratio_shift": 0.045355
             }
           },
           {
@@ -7462,27 +7423,27 @@
             "status": "PASS",
             "summary": {
               "cost_win_rate_vs_median_baseline": 0.75,
-              "mean_cost_edge_vs_median_baseline": -0.782271,
-              "mean_terminal_edge_vs_median_baseline": 0.238679,
+              "mean_cost_edge_vs_median_baseline": -0.746409,
+              "mean_terminal_edge_vs_median_baseline": 0.223238,
               "n": 8,
               "terminal_win_rate_vs_median_baseline": 0.875,
-              "worst_cost_edge_vs_median_baseline": 0.148104,
-              "worst_terminal_edge_vs_median_baseline": -0.017668
+              "worst_cost_edge_vs_median_baseline": 0.179053,
+              "worst_terminal_edge_vs_median_baseline": -0.019716
             },
-            "terminal_ratio_shift": 0.063211,
+            "terminal_ratio_shift": 0.066743,
             "worst_heldout_deterioration_row": {
               "asset": "ETH",
-              "cell_heldout_terminal_edge": 0.194694,
+              "cell_heldout_terminal_edge": 0.21231,
               "delta_vs_live": 0.0,
               "episode": "2018 bear (single low)",
-              "live_heldout_terminal_edge": 0.194694
+              "live_heldout_terminal_edge": 0.21231
             },
             "worst_terminal_ratio_shift_row": {
               "asset": "BTC",
-              "cell_terminal_value": 1.378297,
+              "cell_terminal_value": 1.39523,
               "episode": "2018 bear (single low)",
-              "live_terminal_value": 1.296353,
-              "terminal_ratio_shift": 0.063211
+              "live_terminal_value": 1.307935,
+              "terminal_ratio_shift": 0.066743
             }
           },
           {
@@ -7503,7 +7464,7 @@
             "failures": [
               "held-out terminal edge deterioration above 5pp"
             ],
-            "heldout_terminal_edge_delta_vs_live": -0.09802,
+            "heldout_terminal_edge_delta_vs_live": -0.094503,
             "name": "gamma_1.00|deep_anchor_m_1.00|reserve_floor_1.00|floor_w_1.25|max_horizon_weeks_1.00",
             "params": {
               "deep_anchor_m": 0.6,
@@ -7518,27 +7479,27 @@
             "status": "FAIL",
             "summary": {
               "cost_win_rate_vs_median_baseline": 0.75,
-              "mean_cost_edge_vs_median_baseline": -0.73953,
-              "mean_terminal_edge_vs_median_baseline": 0.201104,
+              "mean_cost_edge_vs_median_baseline": -0.702502,
+              "mean_terminal_edge_vs_median_baseline": 0.185535,
               "n": 8,
               "terminal_win_rate_vs_median_baseline": 0.875,
-              "worst_cost_edge_vs_median_baseline": 0.148104,
-              "worst_terminal_edge_vs_median_baseline": -0.017668
+              "worst_cost_edge_vs_median_baseline": 0.179053,
+              "worst_terminal_edge_vs_median_baseline": -0.019716
             },
-            "terminal_ratio_shift": 0.075612,
+            "terminal_ratio_shift": 0.072254,
             "worst_heldout_deterioration_row": {
               "asset": "BTC",
-              "cell_heldout_terminal_edge": 0.279023,
-              "delta_vs_live": -0.09802,
+              "cell_heldout_terminal_edge": 0.289473,
+              "delta_vs_live": -0.094503,
               "episode": "2018 bear (single low)",
-              "live_heldout_terminal_edge": 0.377043
+              "live_heldout_terminal_edge": 0.383976
             },
             "worst_terminal_ratio_shift_row": {
               "asset": "BTC",
-              "cell_terminal_value": 1.198333,
+              "cell_terminal_value": 1.213432,
               "episode": "2018 bear (single low)",
-              "live_terminal_value": 1.296353,
-              "terminal_ratio_shift": 0.075612
+              "live_terminal_value": 1.307935,
+              "terminal_ratio_shift": 0.072254
             }
           },
           {
@@ -7559,7 +7520,7 @@
             "failures": [
               "held-out terminal edge deterioration above 5pp"
             ],
-            "heldout_terminal_edge_delta_vs_live": -0.12907,
+            "heldout_terminal_edge_delta_vs_live": -0.12986,
             "name": "gamma_1.00|deep_anchor_m_1.00|reserve_floor_1.00|floor_w_1.00|max_horizon_weeks_0.75",
             "params": {
               "deep_anchor_m": 0.6,
@@ -7574,27 +7535,27 @@
             "status": "FAIL",
             "summary": {
               "cost_win_rate_vs_median_baseline": 0.75,
-              "mean_cost_edge_vs_median_baseline": -0.728177,
-              "mean_terminal_edge_vs_median_baseline": 0.191197,
+              "mean_cost_edge_vs_median_baseline": -0.690021,
+              "mean_terminal_edge_vs_median_baseline": 0.175472,
               "n": 8,
               "terminal_win_rate_vs_median_baseline": 0.875,
-              "worst_cost_edge_vs_median_baseline": 0.148104,
-              "worst_terminal_edge_vs_median_baseline": -0.017668
+              "worst_cost_edge_vs_median_baseline": 0.179053,
+              "worst_terminal_edge_vs_median_baseline": -0.019716
             },
-            "terminal_ratio_shift": 0.099563,
+            "terminal_ratio_shift": 0.099286,
             "worst_heldout_deterioration_row": {
               "asset": "BTC",
-              "cell_heldout_terminal_edge": 0.247973,
-              "delta_vs_live": -0.12907,
+              "cell_heldout_terminal_edge": 0.254116,
+              "delta_vs_live": -0.12986,
               "episode": "2018 bear (single low)",
-              "live_heldout_terminal_edge": 0.377043
+              "live_heldout_terminal_edge": 0.383976
             },
             "worst_terminal_ratio_shift_row": {
               "asset": "BTC",
-              "cell_terminal_value": 1.167284,
+              "cell_terminal_value": 1.178076,
               "episode": "2018 bear (single low)",
-              "live_terminal_value": 1.296353,
-              "terminal_ratio_shift": 0.099563
+              "live_terminal_value": 1.307935,
+              "terminal_ratio_shift": 0.099286
             }
           },
           {
@@ -7628,27 +7589,27 @@
             "status": "PASS",
             "summary": {
               "cost_win_rate_vs_median_baseline": 0.75,
-              "mean_cost_edge_vs_median_baseline": -0.780563,
-              "mean_terminal_edge_vs_median_baseline": 0.237068,
+              "mean_cost_edge_vs_median_baseline": -0.743864,
+              "mean_terminal_edge_vs_median_baseline": 0.220973,
               "n": 8,
               "terminal_win_rate_vs_median_baseline": 0.875,
-              "worst_cost_edge_vs_median_baseline": 0.148104,
-              "worst_terminal_edge_vs_median_baseline": -0.017668
+              "worst_cost_edge_vs_median_baseline": 0.179053,
+              "worst_terminal_edge_vs_median_baseline": -0.019716
             },
-            "terminal_ratio_shift": 0.05681,
+            "terminal_ratio_shift": 0.055779,
             "worst_heldout_deterioration_row": {
               "asset": "ETH",
-              "cell_heldout_terminal_edge": 0.194694,
+              "cell_heldout_terminal_edge": 0.21231,
               "delta_vs_live": 0.0,
               "episode": "2018 bear (single low)",
-              "live_heldout_terminal_edge": 0.194694
+              "live_heldout_terminal_edge": 0.21231
             },
             "worst_terminal_ratio_shift_row": {
               "asset": "BTC",
-              "cell_terminal_value": 1.369999,
+              "cell_terminal_value": 1.38089,
               "episode": "2018 bear (single low)",
-              "live_terminal_value": 1.296353,
-              "terminal_ratio_shift": 0.05681
+              "live_terminal_value": 1.307935,
+              "terminal_ratio_shift": 0.055779
             }
           }
         ],
@@ -7676,44 +7637,15 @@
             "failures": [
               "held-out terminal edge deterioration above 5pp"
             ],
-            "heldout_terminal_edge_delta_vs_live": -0.087094,
+            "heldout_terminal_edge_delta_vs_live": -0.088336,
             "name": "gamma_1.00|deep_anchor_m_0.75|reserve_floor_1.00|floor_w_1.00|max_horizon_weeks_1.00",
-            "terminal_ratio_shift": 0.078703,
+            "terminal_ratio_shift": 0.079769,
             "worst_heldout_deterioration_row": {
               "asset": "BTC",
-              "cell_heldout_terminal_edge": 0.289949,
-              "delta_vs_live": -0.087094,
+              "cell_heldout_terminal_edge": 0.29564,
+              "delta_vs_live": -0.088336,
               "episode": "2018 bear (single low)",
-              "live_heldout_terminal_edge": 0.377043
-            }
-          },
-          {
-            "factors": {
-              "deep_anchor_m": 1.25,
-              "floor_w": 1.0,
-              "gamma": 1.0,
-              "max_horizon_weeks": 1.0,
-              "reserve_floor": 1.0
-            },
-            "failure_flags": {
-              "heldout_delta_only": true,
-              "heldout_delta_only_positive_edge": false,
-              "heldout_edge_deterioration": true,
-              "historical_thresholds": false,
-              "terminal_ratio_shift": false
-            },
-            "failures": [
-              "held-out terminal edge deterioration above 5pp"
-            ],
-            "heldout_terminal_edge_delta_vs_live": -0.050561,
-            "name": "gamma_1.00|deep_anchor_m_1.25|reserve_floor_1.00|floor_w_1.00|max_horizon_weeks_1.00",
-            "terminal_ratio_shift": 0.068058,
-            "worst_heldout_deterioration_row": {
-              "asset": "ETH",
-              "cell_heldout_terminal_edge": -0.068229,
-              "delta_vs_live": -0.050561,
-              "episode": "2019 H2 correction (mid-cycle)",
-              "live_heldout_terminal_edge": -0.017668
+              "live_heldout_terminal_edge": 0.383976
             }
           },
           {
@@ -7734,15 +7666,15 @@
             "failures": [
               "held-out terminal edge deterioration above 5pp"
             ],
-            "heldout_terminal_edge_delta_vs_live": -0.09802,
+            "heldout_terminal_edge_delta_vs_live": -0.094503,
             "name": "gamma_1.00|deep_anchor_m_1.00|reserve_floor_1.00|floor_w_1.25|max_horizon_weeks_1.00",
-            "terminal_ratio_shift": 0.075612,
+            "terminal_ratio_shift": 0.072254,
             "worst_heldout_deterioration_row": {
               "asset": "BTC",
-              "cell_heldout_terminal_edge": 0.279023,
-              "delta_vs_live": -0.09802,
+              "cell_heldout_terminal_edge": 0.289473,
+              "delta_vs_live": -0.094503,
               "episode": "2018 bear (single low)",
-              "live_heldout_terminal_edge": 0.377043
+              "live_heldout_terminal_edge": 0.383976
             }
           },
           {
@@ -7763,22 +7695,22 @@
             "failures": [
               "held-out terminal edge deterioration above 5pp"
             ],
-            "heldout_terminal_edge_delta_vs_live": -0.12907,
+            "heldout_terminal_edge_delta_vs_live": -0.12986,
             "name": "gamma_1.00|deep_anchor_m_1.00|reserve_floor_1.00|floor_w_1.00|max_horizon_weeks_0.75",
-            "terminal_ratio_shift": 0.099563,
+            "terminal_ratio_shift": 0.099286,
             "worst_heldout_deterioration_row": {
               "asset": "BTC",
-              "cell_heldout_terminal_edge": 0.247973,
-              "delta_vs_live": -0.12907,
+              "cell_heldout_terminal_edge": 0.254116,
+              "delta_vs_live": -0.12986,
               "episode": "2018 bear (single low)",
-              "live_heldout_terminal_edge": 0.377043
+              "live_heldout_terminal_edge": 0.383976
             }
           }
         ],
         "materiality_review": {
           "heldout_delta_gate_status": "FAIL",
-          "heldout_delta_only_cells": 4,
-          "heldout_delta_only_negative_edge_cells": 1,
+          "heldout_delta_only_cells": 3,
+          "heldout_delta_only_negative_edge_cells": 0,
           "heldout_delta_only_positive_edge_cells": 3,
           "historical_threshold_failure_cells": 0,
           "historical_threshold_gate_status": "PASS",
@@ -7804,11 +7736,11 @@
         "status": "FAIL",
         "summary": {
           "cells": 11,
-          "failing_cells": 4,
-          "passing_cells": 7,
+          "failing_cells": 3,
+          "passing_cells": 8,
           "worst_heldout_deterioration_cell": "gamma_1.00|deep_anchor_m_1.00|reserve_floor_1.00|floor_w_1.00|max_horizon_weeks_0.75",
-          "worst_heldout_terminal_edge_delta_vs_live": -0.12907,
-          "worst_terminal_ratio_shift": 0.099563,
+          "worst_heldout_terminal_edge_delta_vs_live": -0.12986,
+          "worst_terminal_ratio_shift": 0.099286,
           "worst_terminal_ratio_shift_cell": "gamma_1.00|deep_anchor_m_1.00|reserve_floor_1.00|floor_w_1.00|max_horizon_weeks_0.75"
         },
         "test_design": "+/-25% one-at-a-time full-stack perturbations plus the live cell",
@@ -7820,7 +7752,7 @@
           "max_horizon_weeks"
         ]
       },
-      "status": "PASS_BY_RATCHET"
+      "status": "FAIL"
     },
     {
       "absolute_status": "FAIL",
@@ -8252,9 +8184,9 @@
     }
   ],
   "relationship_to_current_verdict": {
-    "common_exam_status": "PASS_FRONTIER_SCOPED",
+    "common_exam_status": "FAIL",
     "current_utility_audit_artifact": "reports/robust_evaluation.json",
-    "current_utility_audit_status": "WATCH",
+    "current_utility_audit_status": "PASS",
     "reason": "The existing PASS covers utility, historical replay, jitter, target 90/110/lagged perturbations, leave-one-episode-out, and chronological holdout. The common exam below is a stricter promotion layer and should be read separately from the current utility verdict and from the Fable 2026-07-05 core-only cross-audit."
   },
   "release_hardening_candidate": {
@@ -8269,117 +8201,117 @@
       "episodes": [
         {
           "asset": "BTC",
-          "avg_cost_premium_delta_vs_live": 0.583384,
-          "candidate_avg_cost_premium_to_low": 1.317714,
+          "avg_cost_premium_delta_vs_live": 0.282943,
+          "candidate_avg_cost_premium_to_low": 1.025621,
           "candidate_early_exhaustion": false,
           "candidate_spent_by_low": 0.8,
-          "candidate_terminal": 0.970052,
+          "candidate_terminal": 1.125911,
           "episode": "2018 bear (single low)",
-          "live_avg_cost_premium_to_low": 0.73433,
-          "live_spent_by_low": 0.796243,
-          "live_terminal": 1.296353,
-          "terminal_delta_vs_live": -0.251707
+          "live_avg_cost_premium_to_low": 0.742678,
+          "live_spent_by_low": 0.793415,
+          "live_terminal": 1.307935,
+          "terminal_delta_vs_live": -0.139169
         },
         {
           "asset": "ETH",
-          "avg_cost_premium_delta_vs_live": 0.744265,
-          "candidate_avg_cost_premium_to_low": 2.411227,
+          "avg_cost_premium_delta_vs_live": 0.648288,
+          "candidate_avg_cost_premium_to_low": 2.330982,
           "candidate_early_exhaustion": false,
           "candidate_spent_by_low": 0.7,
-          "candidate_terminal": 0.44234,
+          "candidate_terminal": 0.474489,
           "episode": "2018 bear (single low)",
-          "live_avg_cost_premium_to_low": 1.666962,
+          "live_avg_cost_premium_to_low": 1.682694,
           "live_spent_by_low": 0.715,
-          "live_terminal": 0.565783,
-          "terminal_delta_vs_live": -0.218181
+          "live_terminal": 0.589152,
+          "terminal_delta_vs_live": -0.194624
         },
         {
           "asset": "BTC",
-          "avg_cost_premium_delta_vs_live": 0.081796,
-          "candidate_avg_cost_premium_to_low": 0.476741,
+          "avg_cost_premium_delta_vs_live": 0.028218,
+          "candidate_avg_cost_premium_to_low": 0.543349,
           "candidate_early_exhaustion": false,
           "candidate_spent_by_low": 0.8,
-          "candidate_terminal": 1.725493,
+          "candidate_terminal": 1.680926,
           "episode": "2022 bear (DOUBLE bottom)",
-          "live_avg_cost_premium_to_low": 0.394945,
-          "live_spent_by_low": 0.744,
-          "live_terminal": 1.826671,
-          "terminal_delta_vs_live": -0.055389
+          "live_avg_cost_premium_to_low": 0.515131,
+          "live_spent_by_low": 0.667179,
+          "live_terminal": 1.712232,
+          "terminal_delta_vs_live": -0.018284
         },
         {
           "asset": "ETH",
-          "avg_cost_premium_delta_vs_live": 0.120711,
-          "candidate_avg_cost_premium_to_low": 0.47172,
+          "avg_cost_premium_delta_vs_live": 0.024672,
+          "candidate_avg_cost_premium_to_low": 0.398679,
           "candidate_early_exhaustion": false,
-          "candidate_spent_by_low": 0.438121,
-          "candidate_terminal": 1.475104,
+          "candidate_spent_by_low": 0.427616,
+          "candidate_terminal": 1.519101,
           "episode": "2022 bear (DOUBLE bottom)",
-          "live_avg_cost_premium_to_low": 0.351009,
-          "live_spent_by_low": 0.438121,
-          "live_terminal": 1.606902,
-          "terminal_delta_vs_live": -0.08202
+          "live_avg_cost_premium_to_low": 0.374007,
+          "live_spent_by_low": 0.427616,
+          "live_terminal": 1.54638,
+          "terminal_delta_vs_live": -0.017641
         },
         {
           "asset": "BTC",
-          "avg_cost_premium_delta_vs_live": -0.096313,
-          "candidate_avg_cost_premium_to_low": 0.069533,
+          "avg_cost_premium_delta_vs_live": -0.041861,
+          "candidate_avg_cost_premium_to_low": 0.131134,
           "candidate_early_exhaustion": false,
-          "candidate_spent_by_low": 0.58095,
-          "candidate_terminal": 1.194987,
+          "candidate_spent_by_low": 0.375167,
+          "candidate_terminal": 1.172218,
           "episode": "2019 H2 correction (mid-cycle)",
-          "live_avg_cost_premium_to_low": 0.165846,
-          "live_spent_by_low": 0.466449,
-          "live_terminal": 1.130885,
-          "terminal_delta_vs_live": 0.056683
+          "live_avg_cost_premium_to_low": 0.172995,
+          "live_spent_by_low": 0.5739,
+          "live_terminal": 1.143225,
+          "terminal_delta_vs_live": 0.025361
         },
         {
           "asset": "ETH",
-          "avg_cost_premium_delta_vs_live": -0.07635,
-          "candidate_avg_cost_premium_to_low": 0.372787,
+          "avg_cost_premium_delta_vs_live": -0.050597,
+          "candidate_avg_cost_premium_to_low": 0.344982,
           "candidate_early_exhaustion": false,
-          "candidate_spent_by_low": 0.621083,
-          "candidate_terminal": 1.389705,
+          "candidate_spent_by_low": 0.594262,
+          "candidate_terminal": 1.168693,
           "episode": "2019 H2 correction (mid-cycle)",
-          "live_avg_cost_premium_to_low": 0.449137,
-          "live_spent_by_low": 0.493192,
-          "live_terminal": 1.336451,
-          "terminal_delta_vs_live": 0.039847
+          "live_avg_cost_premium_to_low": 0.395579,
+          "live_spent_by_low": 0.488019,
+          "live_terminal": 1.141032,
+          "terminal_delta_vs_live": 0.024242
         },
         {
           "asset": "BTC",
-          "avg_cost_premium_delta_vs_live": 0.034194,
-          "candidate_avg_cost_premium_to_low": 0.293163,
+          "avg_cost_premium_delta_vs_live": 0.051109,
+          "candidate_avg_cost_premium_to_low": 0.30002,
           "candidate_early_exhaustion": false,
-          "candidate_spent_by_low": 0.15,
-          "candidate_terminal": 1.442805,
+          "candidate_spent_by_low": 0.25,
+          "candidate_terminal": 1.48973,
           "episode": "2020 COVID crash (fast V)",
-          "live_avg_cost_premium_to_low": 0.258969,
-          "live_spent_by_low": 0.17231,
-          "live_terminal": 1.479569,
-          "terminal_delta_vs_live": -0.024848
+          "live_avg_cost_premium_to_low": 0.248911,
+          "live_spent_by_low": 0.30065,
+          "live_terminal": 1.547084,
+          "terminal_delta_vs_live": -0.037072
         },
         {
           "asset": "ETH",
-          "avg_cost_premium_delta_vs_live": -0.075442,
-          "candidate_avg_cost_premium_to_low": 0.260021,
+          "avg_cost_premium_delta_vs_live": -0.0852,
+          "candidate_avg_cost_premium_to_low": 0.357633,
           "candidate_early_exhaustion": false,
-          "candidate_spent_by_low": 0.3,
-          "candidate_terminal": 1.95167,
+          "candidate_spent_by_low": 0.4,
+          "candidate_terminal": 1.981158,
           "episode": "2020 COVID crash (fast V)",
-          "live_avg_cost_premium_to_low": 0.335463,
-          "live_spent_by_low": 0.381428,
-          "live_terminal": 1.849287,
-          "terminal_delta_vs_live": 0.055363
+          "live_avg_cost_premium_to_low": 0.442833,
+          "live_spent_by_low": 0.46389,
+          "live_terminal": 1.87217,
+          "terminal_delta_vs_live": 0.058215
         }
       ],
-      "mean_cost_premium_delta_vs_live": 0.164531,
-      "mean_terminal_delta_vs_live": -0.060031,
+      "mean_cost_premium_delta_vs_live": 0.107196,
+      "mean_terminal_delta_vs_live": -0.037372,
       "n": 8,
       "new_early_exhaustion_episodes": 0,
       "scope": "historical_accumulation_episodes_vs_live",
       "terminal_win_rate_vs_live": 0.375,
-      "worst_cost_premium_delta_vs_live": 0.744265,
-      "worst_terminal_delta_vs_live": -0.251707
+      "worst_cost_premium_delta_vs_live": 0.648288,
+      "worst_terminal_delta_vs_live": -0.194624
     },
     "historical_pass": false,
     "id": "release_hardening",
@@ -8992,6 +8924,6 @@
   },
   "schema_version": 1,
   "scope": "display_repo_disclosure",
-  "status": "PASS_FRONTIER_SCOPED",
+  "status": "FAIL",
   "summary": "The current dashboard verdict is scoped to the historical utility audit. The stricter common-exam gates now replay parameter plateau and synthetic adverse paths through the dashboard full stack. Fable's external core-only cross-audit remains recorded as a separate warning because it failed the convex core on plateau and synthetic-shape stress."
 }

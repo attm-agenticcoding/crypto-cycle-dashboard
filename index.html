@@ -1,29 +1,797 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta http-equiv="refresh" content="0; url=https://attm-agenticcoding.github.io/crypto-cycle-dashboard-gpt56/">
-  <link rel="canonical" href="https://attm-agenticcoding.github.io/crypto-cycle-dashboard-gpt56/">
-  <title>GPT-5.6 Crypto Cycle Dashboard</title>
-  <script>
-    const destination = new URL("https://attm-agenticcoding.github.io/crypto-cycle-dashboard-gpt56/");
-    destination.search = window.location.search;
-    destination.hash = window.location.hash;
-    window.location.replace(destination.href);
-  </script>
-  <style>
-    body { margin: 0; min-height: 100vh; display: grid; place-items: center;
-      background: #0d1117; color: #e6edf3;
-      font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
-    main { max-width: 560px; padding: 28px; text-align: center; }
-    a { color: #58a6ff; }
-  </style>
-</head>
-<body>
-  <main>
-    <p>Main dashboard now uses the GPT-5.6 implementation.</p>
-    <p><a href="https://attm-agenticcoding.github.io/crypto-cycle-dashboard-gpt56/">Open the GPT-5.6 dashboard</a></p>
-  </main>
-</body>
-</html>
+<!doctype html><html lang='en'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width, initial-scale=1'><meta name='color-scheme' content='dark'><meta http-equiv='refresh' content='900'><title>Crypto Cycle Dashboard</title><style>
+* { box-sizing:border-box; }
+body { margin:0; background:#0d1117; color:#e6edf3;
+       font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; }
+a { color:#58a6ff; text-decoration:none; }
+a:hover { text-decoration:underline; }
+header { padding:20px 24px; background:#161b22; border-bottom:1px solid #21262d;
+         position:sticky; top:0; z-index:2; }
+.title { font-size:21px; font-weight:800; }
+.meta { color:#8b949e; font-size:13px; margin-top:4px; }
+.meta .stale { color:#f85149; font-weight:700; }
+.meta .live { color:#d29922; font-weight:700; }
+.cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(360px,1fr));
+         gap:16px; padding:20px 24px; max-width:1200px; }
+.card { background:#161b22; border:1px solid #21262d; border-radius:14px; padding:18px 20px; }
+.section-title { max-width:1200px; margin:18px 24px 0; color:#8b949e; font-size:12px;
+                 letter-spacing:.08em; font-weight:800; text-transform:uppercase; }
+.model { margin:20px 24px 8px; max-width:1200px; }
+.model-head { display:flex; justify-content:space-between; align-items:flex-end; gap:12px; flex-wrap:wrap;
+              margin-bottom:12px; }
+.model-head h2 { margin:0; font-size:18px; }
+.model-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,360px),1fr)); gap:16px; }
+.posterior { background:#111923; border:1px solid #2d3a4b; border-radius:14px; padding:18px 20px; }
+.posterior-top { display:flex; justify-content:space-between; gap:10px; align-items:flex-start; }
+.posterior-heading { min-width:0; }
+.posterior-title { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+.posterior h3 { margin:0; font-size:22px; }
+.posterior-sub { margin-top:6px; overflow-wrap:anywhere;
+                 color:#8b949e; font-size:12px; }
+.evidence { display:inline-flex; align-items:center; min-height:20px; padding:2px 8px;
+            border-radius:7px; color:#07130d; font-size:11px; font-weight:900;
+            letter-spacing:.03em; text-transform:uppercase; box-shadow:0 0 0 1px rgba(255,255,255,.12) inset; }
+.evidence-high { background:#27f58b; }
+.evidence-medium { background:#ffd166; color:#221906; }
+.evidence-low { background:#ff6b6b; color:#210808; }
+.audit-rail { margin:16px 0 0; max-width:1200px; background:#1c1811; border:1px solid #6e5528;
+              border-left:4px solid #d29922; border-radius:8px; padding:13px 16px; }
+.audit-rail-head { display:flex; justify-content:space-between; gap:14px; align-items:flex-start; flex-wrap:wrap; }
+.audit-rail-kicker { color:#e3b341; font-size:12px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; }
+.audit-rail-title { margin-top:2px; font-size:15px; font-weight:800; color:#e6edf3; }
+.audit-rail-status { color:#d29922; font-size:12px; font-weight:900; white-space:nowrap; }
+.audit-rail-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:10px; margin-top:10px; }
+.audit-rail-item { color:#9aa4ae; font-size:12px; line-height:1.45; }
+.audit-rail-item b { color:#e6edf3; }
+.spotbox { text-align:right; display:grid; gap:3px; justify-items:end; }
+.spotbox b { color:#e6edf3; font-size:20px; font-variant-numeric:tabular-nums; }
+.spotbox span { color:#8b949e; font-size:11px; text-transform:uppercase; letter-spacing:.04em; }
+.spotdelta { font-size:11px; font-style:normal; font-variant-numeric:tabular-nums; }
+.spotdelta.pos { color:#3fb950; }
+.spotdelta.neg { color:#f85149; }
+.livecmp { color:#adbac7; }
+.livecmp b { color:#e6edf3; font-weight:700; }
+.probgrid { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin:12px 0; }
+.prob { background:#0d1117; border:1px solid #283241; border-radius:9px; padding:9px 10px; }
+.prob b { display:block; font-size:17px; color:#e6edf3; font-variant-numeric:tabular-nums; }
+.prob span { color:#8b949e; font-size:11.5px; line-height:1.3; }
+.calnote { margin-top:8px; color:#9aa4ae; font-size:11.5px; line-height:1.45; }
+.calnote b { color:#d29922; }
+.caldiag { margin-top:9px; background:#0d111780; border:1px solid #283241;
+           border-radius:9px; color:#8b949e; }
+.caldiag summary { display:flex; align-items:center; justify-content:space-between; gap:10px;
+                   cursor:pointer; padding:8px 10px; color:#adbac7; font-size:11.5px;
+                   font-weight:650; list-style:none; }
+.caldiag summary::-webkit-details-marker { display:none; }
+.caldiag summary::before { content:"▸"; color:#6e7681; margin-right:6px; }
+.caldiag[open] summary::before { content:"▾"; }
+.caldiag summary span:first-of-type { flex:1; }
+.caldiag-badge { color:#79c0ff; background:#1f6feb1a; border:1px solid #1f6feb55;
+                 border-radius:999px; padding:2px 6px; font-size:9px; font-weight:800;
+                 letter-spacing:.06em; white-space:nowrap; }
+.caldiag-body { padding:0 10px 10px; border-top:1px solid #21262d; }
+.caldiag-note { margin:8px 0; color:#7d8590; font-size:10.5px; line-height:1.4; }
+.top-history { margin-top:20px; }
+.top-history > summary { padding:13px 14px; font-size:14px; }
+.top-history-body { padding:0 14px 14px; }
+.caldiag-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:6px; }
+.caldiag-item { display:grid; gap:2px; padding:6px 7px; background:#111923;
+                border:1px solid #21262d; border-radius:7px; font-size:10.5px;
+                font-variant-numeric:tabular-nums; }
+.caldiag-item > span { color:#8b949e; }
+.caldiag-values { display:flex; align-items:baseline; gap:4px; flex-wrap:wrap; }
+.caldiag-values b { color:#c9d1d9; font-size:11px; }
+.caldiag-values em { color:#d29922; font-size:10px; font-style:normal; }
+.qgrid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; margin:10px 0; }
+.qbox { background:#0d1117; border:1px solid #21262d; border-radius:9px; padding:8px 10px; }
+.qbox b { display:block; font-size:15px; font-variant-numeric:tabular-nums; }
+.qbox span { color:#8b949e; font-size:11px; }
+.decision { margin-top:12px; border-top:1px solid #283241; padding-top:10px; }
+.decision-main { display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+.decision-main b { color:#3fb950; }
+.minirows { margin-top:10px; display:grid; gap:5px; padding:9px 11px; background:#0d111780;
+            border:1px solid #21262d; border-radius:9px; }
+.minirows-title { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+.minirows-title b { color:#e6edf3; font-size:12px; font-weight:600; }
+.minirows-badge { color:#79c0ff; background:#1f6feb1a; border:1px solid #1f6feb55;
+                  border-radius:999px; padding:2px 6px; font-size:9px; font-weight:800;
+                  letter-spacing:.06em; }
+.minirows-caption { color:#6e7681; font-size:10.5px; line-height:1.35; }
+.minirow { display:grid; grid-template-columns:minmax(0,1fr) 66px 62px; gap:8px;
+           color:#8b949e; font-size:12px; font-variant-numeric:tabular-nums; }
+.minirow span:nth-child(n+2) { text-align:right; }
+.minirow-head { color:#6e7681; font-size:10px; text-transform:uppercase; letter-spacing:.04em;
+                padding:2px 0 3px; border-bottom:1px solid #21262d; }
+.minirow-data .mini-scenario { color:#c9d1d9; }
+.minirows-note { margin-top:2px; padding-top:5px; border-top:1px solid #21262d;
+                 color:#6e7681; font-size:10.5px; line-height:1.35; }
+.card-head { display:flex; justify-content:space-between; align-items:center; gap:10px; }
+.asset { font-size:22px; font-weight:800; }
+.price { color:#8b949e; font-size:16px; margin-left:6px; }
+.pill { color:#fff; font-size:12px; font-weight:700; padding:4px 11px; border-radius:20px;
+        white-space:nowrap; }
+.verdict { color:#8b949e; font-size:13px; margin:6px 0 14px; }
+.metric { display:flex; align-items:center; gap:10px; margin:7px 0; font-size:13px; }
+.mlabel { width:54px; color:#8b949e; }
+.bar { flex:1; height:9px; background:#21262d; border-radius:6px; overflow:hidden; }
+.fill { display:block; height:100%; border-radius:6px; }
+.mval { width:62px; text-align:right; font-variant-numeric:tabular-nums; font-weight:600; }
+.mscale { color:#6e7681; font-size:11px; font-weight:400; }
+.chips { display:flex; gap:8px; flex-wrap:wrap; margin:12px 0 2px; }
+.chips span { background:#21262d; color:#adbac7; font-size:12px; padding:3px 9px; border-radius:6px; }
+.clegend { max-width:1200px; margin:2px 24px 8px; display:flex; flex-wrap:wrap; gap:5px 18px;
+           color:#8b949e; font-size:11.5px; line-height:1.5; }
+.clegend b { color:#adbac7; font-weight:700; }
+.block { margin-top:12px; border-top:1px solid #21262d; padding-top:10px; }
+.blabel { font-size:11px; letter-spacing:.08em; color:#8b949e; font-weight:700; }
+.bval { font-size:14px; margin-top:3px; line-height:1.45; }
+.sub { color:#8b949e; font-size:12px; }
+.neg { color:#f85149; }
+.diag { margin-top:12px; background:#0d1117; border:1px solid #30363d; border-radius:10px; padding:10px 12px; }
+.diagtop { display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap; }
+.conf { font-size:12px; font-weight:800; padding:3px 8px; border-radius:7px; color:#fff; }
+.diagrow { display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:8px; margin-top:8px; }
+.dmetric { color:#8b949e; font-size:11.5px; line-height:1.35; }
+.dmetric b { display:block; color:#e6edf3; font-size:13px; font-variant-numeric:tabular-nums; }
+.warn { color:#d29922; font-size:11.5px; margin-top:7px; line-height:1.4; }
+.audit { margin:18px 0; background:#161b22; border:1px solid #30363d; border-radius:10px; padding:14px 16px; }
+.audit-head { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+.audit-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:10px; margin-top:12px; }
+.audit-card { background:#0d1117; border:1px solid #21262d; border-radius:8px; padding:10px 12px; }
+.audit-card b { display:block; margin-bottom:5px; }
+.audit-list { margin:8px 0 0; padding-left:18px; color:#8b949e; line-height:1.45; font-size:12px; }
+.badge-pass { color:#3fb950; font-weight:800; }
+.badge-pending { color:#d29922; font-weight:800; }
+.badge-watch { color:#d29922; font-weight:800; }
+.badge-fail { color:#f85149; font-weight:800; }
+.wrap { padding:4px 24px 8px; max-width:1200px; }
+.wrap h3 { margin:26px 0 10px; font-size:16px; }
+/* weekly buy planner */
+.planner { margin:6px 24px 8px; max-width:1200px; background:#11203a55; border:1px solid #1f6feb66;
+           border-radius:14px; padding:18px 20px; }
+.planner h3 { margin:0 0 4px; font-size:16px; }
+.pgrid { display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:14px; margin:14px 0 6px; }
+.pin label { display:block; font-size:12px; color:#8b949e; margin-bottom:5px; }
+.inwrap { display:flex; align-items:center; background:#0d1117; border:1px solid #30363d; border-radius:9px; padding:0 10px; }
+.inwrap span { color:#8b949e; }
+.inwrap input { flex:1; background:transparent; border:0; color:#e6edf3; font-size:16px; padding:10px 6px;
+                outline:none; font-variant-numeric:tabular-nums; }
+.chk { display:inline-flex; align-items:center; gap:7px; color:#8b949e; font-size:12px; margin-top:4px; cursor:pointer; }
+.pout { margin-top:14px; display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:12px; }
+.pcard { background:#0d1117; border:1px solid #21262d; border-radius:11px; padding:12px 14px; }
+.ptop { display:flex; justify-content:space-between; align-items:center; gap:8px; }
+.pbig { font-size:20px; margin:8px 0 4px; }
+.pbig b { color:#3fb950; }
+/* bottom-prediction derivation */
+.dcard { background:#161b22; border:1px solid #21262d; border-radius:11px; padding:12px 14px; margin:8px 0; }
+.dhead { font-size:14px; }
+.dlist { margin:8px 0 0 18px; padding:0; color:#adbac7; font-size:12.5px; line-height:1.55; }
+table.d { border-collapse:collapse; font-size:13px; width:100%; max-width:560px; background:#161b22;
+          border:1px solid #21262d; border-radius:10px; overflow:hidden; }
+table.d th, table.d td { padding:7px 12px; border-bottom:1px solid #21262d; text-align:right;
+                         font-variant-numeric:tabular-nums; }
+table.d th { color:#8b949e; font-weight:600; background:#1b212a; }
+table.d td:first-child, table.d th:first-child { text-align:left; }
+table.d tr:last-child td { border-bottom:none; }
+.tablewrap { max-width:100%; overflow-x:auto; }
+.tablewrap table.d { min-width:520px; }
+/* prediction history controls */
+.hctl { display:flex; flex-wrap:wrap; align-items:center; gap:12px; margin:10px 0 4px; max-width:1200px; }
+.rangepick { position:relative; display:inline-block; }
+.htrig { display:inline-flex; align-items:center; gap:8px; min-width:248px; background:#161b22;
+         color:#c9d1d9; border:1px solid #30363d; border-radius:9px; padding:10px 12px;
+         font-size:14px; cursor:pointer; text-align:left; }
+.htrig:hover:not(:disabled) { border-color:#3b434d; background:#1b212a; }
+.htrig:disabled { color:#6e7681; cursor:default; }
+.htrig .hcar { margin-left:auto; color:#6e7681; font-size:11px; }
+.hpop { position:absolute; z-index:40; top:calc(100% + 6px); left:0; display:none; background:#161b22;
+        border:1px solid #30363d; border-radius:12px; padding:12px 40px; box-shadow:0 12px 34px rgba(0,0,0,.55); }
+.hpop.open { display:block; }
+.hjump { display:flex; justify-content:center; gap:8px; margin:0 0 10px; }
+.hjump select { background:#0d1117; color:#c9d1d9; border:1px solid #30363d; border-radius:8px;
+                padding:7px 26px 7px 9px; font-size:12.5px; outline:none; }
+.hjump select:focus { border-color:#1f6feb; }
+.hnav { position:absolute; top:50px; width:28px; height:28px; border-radius:7px; background:#21262d;
+        color:#c9d1d9; border:1px solid #30363d; font-size:16px; line-height:1; cursor:pointer; }
+.hnav:hover:not(:disabled) { background:#2a3038; }
+.hnav:disabled { color:#484f58; cursor:default; opacity:.5; }
+.hnav.prev { left:8px; } .hnav.next { right:8px; }
+.hpop-cals { display:flex; gap:20px; }
+.hcal-hd { text-align:center; font-weight:600; color:#e6edf3; font-size:13.5px; height:24px;
+           line-height:24px; margin-bottom:4px; }
+.hgrid { display:grid; grid-template-columns:repeat(7,32px); }
+.hdow { height:20px; line-height:20px; text-align:center; font-size:11px; color:#6e7681; }
+.hday { height:32px; display:flex; align-items:center; justify-content:center; font-size:12.5px;
+        color:#c9d1d9; cursor:pointer; user-select:none; }
+.hday:hover:not(.hdis):not(.hempty):not(.hin):not(.hstart):not(.hend) { background:#2a3038; border-radius:7px; }
+.hday.hempty { visibility:hidden; cursor:default; }
+.hday.hdis { color:#484f58; cursor:default; }
+.hday.hin { background:#163056; }
+.hday.hstart, .hday.hend { background:#1f6feb; color:#fff; font-weight:600; }
+.hday.hstart { border-top-left-radius:8px; border-bottom-left-radius:8px; }
+.hday.hend { border-top-right-radius:8px; border-bottom-right-radius:8px; }
+.hpre { display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin-top:12px; padding-top:10px;
+        border-top:1px solid #21262d; }
+.hpre-sp { flex:1; min-width:8px; }
+.hchip { background:#21262d; color:#adbac7; border:1px solid #30363d; border-radius:7px;
+         padding:5px 10px; font-size:12px; cursor:pointer; }
+.hchip:hover { background:#2a3038; }
+.hchip-go { background:#1f6feb; color:#fff; border-color:#1f6feb; }
+.hchip-go:hover { background:#388bfd; }
+@media (max-width:620px) { .hpop-cals { flex-direction:column; gap:14px; }
+  .hpop { left:50%; transform:translateX(-50%); } }
+#histcap { width:min(1440px,calc(100vw - 64px)); max-width:calc(100vw - 64px); }
+#histwrap { width:min(1440px,calc(100vw - 64px)); max-width:calc(100vw - 64px);
+            display:grid; grid-template-columns:minmax(0,1fr); gap:12px; align-items:start; }
+.histpane { min-width:0; background:#161b22; border:1px solid #21262d; border-radius:10px; overflow:hidden; }
+.histpane-head { display:flex; align-items:baseline; justify-content:space-between; gap:10px; padding:9px 12px;
+                 background:#1b212a; border-bottom:1px solid #30363d; }
+.histpane-head b { color:#79c0ff; font-size:14px; letter-spacing:.02em; }
+.histpane-head span { color:#6e7681; font-size:11px; }
+.histtable-scroll { max-width:100%; overflow-x:auto; }
+#histwrap table.d.histtable { width:100%; min-width:640px; max-width:none; table-layout:fixed;
+                             border:0; border-radius:0; }
+#histwrap table.d.histtable th, #histwrap table.d.histtable td { box-sizing:border-box; padding:7px 6px; line-height:1.25; }
+#histwrap table.d.histtable th { white-space:normal; }
+#histwrap table.d.histtable td { white-space:nowrap; }
+#histwrap table.d.histtable th:nth-child(1), #histwrap table.d.histtable td:nth-child(1) { width:82px; }
+#histwrap table.d.histtable th:nth-child(2), #histwrap table.d.histtable td:nth-child(2) { width:72px; }
+#histwrap table.d.histtable th:nth-child(3), #histwrap table.d.histtable td:nth-child(3) { width:66px; }
+#histwrap table.d.histtable th:nth-child(4), #histwrap table.d.histtable td:nth-child(4) { width:72px; }
+#histwrap table.d.histtable th:nth-child(5), #histwrap table.d.histtable td:nth-child(5) { width:154px; }
+#histwrap table.d.histtable th:nth-child(6), #histwrap table.d.histtable td:nth-child(6) { width:106px; }
+#histwrap table.d.histtable th:nth-child(5), #histwrap table.d.histtable td:nth-child(5),
+#histwrap table.d.histtable th:nth-child(6), #histwrap table.d.histtable td:nth-child(6) { text-align:center; }
+#histwrap table.d.histtable th:first-child, #histwrap table.d.histtable td:first-child {
+  position:sticky; left:0; z-index:1; }
+#histwrap table.d.histtable th:first-child { z-index:2; background:#1b212a; }
+#histwrap table.d.histtable td:first-child { background:#161b22; }
+.histbucket-grid { display:grid; grid-template-columns:repeat(2,minmax(64px,1fr)); gap:3px 6px;
+                   min-width:138px; white-space:normal; }
+.histbucket { display:flex; align-items:baseline; justify-content:space-between; gap:6px; color:#8b949e;
+              font-size:11px; }
+.histbucket b { color:#c9d1d9; font-size:11.5px; }
+.histrisk { display:grid; gap:2px; justify-items:center; text-align:center; font-size:11px; color:#8b949e; }
+.histrisk b { color:#c9d1d9; }
+@media (min-width:1400px) { #histwrap { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+.rmark { color:#6e7681; cursor:help; font-weight:700; }
+.gallery { display:grid; grid-template-columns:1fr; gap:16px; }
+@media (min-width:880px){ .gallery { grid-template-columns:1fr 1fr; } }
+.gallery figure { margin:0; background:#161b22; border:1px solid #21262d; border-radius:12px; padding:10px; }
+.gallery a.shot { display:block; position:relative; }
+.gallery a.shot::after { content:"⤢ enlarge"; position:absolute; top:8px; right:8px; background:#0d1117cc;
+        color:#c9d1d9; font-size:11px; padding:2px 8px; border-radius:6px; border:1px solid #30363d; pointer-events:none; }
+.gallery img { width:100%; border-radius:6px; display:block; cursor:zoom-in; }
+.gallery figcaption { margin-top:8px; }
+.gallery figcaption .takeaway { display:block; color:#e6edf3; font-size:13.5px; font-weight:700; }
+.gallery figcaption .cap { display:block; color:#9aa4ae; font-size:12px; line-height:1.55; margin-top:3px; }
+.gallery figcaption .sub { display:block; margin-top:5px; }
+footer { color:#6e7681; font-size:11px; padding:18px 24px; }
+pre.err { background:#161b22; border:1px solid #5a1f1f; color:#ffb4b4; padding:14px; border-radius:8px;
+          overflow:auto; font-size:12px; }
+@media (max-width:620px) {
+  header { padding:16px; }
+  .cards { grid-template-columns:1fr; gap:12px; padding:14px 16px; }
+  .card { padding:16px; }
+  .clegend { margin:2px 16px 8px; }
+  .section-title { margin:16px 16px 0; }
+  .audit-rail { margin:12px 0 0; }
+  .audit-rail-status { white-space:normal; }
+  .model { margin:14px 16px 8px; }
+  .model-grid { grid-template-columns:1fr; }
+  .timing-reference .qbox:first-child b { font-size:12px; white-space:nowrap; }
+  .probgrid { grid-template-columns:repeat(2,1fr); }
+  .caldiag-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .planner { margin:6px 16px 8px; padding:16px; }
+  .wrap { padding:4px 16px 8px; }
+  .rangepick, .htrig { width:100%; min-width:0; }
+  #histcap, #histwrap { width:calc(100vw - 32px); max-width:calc(100vw - 32px); }
+  table.d th, table.d td { padding:6px 8px; font-size:12px; }
+}
+
+.market-overview { margin:24px 24px 12px; max-width:1200px; }
+.market-heading { display:flex; justify-content:space-between; gap:16px; align-items:baseline; margin-bottom:16px; }
+.market-heading h2 { margin:0; font-size:20px; }
+.market-heading p { margin:0; color:#9ba8b7; font-size:13px; }
+.market-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; }
+.market-card { border:1px solid #303d4e; border-radius:16px; background:#121b26; padding:24px; min-width:0; }
+.market-card-head { display:flex; gap:12px; justify-content:space-between; align-items:center; }
+.market-card h3 { margin:0; font-size:22px; }
+.market-tag { padding:4px 9px; border-radius:6px; background:#213043; color:#b8cce2; font-size:12px; }
+.market-price { font-size:36px; font-weight:750; letter-spacing:-1px; margin:14px 0 2px; font-variant-numeric:tabular-nums; }
+.market-caption { color:#94a4b6; font-size:12px; line-height:1.7; }
+.market-interpretation { margin:18px 0; font-size:15px; line-height:1.8; }
+.market-facts { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; padding-top:16px; border-top:1px solid #2a3644; }
+.market-fact span { display:block; color:#9ba8b7; font-size:12px; line-height:1.6; }
+.market-fact b { display:block; font-size:22px; font-weight:650; margin:5px 0; color:#e6edf3; }
+.market-fact small { font-size:11px; color:#8a9aac; line-height:1.6; display:block; }
+.market-watch { margin:18px 0 0; color:#b6c4d2; font-size:13px; line-height:1.8; }
+.market-watch b { color:#d7e1eb; }
+.market-unavailable { border-left:3px solid #bba069; padding-left:10px; color:#dbc59d; font-size:13px; line-height:1.7; }
+.risk-explainer { margin:18px 0 12px; padding:18px 20px; border:1px solid #2b3c50; background:#111923; border-radius:12px; }
+.risk-explainer h3 { font-size:15px; margin:0 0 8px; }
+.risk-explainer p { color:#b6c4d2; line-height:1.8; font-size:14px; margin:0; }
+.risk-workbench-link { display:inline-block; margin-top:10px; color:#a9cbe9; font-size:14px; }
+.research-drawer, .data-drawer, .tool-drawer { border:1px solid #2a3543; border-radius:10px; background:#111820; }
+.research-drawer summary, .data-drawer summary, .tool-drawer>summary { cursor:pointer; padding:14px 16px; font-size:13px; color:#b7c5d5; line-height:1.7; }
+.research-body, .data-body { border-top:1px solid #2a3543; padding:16px; color:#aab9c9; font-size:13px; line-height:1.9; }
+.research-body p, .data-body p { margin:0 0 12px; }
+.research-body table { min-width:560px; }
+.data-status { margin:12px 24px; max-width:1200px; }
+.data-status-critical { border-left:3px solid #bba069; }
+.tool-drawer { margin:12px 24px; max-width:1200px; }
+.tool-drawer .planner { margin:0; border:0; max-width:none; }
+.tool-drawer .wrap { padding:12px 16px; }
+.meta .live { color:#91b9b0; font-weight:500; }
+@media (max-width:700px) {
+  .market-overview { margin:18px 16px 10px; }
+  .market-heading { display:block; }
+  .market-heading p { margin-top:6px; }
+  .market-grid { grid-template-columns:1fr; }
+  .market-card { padding:20px; }
+  .market-price { font-size:32px; }
+  .market-facts { grid-template-columns:1fr; gap:12px; }
+  .market-fact { display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:center; column-gap:12px; }
+  .market-fact b { grid-column:2; grid-row:1 / 3; font-size:23px; margin:0; }
+  .market-fact small { grid-column:1; }
+  .data-status, .tool-drawer { margin:12px 16px; }
+}
+</style></head><body>
+      <header>
+        <div class="title">Crypto Cycle Dashboard</div>
+        <div class="meta">2026-09-25 · 更新于 11:00 ET · <span class='live'>● 盘中参考价</span></div>
+      </header>
+<section class="market-overview" aria-label="行情概览"><div class="market-heading"><h2>行情概览</h2><p>价格与趋势事实</p></div><div class="market-grid"><article class="market-card"><div class="market-card-head"><h3>BTC</h3><span class="market-tag">站上均线 · 均线仍下行</span></div><div class="market-price">$83,927</div><div class="market-caption">实时参考价 · 最近收盘 $84,390（2026-09-24 UTC）</div><p class="market-interpretation">周线已站上 50 周均线，但均线本身仍在下行。价格已有明显反弹，长期趋势仍在修复。</p><div class="market-facts"><div class="market-fact"><span>周收盘 / 50周均线</span><b>+3.0%</b><small>均线 $78,787 · 2026-09-20 完整周</small></div><div class="market-fact"><span>从近52周低点反弹</span><b>+44.2%</b><small>按最近完整日收盘计算</small></div><div class="market-fact"><span>距离历史最高收盘</span><b>-32.4%</b><small>按最近完整日收盘计算</small></div></div><p class="market-watch"><b>接下来观察：</b>下一次周收盘能否继续站在均线上方，以及均线下行是否收敛。</p></article><article class="market-card"><div class="market-card-head"><h3>ETH</h3><span class="market-tag">站上均线 · 均线仍下行</span></div><div class="market-price">$2,692</div><div class="market-caption">实时参考价 · 最近收盘 $2,687（2026-09-24 UTC）</div><p class="market-interpretation">周线已站上 50 周均线，但均线本身仍在下行。价格已有明显反弹，长期趋势仍在修复。</p><div class="market-facts"><div class="market-fact"><span>周收盘 / 50周均线</span><b>+7.0%</b><small>均线 $2,472 · 2026-09-20 完整周</small></div><div class="market-fact"><span>从近52周低点反弹</span><b>+71.7%</b><small>按最近完整日收盘计算</small></div><div class="market-fact"><span>距离历史最高收盘</span><b>-44.4%</b><small>按最近完整日收盘计算</small></div></div><p class="market-watch"><b>接下来观察：</b>下一次周收盘能否继续站在均线上方，以及均线下行是否收敛。</p></article></div><aside class="risk-explainer"><h3>还会再跌 30% 吗？</h3><p>目前没有通过检验的可靠概率。可以确认的是上面的价格与趋势状态；它们不能单独证明已经见底。旧版的大跌百分比已降为估值情景参考。</p></aside></section>
+<section class="data-status" aria-label="数据说明"><details class="data-drawer"><summary>数据说明 · 主要数据正常，1 项辅助数据待更新</summary><div class="data-body"><p>这里显示每项数据的实际观察日期。辅助数据缺项不等于价格行情异常，也不代表看跌信号。</p><p>待更新或暂缺：稳定币供应量、BTC_SOPR、ETH_SOPR、BTC_REALIZED_CAP、ETH_REALIZED_CAP、BTC_FUNDING、ETH_FUNDING</p><p>实时币价不能补齐宏观或链上数据；本页的趋势事实与新概率研究使用已完成价格记录。</p><div class="tablewrap"><table class="d"><thead><tr><th>数据</th><th>最后观察日</th><th>状态</th><th>来源</th></tr></thead><tbody><tr><td>BTC</td><td>2026-09-24</td><td>正常</td><td>archive / legacy overlay; provenance not recorded</td></tr><tr><td>ETH</td><td>2026-09-24</td><td>正常</td><td>archive / legacy overlay; provenance not recorded</td></tr><tr><td>标普500</td><td>2026-09-24</td><td>正常</td><td><a href="https://fred.stlouisfed.org/series/SP500">FRED / S&amp;P Dow Jones Indices</a></td></tr><tr><td>纳斯达克100</td><td>2026-09-24</td><td>正常</td><td><a href="https://fred.stlouisfed.org/series/NASDAQ100">FRED / Nasdaq</a></td></tr><tr><td>联邦基金目标利率上限</td><td>2026-09-25</td><td>正常</td><td><a href="https://fred.stlouisfed.org/series/DFEDTARU">FRED / Federal Reserve</a></td></tr><tr><td>VIX</td><td>2026-09-24</td><td>正常</td><td>archive / legacy overlay; provenance not recorded</td></tr><tr><td>DXY</td><td>2026-09-25</td><td>正常</td><td>archive / legacy overlay; provenance not recorded</td></tr><tr><td>XAU</td><td>2026-09-25</td><td>正常</td><td>archive / legacy overlay; provenance not recorded</td></tr><tr><td>YC_3M10Y</td><td>2026-09-23</td><td>正常</td><td>archive / legacy overlay; provenance not recorded</td></tr><tr><td>CDX_HY</td><td>2026-09-23</td><td>正常</td><td>archive / legacy overlay; provenance not recorded</td></tr><tr><td>BTC 链上估值</td><td>2026-09-23</td><td>正常</td><td>archive / legacy overlay; provenance not recorded</td></tr><tr><td>ETH 链上估值</td><td>2026-09-23</td><td>正常</td><td>archive / legacy overlay; provenance not recorded</td></tr><tr><td>SPX_TR</td><td>2026-09-24</td><td>正常</td><td><a href="https://finance.yahoo.com/quote/%5ESP500TR/history/">Yahoo Finance</a></td></tr><tr><td>NDX_TR</td><td>2026-09-24</td><td>正常</td><td><a href="https://fred.stlouisfed.org/series/NASDAQXNDX">FRED / Nasdaq</a></td></tr><tr><td>TLT_TR</td><td>2026-09-24</td><td>正常（代理序列）</td><td><a href="https://finance.yahoo.com/quote/TLT/history/">Yahoo Finance</a></td></tr><tr><td>FEDFUNDS_LONG</td><td>2026-09-23</td><td>正常</td><td>archive / legacy overlay; provenance not recorded</td></tr><tr><td>TLT</td><td>2026-09-24</td><td>正常</td><td><a href="https://finance.yahoo.com/quote/TLT/history/">Yahoo Finance</a></td></tr><tr><td>GLD</td><td>2026-09-25</td><td>正常</td><td>archive / legacy overlay; provenance not recorded</td></tr><tr><td>BTC_SOPR</td><td>日期待确认</td><td>暂无数据</td><td>archive / legacy overlay; provenance not recorded</td></tr><tr><td>ETH_SOPR</td><td>日期待确认</td><td>暂无数据</td><td>archive / legacy overlay; provenance not recorded</td></tr><tr><td>BTC_REALIZED_CAP</td><td>日期待确认</td><td>暂无数据</td><td>archive / legacy overlay; provenance not recorded</td></tr><tr><td>ETH_REALIZED_CAP</td><td>日期待确认</td><td>暂无数据</td><td>archive / legacy overlay; provenance not recorded</td></tr><tr><td>BTC_FUNDING</td><td>日期待确认</td><td>暂无数据</td><td>archive / legacy overlay; provenance not recorded</td></tr><tr><td>ETH_FUNDING</td><td>日期待确认</td><td>暂无数据</td><td>archive / legacy overlay; provenance not recorded</td></tr><tr><td>稳定币供应量</td><td>2026-06-12</td><td>未更新</td><td>archive / legacy overlay; provenance not recorded</td></tr></tbody></table></div></div></details></section>
+
+      <details class="wrap legacy-scenario-panel">
+        <summary>旧估值情景与策略参考 · 百分比未经验证</summary>
+      <section class="model">
+        <div class="model-head">
+          <div>
+            <h2>Legacy scenario and historical deployment reference</h2>
+            <div class="sub">The bear-floor distribution has no fitted future horizon. Its CDF percentages are scenario mass, not a validated chance of a future decline. The incumbent policy uses separate deployment rules and has not been changed to follow the research forecast. Historical utility gates do not validate the forecast.</div>
+          </div>
+          <div class="sub">Utility scoped · common exam FAIL · incumbent retained</div>
+        </div>
+        <div class="model-grid">
+        <section class="posterior">
+          <div class="posterior-top">
+            <div class="posterior-heading">
+              <div class="posterior-title"><h3>BTC</h3><span class='evidence evidence-medium' title='Local evidence quality for posterior inputs; not a held-out LOCO log-loss or coverage certificate.'>evidence MODERATE</span></div>
+              <div class="posterior-sub">legacy bear-floor valuation scenario · no fitted forecast horizon · valuation-state</div>
+            </div>
+            <div class="spotbox">
+              <b>$83,927</b>
+              <span>live price</span>
+<em class='spotdelta neg' title='Versus the last close $84,390'>vs close -0.5%</em>
+            </div>
+          </div>
+          <div class="qgrid">
+            <div class="qbox"><b>$29,156</b><span>raw low p10</span></div>
+            <div class="qbox"><b>$44,073</b><span>raw median low</span></div>
+            <div class="qbox"><b>$66,621</b><span>raw low p90</span></div>
+          </div>
+          
+          <div class="sub" style="margin-top:12px">Observed low &amp; timing reference</div>
+          <div class="qgrid timing-reference">
+            <div class="qbox"><b>No future-date forecast</b><span>unconstrained center · heuristic</span></div>
+            <div class="qbox"><b>No future-date forecast</b><span>spread (σ) · heuristic</span></div>
+            <div class="qbox"><b>18.9%</b><span>Scenario mass above observed low<br>no fitted horizon</span></div>
+          </div>
+          <div class="calnote">Reference: $58,527 closing low on 2026-06-30; <b>Legacy valuation scenario mass</b>, not a future low-holding probability or policy input.</div>
+          <details class="caldiag low-survival-definition">
+            <summary><span>What does this scenario mass measure?</span></summary>
+            <div class="caldiag-body"><div class="caldiag-note">The share of the legacy valuation distribution above the lowest daily close since the latest running ATH. This distribution has no fitted time horizon: its mass cannot answer whether that low will hold for 365 days. Historical records retain their original fields for audit only. Center / σ remain heuristic, not date probabilities. During live updates, the reference uses completed closes; a provisional quote below it makes this closing-based diagnostic unavailable until close.</div></div>
+          </details>
+          <div class="probgrid">
+            <div class='prob'><b style='color:#f85149'>98%</b><span>raw P(low &lt; spot)</span></div>
+            <div class='prob'><b style='color:#f85149'>95%</b><span>raw P(-10%)</span></div>
+            <div class='prob'><b style='color:#f85149'>90%</b><span>raw P(-20%)</span></div>
+            <div class='prob'><b style='color:#f85149'>81%</b><span>raw P(-30%)</span></div>
+          </div>
+          <div class="calnote"><b>Same raw distribution:</b> price range and downside odds are internally consistent model estimates, not historically calibrated probabilities.</div>
+          
+          <details class="caldiag">
+            <summary><span>Historical reliability adjustment</span><span class="caldiag-badge">DIAGNOSTIC ONLY</span></summary>
+            <div class="caldiag-body">
+              <div class="caldiag-note">Each arrow applies an independent historical reliability curve to that named event. Calibration v2 uses strictly lower prices over the next 365 complete daily closes, excludes the starting close, and recovers uncensored raw parameters. These values are not percentiles of the raw price distribution and do not feed current policy sizing. The pooled calibrated price CDF is research-only and not displayed.</div>
+              <div class="caldiag-grid"><div class='caldiag-item'><span>low &lt; spot</span><div class='caldiag-values'><b>raw 98%</b><em>&rarr; cal 91%</em></div></div><div class='caldiag-item'><span>-10%</span><div class='caldiag-values'><b>raw 95%</b><em>&rarr; cal 70%</em></div></div><div class='caldiag-item'><span>-20%</span><div class='caldiag-values'><b>raw 90%</b><em>&rarr; cal 60%</em></div></div><div class='caldiag-item'><span>-30%</span><div class='caldiag-values'><b>raw 81%</b><em>&rarr; cal 52%</em></div></div></div>
+            </div>
+          </details>
+          <div class="decision">
+            <div class="decision-main">
+              <span>Full-policy target <b>57.0%</b></span>
+              <span class="sub">target deployed 57.0% · cash/reserve 43% = 100% · raw structural reference 29.6%</span>
+<span class='sub livecmp'>close baseline 2026-09-24 · price -0.5% · target +0.0pp</span>
+              <details class="caldiag policy-change"><summary><span>Weekly reference +4.9 pp · recovery +3.7 pp</span></summary><div class="caldiag-body"><div class="caldiag-note">Week closed 2026-09-20: 52.0% → 57.0%. Regular accumulation +1.2 pp; recovery +3.7 pp. Shared weekly cap 10.0% of total capital (includes any existing fast-V allowance).</div><div class="caldiag-note">Recovery redeployment active.</div><div class="caldiag-note">Activated 2026-09-06: price +35.1% above the running weekly-close low, 10 weeks since that low; cycle score 33.40 &gt; 23.20 (12 weeks earlier), with bottom/top scores 23.91/0.02.</div><div class="caldiag-note">Initial recovery schedule: 14.2% of the 62.7% cash remaining at activation, subject to the shared cap — not just the hard-reserve bucket. Recovery participation does not mean another deep decline is ruled out.</div><div class="caldiag-note">Same-anchor reference replay, not your personal order budget or necessarily the change from the previous published snapshot. Use the calculator with your existing deployment for actual sizing.</div></div></details>
+              <span class="sub">mode recovery redeploy active · depth floor events 18 · fast-crash overlay 0 / 0% · late-start fast-V 5 / 15% · shallow governor 0 · price-improvement catch-up 0 / 0% · hard reserve floor 20% · reserve released 0% · redeployed 17% · avg cost $71,850</span>
+              <span class="sub">top distribution hold / LOW · target exposure 100% of total asset pool · calibrated P(35% drawdown, 52w) 33% · top arm 0% · prior-ATH retest 0%</span>
+            </div>
+            <div class="minirows" aria-label="Raw snapshot comparison">
+              <div class="minirows-title"><b>Raw snapshot comparison</b><span class="minirows-badge">REFERENCE</span></div>
+              <div class="minirows-caption">Hypothetical one-shot exposures under today's posterior; not the execution plan.</div>
+              <div class="minirow minirow-head"><span>alternative</span><span>exposure</span><span>regret ↓</span></div>
+              <div class='minirow minirow-data'><span class='mini-scenario'>No-deployment baseline</span><span>0.0%</span><span>0.01</span></div><div class='minirow minirow-data'><span class='mini-scenario'>Starter (25% of working)</span><span>20.0%</span><span>0.28</span></div><div class='minirow minirow-data'><span class='mini-scenario'>Raw posterior target</span><span>29.6%</span><span>0.41</span></div>
+              <div class="minirows-note">Lower is better · 0% is a baseline, not a sell signal · follow full policy above</div>
+            </div>
+          </div>
+        </section>
+        <section class="posterior">
+          <div class="posterior-top">
+            <div class="posterior-heading">
+              <div class="posterior-title"><h3>ETH</h3><span class='evidence evidence-medium' title='Local evidence quality for posterior inputs; not a held-out LOCO log-loss or coverage certificate.'>evidence MODERATE</span></div>
+              <div class="posterior-sub">legacy bear-floor valuation scenario · no fitted forecast horizon · valuation-state</div>
+            </div>
+            <div class="spotbox">
+              <b>$2,692</b>
+              <span>live price</span>
+<em class='spotdelta pos' title='Versus the last close $2,687'>vs close +0.2%</em>
+            </div>
+          </div>
+          <div class="qgrid">
+            <div class="qbox"><b>$1,328</b><span>raw low p10</span></div>
+            <div class="qbox"><b>$2,017</b><span>raw median low</span></div>
+            <div class="qbox"><b>$2,692</b><span>raw low p90</span></div>
+          </div>
+          
+          <div class="sub" style="margin-top:12px">Observed low &amp; timing reference</div>
+          <div class="qgrid timing-reference">
+            <div class="qbox"><b>No future-date forecast</b><span>unconstrained center · heuristic</span></div>
+            <div class="qbox"><b>No future-date forecast</b><span>spread (σ) · heuristic</span></div>
+            <div class="qbox"><b>78.2%</b><span>Scenario mass above observed low<br>no fitted horizon</span></div>
+          </div>
+          <div class="calnote">Reference: $1,565 closing low on 2026-06-25; <b>Legacy valuation scenario mass</b>, not a future low-holding probability or policy input.</div>
+          <details class="caldiag low-survival-definition">
+            <summary><span>What does this scenario mass measure?</span></summary>
+            <div class="caldiag-body"><div class="caldiag-note">The share of the legacy valuation distribution above the lowest daily close since the latest running ATH. This distribution has no fitted time horizon: its mass cannot answer whether that low will hold for 365 days. Historical records retain their original fields for audit only. Center / σ remain heuristic, not date probabilities. During live updates, the reference uses completed closes; a provisional quote below it makes this closing-based diagnostic unavailable until close.</div></div>
+          </details>
+          <div class="probgrid">
+            <div class='prob'><b style='color:#f85149'>81%</b><span>raw P(low &lt; spot)</span></div>
+            <div class='prob'><b style='color:#f85149'>71%</b><span>raw P(-10%)</span></div>
+            <div class='prob'><b style='color:#d29922'>58%</b><span>raw P(-20%)</span></div>
+            <div class='prob'><b style='color:#d29922'>42%</b><span>raw P(-30%)</span></div>
+          </div>
+          <div class="calnote"><b>Same raw distribution:</b> price range and downside odds are internally consistent model estimates, not historically calibrated probabilities.</div>
+          
+          <details class="caldiag">
+            <summary><span>Historical reliability adjustment</span><span class="caldiag-badge">DIAGNOSTIC ONLY</span></summary>
+            <div class="caldiag-body">
+              <div class="caldiag-note">Each arrow applies an independent historical reliability curve to that named event. Calibration v2 uses strictly lower prices over the next 365 complete daily closes, excludes the starting close, and recovers uncensored raw parameters. These values are not percentiles of the raw price distribution and do not feed current policy sizing. The pooled calibrated price CDF is research-only and not displayed.</div>
+              <div class="caldiag-grid"><div class='caldiag-item'><span>low &lt; spot</span><div class='caldiag-values'><b>raw 81%</b><em>&rarr; cal 91%</em></div></div><div class='caldiag-item'><span>-10%</span><div class='caldiag-values'><b>raw 71%</b><em>&rarr; cal 80%</em></div></div><div class='caldiag-item'><span>-20%</span><div class='caldiag-values'><b>raw 58%</b><em>&rarr; cal 58%</em></div></div><div class='caldiag-item'><span>-30%</span><div class='caldiag-values'><b>raw 42%</b><em>&rarr; cal 53%</em></div></div></div>
+            </div>
+          </details>
+          <div class="decision">
+            <div class="decision-main">
+              <span>Full-policy target <b>64.6%</b></span>
+              <span class="sub">target deployed 64.6% · cash/reserve 35% = 100% · raw structural reference 46.8%</span>
+<span class='sub livecmp'>close baseline 2026-09-24 · price +0.2% · target +0.0pp</span>
+              <details class="caldiag policy-change"><summary><span>Weekly reference +3.9 pp · recovery +2.8 pp</span></summary><div class="caldiag-body"><div class="caldiag-note">Week closed 2026-09-20: 60.7% → 64.6%. Regular accumulation +1.1 pp; recovery +2.8 pp. Shared weekly cap 10.0% of total capital (includes any existing fast-V allowance).</div><div class="caldiag-note">Recovery redeployment active.</div><div class="caldiag-note">Activated 2026-08-30: price +54.0% above the running weekly-close low, 9 weeks since that low; cycle score 36.79 &gt; 30.43 (12 weeks earlier), with bottom/top scores 34.06/0.00.</div><div class="caldiag-note">Initial recovery schedule: 14.2% of the 54.4% cash remaining at activation, subject to the shared cap — not just the hard-reserve bucket. Recovery participation does not mean another deep decline is ruled out.</div><div class="caldiag-note">Same-anchor reference replay, not your personal order budget or necessarily the change from the previous published snapshot. Use the calculator with your existing deployment for actual sizing.</div></div></details>
+              <span class="sub">mode recovery redeploy active · depth floor events 7 · fast-crash overlay 0 / 0% · late-start fast-V 0 / 0% · shallow governor 0 · price-improvement catch-up 0 / 0% · hard reserve floor 30% · reserve released 0% · redeployed 18% · avg cost $2,013</span>
+              <span class="sub">top distribution inactive / LOW · target exposure 100% of total asset pool · calibrated P(35% drawdown, 52w) 34% · top arm 0% · prior-ATH retest 0%</span>
+            </div>
+            <div class="minirows" aria-label="Raw snapshot comparison">
+              <div class="minirows-title"><b>Raw snapshot comparison</b><span class="minirows-badge">REFERENCE</span></div>
+              <div class="minirows-caption">Hypothetical one-shot exposures under today's posterior; not the execution plan.</div>
+              <div class="minirow minirow-head"><span>alternative</span><span>exposure</span><span>regret ↓</span></div>
+              <div class='minirow minirow-data'><span class='mini-scenario'>No-deployment baseline</span><span>0.0%</span><span>0.08</span></div><div class='minirow minirow-data'><span class='mini-scenario'>Starter (25% of working)</span><span>17.5%</span><span>0.21</span></div><div class='minirow minirow-data'><span class='mini-scenario'>Raw posterior target</span><span>46.8%</span><span>0.41</span></div>
+              <div class="minirows-note">Lower is better · 0% is a baseline, not a sell signal · follow full policy above</div>
+            </div>
+          </div>
+        </section></div></section></details>
+<details class="tool-drawer"><summary>仓位模拟器 · 沿用原策略，尚未经可靠性验证</summary>
+<section class="planner"><h3>Legacy policy simulator <span class="sub" style="font-weight:400">· research reference, not a validated allocation recommendation</span></h3><p class='sub'><b>The finite-horizon research forecast does not size orders. The legacy policy still uses unvalidated valuation assumptions, and its historical utility result does not certify today's allocation.</b> Enter the asset's total pool and how much is <b>already deployed</b>—whether old or newly contributed. Below full policy, the controller buys one-third of the remaining full-policy shortfall and reassesses after the next weekly close, capped at 10% of the total pool per week. Raw remains a structural posterior reference rather than a stopping target. At full it holds; above full it stops adding but does not force a sale. Top/distribution has priority and is the only layer allowed to trim. Minimum ticket defaults to $0 and the no-trade band defaults to 1.0pp. Runs entirely in your browser; nothing is sent anywhere.</p><div class="pgrid"><div class="pin"><label>BTC total pool</label><div class="inwrap"><span>$</span><input id="pool-BTC" type="number" min="0" step="100" inputmode="decimal" oninput="recompute()" placeholder="e.g. 100000"></div></div><div class="pin"><label>BTC already deployed</label><div class="inwrap"><span>$</span><input id="dep-BTC" type="number" min="0" step="100" inputmode="decimal" oninput="recompute()" placeholder="0"></div></div><div class="pin"><label>ETH total pool</label><div class="inwrap"><span>$</span><input id="pool-ETH" type="number" min="0" step="100" inputmode="decimal" oninput="recompute()" placeholder="e.g. 50000"></div></div><div class="pin"><label>ETH already deployed</label><div class="inwrap"><span>$</span><input id="dep-ETH" type="number" min="0" step="100" inputmode="decimal" oninput="recompute()" placeholder="0"></div></div><div class="pin"><label>min ticket</label><div class="inwrap"><span>$</span><input id="min-ticket" type="number" min="0" step="50" inputmode="decimal" value="0" oninput="recompute()"></div></div><div class="pin"><label>no-trade band</label><div class="inwrap"><span>pp</span><input id="band-pp" type="number" min="0" max="100" step="0.1" inputmode="decimal" value="1" oninput="recompute()"></div></div></div><div id="pout" class="pout"></div><script>
+const POLICY={"BTC": {"raw_f": 0.2954, "full_f": 0.5695, "dry_f": 0.4305, "res_f": 0.2, "protected_res_f": 0.2, "catchup_weeks": 3, "week_cap_f": 0.1, "regime": "FULL CATCH-UP", "color": "#1f6feb", "dist": false, "keep_f": 1.0, "top_phase": "hold", "top_risk": "LOW"}, "ETH": {"raw_f": 0.4675, "full_f": 0.6462, "dry_f": 0.3538, "res_f": 0.3, "protected_res_f": 0.3, "catchup_weeks": 3, "week_cap_f": 0.1, "regime": "FULL CATCH-UP", "color": "#1f6feb", "dist": false, "keep_f": 1.0, "top_phase": "inactive", "top_risk": "LOW"}};
+
+function fmt(x){return '$'+Math.round(x).toLocaleString('en-US');}
+function pct1(x){return (x*100).toFixed(1)+'%';}
+function val(id){var e=(typeof document==='undefined')?null:document.getElementById(id);var v=e?parseFloat(e.value):NaN;return v;}
+function setting(id,fallback){var v=val(id);return v>=0?v:fallback;}
+function computeMarginalAction(p,dep,bandPp,minTicketFraction){
+  var eps=1e-9, band=bandPp/100, reserve=Math.max(0,p.protected_res_f||0);
+  var raw=p.raw_f, full=p.full_f, keep=p.keep_f==null?1:p.keep_f;
+  var ceiling=Math.max(0,1-reserve), actionableRaw=Math.min(raw,ceiling);
+  var out={state:null,action:null,deployed_fraction:dep,raw_target:raw,full_target:full,
+    actionable_raw_target:actionableRaw,actionable_full_target:full,actionable_target:full,
+    target_mode:'full',investable_ceiling:ceiling,band_fraction:band,
+    buy_fraction:0,preview_buy_fraction:0,trim_fraction:0,
+    gap_to_raw:Math.max(0,raw-dep),gap_to_full:Math.max(0,full-dep)};
+  if(p.dist){
+    var excess=Math.max(0,dep-keep);
+    if(excess>band+eps){out.state='DISTRIBUTE';out.action='TRIM_TO_TOP_TARGET';out.trim_fraction=excess;}
+    else{out.state='DISTRIBUTION_HOLD';out.action='BUY_BLOCKED';}
+    return out;
+  }
+  var fullShortfall=full-dep;
+  if(fullShortfall>band+eps){
+    var gap=Math.max(0,fullShortfall);
+    var weeks=Math.max(1,p.catchup_weeks||3), preview=Math.min(gap/weeks,p.week_cap_f||0.10,gap,Math.max(0,1-dep));
+    out.preview_buy_fraction=preview;
+    if(preview+eps<minTicketFraction){out.state='BELOW_FULL';out.action='SKIP_MIN_TICKET';return out;}
+    out.state='BELOW_FULL';out.action='BUY_TO_FULL';out.buy_fraction=preview;return out;
+  }
+  if(Math.abs(dep-full)<=band+eps){out.state='AT_FULL';out.action='HOLD_FULL_BAND';return out;}
+  out.state='OVER_FULL';out.action='HOLD_NO_FORCED_SELL';return out;
+}
+function computeAssetTicket(asset,p,input,shared){
+  var P=input.pool,D=input.deployed;
+  if(!(P>=0)||!(D>=0)||!isFinite(P)||!isFinite(D)||P===0)
+    return {asset:asset,state:'INPUTS_REQUIRED',action:'INPUTS_REQUIRED',buy:0,trim:0};
+  if(D>P)
+    return {asset:asset,state:'INVALID_INPUTS',action:'INVALID_INPUTS',buy:0,trim:0};
+  var minTicket=Math.max(0,shared.minTicket||0), dep=D/P;
+  var r=computeMarginalAction(p,dep,Math.max(0,shared.bandPp||0),minTicket/P);
+  r.asset=asset;r.pool=P;r.deployed=D;r.buy=r.buy_fraction*P;r.preview_buy=r.preview_buy_fraction*P;
+  r.trim=r.trim_fraction*P;r.reserve_dollars=p.protected_res_f*P;r.dry_after=P-D-r.buy;
+  return r;
+}
+function ticketHtml(t,p){
+  var refs='Actual '+pct1(t.deployed_fraction)+' · full <b>'+pct1(p.full_f)
+    +'</b> actionable · raw <b>'+pct1(p.raw_f)+'</b> structural reference';
+  var head='',detail='';
+  if(t.action==='BUY_TO_FULL'){
+    head='Buy this week &asymp; <b>'+fmt(t.buy)+'</b>';
+    detail='Buy one-third of the remaining full-policy shortfall, then recompute after the next weekly close (max '
+      +pct1(p.week_cap_f)+'/week). The raw posterior is context, not the stopping target. '+refs+'.';
+  }else if(t.action==='SKIP_MIN_TICKET'){
+    head='<b>Below min ticket</b> &mdash; no trade';
+    detail=fmt(t.preview_buy)+' is below the selected minimum; the full-policy shortfall rolls forward. '+refs+'.';
+  }else if(t.action==='HOLD_FULL_BAND'){
+    head='&check; <b>At full target</b> &mdash; no trade';
+    detail='Inside the selected no-trade band. '+refs+'.';
+  }else if(t.action==='HOLD_NO_FORCED_SELL'){
+    head='<b>Above full target</b> &mdash; stop adding, hold';
+    detail='No forced sale: accumulation targets size buys but never trigger sells. Only top/distribution can reduce exposure. '+refs+'.';
+  }else if(t.action==='TRIM_TO_TOP_TARGET'){
+    head='Trim &asymp; <b>'+fmt(t.trim)+'</b>';
+    detail='Top/distribution has priority. Trim toward '+pct1(p.keep_f)+' of the total declared pool; buying is blocked.';
+  }else if(t.action==='BUY_BLOCKED'){
+    head='<b>Top risk active</b> &mdash; buying blocked';
+    detail='Actual exposure is not above the '+pct1(p.keep_f)+' top target, so there is nothing to trim. Do not buy up to that target.';
+  }else if(t.action==='INVALID_INPUTS'){
+    head='<b>Check inputs</b>';
+    detail='Already deployed cannot exceed the declared total pool.';
+  }else{
+    head='<b>Enter pool and deployed amount</b>';
+    detail='The ticket uses actual deployment, not whether the money is newly contributed.';
+  }
+  return '<div class="pcard"><div class="ptop"><b>'+t.asset+'</b><span class="pill" style="background:'
+    +p.color+'">'+p.regime+'</span></div><div class="pbig">'+head+'</div><div class="sub">'+detail+'</div></div>';
+}
+function recompute(){
+  var out='', minTicket=setting('min-ticket',0), bandPp=setting('band-pp',1);
+  for(var a in POLICY){
+    var p=POLICY[a],t=computeAssetTicket(a,p,{pool:val('pool-'+a),deployed:val('dep-'+a)},
+      {minTicket:minTicket,bandPp:bandPp});
+    out+=ticketHtml(t,p);
+  }
+  var el=document.getElementById('pout');if(el)el.innerHTML=out;
+}
+if(typeof document!=='undefined')recompute();
+</script></section>
+</details>
+<details class="tool-drawer"><summary>历史记录、策略回放与详细诊断</summary>
+      <div class="wrap">
+        <details class='legacy-derivation'><summary>Legacy scenario construction · no fitted forecast horizon</summary><div class='dcard'><div class='dhead'><b>BTC</b> valuation scenario &asymp; <b>$44,073</b> <span class='neg'>(-47%)</span> historical clock expired or unavailable; no future-date forecast <span class='sub'>· range $32,714–$70,291, 2026-09-25→2027-01-19</span></div><div class='sub'>Legacy valuation-scenario median ≈ $44,073; no fitted forecast horizon. The pooled calibrated price CDF remains research-only.</div><ol class='dlist'><li><b>realized/MVRV</b> [22%]: ~$43,689 <span class='sub'>MVRV 0.82 x realized $53,249</span></li><li><b>200w-MA/Mayer</b> [45%]: ~$41,439 <span class='sub'>Mayer 0.63 x 200wMA $66,083</span></li><li><b>power-law</b> [17%]: ~$65,339 <span class='sub'>log-log support through 3 prior lows</span></li><li><b>drawdown-decay</b> [10%]: ~$35,477 <span class='sub'>cycle DD 0.72 from peak $124,753</span></li><li><b>score-state</b> [5%]: ~$71,685 <span class='sub'>bottom score 18, DD progress 0.64</span></li><li><b>Timing</b>: calendar 2026-08-21 · halving 2026-10-13 · capitulation state 13% &rarr; Historical clock expired or unavailable; no future-date forecast</li><li><b>reference model</b>: $50,980 around 2026-08-02 <span class='sub'>(model delta -14%, +72d)</span></li><li><b>Uncertainty</b>: evidence quality MODERATE · 6 clustered events · price band 85% · timing window 116d</li></ol></div><div class='dcard'><div class='dhead'><b>ETH</b> valuation scenario &asymp; <b>$2,017</b> <span class='neg'>(-25%)</span> historical clock expired or unavailable; no future-date forecast <span class='sub'>· range $1,242–$2,692, 2026-09-25→2027-02-09</span></div><div class='sub'>Legacy valuation-scenario median ≈ $2,017; no fitted forecast horizon. The pooled calibrated price CDF remains research-only.</div><ol class='dlist'><li><b>realized/MVRV</b> [24%]: ~$2,116 <span class='sub'>MVRV 0.88 x realized $2,412</span></li><li><b>200w-MA/Mayer</b> [17%]: ~$2,256 <span class='sub'>Mayer 0.89 x 200wMA $2,531</span></li><li><b>power-law</b> [17%]: ~$2,692 <span class='sub'>log-log support through 2 prior lows [capped at spot]</span></li><li><b>drawdown-decay</b> [29%]: ~$1,558 <span class='sub'>cycle DD 0.68 from peak $4,831</span></li><li><b>score-state</b> [14%]: ~$2,340 <span class='sub'>bottom score 10, DD progress 0.78</span></li><li><b>Timing</b>: calendar 2026-06-28 · capitulation state 13% &rarr; Historical clock expired or unavailable; no future-date forecast</li><li><b>reference model</b>: $1,706 around 2026-08-02 <span class='sub'>(model delta +18%, +72d)</span></li><li><b>Uncertainty</b>: evidence quality MODERATE · 9 clustered events · price band 72% · timing window 137d</li></ol></div></details>
+        <h3>Legacy bottom-score evidence <span class='sub'>(clustered triggers)</span></h3><p class='sub' style='max-width:780px;margin:-2px 0 10px;line-height:1.55'>This table collapses adjacent daily bottom-score triggers into one clustered event per bottom cluster. The daily trigger count is shown only as a diagnostic, because adjacent days in the same bear market are not independent samples. Clusters are not independent market cycles; this legacy trigger table does not validate the finite-horizon probability model.</p><div class='tablewrap'><table class='d'><tr><th>Asset</th><th>Events</th><th>Daily triggers</th><th>Win</th><th>Avg&nbsp;12m</th><th>Avg&nbsp;DD</th><th>Worst&nbsp;DD</th><th>Quality</th></tr><tr><td>BTC</td><td>6</td><td>343</td><td>67%</td><td>+177%</td><td>-28%</td><td>-59%</td><td>MODERATE</td></tr><tr><td>ETH</td><td>9</td><td>261</td><td>67%</td><td>+26%</td><td>-28%</td><td>-79%</td><td>MODERATE</td></tr></table></div>
+        <h3>Legacy scenario &amp; policy history <span class='sub'>(daily close snapshots)</span></h3><p class='sub' style='max-width:820px;margin:-2px 0 10px;line-height:1.55'><b>Archive scope:</b> closing prices, incumbent policy targets and the legacy valuation distribution. These records have no fitted forecast horizon. They are separate from the new finite-horizon research forecasts. Mass above old low is valuation-distribution mass above the observed closing low, not a 365-day low-holding probability. ≈ denotes reconstruction from saved raw forecasts; ranges show archive rounding uncertainty, not statistical confidence intervals; — means insufficient data. Click the date field, jump by year/month, then pick a <b>start</b> and <b>end</b> date (or use a quick preset — 7d / 30d / 90d / 1y / All); defaults to the latest 7 calendar days. Closes only — provisional intraday spot snapshots are excluded.</p><div class='hctl'><div class='rangepick'><button type='button' id='hist-trig' class='htrig' onclick='calToggle(event)' aria-haspopup='dialog' aria-expanded='false' disabled><span class='hcalico'>📅</span><span id='hist-trig-txt'>Loading…</span><span class='hcar'>▾</span></button><div id='hist-pop' class='hpop' role='dialog' aria-label='Pick a date range'><div class='hjump'><select id='hist-year' onchange='calJump()' aria-label='Jump to year' disabled></select><select id='hist-month' onchange='calJump()' aria-label='Jump to month' disabled></select></div><button type='button' class='hnav prev' id='hist-prev' onclick='calNav(-1)' aria-label='Previous month'>‹</button><button type='button' class='hnav next' id='hist-next' onclick='calNav(1)' aria-label='Next month'>›</button><div id='hist-grids' class='hpop-cals'></div><div class='hpre'><button type='button' class='hchip' onclick="calPreset('latest')">Latest</button><button type='button' class='hchip' onclick="calPreset('6')">7d</button><button type='button' class='hchip' onclick="calPreset('30')">30d</button><button type='button' class='hchip' onclick="calPreset('90')">90d</button><button type='button' class='hchip' onclick="calPreset('365')">1y</button><button type='button' class='hchip' onclick="calPreset('all')">All</button><span class='hpre-sp'></span><span id='hist-sel' class='sub'></span><button type='button' class='hchip hchip-go' onclick='calClose()'>Done</button></div></div></div><input type='hidden' id='hist-from'><input type='hidden' id='hist-to'></div><div id='histcap' class='sub' style='margin:6px 0'></div><div id='histwrap' style='overflow-x:auto'><div class='sub'>Loading history…</div></div><script>
+var HIST=[];
+function histFmt(x){return x==null?'—':'$'+Math.round(x).toLocaleString('en-US');}
+function histN(x){return x==null?'—':x;}
+function histPc(x){return x==null?null:Math.round(x*100)+'%';}
+function histPc1(x){return x==null?null:(x*100).toFixed(1)+'%';}
+function histFullTarget(x){return histPc1(x&&x.full_target!=null?x.full_target:x&&x.target);}
+function histNum(x){var n=Number(x);return isFinite(n)?n:null;}
+function histFirstNum(xs){for(var i=0;i<xs.length;i++){var n=histNum(xs[i]);if(n!=null)return n;}return null;}
+function histDayDiff(a,b){
+  if(!a||!b)return null;
+  var ap=String(a).split('-'),bp=String(b).split('-');
+  if(ap.length!==3||bp.length!==3)return null;
+  var at=Date.UTC(+ap[0],+ap[1]-1,+ap[2]),bt=Date.UTC(+bp[0],+bp[1]-1,+bp[2]);
+  return isFinite(at)&&isFinite(bt)?Math.round((bt-at)/86400000):null;
+}
+function histTiming(x,closeDate){
+  if(!x)return '—';
+  var dist=x.timing_distribution||{},center=histNum(dist.center_horizon_days),sigma=histNum(dist.sigma_days);
+  if(center!=null&&sigma!=null){
+    return '<span title="Heuristic time reference; not a probability that the bottom is in">'
+      +'<b>'+(center>=0?'+':'')+center+'d</b> <span class="sub">center<br>σ '+Math.round(sigma)+'d · heuristic</span></span>';
+  }
+  if(!x.date_p50)return '—';
+  var horizon=histDayDiff(closeDate,x.date_p50),floor=histNum(x.timing_floor_days);
+  var hasFlag=typeof x.timing_floor_bound==='boolean',bound=x.timing_floor_bound===true;
+  // Rows written before timing provenance was added can be classified exactly:
+  // the frozen model's publication guardrail was 14d, so close+14d means bound.
+  if(!hasFlag&&floor==null&&horizon===14){bound=true;floor=14;}
+  if(bound){
+    floor=floor==null?(horizon==null?14:horizon):floor;
+    return '<span title="The median is pinned to a rolling minimum horizon, not a fresh exact-date call"><b>&ge;'+floor+'d</b> <span class="sub">floor-bound</span></span>';
+  }
+  return histN(x.date_p50)+(horizon==null?'':' <span class="sub">· '+horizon+'d ahead</span>')+' <span class="sub">· heuristic</span>';
+}
+function histLowSurvival(x){
+  var s=x&&x.observed_low_survival,p=s&&s.probability;
+  if(p==null)return '<span class="sub" title="No consistent historical raw forecast or closing-price reference">—</span>';
+  var bounds=s.probability_rounding_bounds,range=s.display_as_range&&bounds&&bounds.length===2;
+  var label=range?(Math.floor(bounds[0]*1000)/10).toFixed(1)+'–'+(Math.ceil(bounds[1]*1000)/10).toFixed(1)+'%'
+    :(s.approximate?'≈':'')+histPc1(p);
+  return '<span title="Legacy scenario mass above the observed low; no fitted horizon or validated holding probability'
+    +(s.approximate?'; reconstructed from saved raw forecast records':'')
+    +(range?'; range reflects archive rounding, not a statistical confidence interval':'')+'">'
+    +'<b>'+label+'</b><br><span class="sub">'+histFmt(s.observed_low)+' low</span></span>';
+}
+function histQual(q){
+  var c={HIGH:'#3fb950',MODERATE:'#d29922',LOW:'#f85149'}[q]||'#8b949e';
+  return '<span style="color:'+c+';font-weight:700">'+(q||'—')+'</span>';
+}
+function histRisk(x){
+  var p=histPc(x&&x.down20);
+  return '<div class="histrisk"><span>Mass below −20% <b>'+(p||'—')+'</b></span>'+histQual(x&&x.quality)+'</div>';
+}
+function histMedianLow(x){
+  return histFirstNum([x&&x.low_p50,x&&x.raw_low_p50,x&&x.raw_future_low&&x.raw_future_low.p50]);
+}
+/* ---- flight-style range calendar: one popover, click start then end ---- */
+var DLO='',DHI='';            // selectable bounds (oldest / newest close)
+var selF='',selT='';          // committed selection (mirrored into the hidden inputs)
+var penF='',penT='',hov='';   // pending pick + hover preview
+var calLeft=0;                // left month shown, as year*12+month
+var MON=['January','February','March','April','May','June','July','August','September','October','November','December'];
+var MONS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function pad2(n){return (n<10?'0':'')+n;}
+function ymd(d){return d.getFullYear()+'-'+pad2(d.getMonth()+1)+'-'+pad2(d.getDate());}
+function parseYMD(s){var p=s.split('-');return new Date(+p[0],+p[1]-1,+p[2]);}
+function addDays(s,n){var d=parseYMD(s);d.setDate(d.getDate()+n);return ymd(d);}
+function mIdx(y,m){return y*12+m;}
+function fmtShort(s){if(!s)return '';var d=parseYMD(s);return MONS[d.getMonth()]+' '+d.getDate()+', '+d.getFullYear();}
+function leftMin(){var d=parseYMD(DLO);return mIdx(d.getFullYear(),d.getMonth());}
+function leftMax(){var d=parseYMD(DHI);var mx=mIdx(d.getFullYear(),d.getMonth())-1,mn=leftMin();return mx<mn?mn:mx;}
+function clampLeft(i){var mn=leftMin(),mx=leftMax();return i<mn?mn:(i>mx?mx:i);}
+function calInitJump(){
+  var ysel=document.getElementById('hist-year'),msel=document.getElementById('hist-month');
+  if(!ysel||!msel||!DLO||!DHI)return;
+  var d0=parseYMD(DLO),d1=parseYMD(DHI),yh='',mh='';
+  for(var y=d0.getFullYear();y<=d1.getFullYear();y++)yh+='<option value="'+y+'">'+y+'</option>';
+  for(var m=0;m<12;m++)mh+='<option value="'+m+'">'+MONS[m]+'</option>';
+  ysel.innerHTML=yh;msel.innerHTML=mh;ysel.disabled=false;msel.disabled=false;calSyncJump();
+}
+function calSyncJump(){
+  var ysel=document.getElementById('hist-year'),msel=document.getElementById('hist-month');
+  if(!ysel||!msel||!DLO)return;
+  var idx=clampLeft(calLeft),y=Math.floor(idx/12),m=idx%12;
+  ysel.value=String(y);msel.value=String(m);
+}
+function calJump(){
+  var ysel=document.getElementById('hist-year'),msel=document.getElementById('hist-month');
+  if(!ysel||!msel)return;
+  var y=parseInt(ysel.value,10),m=parseInt(msel.value,10);
+  if(isNaN(y)||isNaN(m))return;
+  calLeft=clampLeft(mIdx(y,m));calRender();
+}
+function buildMonth(idx){
+  var y=Math.floor(idx/12),m=idx%12,start=new Date(y,m,1).getDay(),dim=new Date(y,m+1,0).getDate();
+  var dow=['S','M','T','W','T','F','S'],h='<div class="hcal"><div class="hcal-hd">'+MON[m]+' '+y+'</div><div class="hgrid">';
+  for(var i=0;i<7;i++) h+='<div class="hdow">'+dow[i]+'</div>';
+  for(var b=0;b<start;b++) h+='<div class="hday hempty"></div>';
+  for(var dd=1;dd<=dim;dd++){var ds=y+'-'+pad2(m+1)+'-'+pad2(dd),dis=(ds<DLO||ds>DHI);
+    h+='<div class="hday'+(dis?' hdis':'')+'"'+(dis?'':' data-d="'+ds+'"')+'>'+dd+'</div>';}
+  return h+'</div></div>';
+}
+function calRange(){                                              // active [start,end], incl. hover preview
+  if(penF&&penT) return penF<penT?[penF,penT]:[penT,penF];
+  if(penF&&hov)  return penF<hov?[penF,hov]:[hov,penF];
+  if(penF)       return [penF,penF];
+  return ['',''];
+}
+function calPaint(){
+  var r=calRange(),a=r[0],b=r[1],cells=document.querySelectorAll('#hist-grids .hday[data-d]');
+  for(var i=0;i<cells.length;i++){var c=cells[i],d=c.getAttribute('data-d'),cl='hday';
+    if(a&&d>=a&&d<=b)cl+=' hin'; if(a&&d===a)cl+=' hstart'; if(b&&d===b)cl+=' hend'; c.className=cl;}
+  var s=document.getElementById('hist-sel');
+  if(s)s.textContent=a?(a===b?fmtShort(a):fmtShort(a)+'  →  '+fmtShort(b)):'Pick a start date';
+}
+function calRender(){
+  var g=document.getElementById('hist-grids');if(!g)return;
+  g.innerHTML=buildMonth(calLeft)+buildMonth(calLeft+1);
+  var p=document.getElementById('hist-prev'),n=document.getElementById('hist-next');
+  if(p)p.disabled=(calLeft<=leftMin()); if(n)n.disabled=(calLeft>=leftMax());
+  calPaint();calSyncJump();
+}
+function calNav(step){calLeft=clampLeft(calLeft+step);calRender();}
+function calHover(d){if(penF&&!penT){hov=d;calPaint();}}
+function calPick(d){
+  if(!penF||(penF&&penT)){penF=d;penT='';hov='';calPaint();return;}  // begin a new range
+  if(d<penF){penF=d;hov='';calPaint();return;}                       // earlier click resets the start
+  penT=d;calCommit(penF,penT);calClose();                            // second click commits + applies
+}
+function calCommit(f,t){
+  if(f>t){var x=f;f=t;t=x;} if(f<DLO)f=DLO; if(t>DHI)t=DHI;
+  selF=f;selT=t;penF=f;penT=t;hov='';
+  var fe=document.getElementById('hist-from'),te=document.getElementById('hist-to');
+  if(fe)fe.value=f; if(te)te.value=t;
+  calTrigText();histRender();
+}
+function calPreset(k){
+  var t=DHI,f;
+  if(k==='latest')f=DHI; else if(k==='all')f=DLO; else {f=addDays(DHI,-(+k));if(f<DLO)f=DLO;}
+  calCommit(f,t);calClose();
+}
+function calTrigText(){
+  var el=document.getElementById('hist-trig-txt');if(!el)return;
+  if(!selF||(selF===DLO&&selT===DHI)){el.textContent='All dates';return;}
+  if(selF===selT&&selT===DHI){el.textContent='Latest close · '+fmtShort(selT);return;}
+  if(selF===selT){el.textContent=fmtShort(selF);return;}
+  el.textContent=fmtShort(selF)+'  →  '+fmtShort(selT);
+}
+function calOpen(){
+  var pop=document.getElementById('hist-pop');if(!pop)return;
+  penF=selF;penT=selT;hov='';
+  var d=parseYMD(selT||DHI);calLeft=clampLeft(mIdx(d.getFullYear(),d.getMonth())-1);
+  calRender();pop.classList.add('open');
+  var tg=document.getElementById('hist-trig');if(tg)tg.setAttribute('aria-expanded','true');
+}
+function calClose(){
+  var pop=document.getElementById('hist-pop');if(pop)pop.classList.remove('open');
+  var tg=document.getElementById('hist-trig');if(tg)tg.setAttribute('aria-expanded','false');
+  penF=selF;penT=selT;hov='';                                        // discard any half-finished pick
+}
+function calToggle(e){if(e)e.stopPropagation();var pop=document.getElementById('hist-pop');
+  if(pop&&pop.classList.contains('open'))calClose();else calOpen();}
+function histAssetTable(sym,rows){
+  var body='';
+  for(var i=0;i<rows.length;i++){
+    var r=rows[i],x=((r.assets||{})[sym])||{};
+    body+='<tr><td>'+r.date+'</td><td>'+histFmt(x.price)+'</td><td>'+histFullTarget(x)+'</td>'
+      +'<td>'+histFmt(histMedianLow(x))+'</td><td>'+histLowSurvival(x)+'</td>'
+      +'<td>'+histRisk(x)+'</td></tr>';
+  }
+  return '<section class="histpane" aria-label="'+sym+' close history">'
+    +'<div class="histpane-head"><b>'+sym+'</b><span>daily close snapshots</span></div>'
+    +'<div class="histtable-scroll"><table class="d histtable"><thead><tr>'
+    +'<th>Close</th><th>Price</th><th>Full policy</th><th>Scenario p50</th><th>Mass above old low</th><th>Scenario mass / evidence</th>'
+    +'</tr></thead><tbody>'+body+'</tbody></table></div></section>';
+}
+function histRender(){
+  var wrap=document.getElementById('histwrap'), cap=document.getElementById('histcap');
+  if(!wrap) return;
+  if(!HIST.length){wrap.innerHTML='<div class="sub">No close snapshots yet — the first daily close will populate this.</div>';if(cap)cap.textContent='';return;}
+  var fe=document.getElementById('hist-from'), te=document.getElementById('hist-to');
+  var from=fe&&fe.value?fe.value:'', to=te&&te.value?te.value:'';
+  if(from&&to&&from>to){var t=from;from=to;to=t;}                 // tolerate a reversed range
+  var rows=HIST.filter(function(r){return (!from||r.date>=from)&&(!to||r.date<=to);});
+  if(!rows.length){wrap.innerHTML='<div class="sub">No closes in that range.</div>';if(cap)cap.textContent='';return;}
+  if(cap)cap.textContent='Showing '+rows.length+' close'+(rows.length>1?'s':'')+' · '+rows[0].date+' → '+rows[rows.length-1].date;
+  var disp=rows.slice().reverse();                                // newest first
+  wrap.innerHTML=histAssetTable('BTC',disp)+histAssetTable('ETH',disp);
+}
+function histLatest(){ calPreset('latest'); }                     // back-compat alias
+document.addEventListener('click',function(e){                     // click-away closes the calendar
+  var rp=document.getElementById('hist-pop'),tg=document.getElementById('hist-trig');
+  if(!rp||!rp.classList.contains('open'))return;
+  if(rp.contains(e.target)||(tg&&tg.contains(e.target)))return;
+  calClose();
+});
+document.addEventListener('keydown',function(e){if(e.key==='Escape')calClose();});
+(function(){var g=document.getElementById('hist-grids');if(!g)return;   // delegated day click / hover
+  g.addEventListener('click',function(e){var c=e.target.closest&&e.target.closest('.hday[data-d]');if(c)calPick(c.getAttribute('data-d'));});
+  g.addEventListener('mouseover',function(e){var c=e.target.closest&&e.target.closest('.hday[data-d]');if(c)calHover(c.getAttribute('data-d'));});
+})();
+fetch('history.json').then(function(r){if(!r.ok)throw new Error('history');return r.json();}).then(function(h){
+  HIST=(h||[]).filter(function(r){return r.edition==='model-posterior';})
+              .sort(function(a,b){return a.date<b.date?-1:(a.date>b.date?1:0);});
+  var tg=document.getElementById('hist-trig');
+  if(HIST.length){
+    DLO=HIST[0].date; DHI=HIST[HIST.length-1].date;
+    selF=addDays(DHI,-6); if(selF<DLO)selF=DLO; selT=DHI;          // default view: trailing 7 calendar days
+    var fe=document.getElementById('hist-from'),te=document.getElementById('hist-to');
+    if(fe)fe.value=selF; if(te)te.value=selT;
+    if(tg)tg.disabled=false; calInitJump(); calTrigText();
+  } else if(tg){ tg.disabled=true; var tt=document.getElementById('hist-trig-txt'); if(tt)tt.textContent='No history yet'; }
+  histRender();
+}).catch(function(){var el=document.getElementById('histwrap');if(el)el.innerHTML='<div class="sub">History unavailable.</div>';});
+</script>
+        <h3>Historic Accumulation Replays <span class='sub'>· tap any chart to open it full-size</span></h3><p class='sub' style='max-width:780px;margin:-2px 0 14px;line-height:1.55'>The dashboard is in an accumulation-side regime, so the bottom section starts with the current 2026 accumulation path, then shows prior-cycle Model full-policy replays. These charts use the same posterior, convex depth-floor and mid-cycle price-improvement catch-up policy used by the live target above.</p><div class='gallery'><figure><a class="shot" href="reports/model_deploy_BTC_2026.png?v=f99f46ca" target="_blank" rel="noopener"><img loading="lazy" src="reports/model_deploy_BTC_2026.png?v=f99f46ca" alt="BTC · 2026 current model accumulation replay"></a><figcaption><span class="takeaway">BTC — 2026 current cycle</span><span class="cap"><b>2026 / current cycle.</b> model full policy replayed through the live accumulation campaign so far. This is incomplete by definition: no realized bottom/recovery verdict yet, but it shows how today's posterior + depth floor has actually deployed.</span><span class="sub">BTC · 2026 current model accumulation replay · 2026-09-25 11:00</span></figcaption></figure><figure><a class="shot" href="reports/model_deploy_ETH_2026.png?v=9e8bfbf1" target="_blank" rel="noopener"><img loading="lazy" src="reports/model_deploy_ETH_2026.png?v=9e8bfbf1" alt="ETH · 2026 current model accumulation replay"></a><figcaption><span class="takeaway">ETH — 2026 current cycle</span><span class="cap"><b>2026 / current cycle.</b> ETH's ongoing Model full-policy accumulation path, including the higher hard-reserve floor and convex depth floor. Incomplete until the cycle resolves.</span><span class="sub">ETH · 2026 current model accumulation replay · 2026-09-25 11:00</span></figcaption></figure><figure><a class="shot" href="reports/model_deploy_BTC_2022.png?v=7139a77a" target="_blank" rel="noopener"><img loading="lazy" src="reports/model_deploy_BTC_2022.png?v=7139a77a" alt="BTC · 2022 model accumulation replay"></a><figcaption><span class="takeaway">BTC — 2022 double bottom</span><span class="cap"><b>2022 bear.</b> model posterior + convex depth floor replayed through the real double-bottom bear. The lower panel shows cash left; green dots show actual weekly buys under the model full policy.</span><span class="sub">BTC · 2022 model accumulation replay · 2026-09-25 11:00</span></figcaption></figure><figure><a class="shot" href="reports/model_deploy_ETH_2022.png?v=71d0d35f" target="_blank" rel="noopener"><img loading="lazy" src="reports/model_deploy_ETH_2022.png?v=71d0d35f" alt="ETH · 2022 model accumulation replay"></a><figcaption><span class="takeaway">ETH — 2022 double bottom</span><span class="cap"><b>2022 bear.</b> Same model policy on ETH. This is the policy behind the live dashboard target, including hard reserve, re-arm and recovery redeploy.</span><span class="sub">ETH · 2022 model accumulation replay · 2026-09-25 11:00</span></figcaption></figure><figure><a class="shot" href="reports/model_deploy_BTC_2020covid.png?v=7bc3c9cb" target="_blank" rel="noopener"><img loading="lazy" src="reports/model_deploy_BTC_2020covid.png?v=7bc3c9cb" alt="BTC · 2020 COVID model replay"></a><figcaption><span class="takeaway">BTC — 2020 fast V</span><span class="cap"><b>2020 COVID crash.</b> A fast-V stress case: the policy cannot know a low will round-trip quickly, so this shows the opportunity cost of keeping reserve for a deeper leg.</span><span class="sub">BTC · 2020 COVID model replay · 2026-09-25 11:00</span></figcaption></figure><figure><a class="shot" href="reports/model_deploy_ETH_2020covid.png?v=2d4a5214" target="_blank" rel="noopener"><img loading="lazy" src="reports/model_deploy_ETH_2020covid.png?v=2d4a5214" alt="ETH · 2020 COVID model replay"></a><figcaption><span class="takeaway">ETH — 2020 fast V</span><span class="cap"><b>2020 COVID crash.</b> ETH's fast-V replay under model full policy.</span><span class="sub">ETH · 2020 COVID model replay · 2026-09-25 11:00</span></figcaption></figure><figure><a class="shot" href="reports/model_deploy_BTC_2019.png?v=9fdd6089" target="_blank" rel="noopener"><img loading="lazy" src="reports/model_deploy_BTC_2019.png?v=9fdd6089" alt="BTC · 2019 H2 model replay"></a><figcaption><span class="takeaway">BTC — 2019 mid-cycle correction</span><span class="cap"><b>2019 H2 correction.</b> A shallow/mid-cycle pullback replay, useful for checking that the policy does not empty all cash into a non-cycle bottom.</span><span class="sub">BTC · 2019 H2 model replay · 2026-09-25 11:00</span></figcaption></figure><figure><a class="shot" href="reports/model_deploy_ETH_2019.png?v=9d71dd6e" target="_blank" rel="noopener"><img loading="lazy" src="reports/model_deploy_ETH_2019.png?v=9d71dd6e" alt="ETH · 2019 H2 model replay"></a><figcaption><span class="takeaway">ETH — 2019 mid-cycle correction</span><span class="cap"><b>2019 H2 correction.</b> The remaining hard case for Model: it still buys this shallow ETH dip somewhat expensively versus reference.</span><span class="sub">ETH · 2019 H2 model replay · 2026-09-25 11:00</span></figcaption></figure><figure><a class="shot" href="reports/model_deploy_BTC_2018.png?v=debc5ef1" target="_blank" rel="noopener"><img loading="lazy" src="reports/model_deploy_BTC_2018.png?v=debc5ef1" alt="BTC · 2018 model accumulation replay"></a><figcaption><span class="takeaway">BTC — 2018 single low</span><span class="cap"><b>2018 bear.</b> A slow single-low bear replay. The chart shows how the depth floor gets working capital on the field without claiming the bottom is known.</span><span class="sub">BTC · 2018 model accumulation replay · 2026-09-25 11:00</span></figcaption></figure><figure><a class="shot" href="reports/model_deploy_ETH_2018.png?v=ebe8732d" target="_blank" rel="noopener"><img loading="lazy" src="reports/model_deploy_ETH_2018.png?v=ebe8732d" alt="ETH · 2018 model accumulation replay"></a><figcaption><span class="takeaway">ETH — 2018 first-cycle bear</span><span class="cap"><b>2018 bear.</b> ETH's first-cycle bear, shown because it is the hardest historical left-tail case.</span><span class="sub">ETH · 2018 model accumulation replay · 2026-09-25 11:00</span></figcaption></figure></div><details class="caldiag top-history" id="top-history"><summary><span>Historic top exits · BTC / ETH</span><span class="caldiag-badge">LIFECYCLE FIX</span></summary><div class="top-history-body"><p class='sub' style='max-width:880px;line-height:1.55'>Lifecycle-scoped exits: an expired, unarmed top signal can no longer trigger a fresh sell. Already-armed trailing stops remain active, including on a sharp drop. Each known-top window starts fully invested and is replayed independently, before fees; these are not continuous-account returns. The green line is the signal keep target before stateful stops; trade markers use the full executor. Current accumulation targets and the weekly calculator are unchanged. <a href="reports/distribution_replay.json" target="_blank" rel="noopener">Replay records ↗</a></p><div class='gallery'><figure><a class="shot" href="reports/model_distribution_BTC_history.png?v=16c86b6b" target="_blank" rel="noopener"><img loading="lazy" src="reports/model_distribution_BTC_history.png?v=16c86b6b" alt="BTC · distribution history"></a><figcaption><span class="takeaway">BTC — historic top exits</span><span class="cap">Model top posterior: known-cycle tops, partial trims, average sell price, drawdown risk and keep target.</span><span class="sub">BTC · distribution history · 2026-09-25 11:00</span></figcaption></figure><figure><a class="shot" href="reports/model_distribution_ETH_history.png?v=d1e42213" target="_blank" rel="noopener"><img loading="lazy" src="reports/model_distribution_ETH_history.png?v=d1e42213" alt="ETH · distribution history"></a><figcaption><span class="takeaway">ETH — historic top exits</span><span class="cap">Model distribution replay for ETH: partial-trim policy rather than one exact-top all-out call.</span><span class="sub">ETH · distribution history · 2026-09-25 11:00</span></figcaption></figure></div></div></details>
+        <section class='audit'><div class='audit-head'><div><h3 style='margin:0'>Policy Audit & Live Ledger</h3><div class='sub'>Governance layer only: logs live signals, declares the utility function, checks asset-specific robustness and watches refresh freshness. It does not change the model target.</div></div><div class='sub'>watchdog <span class='badge-pass'>PASS</span><br>refresh cadence healthy</div></div><div class='audit-grid'><div class='audit-card'><b>Objective policy-utility-v1</b><div class='sub'>Deployment outcome beats prettier bottom/top predictions. Current PASS labels are scoped to this utility audit, not every stricter research gate.</div></div><div class='audit-card'><b>Common exam <span class='badge-watch'>RE-ADJUDICATED · INCUMBENT RETAINED</span></b><div class='sub'>Spec 0008 completed on the corrected live-parity history. The common exam still fails robustness, so the incumbent parameters and full-gap/3 controller remain unchanged; this is not a live market or data-integrity alert.</div></div><div class='audit-card'><b>Fable core audit <span class='badge-fail'>CORE FAILED STRICTER GATES</span></b><div class='sub'>Worst +/-25% parameter perturbation shift was 0.292 at MAX_HORIZON_WEEKS x0.75, above the 0.15 band.</div></div><div class='audit-card'><b>BTC live ledger</b><div>OPTIONAL_CATCHUP_ONLY</div><div class='sub'>policy 57.0% · raw 29.6% · gap +27%</div><ul class='audit-list'><li>policy above today-only posterior</li><li>raw-policy divergence &gt;=15pp</li></ul></div><div class='audit-card'><b>ETH live ledger</b><div>BUY_ACCUMULATE</div><div class='sub'>policy 64.6% · raw 46.8% · gap +18%</div><ul class='audit-list'><li>policy above today-only posterior</li><li>raw-policy divergence &gt;=15pp</li></ul></div><div class='audit-card'><b>BTC utility gate <span class='badge-pass'>PASS</span></b><div class='sub'>acc utility 0.275421 · dist utility 8.159739</div><div class='sub'>current utility asset gate passed</div></div><div class='audit-card'><b>ETH utility gate <span class='badge-pass'>PASS</span></b><div class='sub'>acc utility 0.033213 · dist utility 9.082234</div><div class='sub'>current utility asset gate passed</div></div><div class='audit-card'><b>Known accumulation risks</b><ul class='audit-list'><li>horizon cliff</li><li>forecast coupled deep anchor</li><li>forecast driven last tranche</li></ul></div><div class='audit-card'><b>Distribution weak spots</b><ul class='audit-list'><li>BTC 2025-10-06: low/hold 153%, end/hold 134%, sold 77%</li><li>BTC 2021-04-14: low/hold 155%, end/hold 155%, sold 100%</li><li>ETH 2021-05-12: low/hold 219%, end/hold 219%, sold 100%</li></ul></div><div class='audit-card'><b>Ledger</b><div class='sub'>1067 material records · last 2026-09-25T11:00:41-04:00</div><ul class='audit-list'><li>BTC OPTIONAL_CATCHUP_ONLY gap +27%</li><li>ETH BUY_ACCUMULATE gap +18%</li><li>BTC OPTIONAL_CATCHUP_ONLY gap +27%</li><li>ETH BUY_ACCUMULATE gap +18%</li></ul></div></div></section>
+        <section class="audit-rail" aria-label="Model governance status"><div class="audit-rail-head"><div><div class="audit-rail-kicker">Model governance · historical robustness</div><div class="audit-rail-title">LIVE-PARITY RE-ADJUDICATED — incumbent retained</div></div><div class="audit-rail-status">REVIEW COMPLETE · WATCH</div></div><div class="audit-rail-grid"><div class="audit-rail-item"><b>Verdict:</b> DEMOTED_REVIEW; candidate robustness FAIL, incumbent robustness FAIL.</div><div class="audit-rail-item"><b>Common exam:</b> held-out edge -12.986pp vs frozen -12.907pp. The failure blocks parameter promotion, not dashboard operation.</div><div class="audit-rail-item"><b>Impact:</b> no live target change; production parameters and full-gap/3 remain frozen.</div></div></section>
+      </div>
+</details>
+      <footer>Research / educational only — not investment advice.</footer></body></html>

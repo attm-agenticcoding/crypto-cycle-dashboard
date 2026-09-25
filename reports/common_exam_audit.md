@@ -1,15 +1,15 @@
 # Common Exam Audit
 
-Generated: 2026-07-07T02:21:56.438466+00:00
-Verdict: **PASS_FRONTIER_SCOPED**
+Generated: 2026-08-31T18:59:30.515444+00:00
+Verdict: **FAIL**
 Pre-adjudication (absolute gates): **FAIL** — adjudicated 2026-07-10 (OPTION_A_PLUS_FRONTIER_SCOPED; see docs/COMMON_EXAM_ADJUDICATION_DECISION_2026-07-10.md)
 
 The current dashboard verdict is scoped to the historical utility audit. The stricter common-exam gates now replay parameter plateau and synthetic adverse paths through the dashboard full stack. Fable's external core-only cross-audit remains recorded as a separate warning because it failed the convex core on plateau and synthetic-shape stress.
 
 ## Boundary
 
-- Current utility audit: **WATCH**
-- Common-exam gates: **PASS_FRONTIER_SCOPED**
+- Current utility audit: **PASS**
+- Common-exam gates: **FAIL**
 - Reason: The existing PASS covers utility, historical replay, jitter, target 90/110/lagged perturbations, leave-one-episode-out, and chronological holdout. The common exam below is a stricter promotion layer and should be read separately from the current utility verdict and from the Fable 2026-07-05 core-only cross-audit.
 
 ## Governance Adjudication
@@ -20,7 +20,6 @@ The current dashboard verdict is scoped to the historical utility audit. The str
 
 | Gate (watch row) | Metric | Observed | Aspirational line | Ratchet (may not worsen) |
 |---|---|---:|---:|---:|
-| parameter_plateau_25pct | worst_heldout_terminal_edge_delta_vs_live | -0.12907 | -0.05 | -0.12907 |
 | synthetic_delayed_lower_low | avg_cost_premium_to_low | 0.733606 | 0.6 | 0.733606 |
 | synthetic_false_bottom_continued_grind | max_4w_spent_increase | 0.225958 | 0.2 | 0.225958 |
 
@@ -43,31 +42,31 @@ The current dashboard verdict is scoped to the historical utility audit. The str
 
 | Cap | Source | Effect | Threshold | Observed | Status | Implementation |
 |---|---:|---:|---:|---:|---:|---:|
-| forecast.bottom_down20_calibration_mae_0_18 | policy_risk_tolerance | WATCH_ONLY | <= 0.18 | 0.1959 | TRIGGERED | ENFORCED |
-| forecast.bottom_loco_log_loss_vs_null | baseline_relative_gate | REPORT_ONLY | <= 0.0 | 0.0394 | TRIGGERED | ENFORCED |
-| forecast.bottom_raw_p10_p90_coverage_80 | nominal_statistical_target | REPORT_ONLY | >= 0.8 | 0.5294 | TRIGGERED | ENFORCED |
+| forecast.bottom_loco_log_loss_vs_null | baseline_relative_gate | REPORT_ONLY | <= 0.0 | 0.0441 | TRIGGERED | ENFORCED |
+| forecast.bottom_raw_p10_p90_coverage_80 | nominal_statistical_target | REPORT_ONLY | >= 0.8 | 0.5413 | TRIGGERED | ENFORCED |
 | forecast.bottom_conformal_each_fold_coverage_80 | heuristic_stress_gate | RESEARCH_WARNING | >= 0.8 | 0.0000 | TRIGGERED | ENFORCED |
-| common_exam.parameter_plateau_heldout_edge_deterioration_5pp | heuristic_stress_gate | HARD_PROMOTION_BLOCK | >= -0.05 | -0.1291 | TRIGGERED | ENFORCED |
+| common_exam.parameter_plateau_heldout_edge_deterioration_5pp | heuristic_stress_gate | HARD_PROMOTION_BLOCK | >= -0.05 | -0.1299 | TRIGGERED | ENFORCED |
 | common_exam.synthetic_delayed_lower_low_avg_premium_60 | heuristic_stress_gate | HARD_PROMOTION_BLOCK | <= 0.6 | 0.7336 | TRIGGERED | ENFORCED |
 | common_exam.synthetic_false_bottom_unlock_20pp | heuristic_stress_gate | HARD_PROMOTION_BLOCK | <= 0.2 | 0.2260 | TRIGGERED | ENFORCED |
-| forecast.top_drawdown35_calibration_mae_0_18 | policy_risk_tolerance | WATCH_ONLY | <= 0.18 | 0.1681 | PASS | ENFORCED |
+| forecast.bottom_down20_calibration_mae_0_18 | policy_risk_tolerance | WATCH_ONLY | <= 0.18 | 0.1772 | PASS | ENFORCED |
+| forecast.top_drawdown35_calibration_mae_0_18 | policy_risk_tolerance | WATCH_ONLY | <= 0.18 | 0.1730 | PASS | ENFORCED |
 | current_utility.accum_parameter_stability_terminal_win_50 | heuristic_stress_gate | WATCH_ONLY | >= 0.5 | 0.8750 | PASS | ENFORCED |
 | current_utility.accum_window_jitter_terminal_win_60 | heuristic_stress_gate | WATCH_ONLY | >= 0.6 | 0.7500 | PASS | ENFORCED |
 | current_utility.accum_window_jitter_cost_win_50 | heuristic_stress_gate | WATCH_ONLY | >= 0.5 | 0.6250 | PASS | ENFORCED |
-| current_utility.accum_window_jitter_worst_terminal_edge_minus15 | heuristic_stress_gate | WATCH_ONLY | >= -0.15 | -0.1085 | PASS | ENFORCED |
+| current_utility.accum_window_jitter_worst_terminal_edge_minus15 | heuristic_stress_gate | WATCH_ONLY | >= -0.15 | -0.0359 | PASS | ENFORCED |
 | current_utility.accum_target_perturbation_terminal_win_60 | heuristic_stress_gate | WATCH_ONLY | >= 0.6 | 0.7500 | PASS | ENFORCED |
-| current_utility.accum_target_perturbation_cost_win_50 | heuristic_stress_gate | WATCH_ONLY | >= 0.5 | 0.6250 | PASS | ENFORCED |
-| current_utility.accum_target_perturbation_worst_terminal_edge_minus15 | heuristic_stress_gate | WATCH_ONLY | >= -0.15 | -0.0255 | PASS | ENFORCED |
-| current_utility.accum_loo_worst_terminal_edge_minus15 | heuristic_stress_gate | WATCH_ONLY | >= -0.15 | -0.0177 | PASS | ENFORCED |
+| current_utility.accum_target_perturbation_cost_win_50 | heuristic_stress_gate | WATCH_ONLY | >= 0.5 | 0.7500 | PASS | ENFORCED |
+| current_utility.accum_target_perturbation_worst_terminal_edge_minus15 | heuristic_stress_gate | WATCH_ONLY | >= -0.15 | -0.0371 | PASS | ENFORCED |
+| current_utility.accum_loo_worst_terminal_edge_minus15 | heuristic_stress_gate | WATCH_ONLY | >= -0.15 | -0.0197 | PASS | ENFORCED |
 | current_utility.distribution_parameter_stability_win_rate_70 | heuristic_stress_gate | WATCH_ONLY | >= 0.7 | 1.0000 | PASS | ENFORCED |
-| current_utility.distribution_parameter_stability_end_value_75 | heuristic_stress_gate | WATCH_ONLY | >= 0.75 | 1.0927 | PASS | ENFORCED |
+| current_utility.distribution_parameter_stability_end_value_75 | heuristic_stress_gate | WATCH_ONLY | >= 0.75 | 0.8572 | PASS | ENFORCED |
 | ... | ... | ... | ... | ... | ... | 9 more in JSON |
 
 ## Pre-Registered Gates
 
 | Gate | Status | Result Summary | Pass Criteria |
 |---|---:|---|---|
-| parameter_plateau_25pct | PASS_BY_RATCHET (absolute: FAIL → watch) | cells=11, failing=4, worst shift=10.0%, worst held-out delta=-12.9%, materiality=DELTA_ONLY_REVIEW, delta-only=4, positive-edge delta-only=3 | Worst terminal-ratio shift stays within 15% of the live policy.; No grid cell fails the current historical audit thresholds.; No asset has a worse held-out terminal edge than the current live audit by more than 5 percentage points. |
+| parameter_plateau_25pct | FAIL | cells=11, failing=3, worst shift=9.9%, worst held-out delta=-13.0%, materiality=DELTA_ONLY_REVIEW, delta-only=3, positive-edge delta-only=3 | Worst terminal-ratio shift stays within 15% of the live policy.; No grid cell fails the current historical audit thresholds.; No asset has a worse held-out terminal edge than the current live audit by more than 5 percentage points. |
 | synthetic_delayed_lower_low | PASS_BY_NON_DOMINANCE (absolute: FAIL → watch) | paths=1, failing=1, min DCA18 ratio=1.287973, min DCA52 ratio=1.065296 | Deployment at the final low remains below 85% unless an explicit capitulation confirmation fires.; Average entry premium versus the final low stays below 60%.; Terminal value stays within 10% of fixed 18-week DCA.; No early-exhaustion flag is triggered. |
 | synthetic_false_bottom_continued_grind | PASS_BY_RATCHET (absolute: FAIL → watch) | paths=1, failing=1, min DCA18 ratio=1.429945, min DCA52 ratio=1.23914 | Policy preserves at least the hard reserve floor until the final third of the path.; Terminal value beats fixed 52-week DCA after fees/slippage assumptions used by the research engine.; No single false-bottom bounce unlocks more than 20 percentage points of additional deployment. |
 | synthetic_fast_v_participation | PASS | paths=1, failing=0, min DCA18 ratio=1.033405, min DCA52 ratio=1.164676 | Policy deploys at least 30% by the fast-V low.; Terminal value stays within 10% of fixed 18-week DCA. |
@@ -77,22 +76,22 @@ The current dashboard verdict is scoped to the historical utility audit. The str
 ## Decoupled Deep-Anchor Candidate (research-only)
 
 - Verdict: **REJECTED_SYNTHETIC_GATES**
-- Best recipe: `library_p75_blend_50` (synthetic gates pass=False, historical utility preserved=True)
-- Best synthetic status: **FAIL**; historical terminal win-rate 62%, worst terminal delta -3.7%, new early-exhaustion episodes 0
+- Best recipe: `library_max_blend_35` (synthetic gates pass=False, historical utility preserved=True)
+- Best synthetic status: **FAIL**; historical terminal win-rate 62%, worst terminal delta -7.0%, new early-exhaustion episodes 0
 - The decoupled-deep-anchor sweep tests whether replacing the fixed forecast multiplier with asset-library support can solve the open synthetic gates without touching release mechanics. A rejected result means the remaining failure is not explained by the deep anchor alone; the evidence should be used before proposing a broader production policy change.
 
 | Recipe | Verdict | Synthetic gap | Delayed avg/low | False-bottom 4w unlock | Hist win | Worst hist delta |
 |---|---:|---:|---:|---:|---:|---:|
-| library_median_blend_50 | REJECTED_SYNTHETIC_GATES | 0.159564 | 73.4% | 22.6% | 62% | -5.8% |
-| library_p75_blend_50 | REJECTED_SYNTHETIC_GATES | 0.159564 | 73.4% | 22.6% | 62% | -3.7% |
-| library_max_blend_35 | REJECTED_SYNTHETIC_GATES | 0.159564 | 73.4% | 22.6% | 62% | -6.8% |
-| library_max_blend_50 | REJECTED_SYNTHETIC_GATES | 0.159564 | 73.4% | 22.6% | 62% | -7.6% |
+| library_median_blend_50 | REJECTED_SYNTHETIC_GATES | 0.159564 | 73.4% | 22.6% | 50% | -2.9% |
+| library_p75_blend_50 | REJECTED_SYNTHETIC_GATES | 0.159564 | 73.4% | 22.6% | 50% | -4.1% |
+| library_max_blend_35 | REJECTED_SYNTHETIC_GATES | 0.159564 | 73.4% | 22.6% | 62% | -7.0% |
+| library_max_blend_50 | REJECTED_SYNTHETIC_GATES | 0.159564 | 73.4% | 22.6% | 62% | -7.7% |
 
 ## Release-Hardening Candidate (research-only)
 
 - Verdict: **REJECTED_HISTORICAL_UTILITY**
 - Synthetic common-exam gates: **PASS** (delayed_lower_low=PASS, false_bottom=PASS, fast_v=PASS, shallow_recover=PASS)
-- Historical utility vs live (n=8): terminal win-rate 38% (gate >= 60%), worst terminal delta -25.2% (gate >= -15%), new early-exhaustion episodes 0
+- Historical utility vs live (n=8): terminal win-rate 38% (gate >= 60%), worst terminal delta -19.5% (gate >= -15%), new early-exhaustion episodes 0
 - Historical utility preserved: **False**
 - The release-hardening overlay clears the delayed-lower-low average entry premium and false-bottom four-week unlock synthetic gates by throttling early front-loading and holding a late reserve until a non-forecast trigger fires. On the real accumulation episodes the same deferral buys later and higher in prolonged deep bears (2018 BTC/ETH worst), so terminal value and average cost both deteriorate versus live. Under the pre-registered promotion rule (historical utility AND common exam) the candidate is not promotable; it is recorded as a REJECTED research candidate with an explicit trade-off, not a production change.
 
@@ -100,13 +99,13 @@ The current dashboard verdict is scoped to the historical utility audit. The str
 
 - Verdict: **REJECTED_SYNTHETIC_GATES**
 - Best recipe: `zero_posterior_lower_bound` (synthetic gates pass=False, historical utility preserved=False)
-- Best synthetic status: **FAIL**; historical terminal win-rate 25%, worst terminal delta -14.3%, new early-exhaustion episodes 0
+- Best synthetic status: **FAIL**; historical terminal win-rate 25%, worst terminal delta -14.1%, new early-exhaustion episodes 0
 - The posterior-target governor tests the mechanism identified by first-decline attribution. The zero-posterior lower bound improves the open synthetic paths but still leaves delayed-lower-low average entry premium above the 60% gate, so model_target governance alone is insufficient; the remaining failure also involves the duration-CDF/depth-floor path.
 
 | Recipe | Verdict | Synthetic gap | Delayed avg/low | False-bottom 4w unlock | Fast-V DCA18 | Hist win | Worst hist delta |
 |---|---:|---:|---:|---:|---:|---:|---:|
-| rate_limited_fast_bypass | REJECTED_SYNTHETIC_GATES | 0.125445 | 72.5% | 16.0% | 94.7% | 62% | -7.3% |
-| zero_posterior_lower_bound | REJECTED_SYNTHETIC_GATES | 0.063994 | 66.4% | 8.3% | 91.2% | 25% | -14.3% |
+| rate_limited_fast_bypass | REJECTED_SYNTHETIC_GATES | 0.125445 | 72.5% | 16.0% | 94.7% | 38% | -5.7% |
+| zero_posterior_lower_bound | REJECTED_SYNTHETIC_GATES | 0.063994 | 66.4% | 8.3% | 91.2% | 25% | -14.1% |
 
 ## Delayed-Premium Gate Attainability (cross-round synthesis)
 
@@ -131,8 +130,8 @@ The current dashboard verdict is scoped to the historical utility audit. The str
 | Option | Delayed avg premium | Premium reduction vs live | Historical cost to accept |
 |---|---:|---:|---|
 | Keep current gate/blocker and live policy | 73.4% | 0.0% | none (status quo); current utility terminal win-rate vs median baseline 88% |
-| Accept target-zero lower bound behavior | 66.4% | 7.0% | historical utility not preserved; verdict REJECTED_SYNTHETIC_GATES; terminal win-rate vs live 25%; worst terminal delta -14.3%; cost win-rate vs live 38%; worst cost-premium delta 19.6% |
-| Accept release-hardening throttle behavior | 54.5% | 18.8% | historical utility not preserved; verdict REJECTED_HISTORICAL_UTILITY; terminal win-rate vs live 38%; worst terminal delta -25.2%; cost win-rate vs live 38%; worst cost-premium delta 74.4% |
+| Accept target-zero lower bound behavior | 66.4% | 7.0% | historical utility not preserved; verdict REJECTED_SYNTHETIC_GATES; terminal win-rate vs live 25%; worst terminal delta -14.1%; cost win-rate vs live 38%; worst cost-premium delta 17.9% |
+| Accept release-hardening throttle behavior | 54.5% | 18.8% | historical utility not preserved; verdict REJECTED_HISTORICAL_UTILITY; terminal win-rate vs live 38%; worst terminal delta -19.5%; cost win-rate vs live 38%; worst cost-premium delta 64.8% |
 
 - Across every tested lever the delayed-lower-low average entry premium gate (<= 60%) is reachable only by throttling first-decline depth-floor deployment (the release-hardening lever), which the historical-utility audit rejects on prolonged 2018-style bears. Governing the posterior target alone floors at roughly 66% because the duration-CDF depth floor independently deploys the working bucket at first-decline prices. No tested lever reaches the gate while preserving historical utility, so within the current policy architecture this gate appears unattainable without historical-utility loss. Per the governance point, the next round should either accept this as the documented trade-off of record, or review whether the 60% threshold is attainable and correctly specified, keeping the current value as a sensitivity row and justifying any change with this frontier rather than tuning to pass.
 
