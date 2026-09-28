@@ -27,6 +27,24 @@ Current display contract:
 
 Execution calculator:
 
+- Since September 28, 2026, production uses `scripts/update_execution_params_live.py`.
+  Every candidate is scored on the same 26 complete weeks after a common
+  60-session warm-up, with a later terminal reference for both directions.
+  The stability band uses the standard error of **paired weekly excess costs**,
+  with the existing 0.25 bp floor. It no longer uses one candidate's total
+  market-cost volatility. Zero-hit weeks remain scored. New instruments use the
+  raw minimum when there is no prior grid candidate; they do not inherit a BTC seed.
+  This is a selection heuristic, not a significance or equivalence test.
+- [Selection diagnostics](execution/selector.html) show raw/adopted/prior
+  parameters, eligible candidate counts, matched scoring weeks, cost gaps,
+  paired uncertainty and retention/replacement reasons. The ordinary calculator
+  consumes the repaired published parameters with its existing order guards.
+- The production repair requests 365 calendar days of input to support the
+  common 26-week scoring window. Both sides respect listed half-day closes.
+  Incomplete sessions or insufficient common history preserve the last complete
+  bundle. The original updater and all files hashed by the prospective shadow
+  contract remain byte-for-byte unchanged; that experiment continues to measure
+  its original methods and is not evidence for this new production selector.
 - An isolated [execution v2 validation experiment](research/README.md) compares
   selection rules with common-week, causal daily replay. It does not replace
   the live parameters or change the production schedules;
@@ -78,8 +96,8 @@ Execution calculator:
 - sell fitting uses eligible minute highs and minimizes weekly implementation
   shortfall, `(reference value - proceeds) / reference value`. Unfilled shares
   are valued at the next observed reference, so falling prices penalize waiting.
-  A week without a later reference is excluded from sell scoring. Sell highs
-  stop at the core close on half days; the existing buy calibration is retained.
+  A week without a later reference is excluded from both directions. Buy lows
+  and sell highs stop at the actual core close on half days.
   Deadline tightening and closeout are transparent overlays, not independently
   optimized policies. Proxy touches do not simulate spreads, queue position,
   partial fills, fees or impact on the actual listed instrument;
