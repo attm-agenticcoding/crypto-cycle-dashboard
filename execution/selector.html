@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Execution parameter selection</title>
+<style>
+:root{color-scheme:dark;font-family:system-ui,sans-serif;background:#091321;color:#e5edf6}body{max-width:1050px;margin:0 auto;padding:32px 20px}a{color:#75c9ff}h1{font-size:28px;margin-bottom:8px}p{line-height:1.6;color:#b9c8d9}.controls{display:flex;gap:12px;flex-wrap:wrap;margin:28px 0}select{background:#15253a;color:#e5edf6;border:1px solid #3c526c;border-radius:8px;padding:12px;font-size:16px}.panel{border:1px solid #30445e;background:#101e30;border-radius:14px;padding:22px;margin-top:20px}.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:20px}.label{color:#adc0d5;font-size:13px}.value{font-size:24px;margin-top:6px}.scroll{overflow:auto}table{width:100%;border-collapse:collapse;margin-top:12px;white-space:nowrap}td,th{text-align:left;padding:12px;border-bottom:1px solid #30445e}th{color:#b9c8d9;font-size:13px}.note{font-size:13px}.error{color:#ffafb2}#reason{color:#e5edf6}
+</style></head>
+<body><a href="./">← Execution calculator</a><h1>Execution parameter selection</h1><p>See the lowest sample cost, the adopted parameters, and why the prior was kept or replaced.</p>
+<div class="controls"><label>Instrument <select id="instrument"></select></label><label>Direction <select id="side"><option value="buy">Buy</option><option value="sell">Sell</option></select></label></div>
+<p id="status" role="status">Loading published parameters…</p>
+<div id="details" hidden><section class="panel stats"><div><div class="label">Eligible candidates</div><div class="value" id="eligible"></div></div><div><div class="label">Common scoring weeks</div><div class="value" id="weeks"></div></div><div><div class="label">Latest input session</div><div class="value" id="data-date"></div></div></section>
+<section class="panel"><div class="scroll"><table><thead><tr><th>Selection</th><th>Lookback</th><th>First offset</th><th>Spacing</th><th>Mean modeled cost</th></tr></thead><tbody id="comparison"></tbody></table></div><p id="reason"></p><p id="gap"></p></section>
+<section class="panel"><p id="window"></p><p>Each candidate is scored on the same 26 completed weeks. Its weekly cost difference from the raw minimum determines its own one-standard-error band, with a 0.25 bp floor. Within that band, the nearest prior parameter combination is retained.</p><p class="note">This is a stability heuristic, not a significance test or proof of equal performance. The model values unfilled quantity at the next reference and does not simulate spreads, fees, queue position or market impact. Listed instruments use spot proxies. The frozen prospective shadow study continues separately; this production repair has no established prospective performance advantage.</p><p class="note" id="version"></p></section></div>
+<script>
+"use strict";
+let bundle;
+const $ = id => document.getElementById(id);
+const number = x => Number.isFinite(x) ? x.toFixed(2) : "—";
+function render(){
+  const p = bundle.instruments[$("instrument").value]?.sides?.[$("side").value];
+  const d = p?.selection_diagnostics;
+  $("details").hidden = !d;
+  $("status").textContent = d ? `Generated ${p.generated_at}` : "Selection diagnostics are not yet available for this instrument and direction.";
+  if(!d)return;
+  $("eligible").textContent = `${d.eligible_candidate_count} / ${d.candidate_count}`;
+  $("weeks").textContent = d.scoring_week_count;
+  $("data-date").textContent = p.data_as_of;
+  $("comparison").replaceChildren();
+  for(const [label,x] of [["Raw minimum",d.raw_minimum],["Adopted",d.adopted],["Previous",d.prior]]){
+    if(!x)continue;const tr=document.createElement("tr");
+    for(const value of [label,x.lookback_sessions+(p.market_calendar==="24X7"?" days":" sessions"),number(x.first_offset_pct)+"%",number(x.spacing_pct)+"%",number(x.mean_cost_bps)+" bp"]){const td=document.createElement("td");td.textContent=value;tr.appendChild(td)}
+    $("comparison").appendChild(tr);
+  }
+  $("reason").textContent=d.reason;
+  $("gap").textContent=`Adopted excess cost: ${number(d.adopted.gap_to_raw_minimum_bps)} bp. Paired standard error: ${number(d.adopted.paired_standard_error_bps)} bp. Allowed gap: ${number(d.adopted.allowed_gap_bps)} bp.`;
+  $("window").textContent=`Common scoring weeks: ${d.common_scoring_weeks[0]} through ${d.common_scoring_weeks.at(-1)}. Lower modeled cost is better.`;
+  $("version").textContent=`Selector: ${d.selector_version}`;
+}
+$("instrument").addEventListener("change",render);$("side").addEventListener("change",render);
+fetch("../data/execution_params.json",{cache:"no-store"}).then(r=>{if(!r.ok)throw new Error("Parameter request failed");return r.json()}).then(data=>{
+  bundle=data;for(const [id,p] of Object.entries(data.instruments)){const o=document.createElement("option");o.value=id;o.textContent=`${p.symbol} · ${p.exchange}`;$("instrument").appendChild(o)}
+  $("instrument").value=data.default_instrument_id;render();
+}).catch(()=>{$("status").className="error";$("status").textContent="Could not load current parameters. Reload this page to retry."});
+</script></body></html>

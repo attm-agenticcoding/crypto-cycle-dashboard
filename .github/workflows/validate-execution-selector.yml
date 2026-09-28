@@ -1,0 +1,49 @@
+name: Validate production execution selector
+
+on:
+  push:
+    branches: [codex/repair-execution-selector]
+    paths:
+      - 'scripts/update_execution_params_live.py'
+      - 'tests/test_execution_live_selector.py'
+      - '.github/workflows/validate-execution-selector.yml'
+  pull_request:
+    paths:
+      - 'scripts/update_execution_params_live.py'
+      - 'tests/test_execution_live_selector.py'
+      - '.github/workflows/update-execution-params.yml'
+      - '.github/workflows/validate-execution-selector.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Regression and frozen shadow integrity
+        run: |
+          python -m unittest discover -s tests -v
+          node --test tests/test_execution_*.cjs
+      - name: Refit current archives in an isolated output
+        if: github.event_name == 'push'
+        run: |
+          mkdir -p /tmp/execution-selector-validation
+          cp data/execution_params.json /tmp/execution-selector-validation/params.json
+          python scripts/update_execution_params_live.py --force --output /tmp/execution-selector-validation/params.json
+          git diff --exit-code
+      - uses: actions/upload-artifact@v4
+        if: github.event_name == 'push' && success()
+        with:
+          name: execution-selector-validation
+          path: /tmp/execution-selector-validation/params.json
+          retention-days: 30
+          if-no-files-found: error

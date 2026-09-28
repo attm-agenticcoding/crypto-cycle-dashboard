@@ -42,11 +42,11 @@ jobs:
         shell: bash
         run: |
           if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-            python scripts/update_execution_params.py --force
+            python scripts/update_execution_params_live.py --force
           elif [[ "${{ github.event.schedule }}" == "30 4 * * *" || "${{ github.event.schedule }}" == "30 8 * * *" ]]; then
-            python scripts/update_execution_params.py --calendar 24X7
+            python scripts/update_execution_params_live.py --calendar 24X7
           else
-            python scripts/update_execution_params.py --calendar XNYS
+            python scripts/update_execution_params_live.py --calendar XNYS
           fi
       - name: Publish changed parameters
         shell: bash
