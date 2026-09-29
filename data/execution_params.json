@@ -4,7 +4,7 @@
     "buy",
     "sell"
   ],
-  "generated_at": "2026-09-29T06:02:58.701119Z",
+  "generated_at": "2026-09-29T10:50:43.472318Z",
   "default_instrument_id": "ARCX:BTC",
   "instrument_count": 4,
   "instruments": {
@@ -4078,7 +4078,7 @@
       "max_notional": 9000000.0,
       "min_price": 0.01,
       "max_price": 1000000.0,
-      "exchange_rules_checked_at": "2026-09-17T12:03:26.896763+00:00",
+      "exchange_rules_checked_at": "2026-09-29T10:50:44.155023+00:00",
       "market_calendar": "24X7",
       "timezone": "UTC",
       "reference_time": "00:00",
@@ -4094,8 +4094,8 @@
       "enabled": true,
       "trade_side": "buy",
       "status": "minute-rolling",
-      "generated_at": "2026-09-28T19:38:14.042077Z",
-      "data_as_of": "2026-09-27",
+      "generated_at": "2026-09-29T10:50:43.472318Z",
+      "data_as_of": "2026-09-28",
       "market_proxy": "BTCUSDT",
       "execution_instrument": "BTC / USDT spot (BTCUSDT)",
       "lookback_sessions": 20,
@@ -4106,19 +4106,13 @@
       "zero_fill_probability": 0.1,
       "sample_sessions": 365,
       "walk_forward_weeks": 26,
-      "walk_forward_mean_implementation_shortfall_bps": 56.585,
-      "walk_forward_stderr_bps": 83.347,
-      "walk_forward_mean_passive_completion": 0.9256,
+      "walk_forward_mean_implementation_shortfall_bps": 66.066,
+      "walk_forward_stderr_bps": 84.272,
+      "walk_forward_mean_passive_completion": 0.9237,
       "selection_rule": "common 26 completed weeks; paired excess-cost one-SE band; nearest prior within band",
       "excursion_measure": "drawdown",
       "completion_assumption": "unfilled weekly shares valued at next reference; no automatic broker execution",
       "session_samples": [
-        {
-          "date": "2026-06-30",
-          "drawdown_pct": 3.34547,
-          "runup_pct": 0.10139,
-          "next_reference_return_pct": -2.5068
-        },
         {
           "date": "2026-07-01",
           "drawdown_pct": 1.54298,
@@ -4651,6 +4645,12 @@
           "date": "2026-09-27",
           "drawdown_pct": 0.36857,
           "runup_pct": 0.84767,
+          "next_reference_return_pct": 0.03587
+        },
+        {
+          "date": "2026-09-28",
+          "drawdown_pct": 2.26168,
+          "runup_pct": 0.62206,
           "next_reference_return_pct": null
         }
       ],
@@ -4669,9 +4669,8 @@
         "selector_version": "common-week-paired-se-v1",
         "interpretation": "paired one-standard-error selection heuristic; not a significance or equivalence test",
         "candidate_count": 720,
-        "eligible_candidate_count": 631,
+        "eligible_candidate_count": 222,
         "common_scoring_weeks": [
-          "2026-03-23",
           "2026-03-30",
           "2026-04-06",
           "2026-04-13",
@@ -4696,40 +4695,40 @@
           "2026-08-24",
           "2026-08-31",
           "2026-09-07",
-          "2026-09-14"
+          "2026-09-14",
+          "2026-09-21"
         ],
         "scoring_week_count": 26,
         "minimum_band_bps": 0.25,
         "raw_minimum": {
-          "lookback_sessions": 10,
+          "lookback_sessions": 15,
           "first_offset_pct": 0.2,
-          "spacing_pct": 0.5,
-          "mean_cost_bps": 40.15130647368422
+          "spacing_pct": 0.3,
+          "mean_cost_bps": 49.07168016019323
         },
         "adopted": {
           "lookback_sessions": 20,
           "first_offset_pct": 0.25,
           "spacing_pct": 0.8,
-          "mean_cost_bps": 56.58503606261893,
-          "gap_to_raw_minimum_bps": 16.433729588934714,
-          "paired_standard_error_bps": 25.64838038783515,
-          "allowed_gap_bps": 25.64838038783515
+          "mean_cost_bps": 66.06622219367786,
+          "gap_to_raw_minimum_bps": 16.994542033484635,
+          "paired_standard_error_bps": 20.357355228989356,
+          "allowed_gap_bps": 20.357355228989356
         },
         "prior": {
           "lookback_sessions": 20,
           "first_offset_pct": 0.25,
           "spacing_pct": 0.8,
-          "mean_cost_bps": 56.58503606261893,
-          "gap_to_raw_minimum_bps": 16.433729588934714,
-          "paired_standard_error_bps": 25.64838038783515,
-          "allowed_gap_bps": 25.64838038783515,
+          "mean_cost_bps": 66.06622219367786,
+          "gap_to_raw_minimum_bps": 16.994542033484635,
+          "paired_standard_error_bps": 20.357355228989356,
+          "allowed_gap_bps": 20.357355228989356,
           "eligible": true
         },
         "reason": "Prior retained within its paired excess-cost band",
         "score_contract": "fixed weekly ladder and next-reference residual valuation; no spread, fees, queue or impact simulation",
         "prospective_validation": "not established; frozen shadow experiment is separate"
       },
-      "fit_input_snapshot_sha256": "3bd3148183cab8de57ca6154427461800c41208b5633d70db08d6e53fa58f8d2",
       "sides": {
         "buy": {
           "schema_version": 1,
@@ -4753,7 +4752,7 @@
           "max_notional": 9000000.0,
           "min_price": 0.01,
           "max_price": 1000000.0,
-          "exchange_rules_checked_at": "2026-09-17T12:03:26.896763+00:00",
+          "exchange_rules_checked_at": "2026-09-29T10:50:44.155023+00:00",
           "market_calendar": "24X7",
           "timezone": "UTC",
           "reference_time": "00:00",
@@ -4769,8 +4768,8 @@
           "enabled": true,
           "trade_side": "buy",
           "status": "minute-rolling",
-          "generated_at": "2026-09-28T19:38:14.042077Z",
-          "data_as_of": "2026-09-27",
+          "generated_at": "2026-09-29T10:50:43.472318Z",
+          "data_as_of": "2026-09-28",
           "market_proxy": "BTCUSDT",
           "execution_instrument": "BTC / USDT spot (BTCUSDT)",
           "lookback_sessions": 20,
@@ -4781,19 +4780,13 @@
           "zero_fill_probability": 0.1,
           "sample_sessions": 365,
           "walk_forward_weeks": 26,
-          "walk_forward_mean_implementation_shortfall_bps": 56.585,
-          "walk_forward_stderr_bps": 83.347,
-          "walk_forward_mean_passive_completion": 0.9256,
+          "walk_forward_mean_implementation_shortfall_bps": 66.066,
+          "walk_forward_stderr_bps": 84.272,
+          "walk_forward_mean_passive_completion": 0.9237,
           "selection_rule": "common 26 completed weeks; paired excess-cost one-SE band; nearest prior within band",
           "excursion_measure": "drawdown",
           "completion_assumption": "unfilled weekly shares valued at next reference; no automatic broker execution",
           "session_samples": [
-            {
-              "date": "2026-06-30",
-              "drawdown_pct": 3.34547,
-              "runup_pct": 0.10139,
-              "next_reference_return_pct": -2.5068
-            },
             {
               "date": "2026-07-01",
               "drawdown_pct": 1.54298,
@@ -5326,6 +5319,12 @@
               "date": "2026-09-27",
               "drawdown_pct": 0.36857,
               "runup_pct": 0.84767,
+              "next_reference_return_pct": 0.03587
+            },
+            {
+              "date": "2026-09-28",
+              "drawdown_pct": 2.26168,
+              "runup_pct": 0.62206,
               "next_reference_return_pct": null
             }
           ],
@@ -5344,9 +5343,8 @@
             "selector_version": "common-week-paired-se-v1",
             "interpretation": "paired one-standard-error selection heuristic; not a significance or equivalence test",
             "candidate_count": 720,
-            "eligible_candidate_count": 631,
+            "eligible_candidate_count": 222,
             "common_scoring_weeks": [
-              "2026-03-23",
               "2026-03-30",
               "2026-04-06",
               "2026-04-13",
@@ -5371,40 +5369,40 @@
               "2026-08-24",
               "2026-08-31",
               "2026-09-07",
-              "2026-09-14"
+              "2026-09-14",
+              "2026-09-21"
             ],
             "scoring_week_count": 26,
             "minimum_band_bps": 0.25,
             "raw_minimum": {
-              "lookback_sessions": 10,
+              "lookback_sessions": 15,
               "first_offset_pct": 0.2,
-              "spacing_pct": 0.5,
-              "mean_cost_bps": 40.15130647368422
+              "spacing_pct": 0.3,
+              "mean_cost_bps": 49.07168016019323
             },
             "adopted": {
               "lookback_sessions": 20,
               "first_offset_pct": 0.25,
               "spacing_pct": 0.8,
-              "mean_cost_bps": 56.58503606261893,
-              "gap_to_raw_minimum_bps": 16.433729588934714,
-              "paired_standard_error_bps": 25.64838038783515,
-              "allowed_gap_bps": 25.64838038783515
+              "mean_cost_bps": 66.06622219367786,
+              "gap_to_raw_minimum_bps": 16.994542033484635,
+              "paired_standard_error_bps": 20.357355228989356,
+              "allowed_gap_bps": 20.357355228989356
             },
             "prior": {
               "lookback_sessions": 20,
               "first_offset_pct": 0.25,
               "spacing_pct": 0.8,
-              "mean_cost_bps": 56.58503606261893,
-              "gap_to_raw_minimum_bps": 16.433729588934714,
-              "paired_standard_error_bps": 25.64838038783515,
-              "allowed_gap_bps": 25.64838038783515,
+              "mean_cost_bps": 66.06622219367786,
+              "gap_to_raw_minimum_bps": 16.994542033484635,
+              "paired_standard_error_bps": 20.357355228989356,
+              "allowed_gap_bps": 20.357355228989356,
               "eligible": true
             },
             "reason": "Prior retained within its paired excess-cost band",
             "score_contract": "fixed weekly ladder and next-reference residual valuation; no spread, fees, queue or impact simulation",
             "prospective_validation": "not established; frozen shadow experiment is separate"
-          },
-          "fit_input_snapshot_sha256": "3bd3148183cab8de57ca6154427461800c41208b5633d70db08d6e53fa58f8d2"
+          }
         },
         "sell": {
           "schema_version": 1,
@@ -5428,7 +5426,7 @@
           "max_notional": 9000000.0,
           "min_price": 0.01,
           "max_price": 1000000.0,
-          "exchange_rules_checked_at": "2026-09-17T12:03:26.896763+00:00",
+          "exchange_rules_checked_at": "2026-09-29T10:50:44.155023+00:00",
           "market_calendar": "24X7",
           "timezone": "UTC",
           "reference_time": "00:00",
@@ -5444,31 +5442,25 @@
           "enabled": true,
           "trade_side": "sell",
           "status": "minute-rolling",
-          "generated_at": "2026-09-28T19:38:14.042077Z",
-          "data_as_of": "2026-09-27",
+          "generated_at": "2026-09-29T10:50:43.472318Z",
+          "data_as_of": "2026-09-28",
           "market_proxy": "BTCUSDT",
           "execution_instrument": "BTC / USDT spot (BTCUSDT)",
           "lookback_sessions": 15,
           "lookback_unit": "UTC calendar days",
           "first_offset_pct": 0.4,
           "spacing_pct": 0.85,
-          "expected_rungs_per_session": 2.0,
-          "zero_fill_probability": 0.2667,
+          "expected_rungs_per_session": 2.0667,
+          "zero_fill_probability": 0.2,
           "sample_sessions": 365,
           "walk_forward_weeks": 26,
-          "walk_forward_mean_implementation_shortfall_bps": -19.731,
-          "walk_forward_stderr_bps": 67.653,
-          "walk_forward_mean_passive_completion": 0.9314,
+          "walk_forward_mean_implementation_shortfall_bps": -30.271,
+          "walk_forward_stderr_bps": 69.134,
+          "walk_forward_mean_passive_completion": 0.9361,
           "selection_rule": "common 26 completed weeks; paired excess-cost one-SE band; nearest prior within band",
           "excursion_measure": "runup",
           "completion_assumption": "unfilled weekly shares valued at next reference; no automatic broker execution",
           "session_samples": [
-            {
-              "date": "2026-06-30",
-              "drawdown_pct": 3.34547,
-              "runup_pct": 0.10139,
-              "next_reference_return_pct": -2.5068
-            },
             {
               "date": "2026-07-01",
               "drawdown_pct": 1.54298,
@@ -6001,6 +5993,12 @@
               "date": "2026-09-27",
               "drawdown_pct": 0.36857,
               "runup_pct": 0.84767,
+              "next_reference_return_pct": 0.03587
+            },
+            {
+              "date": "2026-09-28",
+              "drawdown_pct": 2.26168,
+              "runup_pct": 0.62206,
               "next_reference_return_pct": null
             }
           ],
@@ -6019,9 +6017,8 @@
             "selector_version": "common-week-paired-se-v1",
             "interpretation": "paired one-standard-error selection heuristic; not a significance or equivalence test",
             "candidate_count": 720,
-            "eligible_candidate_count": 58,
+            "eligible_candidate_count": 47,
             "common_scoring_weeks": [
-              "2026-03-23",
               "2026-03-30",
               "2026-04-06",
               "2026-04-13",
@@ -6046,7 +6043,8 @@
               "2026-08-24",
               "2026-08-31",
               "2026-09-07",
-              "2026-09-14"
+              "2026-09-14",
+              "2026-09-21"
             ],
             "scoring_week_count": 26,
             "minimum_band_bps": 0.25,
@@ -6054,32 +6052,31 @@
               "lookback_sessions": 30,
               "first_offset_pct": 0.4,
               "spacing_pct": 0.95,
-              "mean_cost_bps": -25.152677076524842
+              "mean_cost_bps": -37.209691797082534
             },
             "adopted": {
               "lookback_sessions": 15,
               "first_offset_pct": 0.4,
               "spacing_pct": 0.85,
-              "mean_cost_bps": -19.73053661589226,
-              "gap_to_raw_minimum_bps": 5.42214046063258,
-              "paired_standard_error_bps": 7.3879641698197736,
-              "allowed_gap_bps": 7.3879641698197736
+              "mean_cost_bps": -30.27101941863303,
+              "gap_to_raw_minimum_bps": 6.938672378449505,
+              "paired_standard_error_bps": 7.138862927734385,
+              "allowed_gap_bps": 7.138862927734385
             },
             "prior": {
-              "lookback_sessions": 20,
-              "first_offset_pct": 0.25,
-              "spacing_pct": 0.8,
-              "mean_cost_bps": -9.432654713344549,
-              "gap_to_raw_minimum_bps": 15.72002236318029,
-              "paired_standard_error_bps": 6.140197144615486,
-              "allowed_gap_bps": 6.140197144615486,
-              "eligible": false
+              "lookback_sessions": 15,
+              "first_offset_pct": 0.4,
+              "spacing_pct": 0.85,
+              "mean_cost_bps": -30.27101941863303,
+              "gap_to_raw_minimum_bps": 6.938672378449505,
+              "paired_standard_error_bps": 7.138862927734385,
+              "allowed_gap_bps": 7.138862927734385,
+              "eligible": true
             },
-            "reason": "Prior excluded by paired excess-cost band; adopt nearest eligible candidate",
+            "reason": "Prior retained within its paired excess-cost band",
             "score_contract": "fixed weekly ladder and next-reference residual valuation; no spread, fees, queue or impact simulation",
             "prospective_validation": "not established; frozen shadow experiment is separate"
-          },
-          "fit_input_snapshot_sha256": "3bd3148183cab8de57ca6154427461800c41208b5633d70db08d6e53fa58f8d2"
+          }
         }
       }
     },
@@ -6105,7 +6102,7 @@
       "max_notional": 9000000.0,
       "min_price": 0.01,
       "max_price": 1000000.0,
-      "exchange_rules_checked_at": "2026-09-17T12:03:51.700530+00:00",
+      "exchange_rules_checked_at": "2026-09-29T10:50:44.812057+00:00",
       "market_calendar": "24X7",
       "timezone": "UTC",
       "reference_time": "00:00",
@@ -6121,8 +6118,8 @@
       "enabled": true,
       "trade_side": "buy",
       "status": "minute-rolling",
-      "generated_at": "2026-09-28T19:38:14.042077Z",
-      "data_as_of": "2026-09-27",
+      "generated_at": "2026-09-29T10:50:43.472318Z",
+      "data_as_of": "2026-09-28",
       "market_proxy": "ETHUSDT",
       "execution_instrument": "ETH / USDT spot (ETHUSDT)",
       "lookback_sessions": 20,
@@ -6133,19 +6130,13 @@
       "zero_fill_probability": 0.1,
       "sample_sessions": 365,
       "walk_forward_weeks": 26,
-      "walk_forward_mean_implementation_shortfall_bps": 83.85,
-      "walk_forward_stderr_bps": 102.725,
-      "walk_forward_mean_passive_completion": 0.9168,
+      "walk_forward_mean_implementation_shortfall_bps": 86.724,
+      "walk_forward_stderr_bps": 102.799,
+      "walk_forward_mean_passive_completion": 0.9134,
       "selection_rule": "common 26 completed weeks; paired excess-cost one-SE band; nearest prior within band",
       "excursion_measure": "drawdown",
       "completion_assumption": "unfilled weekly shares valued at next reference; no automatic broker execution",
       "session_samples": [
-        {
-          "date": "2026-06-30",
-          "drawdown_pct": 3.84269,
-          "runup_pct": 0.14019,
-          "next_reference_return_pct": -2.4061
-        },
         {
           "date": "2026-07-01",
           "drawdown_pct": 1.29913,
@@ -6678,6 +6669,12 @@
           "date": "2026-09-27",
           "drawdown_pct": 0.9788,
           "runup_pct": 1.03666,
+          "next_reference_return_pct": -0.26927
+        },
+        {
+          "date": "2026-09-28",
+          "drawdown_pct": 1.97924,
+          "runup_pct": 1.20904,
           "next_reference_return_pct": null
         }
       ],
@@ -6696,9 +6693,8 @@
         "selector_version": "common-week-paired-se-v1",
         "interpretation": "paired one-standard-error selection heuristic; not a significance or equivalence test",
         "candidate_count": 720,
-        "eligible_candidate_count": 338,
+        "eligible_candidate_count": 308,
         "common_scoring_weeks": [
-          "2026-03-23",
           "2026-03-30",
           "2026-04-06",
           "2026-04-13",
@@ -6723,7 +6719,8 @@
           "2026-08-24",
           "2026-08-31",
           "2026-09-07",
-          "2026-09-14"
+          "2026-09-14",
+          "2026-09-21"
         ],
         "scoring_week_count": 26,
         "minimum_band_bps": 0.25,
@@ -6731,32 +6728,31 @@
           "lookback_sessions": 10,
           "first_offset_pct": 0.5,
           "spacing_pct": 0.8,
-          "mean_cost_bps": 39.90485592935035
+          "mean_cost_bps": 43.728459184084016
         },
         "adopted": {
           "lookback_sessions": 20,
           "first_offset_pct": 0.25,
           "spacing_pct": 0.8,
-          "mean_cost_bps": 83.85041534058456,
-          "gap_to_raw_minimum_bps": 43.94555941123421,
-          "paired_standard_error_bps": 46.17621516353166,
-          "allowed_gap_bps": 46.17621516353166
+          "mean_cost_bps": 86.72424763899662,
+          "gap_to_raw_minimum_bps": 42.9957884549126,
+          "paired_standard_error_bps": 46.19732683872334,
+          "allowed_gap_bps": 46.19732683872334
         },
         "prior": {
           "lookback_sessions": 20,
           "first_offset_pct": 0.25,
           "spacing_pct": 0.8,
-          "mean_cost_bps": 83.85041534058456,
-          "gap_to_raw_minimum_bps": 43.94555941123421,
-          "paired_standard_error_bps": 46.17621516353166,
-          "allowed_gap_bps": 46.17621516353166,
+          "mean_cost_bps": 86.72424763899662,
+          "gap_to_raw_minimum_bps": 42.9957884549126,
+          "paired_standard_error_bps": 46.19732683872334,
+          "allowed_gap_bps": 46.19732683872334,
           "eligible": true
         },
         "reason": "Prior retained within its paired excess-cost band",
         "score_contract": "fixed weekly ladder and next-reference residual valuation; no spread, fees, queue or impact simulation",
         "prospective_validation": "not established; frozen shadow experiment is separate"
       },
-      "fit_input_snapshot_sha256": "3bd3148183cab8de57ca6154427461800c41208b5633d70db08d6e53fa58f8d2",
       "sides": {
         "buy": {
           "schema_version": 1,
@@ -6780,7 +6776,7 @@
           "max_notional": 9000000.0,
           "min_price": 0.01,
           "max_price": 1000000.0,
-          "exchange_rules_checked_at": "2026-09-17T12:03:51.700530+00:00",
+          "exchange_rules_checked_at": "2026-09-29T10:50:44.812057+00:00",
           "market_calendar": "24X7",
           "timezone": "UTC",
           "reference_time": "00:00",
@@ -6796,8 +6792,8 @@
           "enabled": true,
           "trade_side": "buy",
           "status": "minute-rolling",
-          "generated_at": "2026-09-28T19:38:14.042077Z",
-          "data_as_of": "2026-09-27",
+          "generated_at": "2026-09-29T10:50:43.472318Z",
+          "data_as_of": "2026-09-28",
           "market_proxy": "ETHUSDT",
           "execution_instrument": "ETH / USDT spot (ETHUSDT)",
           "lookback_sessions": 20,
@@ -6808,19 +6804,13 @@
           "zero_fill_probability": 0.1,
           "sample_sessions": 365,
           "walk_forward_weeks": 26,
-          "walk_forward_mean_implementation_shortfall_bps": 83.85,
-          "walk_forward_stderr_bps": 102.725,
-          "walk_forward_mean_passive_completion": 0.9168,
+          "walk_forward_mean_implementation_shortfall_bps": 86.724,
+          "walk_forward_stderr_bps": 102.799,
+          "walk_forward_mean_passive_completion": 0.9134,
           "selection_rule": "common 26 completed weeks; paired excess-cost one-SE band; nearest prior within band",
           "excursion_measure": "drawdown",
           "completion_assumption": "unfilled weekly shares valued at next reference; no automatic broker execution",
           "session_samples": [
-            {
-              "date": "2026-06-30",
-              "drawdown_pct": 3.84269,
-              "runup_pct": 0.14019,
-              "next_reference_return_pct": -2.4061
-            },
             {
               "date": "2026-07-01",
               "drawdown_pct": 1.29913,
@@ -7353,6 +7343,12 @@
               "date": "2026-09-27",
               "drawdown_pct": 0.9788,
               "runup_pct": 1.03666,
+              "next_reference_return_pct": -0.26927
+            },
+            {
+              "date": "2026-09-28",
+              "drawdown_pct": 1.97924,
+              "runup_pct": 1.20904,
               "next_reference_return_pct": null
             }
           ],
@@ -7371,9 +7367,8 @@
             "selector_version": "common-week-paired-se-v1",
             "interpretation": "paired one-standard-error selection heuristic; not a significance or equivalence test",
             "candidate_count": 720,
-            "eligible_candidate_count": 338,
+            "eligible_candidate_count": 308,
             "common_scoring_weeks": [
-              "2026-03-23",
               "2026-03-30",
               "2026-04-06",
               "2026-04-13",
@@ -7398,7 +7393,8 @@
               "2026-08-24",
               "2026-08-31",
               "2026-09-07",
-              "2026-09-14"
+              "2026-09-14",
+              "2026-09-21"
             ],
             "scoring_week_count": 26,
             "minimum_band_bps": 0.25,
@@ -7406,32 +7402,31 @@
               "lookback_sessions": 10,
               "first_offset_pct": 0.5,
               "spacing_pct": 0.8,
-              "mean_cost_bps": 39.90485592935035
+              "mean_cost_bps": 43.728459184084016
             },
             "adopted": {
               "lookback_sessions": 20,
               "first_offset_pct": 0.25,
               "spacing_pct": 0.8,
-              "mean_cost_bps": 83.85041534058456,
-              "gap_to_raw_minimum_bps": 43.94555941123421,
-              "paired_standard_error_bps": 46.17621516353166,
-              "allowed_gap_bps": 46.17621516353166
+              "mean_cost_bps": 86.72424763899662,
+              "gap_to_raw_minimum_bps": 42.9957884549126,
+              "paired_standard_error_bps": 46.19732683872334,
+              "allowed_gap_bps": 46.19732683872334
             },
             "prior": {
               "lookback_sessions": 20,
               "first_offset_pct": 0.25,
               "spacing_pct": 0.8,
-              "mean_cost_bps": 83.85041534058456,
-              "gap_to_raw_minimum_bps": 43.94555941123421,
-              "paired_standard_error_bps": 46.17621516353166,
-              "allowed_gap_bps": 46.17621516353166,
+              "mean_cost_bps": 86.72424763899662,
+              "gap_to_raw_minimum_bps": 42.9957884549126,
+              "paired_standard_error_bps": 46.19732683872334,
+              "allowed_gap_bps": 46.19732683872334,
               "eligible": true
             },
             "reason": "Prior retained within its paired excess-cost band",
             "score_contract": "fixed weekly ladder and next-reference residual valuation; no spread, fees, queue or impact simulation",
             "prospective_validation": "not established; frozen shadow experiment is separate"
-          },
-          "fit_input_snapshot_sha256": "3bd3148183cab8de57ca6154427461800c41208b5633d70db08d6e53fa58f8d2"
+          }
         },
         "sell": {
           "schema_version": 1,
@@ -7455,7 +7450,7 @@
           "max_notional": 9000000.0,
           "min_price": 0.01,
           "max_price": 1000000.0,
-          "exchange_rules_checked_at": "2026-09-17T12:03:51.700530+00:00",
+          "exchange_rules_checked_at": "2026-09-29T10:50:44.812057+00:00",
           "market_calendar": "24X7",
           "timezone": "UTC",
           "reference_time": "00:00",
@@ -7471,31 +7466,25 @@
           "enabled": true,
           "trade_side": "sell",
           "status": "minute-rolling",
-          "generated_at": "2026-09-28T19:38:14.042077Z",
-          "data_as_of": "2026-09-27",
+          "generated_at": "2026-09-29T10:50:43.472318Z",
+          "data_as_of": "2026-09-28",
           "market_proxy": "ETHUSDT",
           "execution_instrument": "ETH / USDT spot (ETHUSDT)",
           "lookback_sessions": 20,
           "lookback_unit": "UTC calendar days",
           "first_offset_pct": 0.25,
           "spacing_pct": 0.8,
-          "expected_rungs_per_session": 3.0,
+          "expected_rungs_per_session": 3.05,
           "zero_fill_probability": 0.2,
           "sample_sessions": 365,
           "walk_forward_weeks": 26,
-          "walk_forward_mean_implementation_shortfall_bps": -39.85,
-          "walk_forward_stderr_bps": 81.425,
-          "walk_forward_mean_passive_completion": 0.9561,
+          "walk_forward_mean_implementation_shortfall_bps": -46.895,
+          "walk_forward_stderr_bps": 81.861,
+          "walk_forward_mean_passive_completion": 0.9517,
           "selection_rule": "common 26 completed weeks; paired excess-cost one-SE band; nearest prior within band",
           "excursion_measure": "runup",
           "completion_assumption": "unfilled weekly shares valued at next reference; no automatic broker execution",
           "session_samples": [
-            {
-              "date": "2026-06-30",
-              "drawdown_pct": 3.84269,
-              "runup_pct": 0.14019,
-              "next_reference_return_pct": -2.4061
-            },
             {
               "date": "2026-07-01",
               "drawdown_pct": 1.29913,
@@ -8028,6 +8017,12 @@
               "date": "2026-09-27",
               "drawdown_pct": 0.9788,
               "runup_pct": 1.03666,
+              "next_reference_return_pct": -0.26927
+            },
+            {
+              "date": "2026-09-28",
+              "drawdown_pct": 1.97924,
+              "runup_pct": 1.20904,
               "next_reference_return_pct": null
             }
           ],
@@ -8048,7 +8043,6 @@
             "candidate_count": 720,
             "eligible_candidate_count": 680,
             "common_scoring_weeks": [
-              "2026-03-23",
               "2026-03-30",
               "2026-04-06",
               "2026-04-13",
@@ -8073,7 +8067,8 @@
               "2026-08-24",
               "2026-08-31",
               "2026-09-07",
-              "2026-09-14"
+              "2026-09-14",
+              "2026-09-21"
             ],
             "scoring_week_count": 26,
             "minimum_band_bps": 0.25,
@@ -8081,32 +8076,31 @@
               "lookback_sessions": 60,
               "first_offset_pct": 0.35,
               "spacing_pct": 0.35,
-              "mean_cost_bps": -50.37510910693744
+              "mean_cost_bps": -57.085345472204395
             },
             "adopted": {
               "lookback_sessions": 20,
               "first_offset_pct": 0.25,
               "spacing_pct": 0.8,
-              "mean_cost_bps": -39.84962900011247,
-              "gap_to_raw_minimum_bps": 10.52548010682497,
-              "paired_standard_error_bps": 28.241455335363753,
-              "allowed_gap_bps": 28.241455335363753
+              "mean_cost_bps": -46.895050645223655,
+              "gap_to_raw_minimum_bps": 10.190294826980741,
+              "paired_standard_error_bps": 28.25327878934173,
+              "allowed_gap_bps": 28.25327878934173
             },
             "prior": {
               "lookback_sessions": 20,
               "first_offset_pct": 0.25,
               "spacing_pct": 0.8,
-              "mean_cost_bps": -39.84962900011247,
-              "gap_to_raw_minimum_bps": 10.52548010682497,
-              "paired_standard_error_bps": 28.241455335363753,
-              "allowed_gap_bps": 28.241455335363753,
+              "mean_cost_bps": -46.895050645223655,
+              "gap_to_raw_minimum_bps": 10.190294826980741,
+              "paired_standard_error_bps": 28.25327878934173,
+              "allowed_gap_bps": 28.25327878934173,
               "eligible": true
             },
             "reason": "Prior retained within its paired excess-cost band",
             "score_contract": "fixed weekly ladder and next-reference residual valuation; no spread, fees, queue or impact simulation",
             "prospective_validation": "not established; frozen shadow experiment is separate"
-          },
-          "fit_input_snapshot_sha256": "3bd3148183cab8de57ca6154427461800c41208b5633d70db08d6e53fa58f8d2"
+          }
         }
       }
     }
