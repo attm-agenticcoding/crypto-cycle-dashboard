@@ -269,7 +269,10 @@ class UpdaterTests(unittest.TestCase):
                 updater, "download_bars", return_value=[]
             ) as download, patch.object(updater, "build_sessions", return_value=sessions), patch.object(
                 updater, "choose_candidate", side_effect=[selected, CandidateResult(15, .004, .006, [3., 4.], [.8, .9], .3)]
-            ) as choose:
+            ) as choose, patch.object(updater, "datetime", wraps=datetime) as clock:
+                # Keep the fixed September 30 sessions fresh regardless of the test date.
+                now = datetime(2026, 10, 1, 12, tzinfo=updater.UTC)
+                clock.now.side_effect = lambda tz: now.astimezone(tz)
                 self.assertEqual(updater.main(), 0)
             bundle = json.loads(output_path.read_text())
             self.assertEqual(set(bundle["instruments"]), {"ARCX:BTC", "XNAS:IBIT"})
