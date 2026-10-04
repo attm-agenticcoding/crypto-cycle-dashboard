@@ -17,4 +17,12 @@ Set `DASHBOARD_CLOCK_ENABLED=false` to stop the continuing clock; disable this w
 
 Run `python3 -m unittest discover -s tests -p test_dashboard_clock.py -v` for scheduling, credential isolation, bounded verification, successor continuity and token revocation checks.
 
+## Production verification — 2026-10-04
+
+Production was enabled at 19:30 UTC after the App installation and single-repository permissions were verified. The [first production clock run](https://github.com/attm-agenticcoding/crypto-cycle-dashboard/actions/runs/37228531552) completed its five-minute wait, requested the missing 15:30 ET publication and automatically queued its successor. The App-triggered private publisher succeeded; the public snapshot was generated at 15:36:58 ET. Independent reads of the normal Pages URLs confirmed that both `index.html` and `snapshot.json` matched their SHA-256 entries in `cloud-runtime.json`, and the snapshot remained masked.
+
+The [automatic successor](https://github.com/attm-agenticcoding/crypto-cycle-dashboard/actions/runs/37228865360), started by `github-actions[bot]`, also completed successfully after its five-minute wait. It recognized that the slot was already published and queued [the next wait](https://github.com/attm-agenticcoding/crypto-cycle-dashboard/actions/runs/37229197509) without another human dispatch.
+
+The one-time mobile authorization form is closed. The App key is stored only as an encrypted environment Secret; temporary local private keys were deleted after storage and scope verification. No account-wide token was placed in a workflow, and the source repository remains private.
+
 References: [environment wait timers](https://docs.github.com/en/actions/reference/workflows-and-actions/deployments-and-environments#wait-timer), [GITHUB_TOKEN dispatch behavior](https://docs.github.com/en/actions/concepts/security/github_token#when-github_token-triggers-workflow-runs), [scoping installation tokens](https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/generating-an-installation-access-token-for-a-github-app).
