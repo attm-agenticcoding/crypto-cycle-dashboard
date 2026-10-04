@@ -1,0 +1,52 @@
+name: Dashboard publication clock
+
+on:
+  workflow_dispatch:
+    inputs:
+      verify_only:
+        type: boolean
+        default: true
+        description: Check the timer without private credentials or publication
+      remaining:
+        type: choice
+        options: ['0', '1']
+        default: '0'
+        description: Additional verification ticks (production always continues)
+  schedule:
+    - cron: '23 * * * *'
+
+permissions: {}
+
+concurrency:
+  group: dashboard-clock-${{ inputs.verify_only && 'verify' || 'production' }}
+  cancel-in-progress: false
+
+jobs:
+  tick:
+    if: github.repository == 'attm-agenticcoding/crypto-cycle-dashboard' && github.ref == 'refs/heads/main' && (inputs.verify_only || vars.DASHBOARD_CLOCK_ENABLED == 'true')
+    environment:
+      name: ${{ inputs.verify_only && 'dashboard-clock-verify' || 'dashboard-clock' }}
+      deployment: false
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    permissions:
+      contents: read
+      actions: write
+    steps:
+      - name: Check out only the public clock
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          persist-credentials: false
+          sparse-checkout: scripts/dashboard_clock.py
+          sparse-checkout-cone-mode: false
+      - name: Enqueue the next wait and check publication
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CLOCK_ENABLED: ${{ vars.DASHBOARD_CLOCK_ENABLED }}
+          VERIFY_ONLY: ${{ inputs.verify_only && 'true' || 'false' }}
+          REMAINING: ${{ inputs.remaining || '0' }}
+          CYCLE_CLOCK_APP_ID: ${{ secrets.CYCLE_CLOCK_APP_ID }}
+          CYCLE_CLOCK_INSTALLATION_ID: ${{ secrets.CYCLE_CLOCK_INSTALLATION_ID }}
+          CYCLE_CLOCK_PRIVATE_KEY: ${{ secrets.CYCLE_CLOCK_PRIVATE_KEY }}
+          CYCLE_SOURCE_REPOSITORY: ${{ secrets.CYCLE_SOURCE_REPOSITORY }}
+        run: python3 scripts/dashboard_clock.py --verify-only "$VERIFY_ONLY" --remaining "$REMAINING"
