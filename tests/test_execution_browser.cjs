@@ -26,6 +26,7 @@ if (process.env.RUN_EXECUTION_BROWSER_TESTS !== "1") {
   const path = require("node:path");
   const os = require("node:os");
   const http = require("node:http");
+  const { inflateSync } = require("node:zlib");
   const { chromium } = require("playwright");
   const core = require("../execution/execution-core.js");
   const root = path.resolve(__dirname, "..");
@@ -106,8 +107,9 @@ if (process.env.RUN_EXECUTION_BROWSER_TESTS !== "1") {
     if (server) await new Promise(resolve => server.close(resolve));
   });
 
-  async function open(t, { time = "2026-10-05T14:00:00Z", data = fixture(), viewport = { width: 1440, height: 1000 } } = {}) {
-    const context = await browser.newContext({ viewport, locale: "en-US", timezoneId: "UTC" });
+  async function open(t, { time = "2026-10-05T14:00:00Z", data = fixture(), viewport = { width: 1440, height: 1000 }, mobile = false } = {}) {
+    const context = await browser.newContext({ viewport, locale: "en-US", timezoneId: "UTC",
+      ...(mobile ? { isMobile: true, hasTouch: true, deviceScaleFactor: 1 } : {}) });
     t.after(() => context.close());
     await context.route("**/*", async route => {
       const url = new URL(route.request().url());
@@ -140,8 +142,14 @@ if (process.env.RUN_EXECUTION_BROWSER_TESTS !== "1") {
     const errors = [];
     page.on("pageerror", error => errors.push(error.message));
     t.after(() => assert.deepEqual(errors, [], "no uncaught browser errors"));
-    await page.clock.install({ time: new Date(new Date(time).getTime() - 1000) });
-    await page.clock.pauseAt(new Date(time));
+    if (mobile) {
+      // Freeze market time only. Leave timers/animation frames/compositor work
+      // running for touch interactions and trustworthy mobile paint captures.
+      await page.clock.setFixedTime(new Date(time));
+    } else {
+      await page.clock.install({ time: new Date(new Date(time).getTime() - 1000) });
+      await page.clock.pauseAt(new Date(time));
+    }
     await page.goto(`${origin}/execution/`);
     await page.waitForFunction(() => !document.getElementById("instrument-select").disabled);
     await page.locator("#weekly-two").fill("0");
@@ -204,6 +212,59 @@ if (process.env.RUN_EXECUTION_BROWSER_TESTS !== "1") {
     await setFields(page, { "sell-weekly-one": 100, "sell-held-one": 1000, "sell-reserved-one": 0, ...extra });
   }
 
+  async function settlePaint(page) {
+    await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+  }
+
+  // Chromium emits non-interlaced 8-bit RGB(A) PNGs. Inspect actual screenshot
+  // pixels, not just DOM visibility: offscreen compositor omissions can leave
+  // valid-looking DOM boxes completely blank in a full-page image. This small
+  // decoder keeps the opt-in suite free of a second screenshot dependency.
+  function assertTextPainted(png, regions) {
+    assert.equal(png.subarray(0, 8).toString("hex"), "89504e470d0a1a0a");
+    let width, height, channels;
+    const chunks = [];
+    for (let offset = 8; offset < png.length;) {
+      const length = png.readUInt32BE(offset), type = png.toString("ascii", offset + 4, offset + 8);
+      const chunk = png.subarray(offset + 8, offset + 8 + length);
+      if (type === "IHDR") {
+        width = chunk.readUInt32BE(0); height = chunk.readUInt32BE(4);
+        assert.equal(chunk[8], 8, "screenshot PNG must be 8-bit");
+        assert.ok([2, 6].includes(chunk[9]), "screenshot PNG must be RGB or RGBA");
+        assert.equal(chunk[12], 0, "screenshot PNG must not be interlaced");
+        channels = chunk[9] === 2 ? 3 : 4;
+      } else if (type === "IDAT") chunks.push(chunk);
+      offset += length + 12;
+    }
+    const stride = width * channels, raw = inflateSync(Buffer.concat(chunks));
+    assert.equal(raw.length, (stride + 1) * height);
+    const pixels = Buffer.alloc(stride * height);
+    const paeth = (a, b, c) => {
+      const p = a + b - c, pa = Math.abs(p - a), pb = Math.abs(p - b), pc = Math.abs(p - c);
+      return pa <= pb && pa <= pc ? a : pb <= pc ? b : c;
+    };
+    for (let y = 0; y < height; y++) {
+      const filter = raw[y * (stride + 1)];
+      assert.ok(filter <= 4);
+      for (let x = 0; x < stride; x++) {
+        const i = y * stride + x, a = x >= channels ? pixels[i - channels] : 0;
+        const b = y ? pixels[i - stride] : 0, c = y && x >= channels ? pixels[i - stride - channels] : 0;
+        const predictor = filter === 0 ? 0 : filter === 1 ? a : filter === 2 ? b : filter === 3 ? Math.floor((a + b) / 2) : paeth(a, b, c);
+        pixels[i] = (raw[y * (stride + 1) + 1 + x] + predictor) & 255;
+      }
+    }
+    for (const [name, rect] of Object.entries(regions)) {
+      assert.ok(rect && rect.width > 0 && rect.height > 0, `${name} has a screenshot region`);
+      let textPixels = 0;
+      for (let y = Math.max(0, Math.ceil(rect.y)); y < Math.min(height, Math.floor(rect.y + rect.height)); y++)
+        for (let x = Math.max(0, Math.ceil(rect.x)); x < Math.min(width, Math.floor(rect.x + rect.width)); x++) {
+          const i = y * stride + x * channels;
+          if (pixels[i] > 125 && pixels[i + 1] > 125 && pixels[i + 2] > 125) textPixels++;
+        }
+      assert.ok(textPixels > 20, `${name} has rendered light text in screenshot pixels (found ${textPixels}); DOM visibility alone is insufficient`);
+    }
+  }
+
   test("real BTC and ETH forms retain newest unlabeled excursion and match every core order", async t => {
     const page = await open(t);
     await submit(page);
@@ -220,10 +281,57 @@ if (process.env.RUN_EXECUTION_BROWSER_TESTS !== "1") {
     assert.equal(eth.expected.perRung, 38);
     assert.equal(eth.expected.targetShares, 428);
     await page.screenshot({ path: path.join(artifacts, "listed-buy-desktop.png"), fullPage: true });
-    await page.setViewportSize({ width: 390, height: 844 });
-    await page.screenshot({ path: path.join(artifacts, "listed-buy-mobile.png"), fullPage: true });
+    t.diagnostic(`Desktop screenshot: ${artifacts}`);
+  });
+
+  test("fresh mobile form supports touch, exact core parity, scrolling, and painted screenshots", async t => {
+    const page = await open(t, { mobile: true, viewport: { width: 390, height: 844 } });
+    await page.locator("#instrument-select").selectOption("ARCX:ETH");
+    await setFields(page, { "weekly-one": 10000, "weekly-two": 0, "capital-one": "", deadline: "" });
+    await page.locator("#reference-price").evaluate(node => node.scrollIntoView({ block: "center" }));
+    await page.locator("#reference-price").tap();
+    assert.equal(await page.locator("#reference-price").evaluate(node => document.activeElement === node), true);
+    await page.locator("#reference-price").fill("23.32");
+    await page.locator("#reference-price-label").tap();
+    await settlePaint(page);
+    const inputViewport = await page.screenshot({ path: path.join(artifacts, "listed-buy-mobile-inputs.png") });
+    assertTextPainted(inputViewport, { "mobile reference input": await page.locator("#reference-price").boundingBox() });
+    await page.locator("#calculate-button").tap();
+    const { expected } = await assertPlan(page, { ...buyBase(), reference: 23.32, params: params("ARCX:ETH") });
+    assert.equal(expected.hits, 2.3);
+    assert.equal(expected.perRung, 38);
+    assert.equal(expected.targetShares, 428);
+    await page.locator("#result-stack").evaluate(node => node.scrollIntoView({ block: "start" }));
+    await settlePaint(page);
+    const firstRow = page.locator("#result-stack tbody tr").first();
+    const resultViewport = await page.screenshot({ path: path.join(artifacts, "listed-buy-mobile-results.png") });
+    assertTextPainted(resultViewport, { "mobile first order row": await firstRow.boundingBox() });
+    const lastCell = firstRow.locator("td").last();
+    await lastCell.scrollIntoViewIfNeeded();
+    const lastCellBox = await lastCell.boundingBox();
+    assert.ok(lastCellBox.x >= 0 && lastCellBox.x + lastCellBox.width <= 391, "the rightmost table column can scroll into the mobile viewport");
+    assert.equal(await lastCell.evaluate(node => {
+      const r = node.getBoundingClientRect();
+      return node.contains(document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2));
+    }), true, "order values are unobscured at their visible hit-test location");
+    await page.locator("#result-stack .table-wrap").evaluate(node => { node.scrollLeft = 0; });
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), true, "mobile page has no whole-page horizontal overflow");
-    t.diagnostic(`Desktop/mobile screenshots: ${artifacts}`);
+    // Visit every vertical viewport before full-page capture, allowing filtered
+    // panels to paint as they would during normal user scrolling.
+    const height = await page.evaluate(() => document.documentElement.scrollHeight);
+    for (let y = 0; y < height; y += 600) {
+      await page.evaluate(top => window.scrollTo(0, top), y);
+      await settlePaint(page);
+    }
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await settlePaint(page);
+    const regions = {
+      "full-page reference input": await page.locator("#reference-price").boundingBox(),
+      "full-page first order row": await firstRow.boundingBox()
+    };
+    const wholePage = await page.screenshot({ path: path.join(artifacts, "listed-buy-mobile.png"), fullPage: true });
+    assertTextPainted(wholePage, regions);
+    t.diagnostic(`Fresh mobile viewport and whole-page screenshots: ${artifacts}`);
   });
 
   test("blank total and explicit zero remain distinct for both BUY and SELL", async t => {
