@@ -1,7 +1,9 @@
 const test = require("node:test"), assert = require("node:assert/strict"), fs = require("node:fs"), vm = require("node:vm");
-const core = require("../execution/execution-core.js"), v2 = require("../scripts/execution_v2.cjs");
-const protocol = require("../research/execution-v2-protocol.json");
-const instrument = require("../data/execution_instruments.json").instruments[0];
+const frozenRoot = require("node:path").resolve(__dirname, "../research/frozen/execution-prospective-2026-09-v1");
+const frozen = relative => require("node:path").join(frozenRoot, relative);
+const core = require(frozen("execution/execution-core.js")), v2 = require(frozen("scripts/execution_v2.cjs"));
+const protocol = require(frozen("research/execution-v2-protocol.json"));
+const instrument = require(frozen("data/execution_instruments.json")).instruments[0];
 const candidate = {lookback: 20, first: .0025, spacing: .008};
 const free = protocol.scenarios.find(x => x.name === "frictionless_touch");
 
@@ -12,8 +14,8 @@ function synthetic({low = 35, high = 35, terminal = 36, preLow = low, preHigh = 
   return {instrument, sessions, weeks: [{week: "2026-06-22", indices: [0, 1, 2, 3, 4], terminal_date: "2026-06-29"}]};
 }
 
-test("listed buy adapter is exactly the current page math, not an independent approximation", () => {
-  const html = fs.readFileSync(require.resolve("../execution/index.html"), "utf8");
+test("listed buy adapter is exactly the frozen experiment page math, not an independent approximation", () => {
+  const html = fs.readFileSync(frozen("execution/index.html"), "utf8");
   const context = {};
   for (const name of ["optimizeDeadline", "buildOrders"]) {
     const source = html.match(new RegExp(`    function ${name}\\([^]*?(?=    function )`))[0];
@@ -26,8 +28,8 @@ test("listed buy adapter is exactly the current page math, not an independent ap
   }
 });
 
-test("sell and crypto call the same production planner, including reservations", () => {
-  for (const item of require("../data/execution_instruments.json").instruments) for (const side of ["buy", "sell"]) {
+test("sell and crypto call the same frozen experiment planner, including reservations", () => {
+  for (const item of require(frozen("data/execution_instruments.json")).instruments) for (const side of ["buy", "sell"]) {
     if (item.market_calendar !== "24X7" && side === "buy") continue;
     const history = [{runup_pct: 1.5, drawdown_pct: 1.2}];
     const args = {instrument: item, side, candidate, history, weekly: side === "buy" ? 10000 : 100,
@@ -81,7 +83,7 @@ test("closeout excludes later extremes and does not call residual dust a fill", 
 });
 
 test("fees, fractional fills and total/weekly decrements preserve funds and inventory", () => {
-  for (const item of require("../data/execution_instruments.json").instruments) for (const side of ["buy", "sell"]) {
+  for (const item of require(frozen("data/execution_instruments.json")).instruments) for (const side of ["buy", "sell"]) {
     const data = synthetic({low: 1, high: 100}); data.instrument = item;
     for (const scenario of protocol.scenarios) {
       const result = v2.simulateWeek(data, data.weeks[0], side, "finish_by_deadline", scenario, protocol, () => ({choice: 0}), true);

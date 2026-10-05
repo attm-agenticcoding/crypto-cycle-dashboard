@@ -1,0 +1,57 @@
+name: Validate execution calculator phase one
+
+on:
+  push:
+    branches: [codex/fix-execution-calculator-consistency]
+    paths:
+      - 'execution/**'
+      - 'tests/**'
+      - 'research/frozen/**'
+      - '.github/workflows/validate-execution-calculator.yml'
+  pull_request:
+    paths:
+      - 'execution/**'
+      - 'tests/**'
+      - 'research/frozen/**'
+      - '.github/workflows/validate-execution-calculator.yml'
+
+# Test proposed code only. No data publication, Pages deploy, secrets or orders.
+permissions:
+  contents: read
+
+jobs:
+  regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Unit, replay, calendar and frozen-contract tests
+        run: |
+          python -m unittest discover -s tests -v
+          node --test tests/test_execution_*.cjs
+      - name: Install isolated browser test dependency
+        run: |
+          npm install --prefix "$RUNNER_TEMP/execution-browser" --no-package-lock --ignore-scripts playwright@1.62.1
+          "$RUNNER_TEMP/execution-browser/node_modules/.bin/playwright" install --with-deps chromium
+      - name: Browser form flows and calculation parity
+        env:
+          RUN_EXECUTION_BROWSER_TESTS: '1'
+          EXECUTION_BROWSER_ARTIFACTS: ${{ runner.temp }}/execution-browser-artifacts
+        run: |
+          export NODE_PATH="$RUNNER_TEMP/execution-browser/node_modules"
+          node --test tests/test_execution_browser.cjs
+      - name: Verify no tracked data or source was mutated
+        run: git diff --exit-code
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: execution-calculator-browser-${{ github.run_id }}
+          path: ${{ runner.temp }}/execution-browser-artifacts
+          if-no-files-found: warn
+          retention-days: 14

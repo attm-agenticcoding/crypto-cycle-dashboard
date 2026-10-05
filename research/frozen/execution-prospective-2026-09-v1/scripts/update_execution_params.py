@@ -1,0 +1,722 @@
+#!/usr/bin/env python3
+"""Refresh rolling parameters for every registered execution instrument.
+
+Each execution instrument explicitly names the one-minute market proxy used
+for scaling. Candidate lookbacks, first offsets, and rung spacings are
+evaluated with walk-forward weekly implementation shortfall. A one-standard-
+error plateau and the prior published parameters keep the controls from
+chasing a noisy single-day argmin.
+"""
+
+from __future__ import annotations
+
+import argparse
+import calendar
+import io
+import json
+import math
+import statistics
+import sys
+import urllib.error
+import urllib.request
+import zipfile
+from collections import defaultdict
+from dataclasses import dataclass
+from datetime import date, datetime, time, timedelta, timezone
+from pathlib import Path
+from typing import Iterable
+from zoneinfo import ZoneInfo
+
+from execution_registry import load_registry
+from crypto_execution import crypto_instrument
+
+
+ET = ZoneInfo("America/New_York")
+UTC = timezone.utc
+ARCHIVE_ROOT = "https://data.binance.vision/data/spot"
+USER_AGENT = "crypto-cycle-dashboard-execution/3.0"
+MAX_RUNGS = 12
+SIDES = ("buy", "sell")
+
+LOOKBACKS = (10, 15, 20, 30, 45, 60)
+FIRST_OFFSETS = tuple(x / 10_000 for x in (10, 15, 20, 25, 30, 35, 40, 50))
+SPACINGS = tuple(x / 10_000 for x in range(30, 101, 5))
+
+
+@dataclass(frozen=True)
+class MinuteBar:
+    opened_at: datetime
+    low: float
+    close: float
+    high: float | None = None
+
+
+@dataclass(frozen=True)
+class Session:
+    session_date: date
+    reference: float
+    drawdown: float
+    next_reference_return: float | None = None
+    runup: float | None = None
+    market_calendar: str = "XNYS"
+
+
+@dataclass
+class CandidateResult:
+    lookback: int
+    first_offset: float
+    spacing: float
+    costs_bps: list[float]
+    passive_completion: list[float]
+    zero_fill_rate: float
+
+    @property
+    def mean_cost_bps(self) -> float:
+        return statistics.fmean(self.costs_bps)
+
+    @property
+    def stderr_bps(self) -> float:
+        if len(self.costs_bps) < 2:
+            return 0.0
+        return statistics.stdev(self.costs_bps) / math.sqrt(len(self.costs_bps))
+
+    @property
+    def mean_completion(self) -> float:
+        return statistics.fmean(self.passive_completion)
+
+
+def request_bytes(url: str, timeout: int = 60) -> bytes:
+    request = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
+    with urllib.request.urlopen(request, timeout=timeout) as response:
+        return response.read()
+
+
+def parse_zip(payload: bytes) -> list[MinuteBar]:
+    bars: list[MinuteBar] = []
+    with zipfile.ZipFile(io.BytesIO(payload)) as archive:
+        names = [name for name in archive.namelist() if name.endswith(".csv")]
+        if not names:
+            return bars
+        with archive.open(names[0]) as raw:
+            for line in io.TextIOWrapper(raw, encoding="utf-8"):
+                fields = line.rstrip().split(",")
+                if len(fields) < 5 or not fields[0].isdigit():
+                    continue
+                stamp = int(fields[0])
+                # Binance began publishing some archives in microseconds.
+                if stamp > 10**14:
+                    stamp //= 1000
+                opened_at = datetime.fromtimestamp(stamp / 1000, tz=UTC)
+                bars.append(MinuteBar(opened_at, float(fields[3]), float(fields[4]), float(fields[2])))
+    return bars
+
+
+def month_sequence(start: date, end: date) -> Iterable[tuple[int, int]]:
+    year, month = start.year, start.month
+    while (year, month) <= (end.year, end.month):
+        yield year, month
+        month += 1
+        if month == 13:
+            year += 1
+            month = 1
+
+
+def download_binance_bars(symbol: str, start: date, end: date) -> list[MinuteBar]:
+    bars: list[MinuteBar] = []
+    failures: list[str] = []
+    current_month = (datetime.now(UTC).year, datetime.now(UTC).month)
+
+    for year, month in month_sequence(start, end):
+        month_start = date(year, month, 1)
+        month_end = date(year, month, calendar.monthrange(year, month)[1])
+        use_monthly = (year, month) < current_month and month_start >= date(2017, 1, 1)
+        if use_monthly:
+            name = f"{symbol}-1m-{year:04d}-{month:02d}.zip"
+            url = f"{ARCHIVE_ROOT}/monthly/klines/{symbol}/1m/{name}"
+            try:
+                bars.extend(parse_zip(request_bytes(url)))
+                continue
+            except (urllib.error.URLError, urllib.error.HTTPError, TimeoutError, zipfile.BadZipFile) as exc:
+                failures.append(f"monthly {year:04d}-{month:02d}: {exc}")
+
+        day = max(start, month_start)
+        last = min(end, month_end)
+        while day <= last:
+            name = f"{symbol}-1m-{day.isoformat()}.zip"
+            url = f"{ARCHIVE_ROOT}/daily/klines/{symbol}/1m/{name}"
+            try:
+                bars.extend(parse_zip(request_bytes(url)))
+            except (urllib.error.URLError, urllib.error.HTTPError, TimeoutError, zipfile.BadZipFile) as exc:
+                # A just-finished UTC day may not have been published yet.
+                failures.append(f"daily {day.isoformat()}: {exc}")
+            day += timedelta(days=1)
+
+    bars = [bar for bar in bars if start <= bar.opened_at.date() <= end]
+    bars.sort(key=lambda bar: bar.opened_at)
+    if not bars:
+        raise RuntimeError(
+            f"No Binance minute archives were available for {symbol}: " + "; ".join(failures[-5:])
+        )
+    return bars
+
+
+def download_bars(source: dict, start: date, end: date) -> list[MinuteBar]:
+    provider = source["provider"]
+    if provider == "binance_vision":
+        return download_binance_bars(source["symbol"], start, end)
+    raise RuntimeError(f"Unsupported minute-data provider: {provider}")
+
+
+def observed(day: date) -> date:
+    if day.weekday() == 5:
+        return day - timedelta(days=1)
+    if day.weekday() == 6:
+        return day + timedelta(days=1)
+    return day
+
+
+def nth_weekday(year: int, month: int, weekday: int, n: int) -> date:
+    first = date(year, month, 1)
+    shift = (weekday - first.weekday()) % 7
+    return first + timedelta(days=shift + 7 * (n - 1))
+
+
+def last_weekday(year: int, month: int, weekday: int) -> date:
+    last = date(year, month, calendar.monthrange(year, month)[1])
+    return last - timedelta(days=(last.weekday() - weekday) % 7)
+
+
+def easter_sunday(year: int) -> date:
+    # Anonymous Gregorian algorithm.
+    a = year % 19
+    b, c = divmod(year, 100)
+    d, e = divmod(b, 4)
+    f = (b + 8) // 25
+    g = (b - f + 1) // 3
+    h = (19 * a + b - d - g + 15) % 30
+    i, k = divmod(c, 4)
+    l = (32 + 2 * e + 2 * i - h - k) % 7
+    m = (a + 11 * h + 22 * l) // 451
+    month = (h + l - 7 * m + 114) // 31
+    day = (h + l - 7 * m + 114) % 31 + 1
+    return date(year, month, day)
+
+
+def market_holidays(year: int) -> set[date]:
+    return {
+        observed(date(year, 1, 1)),
+        nth_weekday(year, 1, 0, 3),          # Martin Luther King Jr. Day
+        nth_weekday(year, 2, 0, 3),          # Presidents Day
+        easter_sunday(year) - timedelta(days=2),
+        last_weekday(year, 5, 0),            # Memorial Day
+        observed(date(year, 6, 19)),
+        observed(date(year, 7, 4)),
+        nth_weekday(year, 9, 0, 1),          # Labor Day
+        nth_weekday(year, 11, 3, 4),         # Thanksgiving
+        observed(date(year, 12, 25)),
+    }
+
+
+def is_market_session_day(day: date) -> bool:
+    return day.weekday() < 5 and day not in market_holidays(day.year)
+
+
+def previous_market_session(day: date) -> date:
+    candidate = day - timedelta(days=1)
+    while not is_market_session_day(candidate):
+        candidate -= timedelta(days=1)
+    return candidate
+
+
+def expected_market_session(now_et: datetime, market_calendar: str = "XNYS") -> date:
+    """Return the latest NYSE session that should be complete at this time."""
+    if market_calendar == "24X7":
+        return now_et.astimezone(UTC).date() - timedelta(days=1)
+    today = now_et.date()
+    if is_market_session_day(today) and now_et.time() >= time(16, 0):
+        return today
+    return previous_market_session(today)
+
+
+def read_published_bundle(output_path: Path) -> dict:
+    try:
+        payload = json.loads(output_path.read_text(encoding="utf-8"))
+        return payload if isinstance(payload, dict) else {}
+    except (FileNotFoundError, json.JSONDecodeError, TypeError, ValueError):
+        return {}
+
+
+def published_parameters(bundle: dict, instrument_id: str, side: str = "buy") -> dict | None:
+    if int(bundle.get("schema_version", 0)) >= 2:
+        instruments = bundle.get("instruments", {})
+        if isinstance(instruments, dict):
+            payload = instruments.get(instrument_id)
+            if not isinstance(payload, dict):
+                return None
+            if isinstance(payload.get("sides"), dict):
+                result = payload["sides"].get(side)
+                return result if isinstance(result, dict) else None
+            return payload if side == "buy" else None
+        return None
+    # Backward-compatible read of the original single-instrument file.
+    if side == "buy" and instrument_id == "ARCX:BTC" and bundle.get("status"):
+        return bundle
+    return None
+
+
+def published_data_as_of(bundle: dict, instrument_id: str, side: str = "buy") -> date | None:
+    payload = published_parameters(bundle, instrument_id, side)
+    try:
+        if not payload or payload.get("status") != "minute-rolling":
+            return None
+        return date.fromisoformat(str(payload["data_as_of"]))
+    except (KeyError, TypeError, ValueError):
+        return None
+
+
+def build_sessions(
+    bars: list[MinuteBar],
+    reference_time: time = time(9, 35),
+    fill_start_time: time = time(9, 36),
+    session_end_time: time = time(16, 0),
+    market_calendar: str = "XNYS",
+    session_timezone: str = "America/New_York",
+) -> list[Session]:
+    by_session: dict[date, dict[time, MinuteBar]] = defaultdict(dict)
+    years: set[int] = set()
+    for bar in bars:
+        local = bar.opened_at.astimezone(ZoneInfo(session_timezone))
+        years.add(local.year)
+        by_session[local.date()][local.time().replace(second=0, microsecond=0)] = bar
+    holidays = set().union(*(market_holidays(year) for year in years))
+
+    provisional: list[Session] = []
+    for session_date in sorted(by_session):
+        if market_calendar != "24X7" and (session_date.weekday() >= 5 or session_date in holidays):
+            continue
+        minute_map = by_session[session_date]
+        ref_bar = minute_map.get(reference_time)
+        if ref_bar is None:
+            continue
+        eligible = [
+            bar
+            for minute, bar in minute_map.items()
+            if fill_start_time <= minute < session_end_time
+        ]
+        if len(eligible) < (1400 if market_calendar == "24X7" else 300):
+            continue
+        reference = ref_bar.close
+        drawdown = max(0.0, (reference - min(bar.low for bar in eligible)) / reference)
+        # The original buy calibration retains its historical session contract.
+        # Sell highs must exclude proxy trading after a listed half-day close.
+        sell_end = session_end_time if market_calendar == "24X7" else sell_session_end(session_date, session_end_time)
+        sell_bars = [bar for minute, bar in minute_map.items() if fill_start_time <= minute < sell_end]
+        highs = [bar.high for bar in sell_bars if bar.high is not None]
+        runup = max(0.0, (max(highs) - reference) / reference) if highs and len(highs) == len(sell_bars) else None
+        provisional.append(Session(session_date, reference, drawdown, runup=runup, market_calendar=market_calendar))
+
+    sessions: list[Session] = []
+    for index, session in enumerate(provisional):
+        next_return = None
+        if index + 1 < len(provisional):
+            next_return = provisional[index + 1].reference / session.reference - 1
+        sessions.append(Session(session.session_date, session.reference, session.drawdown, next_return, session.runup, market_calendar))
+    return sessions
+
+
+def sell_session_end(day: date, normal: time = time(16, 0)) -> time:
+    # https://www.nyse.com/trade/hours-calendars (core equity session)
+    thanksgiving_friday = day.month == 11 and day.weekday() == 4 and 23 <= day.day <= 29
+    christmas_eve = day.month == 12 and day.day == 24 and day.weekday() < 4
+    july_third = day.month == 7 and day.day == 3 and day.weekday() < 4
+    return min(normal, time(13, 0)) if thanksgiving_friday or christmas_eve or july_third else normal
+
+
+def hit_count(drawdown: float, first_offset: float, spacing: float) -> int:
+    if drawdown + 1e-12 < first_offset:
+        return 0
+    return min(MAX_RUNGS, 1 + int((drawdown - first_offset + 1e-12) / spacing))
+
+
+def excursion(session: Session, side: str) -> float:
+    if side == "buy":
+        return session.drawdown
+    if side != "sell":
+        raise ValueError(f"Unknown execution side: {side}")
+    if session.runup is None or not math.isfinite(session.runup):
+        raise ValueError("Sell scaling requires minute highs; buy drawdowns cannot substitute for runups")
+    return session.runup
+
+
+def percentile(values: list[float], probability: float) -> float:
+    ordered = sorted(values)
+    if not ordered:
+        return float("nan")
+    position = (len(ordered) - 1) * probability
+    lower = math.floor(position)
+    upper = math.ceil(position)
+    if lower == upper:
+        return ordered[lower]
+    weight = position - lower
+    return ordered[lower] * (1 - weight) + ordered[upper] * weight
+
+
+def evaluate_candidate(
+    sessions: list[Session], lookback: int, first_offset: float, spacing: float, side: str = "buy"
+) -> CandidateResult | None:
+    weeks: dict[tuple[int, int], list[int]] = defaultdict(list)
+    for index, session in enumerate(sessions):
+        iso = session.session_date.isocalendar()
+        weeks[(iso.year, iso.week)].append(index)
+
+    costs: list[float] = []
+    completions: list[float] = []
+    zero_days = 0
+    observed_days = 0
+    for indices in weeks.values():
+        start = indices[0]
+        if start < lookback or len(indices) < 3:
+            continue
+        # A sell backtest may only value unfilled shares at a genuinely later
+        # reference. The current unfinished week has no terminal observation.
+        if (side == "sell" or sessions[start].market_calendar == "24X7") and indices[-1] + 1 >= len(sessions):
+            continue
+        train = sessions[start - lookback : start]
+        expected_hits = statistics.fmean(
+            hit_count(excursion(item, side), first_offset, spacing) for item in train
+        )
+        if expected_hits < 0.10:
+            continue
+
+        initial_reference = sessions[start].reference
+        remaining = 1.0
+        normalized_cost = 0.0
+        for day_number, index in enumerate(indices):
+            session = sessions[index]
+            days_left = len(indices) - day_number
+            shares_per_rung = remaining / (days_left * expected_hits)
+            hits = hit_count(excursion(session, side), first_offset, spacing)
+            observed_days += 1
+            if hits == 0:
+                zero_days += 1
+            for rung in range(hits):
+                if remaining <= 1e-12:
+                    break
+                quantity = min(shares_per_rung, remaining)
+                distance = first_offset + rung * spacing
+                limit = session.reference * (1 + distance if side == "sell" else 1 - distance)
+                normalized_cost += quantity * limit / initial_reference
+                remaining -= quantity
+
+        completions.append(1 - remaining)
+        next_index = indices[-1] + 1
+        completion_reference = (
+            sessions[next_index].reference if next_index < len(sessions) else sessions[indices[-1]].reference
+        )
+        normalized_cost += remaining * completion_reference / initial_reference
+        costs.append((1.0 - normalized_cost if side == "sell" else normalized_cost - 1.0) * 10_000)
+
+    if len(costs) < 4:
+        return None
+    return CandidateResult(
+        lookback,
+        first_offset,
+        spacing,
+        costs,
+        completions,
+        zero_days / observed_days if observed_days else 1.0,
+    )
+
+
+def previous_parameters(bundle: dict, instrument_id: str, side: str = "buy") -> tuple[int, float, float] | None:
+    payload = published_parameters(bundle, instrument_id, side)
+    if payload is None:
+        return None
+    try:
+        return (
+            int(payload.get("lookback_sessions", 20)),
+            float(payload.get("first_offset_pct", 0.25)) / 100,
+            float(payload.get("spacing_pct", 0.80)) / 100,
+        )
+    except (TypeError, ValueError):
+        return None
+
+
+def choose_candidate(
+    sessions: list[Session], prior: tuple[int, float, float] | None, side: str = "buy"
+) -> CandidateResult:
+    candidates: list[CandidateResult] = []
+    for lookback in LOOKBACKS:
+        for first_offset in FIRST_OFFSETS:
+            for spacing in SPACINGS:
+                result = evaluate_candidate(sessions, lookback, first_offset, spacing, side)
+                if result is not None:
+                    candidates.append(result)
+    if not candidates:
+        raise RuntimeError("Not enough complete sessions for walk-forward evaluation")
+
+    best = min(candidates, key=lambda item: item.mean_cost_bps)
+    threshold = best.mean_cost_bps + max(best.stderr_bps, 0.25)
+    plateau = [item for item in candidates if item.mean_cost_bps <= threshold]
+    prior_lookback, prior_first, prior_spacing = prior or (20, 0.0025, 0.0080)
+
+    def regularization_distance(item: CandidateResult) -> tuple[float, float]:
+        distance = (
+            abs(item.first_offset - prior_first) / 0.0005
+            + abs(item.spacing - prior_spacing) / 0.0005
+            + 0.15 * abs(item.lookback - prior_lookback) / 5
+        )
+        return (distance, item.mean_cost_bps)
+
+    return min(plateau, key=regularization_distance)
+
+
+def as_percent(value: float, digits: int = 4) -> float:
+    return round(value * 100, digits)
+
+
+def build_payload(
+    instrument: dict, sessions: list[Session], selected: CandidateResult, generated_at: str, side: str = "buy"
+) -> dict:
+    recent = sessions[-selected.lookback :]
+    hits = [hit_count(excursion(item, side), selected.first_offset, selected.spacing) for item in recent]
+    samples = [
+        {
+            "date": item.session_date.isoformat(),
+            "drawdown_pct": as_percent(item.drawdown, 5),
+            "runup_pct": as_percent(item.runup, 5) if item.runup is not None else None,
+            "next_reference_return_pct": (
+                as_percent(item.next_reference_return, 5)
+                if item.next_reference_return is not None
+                else None
+            ),
+        }
+        for item in sessions[-90:]
+    ]
+    source = instrument["scaling_source"]
+    return {
+        "schema_version": 1,
+        **instrument,
+        "trade_side": side,
+        "instrument_id": instrument["instrument_id"],
+        "symbol": instrument["symbol"],
+        "exchange": instrument["exchange"],
+        "exchange_mic": instrument["exchange_mic"],
+        "name": instrument["name"],
+        "asset_class": instrument["asset_class"],
+        "currency": instrument["currency"],
+        "market_calendar": instrument["market_calendar"],
+        "default_reference_price": instrument["default_reference_price"],
+        "status": "minute-rolling",
+        "generated_at": generated_at,
+        "data_as_of": sessions[-1].session_date.isoformat(),
+        "market_proxy": source["symbol"],
+        "scaling_source": source,
+        "execution_instrument": f"{instrument['name']} ({instrument['symbol']})",
+        "timezone": instrument["timezone"],
+        "reference_time": instrument["reference_time"],
+        "fill_start_time": instrument["fill_start_time"],
+        "session_end_time": instrument["session_end_time"],
+        "lookback_sessions": selected.lookback,
+        "lookback_unit": "UTC calendar days" if instrument["market_calendar"] == "24X7" else "trading sessions",
+        "first_offset_pct": as_percent(selected.first_offset),
+        "spacing_pct": as_percent(selected.spacing),
+        "expected_rungs_per_session": round(statistics.fmean(hits), 4),
+        "zero_fill_probability": round(sum(hit == 0 for hit in hits) / len(hits), 4),
+        "sample_sessions": len(sessions),
+        "walk_forward_weeks": len(selected.costs_bps),
+        "walk_forward_mean_implementation_shortfall_bps": round(selected.mean_cost_bps, 3),
+        "walk_forward_stderr_bps": round(selected.stderr_bps, 3),
+        "walk_forward_mean_passive_completion": round(selected.mean_completion, 4),
+        "selection_rule": "one-standard-error plateau, then minimum distance from prior published parameters",
+        "excursion_measure": "runup" if side == "sell" else "drawdown",
+        "completion_assumption": "unfilled weekly shares valued at next reference; no automatic broker execution",
+        "session_samples": samples,
+        "notes": [
+            f"{source['symbol']} is the registered intraday scaling proxy; order prices are applied to the user-entered {instrument['symbol']} reference price.",
+            f"The {instrument['reference_time']} bar sets the reference and is excluded from fills; eligible {'highs' if side == 'sell' else 'lows'} begin at {instrument['fill_start_time']} {instrument['timezone']}.",
+            "Unfilled weekly quantity is completed at the next available reference in the walk-forward cost calculation.",
+            "Proxy price touches approximate rung hits; they do not model the listed instrument's spread, queue position, partial fills, fees or market impact.",
+            "Deadline tightening and the optional sell closeout are execution overlays, not independently optimized backtest policies.",
+        ],
+    }
+
+
+def instruments_needing_update(
+    bundle: dict, instruments: list[dict], expected: date
+) -> list[str]:
+    return [
+        item["instrument_id"]
+        for item in instruments
+        if any(
+            published_data_as_of(bundle, item["instrument_id"], side) is None
+            or published_data_as_of(bundle, item["instrument_id"], side) < expected
+            for side in SIDES
+        )
+    ]
+
+
+def should_run(
+    force: bool, bundle: dict, instruments: list[dict], now_et: datetime | None = None
+) -> bool:
+    if force:
+        print(f"Forced refit requested for all {len(instruments)} enabled instruments.")
+        return True
+    current = now_et or datetime.now(ET)
+    expected = expected_market_session(current)
+    stale = [item["instrument_id"] for item in instruments if instruments_needing_update(bundle, [item], expected_market_session(current, item["market_calendar"]))]
+    removed_entries = set(bundle.get("instruments", {})) - {item["instrument_id"] for item in instruments}
+    if not stale and not removed_entries:
+        print(
+            f"All {len(instruments)} execution instruments already cover {expected}. Nothing to do."
+        )
+        return False
+    print(
+        f"Execution parameters require {expected} for {', '.join(stale)}. "
+        "Refitting the full enabled registry."
+    )
+    return True
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--force", action="store_true", help="Ignore the freshness guard and refit immediately")
+    parser.add_argument("--days", type=int, default=220, help="Calendar days of minute archives to request")
+    parser.add_argument("--calendar", choices=("XNYS", "24X7"), help="Refresh only this calendar, preserving other instruments")
+    parser.add_argument(
+        "--registry",
+        type=Path,
+        default=Path(__file__).resolve().parents[1] / "data" / "execution_instruments.json",
+    )
+    parser.add_argument(
+        "--output",
+        type=Path,
+        default=Path(__file__).resolve().parents[1] / "data" / "execution_params.json",
+    )
+    args = parser.parse_args()
+
+    registry = load_registry(args.registry)
+    all_instruments = [item for item in registry["instruments"] if item["enabled"]]
+    instruments = [item for item in all_instruments if not args.calendar or item["market_calendar"] == args.calendar]
+    if not instruments:
+        print(f"No enabled instruments for calendar {args.calendar}; nothing to update.")
+        return 0
+    published_bundle = read_published_bundle(args.output)
+    now_et = datetime.now(ET)
+    scoped_bundle = {**published_bundle, "instruments": {key: value for key, value in published_bundle.get("instruments", {}).items() if key in {item["instrument_id"] for item in instruments}}} if args.calendar else published_bundle
+    if not should_run(args.force, scoped_bundle, instruments, now_et):
+        return 0
+    instruments = [crypto_instrument(item["symbol"], item["default_reference_price"]) if item["market_calendar"] == "24X7" else item for item in instruments]
+
+    today_utc = datetime.now(UTC).date()
+    start = today_utc - timedelta(days=args.days)
+    end = today_utc - timedelta(days=1)
+    groups: dict[tuple[str, ...], list[dict]] = defaultdict(list)
+    for instrument in instruments:
+        source = instrument["scaling_source"]
+        groups[
+            (
+                source["provider"],
+                source["symbol"],
+                source["interval"],
+                instrument["market_calendar"],
+                instrument["timezone"],
+                instrument["reference_time"],
+                instrument["fill_start_time"],
+                instrument["session_end_time"],
+            )
+        ].append(instrument)
+
+    generated_at = datetime.now(UTC).isoformat().replace("+00:00", "Z")
+    active_ids = {item["instrument_id"] for item in all_instruments}
+    payloads: dict[str, dict] = {key: value for key, value in published_bundle.get("instruments", {}).items() if key in active_ids} if args.calendar else {}
+    bar_cache: dict[tuple[str, str, str], list[MinuteBar]] = {}
+    for source_key, group in groups.items():
+        (
+            provider,
+            proxy_symbol,
+            interval,
+            market_calendar,
+            session_timezone,
+            reference_clock,
+            fill_clock,
+            end_clock,
+        ) = source_key
+        print(
+            f"Loading {provider}:{proxy_symbol}:{interval} {market_calendar} "
+            f"{reference_clock}-{end_clock} {session_timezone} for "
+            + ", ".join(item["instrument_id"] for item in group)
+        )
+        archive_key = (provider, proxy_symbol, interval)
+        if archive_key not in bar_cache:
+            bar_cache[archive_key] = download_bars(group[0]["scaling_source"], start, end)
+        sessions = build_sessions(
+            bar_cache[archive_key],
+            time.fromisoformat(reference_clock),
+            time.fromisoformat(fill_clock),
+            time.max if end_clock == "24:00" else time.fromisoformat(end_clock),
+            market_calendar,
+            session_timezone,
+        )
+        if len(sessions) < 75:
+            raise RuntimeError(
+                f"Only {len(sessions)} complete {market_calendar} sessions were available for {proxy_symbol}; need at least 75"
+            )
+        expected_session = expected_market_session(now_et, market_calendar)
+        if sessions[-1].session_date < expected_session:
+            raise RuntimeError(
+                f"Latest complete {market_calendar} session for {proxy_symbol} is {sessions[-1].session_date}; "
+                f"expected {expected_session}. The source archive is not ready yet, so a later "
+                "scheduled retry should run again."
+            )
+
+        # A proxy plus session contract is one market layer. Instruments sharing
+        # both deliberately share the same base scaling; the first available
+        # prior keeps the group stable.
+        sides = {}
+        for side in SIDES:
+            prior = next(
+                (
+                    value
+                    for item in group
+                    if (value := previous_parameters(published_bundle, item["instrument_id"], side))
+                    is not None
+                ),
+                None,
+            )
+            sides[side] = choose_candidate(sessions, prior, side)
+        for instrument in group:
+            fitted = {
+                side: build_payload(instrument, sessions, selected, generated_at, side)
+                for side, selected in sides.items()
+            }
+            # Retain the root buy fields for existing readers during deployment.
+            payloads[instrument["instrument_id"]] = {**fitted["buy"], "sides": fitted}
+            for side, values in fitted.items():
+                print(
+                    f"Fitted {instrument['instrument_id']} {side.upper()}: "
+                    f"offset={values['first_offset_pct']:.2f}% "
+                    f"spacing={values['spacing_pct']:.2f}% "
+                    f"lookback={values['lookback_sessions']}"
+                )
+
+    payload = {
+        "schema_version": 3,
+        "sides": list(SIDES),
+        "generated_at": generated_at,
+        "default_instrument_id": registry["default_instrument_id"],
+        "instrument_count": len(payloads),
+        "instruments": payloads,
+    }
+    args.output.parent.mkdir(parents=True, exist_ok=True)
+    args.output.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+    print(f"Published {len(payloads)} instruments to {args.output}")
+    return 0
+
+
+if __name__ == "__main__":
+    try:
+        raise SystemExit(main())
+    except Exception as exc:  # GitHub Actions should surface a concise failure.
+        print(f"execution parameter update failed: {exc}", file=sys.stderr)
+        raise

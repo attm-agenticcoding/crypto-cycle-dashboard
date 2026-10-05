@@ -1,8 +1,9 @@
 const test = require("node:test"), assert = require("node:assert/strict");
 const fs = require("node:fs"), path = require("node:path"), crypto = require("node:crypto"), {execFileSync} = require("node:child_process");
-const shadow = require("../scripts/execution_shadow.cjs"), engine = require("../scripts/execution_v2.cjs");
-const config = require("../research/execution-shadow-protocol.json"), protocol = require("../research/execution-v2-protocol.json");
-const instruments = require("../data/execution_instruments.json").instruments;
+const frozenRoot = path.resolve(__dirname, "../research/frozen/execution-prospective-2026-09-v1");
+const shadow = require(path.join(frozenRoot, "scripts/execution_shadow.cjs")), engine = require(path.join(frozenRoot, "scripts/execution_v2.cjs"));
+const config = require(path.join(frozenRoot, "research/execution-shadow-protocol.json")), protocol = require(path.join(frozenRoot, "research/execution-v2-protocol.json"));
+const instruments = require(path.join(frozenRoot, "data/execution_instruments.json")).instruments;
 const instrument = instruments.find(i => i.market_calendar === "XNYS");
 const clone = x => JSON.parse(JSON.stringify(x));
 const state = () => ({schema_version: 1, contract_hash: "locked", receipts: [], evaluations: [], events: []});
@@ -150,13 +151,13 @@ test("only an exact predeclared maintenance migration is allowed, with immutable
 });
 
 test("the maintenance release does not change fitting, freezing or settlement policy functions", () => {
-  const manifest = require("../research/execution-shadow-compatibility.json");
+  const manifest = require(path.join(frozenRoot, "research/execution-shadow-compatibility.json"));
   for (const [name, expected] of Object.entries(manifest.unchanged_shadow_functions))
     assert.equal(crypto.createHash("sha256").update(shadow[name].toString()).digest("hex"), expected, name);
 });
 
 test("restore-only CLI recovers an old contract without any sessions file and is idempotent", () => {
-  const root = path.resolve(__dirname, ".."), manifest = require("../research/execution-shadow-compatibility.json");
+  const root = frozenRoot, manifest = require(path.join(frozenRoot, "research/execution-shadow-compatibility.json"));
   const hash = x => crypto.createHash("sha256").update(x).digest("hex");
   const files = JSON.parse(fs.readFileSync(path.join(root, "scripts/run_execution_shadow.py"), "utf8").match(/CODE_FILES = (\[[\s\S]*?\])/)[1]);
   const request = {record_kind: "test_only", run_id: "recovery-test", restore_only: true,

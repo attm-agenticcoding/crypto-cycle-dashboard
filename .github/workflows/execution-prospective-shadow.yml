@@ -23,7 +23,10 @@ on:
       - 'research/execution-shadow-compatibility.json'
       - 'scripts/*execution_shadow*'
       - 'scripts/*execution_v2*'
-      - 'tests/test_execution_shadow*'
+      - 'tests/*execution_shadow*'
+      - 'research/frozen/execution-prospective-2026-09-v1/**'
+      - 'execution/execution-core.js'
+      - 'execution/index.html'
       - '.github/workflows/execution-prospective-shadow.yml'
   pull_request:
     paths:
@@ -31,7 +34,10 @@ on:
       - 'research/execution-shadow-compatibility.json'
       - 'scripts/*execution_shadow*'
       - 'scripts/*execution_v2*'
-      - 'tests/test_execution_shadow*'
+      - 'tests/*execution_shadow*'
+      - 'research/frozen/execution-prospective-2026-09-v1/**'
+      - 'execution/execution-core.js'
+      - 'execution/index.html'
       - '.github/workflows/execution-prospective-shadow.yml'
 
 # No repository writes, secrets, Pages publishing, dispatching, or trading.
@@ -67,9 +73,9 @@ jobs:
           RESTORE_ONLY: ${{ inputs.restore_only || (github.event_name == 'push' && github.ref == 'refs/heads/codex/fix-shadow-seal-precision') }}
         run: |
           if [ "$RESTORE_ONLY" = "true" ]; then
-            python scripts/run_execution_shadow.py --restore-only
+            python research/frozen/execution-prospective-2026-09-v1/scripts/run_execution_shadow.py --restore-only
           else
-            python scripts/run_execution_shadow.py
+            python research/frozen/execution-prospective-2026-09-v1/scripts/run_execution_shadow.py
           fi
       - name: Verify production is untouched
         run: git diff --exit-code -- data execution scripts/update_execution_params.py .github/workflows/update-execution-params.yml

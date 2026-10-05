@@ -1,10 +1,9 @@
 /* Shared, dependency-free execution math. Used by the page and Node tests. */
 (function (root, factory) {
-  const calendar = typeof module === "object" && module.exports ? require("./market-calendar.js") : root.ExecutionCalendar;
-  const api = factory(calendar);
+  const api = factory();
   if (typeof module === "object" && module.exports) module.exports = api;
   else root.ExecutionCore = api;
-})(typeof globalThis !== "undefined" ? globalThis : this, function (calendar) {
+})(typeof globalThis !== "undefined" ? globalThis : this, function () {
   "use strict";
 
   function parametersReady(item) {
@@ -27,18 +26,12 @@
     return Math.min(12, 1 + Math.floor((move - first + 1e-12) / spacing));
   }
 
-  // A completed excursion is available before its later next-reference label.
-  // Touch estimates never require that unrelated outcome label.
-  function expectedHits(params, side, first, spacing) {
-    const field = side === "sell" ? "runup_pct" : "drawdown_pct";
-    const samples = (params.session_samples || []).filter(row => Number.isFinite(row[field]))
+  function sellExpectedHits(params, first, spacing) {
+    const samples = (params.session_samples || []).filter(row => Number.isFinite(row.runup_pct))
       .slice(-params.lookback_sessions);
-    const estimate = samples.length
-      ? samples.reduce((sum, row) => sum + hitCount(row[field] / 100, first, spacing), 0) / samples.length
-      : params.expected_rungs_per_session;
-    return Math.max(.1, Math.min(12, Number.isFinite(estimate) ? estimate : .1));
+    if (!samples.length) return Math.min(12, Math.max(.1, params.expected_rungs_per_session));
+    return Math.max(.1, samples.reduce((sum, row) => sum + hitCount(row.runup_pct / 100, first, spacing), 0) / samples.length);
   }
-  function sellExpectedHits(params, first, spacing) { return expectedHits(params, "sell", first, spacing); }
 
   function nonnegative(value, label) {
     if (value === "" || value === null || value === undefined || !Number.isFinite(+value) || +value < 0 || +value > Number.MAX_SAFE_INTEGER)
@@ -46,54 +39,22 @@
     return +value;
   }
 
-  function sellPace(weekly, total, weekSessions, horizon = null, smallestUnit = 1) {
-    const entered = nonnegative(weekly, "Weekly target");
-    const hasTotal = total !== null && total !== undefined && total !== "";
-    const remaining = hasTotal ? nonnegative(total, "Total remaining target") : null;
-    const hasDeadline = horizon !== null && horizon !== undefined && horizon !== "";
-    if (!(Number.isFinite(weekSessions) && weekSessions > 0)) throw new Error("No eligible sessions remain this week.");
-    if (hasDeadline && !(Number.isFinite(horizon) && horizon > 0)) throw new Error("No eligible trading sessions remain for this deadline.");
-    const enabled = hasTotal && hasDeadline;
-    const paceSessions = hasDeadline ? Math.min(weekSessions, horizon) : weekSessions;
-    const base = hasTotal ? Math.min(entered, remaining) : entered;
+  function sellPace(weekly, total, weekSessions, horizon, smallestUnit = 1) {
+    const entered = nonnegative(weekly, "Weekly quantity");
+    const enabled = total !== null && total !== undefined && total !== "";
+    const remaining = enabled ? nonnegative(total, "Total remaining quantity") : null;
+    const paceSessions = enabled ? Math.min(weekSessions, horizon) : weekSessions;
+    if (!(paceSessions > 0)) throw new Error("No eligible trading sessions remain for this deadline.");
+    const base = enabled ? Math.min(entered, remaining) : entered;
     const scheduleFloor = enabled ? remaining * paceSessions / horizon : 0;
-    const target = hasTotal ? Math.min(remaining, Math.max(base, scheduleFloor)) : base;
-    const lift = target > 0 ? Math.max(1, target / Math.max(base, smallestUnit)) : 1;
+    const target = enabled ? Math.min(remaining, Math.max(base, scheduleFloor)) : base;
+    const lift = target > 0 ? target / Math.max(base, smallestUnit) : 1;
     return {
-      weekly: target, scheduleFloor, enabled, hasTotal, hasDeadline, paceSessions,
-      factor: Math.max(.4, Math.min(1, 1 / Math.sqrt(lift))), lift,
-      inputCapped: hasTotal && entered > remaining,
+      weekly: target, scheduleFloor, enabled, paceSessions,
+      factor: Math.max(.4, Math.min(1, 1 / Math.sqrt(Math.max(1, lift)))),
+      lift: Math.max(1, lift),
       urgency: lift > 1.5 ? "HIGH" : lift > 1.02 ? "ELEVATED" : enabled ? "NORMAL" : "BASE"
     };
-  }
-
-  function listedBuyOrders(amount, reference, weekSessions, first, spacing, hits) {
-    const budget = nonnegative(amount, "Buy budget"), ref = nonnegative(reference, "Reference price");
-    if (ref < .01) throw new Error("Reference price must be at least $0.01.");
-    if (!(Number.isFinite(weekSessions) && weekSessions > 0)) throw new Error("No eligible sessions remain for sizing.");
-    if (![first, spacing, hits].every(x => Number.isFinite(x) && x > 0)) throw new Error("Invalid ladder parameters.");
-    const targetShares = Math.floor(budget / ref);
-    if (!Number.isSafeInteger(targetShares)) throw new Error("Target exceeds the supported quantity range.");
-    const perRung = targetShares ? Math.max(1, Math.ceil(targetShares / (weekSessions * Math.max(.1, hits)))) : 0;
-    const orders = [];
-    let remaining = targetShares;
-    while (remaining > 0 && orders.length < 30) {
-      const rung = orders.length, shares = Math.min(perRung, remaining);
-      const price = Math.max(.01, Math.floor(ref * (1 - first - rung * spacing) * 100 + 1e-8) / 100);
-      orders.push({rung: rung + 1, price, shares, notional: shares * price});
-      remaining -= shares;
-    }
-    return {targetShares, perRung, orders, orderQuantity: targetShares - remaining,
-      unallocated: remaining, rungCapReached: remaining > 0 && orders.length === 30};
-  }
-
-  function buyPlan({weekly, total = null, reference, weekSessions, horizon = null, params}) {
-    if (params.market_calendar === "24X7") return cryptoPlan({weekly, total, reference, weekSessions, horizon, params});
-    if (!parametersReady(params) || params.trade_side !== "buy") throw new Error("Independent buy scaling is not ready.");
-    const controller = sellPace(weekly, total, weekSessions, horizon);
-    const first = params.first_offset_pct / 100 * controller.factor, spacing = params.spacing_pct / 100 * controller.factor;
-    const hits = expectedHits(params, "buy", first, spacing);
-    return {...listedBuyOrders(controller.weekly, reference, controller.paceSessions, first, spacing, hits), controller, first, spacing, hits};
   }
 
   function sellPlan({weekly, total = null, held, reserved = 0, reference, weekSessions, horizon, params, closeout = false, bid = null}) {
@@ -141,18 +102,20 @@
     };
   }
 
-  function sellSessionCloseMinutes(day) { return calendar.sessionCloseMinutes(day); }
+  // NYSE official calendar: https://www.nyse.com/trade/hours-calendars
+  function sellSessionCloseMinutes(day) {
+    const month = day.getUTCMonth() + 1, date = day.getUTCDate(), weekday = day.getUTCDay();
+    const thanksgivingFriday = month === 11 && weekday === 5 && date >= 23 && date <= 29;
+    const christmasEve = month === 12 && date === 24 && weekday >= 1 && weekday <= 4;
+    const julyThird = month === 7 && date === 3 && weekday >= 1 && weekday <= 4;
+    return thanksgivingFriday || christmasEve || julyThird ? 13 * 60 : 16 * 60;
+  }
 
   function sellCloseoutState(deadline, now, isSession, marketCalendar = "XNYS") {
     if (!(deadline instanceof Date) || !Number.isFinite(deadline.getTime())) throw new Error("Choose a valid sale deadline.");
-    if (marketCalendar !== "24X7" && !calendar.isSupportedDate(deadline)) throw new Error("The deadline is outside the verified NYSE calendar range (2025–2028).");
     const finalSession = new Date(deadline);
-    while (marketCalendar !== "24X7" && !isSession(finalSession)) {
-      finalSession.setUTCDate(finalSession.getUTCDate() - 1);
-      if (!calendar.isSupportedDate(finalSession)) throw new Error("No verified final trading session is available for this deadline.");
-    }
+    while (marketCalendar !== "24X7" && !isSession(finalSession)) finalSession.setUTCDate(finalSession.getUTCDate() - 1);
     const closeMinutes = marketCalendar === "24X7" ? 1440 : sellSessionCloseMinutes(finalSession), startMinutes = closeMinutes - 15;
-    if (!(closeMinutes > 0)) throw new Error("The final date is not a verified trading session.");
     const today = now.date.toISOString().slice(0, 10), finalDate = finalSession.toISOString().slice(0, 10);
     const minutes = now.hour * 60 + now.minute;
     return {
@@ -203,7 +166,9 @@
     const outstanding = Math.max(0, (side === "sell" ? controller.weekly : controller.weekly / ref) - working);
     const targetShares = Math.min(available, quantize(outstanding, step));
     const first = params.first_offset_pct / 100 * controller.factor, spacing = params.spacing_pct / 100 * controller.factor;
-    const hits = expectedHits(params, side, first, spacing);
+    const field = side === "sell" ? "runup_pct" : "drawdown_pct";
+    const sample = (params.session_samples || []).filter(row => Number.isFinite(row[field])).slice(-params.lookback_sessions);
+    const hits = Math.max(.1, Math.min(12, sample.length ? sample.reduce((sum, row) => sum + hitCount(row[field] / 100, first, spacing), 0) / sample.length : params.expected_rungs_per_session));
     const perRung = closeout ? targetShares : Math.max(step, quantize(targetShares / (controller.paceSessions * hits), step, true));
     const orders = [];
     let remaining = targetShares;
@@ -238,6 +203,6 @@
     };
   }
 
-  return { parametersReady, sideParameters, hitCount, expectedHits, sellExpectedHits, sellPace, listedBuyOrders, buyPlan, sellPlan, sellSessionCloseMinutes, sellCloseoutState,
+  return { parametersReady, sideParameters, hitCount, sellExpectedHits, sellPace, sellPlan, sellSessionCloseMinutes, sellCloseoutState,
     stepDecimals, quantize, quantityText, cryptoPlan, calendarParts, cryptoRemainingDays };
 });

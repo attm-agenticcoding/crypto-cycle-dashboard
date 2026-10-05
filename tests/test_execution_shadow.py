@@ -9,11 +9,15 @@ from datetime import date, datetime
 from pathlib import Path
 from unittest.mock import patch
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
-from prepare_execution_v2 import archive_specs
-from run_execution_shadow import plan_targets, mature_weeks, trusted_run, restore_latest, sha, WORKFLOW, collect, dispatch_diagnostics, CODE_FILES, ROOT
+from execution_shadow_fixture import FROZEN_ROOT, load_frozen_modules
 
-CONFIG = json.loads((Path(__file__).resolve().parents[1] / "research/execution-shadow-protocol.json").read_text())
+shadow, preparation = load_frozen_modules()
+archive_specs = preparation.archive_specs
+plan_targets, mature_weeks = shadow.plan_targets, shadow.mature_weeks
+trusted_run, restore_latest, sha = shadow.trusted_run, shadow.restore_latest, shadow.sha
+WORKFLOW, collect, dispatch_diagnostics = shadow.WORKFLOW, shadow.collect, shadow.dispatch_diagnostics
+CODE_FILES, ROOT = shadow.CODE_FILES, shadow.ROOT
+CONFIG = json.loads((ROOT / "research/execution-shadow-protocol.json").read_text())
 
 
 def targets(stamp):
@@ -86,26 +90,26 @@ class ShadowRestoreTests(unittest.TestCase):
             z.writestr("../../must-not-extract", "unsafe")
         archive = buffer.getvalue()
         artifact = {"id": 456, "name": "execution-shadow-state-123", "expired": False, "created_at": "2026-09-19T10:00:00Z", "digest": "sha256:" + sha(archive)}
-        with tempfile.TemporaryDirectory() as tmp, patch("run_execution_shadow.gh_api", side_effect=[{"workflow_runs": [self.run_fixture]}, {"artifacts": [artifact]}, archive]):
+        with tempfile.TemporaryDirectory() as tmp, patch.object(shadow, "gh_api", side_effect=[{"workflow_runs": [self.run_fixture]}, {"artifacts": [artifact]}, archive]):
             restore_latest(Path(tmp))
             self.assertEqual(json.loads((Path(tmp) / "prior-artifact.json").read_text())["created_at"], artifact["created_at"])
             self.assertEqual(sorted(p.name for p in Path(tmp).iterdir()), ["prior-artifact.json", "prior-state.json"])
 
     def test_missing_or_expired_state_is_not_silently_reset(self):
         for artifacts in [[], [{"id": 456, "name": "execution-shadow-state-123", "expired": True}]]:
-            with tempfile.TemporaryDirectory() as tmp, patch("run_execution_shadow.gh_api", side_effect=[{"workflow_runs": [self.run_fixture]}, {"artifacts": artifacts}]):
+            with tempfile.TemporaryDirectory() as tmp, patch.object(shadow, "gh_api", side_effect=[{"workflow_runs": [self.run_fixture]}, {"artifacts": artifacts}]):
                 with self.assertRaises(RuntimeError):
                     restore_latest(Path(tmp))
 
     def test_archive_digest_mismatch_fails_closed(self):
         artifact = {"id": 456, "name": "execution-shadow-state-123", "expired": False, "digest": "sha256:wrong"}
-        with tempfile.TemporaryDirectory() as tmp, patch("run_execution_shadow.gh_api", side_effect=[{"workflow_runs": [self.run_fixture]}, {"artifacts": [artifact]}, b"bytes"]):
+        with tempfile.TemporaryDirectory() as tmp, patch.object(shadow, "gh_api", side_effect=[{"workflow_runs": [self.run_fixture]}, {"artifacts": [artifact]}, b"bytes"]):
             with self.assertRaisesRegex(RuntimeError, "digest mismatch"):
                 restore_latest(Path(tmp))
 
     def test_failed_run_with_published_decisions_cannot_be_ignored(self):
         artifact = {"id": 456, "name": "execution-shadow-state-123", "expired": False}
-        with tempfile.TemporaryDirectory() as tmp, patch("run_execution_shadow.gh_api", side_effect=[
+        with tempfile.TemporaryDirectory() as tmp, patch.object(shadow, "gh_api", side_effect=[
             {"workflow_runs": [{**self.run_fixture, "conclusion": "cancelled"}]}, {"artifacts": [artifact]}]):
             with self.assertRaisesRegex(RuntimeError, "unsuccessful run already published"):
                 restore_latest(Path(tmp))
@@ -113,14 +117,14 @@ class ShadowRestoreTests(unittest.TestCase):
 
 class ShadowMaintenanceTests(unittest.TestCase):
     def test_restore_only_does_not_download_or_fit_new_data(self):
-        with patch("run_execution_shadow.subprocess.run") as run:
+        with patch.object(shadow.subprocess, "run") as run:
             collect(Path("fixture"), restore_only=True)
             self.assertEqual(run.call_count, 1)
             self.assertEqual(run.call_args.args[0][0], "node")
             self.assertTrue(run.call_args.args[0][1].endswith("execution_shadow.cjs"))
 
     def test_normal_collection_still_prepares_observations(self):
-        with patch("run_execution_shadow.subprocess.run") as run:
+        with patch.object(shadow.subprocess, "run") as run:
             collect(Path("fixture"), restore_only=False)
             self.assertEqual(run.call_count, 2)
             self.assertTrue(run.call_args_list[0].args[0][1].endswith("prepare_execution_v2.py"))
@@ -144,7 +148,7 @@ class ShadowMaintenanceTests(unittest.TestCase):
             event = Path(tmp) / "event.json"
             event.write_text(json.dumps({"schedule": "17 5 * * *"}))
             env = {"GITHUB_ACTIONS": "true", "GITHUB_EVENT_NAME": "schedule", "GITHUB_RUN_ID": "123", "GITHUB_EVENT_PATH": str(event)}
-            with patch.dict(os.environ, env, clear=True), patch("run_execution_shadow.gh_api", return_value={
+            with patch.dict(os.environ, env, clear=True), patch.object(shadow, "gh_api", return_value={
                 "created_at": "2026-09-21T11:54:46Z", "run_started_at": "2026-09-21T11:54:47Z"}):
                 result = dispatch_diagnostics(datetime.fromisoformat("2026-09-21T11:55:00+00:00"))
             self.assertEqual(result["nominal_slot_inferred"], "2026-09-21T05:17:00Z")
@@ -154,18 +158,18 @@ class ShadowMaintenanceTests(unittest.TestCase):
 
     def test_diagnostics_never_invent_a_cron_time_for_manual_or_local_runs(self):
         now = datetime.fromisoformat("2026-09-21T11:55:00+00:00")
-        with patch.dict(os.environ, {}, clear=True), patch("run_execution_shadow.gh_api") as api:
+        with patch.dict(os.environ, {}, clear=True), patch.object(shadow, "gh_api") as api:
             result = dispatch_diagnostics(now)
             api.assert_not_called()
             self.assertEqual(result["event"], "local")
             self.assertNotIn("nominal_slot_inferred", result)
         with patch.dict(os.environ, {"GITHUB_ACTIONS": "true", "GITHUB_EVENT_NAME": "workflow_dispatch", "GITHUB_RUN_ID": "123"}, clear=True), \
-            patch("run_execution_shadow.gh_api", return_value={"created_at": "2026-09-21T11:54:46Z", "run_started_at": "2026-09-21T11:54:46Z"}):
+            patch.object(shadow, "gh_api", return_value={"created_at": "2026-09-21T11:54:46Z", "run_started_at": "2026-09-21T11:54:46Z"}):
             self.assertNotIn("nominal_slot_inferred", dispatch_diagnostics(now))
 
     def test_unavailable_optional_diagnostics_do_not_stop_collection(self):
         with patch.dict(os.environ, {"GITHUB_ACTIONS": "true", "GITHUB_RUN_ID": "123"}, clear=True), \
-            patch("run_execution_shadow.gh_api", side_effect=OSError("must not expose response")):
+            patch.object(shadow, "gh_api", side_effect=OSError("must not expose response")):
             result = dispatch_diagnostics(datetime.fromisoformat("2026-09-21T11:55:00+00:00"))
             self.assertEqual(result["diagnostics_unavailable"], "OSError")
             self.assertNotIn("must not expose response", json.dumps(result))
