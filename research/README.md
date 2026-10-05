@@ -8,10 +8,11 @@ The initial [2026-09-19 comparison report](results/2026-09-19-report.md) found n
 replacement clearing the predeclared checks. This does not establish that the
 old selector is optimal; it means this experiment does not support a cutover.
 
-The next-stage [prospective shadow contract](prospective-shadow.md) freezes
+The existing [prospective shadow contract](prospective-shadow.md) freezes
 future policies before their sessions and later evaluates those exact receipts.
-Its separate workflow is test-only on the research branch; scheduled collection
-requires an approved merge to main. It never promotes or publishes parameters.
+Its separately approved workflow already collects on main; research-branch runs
+remain test-only. The phase-one repair preserves that existing collection,
+without restarting the trial. It never promotes or publishes parameters.
 The [2026-09-19 readiness check](results/2026-09-19-prospective-readiness.md)
 records exact local/cloud dry-run parity and unchanged retrospective results.
 
@@ -22,12 +23,12 @@ Python 3.12+ (standard library) and Node 22+ are sufficient.
 ```sh
 python -m unittest discover -s tests -v
 node --test tests/test_execution_*.cjs
-python scripts/prepare_execution_v2.py
-node scripts/validate_execution_v2.cjs
+python research/frozen/execution-prospective-2026-09-v1/scripts/prepare_execution_v2.py
+node research/frozen/execution-prospective-2026-09-v1/scripts/validate_execution_v2.cjs
 ```
 
-Output lives under ignored `.research/report/`. Archives are cached separately
-under `.research/archives/`. The manual **Execution v2 isolated research** GitHub
+Output lives under ignored `research/frozen/execution-prospective-2026-09-v1/.research/report/`.
+Archives are cached separately in that frozen tree's `.research/archives/`. The manual **Execution v2 isolated research** GitHub
 workflow runs the same experiment with read-only repository permissions and
 retains an artifact for 30 days. It has no production schedule or publishing
 step. Pushes to the validation branch run the experiment; pull requests run
@@ -36,6 +37,13 @@ regression tests only. No secrets are required.
 The loader validates the registry and rejects unsupported providers or custom
 session anchors instead of silently substituting its fixed 09:35 ET / 00:00 UTC
 research contracts. Both cache and output paths are restricted to `.research/`.
+
+Both official research workflows use the byte-identical frozen code from source
+snapshot `dcc2d5feb9a3054a7eae570e3b6ef487496e70e4`. The root-level research
+scripts are retained unchanged as legacy source, but are no longer the supported
+reproduction route: their imports can resolve the evolving live planner. The
+frozen route preserves the original study's policy and cohort; it cannot validate
+new production behavior. See [the isolation boundary](prospective-shadow.md#frozen-execution-boundary-october-2026).
 
 ## Locked experiment
 
@@ -54,8 +62,9 @@ a holdout; a revised protocol requires a new validation record.
 - NYSE regular/half-day hours apply to both sides; crypto uses complete UTC days,
   including weekends. 2025's January 9 extraordinary closure is included.
 - Daily plans use only earlier session excursions. The sell and crypto planners
-  are the real shared page functions; the listed-buy adapter has exact parity
-  tests against the current inline page functions.
+  are the original frozen page functions; the listed-buy adapter has exact parity
+  tests against the frozen inline page functions. Live calculator changes do not
+  change this experiment.
 - The inner scoring window is 26 completed weekly task episodes. A week's
   next-reference terminal label is withheld until strictly before the current
   daily decision; no unfinished-week labels are allowed.
@@ -90,7 +99,7 @@ are comparable **within** a task, not interchangeable between buy and sell.
 Price-seeking uses the full weekly target and no deadline overlay. Unfilled
 residual is valued at the next expected session reference with the declared
 aggressive friction, not claimed as a fill. Finish mode starts with a 60% weekly
-input and a 100% same-week deadline target, exercises the live pacing formula,
+input and a 100% same-week deadline target, exercises the frozen experiment-era pacing formula,
 then assumes explicit aggressive completion 15 minutes before the final close.
 It cannot see later passive extrema. The closeout reference is the minute close
 already known at that time. BUY fee reserves and an aggressive buy closeout are

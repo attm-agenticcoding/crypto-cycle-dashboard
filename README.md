@@ -27,6 +27,39 @@ Current display contract:
 
 Execution calculator:
 
+Phase-one calculator consistency:
+
+- BUY touch sizing uses every completed excursion; it does not wait for the next
+  reference-return label used in weekly scoring.
+- Blank totals are optional; an explicit zero total produces no new orders.
+  A zero weekly pace can catch up only when both total and deadline are supplied.
+- Deadline defaults to blank. Without it, the entered weekly pace is used and an
+  optional total remains a cap, with no hidden completion horizon or tightening.
+  Finish-by-deadline sells still require an explicit date and total.
+- Both listed sides use the published 2025–2028 NYSE calendar, start at 09:36 ET
+  after the reference minute completes, and stop at the actual 13:00/16:00 close.
+  Unsupported calendar years fail closed until the calendar is updated; later
+  emergency exchange closures also require a calendar-table update.
+- Listed BUY retains its 30-rung limit and reports both allocated shares and any
+  unallocated remainder. Touch-based sizing does not guarantee fills/completion.
+- The calculator shows adopted versus raw-minimum diagnostics, retention reason,
+  paired uncertainty and scoring-week dates separately from latest market data.
+  Eligible candidates are a heuristic selection band, not a confidence interval.
+- The existing prospective and retrospective experiment execute their frozen
+  kernel under `research/frozen/execution-prospective-2026-09-v1/`; they do not
+  evaluate this new calculator. Existing receipts and settled outcomes remain
+  unchanged. No new economic model or experiment is introduced in this phase.
+  Inputs remain remaining BUY budget or SELL quantity, not an automatic
+  current-position-to-target-position optimizer.
+
+Validation: `python3 -m unittest discover -s tests -v` and
+`node --test tests/test_execution_*.cjs`. The browser suite requires Playwright
+1.62.1 and Chromium; run
+`RUN_EXECUTION_BROWSER_TESTS=1 node --test tests/test_execution_browser.cjs`,
+optionally setting
+`PLAYWRIGHT_CHROMIUM_EXECUTABLE`. CI performs real browser parity/form tests;
+the default dependency-free test run explicitly skips only that browser suite.
+
 - Since September 28, 2026, production uses `scripts/update_execution_params_live.py`.
   Every candidate is scored on the same 26 complete weeks after a common
   60-session warm-up, with a later terminal reference for both directions.
@@ -42,9 +75,10 @@ Execution calculator:
 - The production repair requests 365 calendar days of input to support the
   common 26-week scoring window. Both sides respect listed half-day closes.
   Incomplete sessions or insufficient common history preserve the last complete
-  bundle. The original updater and all files hashed by the prospective shadow
-  contract remain byte-for-byte unchanged; that experiment continues to measure
-  its original methods and is not evidence for this new production selector.
+  bundle. The original updater and the frozen copies of every file hashed by
+  the prospective shadow contract remain byte-for-byte unchanged; that experiment
+  continues to measure its original methods and is not evidence for the new
+  production selector or calculator.
 - An isolated [execution v2 validation experiment](research/README.md) compares
   selection rules with common-week, causal daily replay. It does not replace
   the live parameters or change the production schedules;

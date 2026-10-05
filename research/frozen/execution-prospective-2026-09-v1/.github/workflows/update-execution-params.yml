@@ -1,0 +1,62 @@
+name: Update execution parameters
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Refit after each US market session. The second run is a publication retry;
+    # it exits before downloading when the 20:30 run already covered that day.
+    - cron: "30 20 * * 1-5"
+      timezone: "America/New_York"
+    - cron: "30 22 * * 1-5"
+      timezone: "America/New_York"
+    # Crypto daily UTC archives: every calendar day, with a later retry.
+    - cron: "30 4 * * *"
+      timezone: "UTC"
+    - cron: "30 8 * * *"
+      timezone: "UTC"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: execution-data-write
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Verify execution platform
+        run: python -m unittest discover -s tests -v
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Verify buy and sell calculation guards
+        run: node --test tests/test_execution_core.cjs
+      - name: Refit buy and sell for every registered execution instrument
+        shell: bash
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            python scripts/update_execution_params_live.py --force
+          elif [[ "${{ github.event.schedule }}" == "30 4 * * *" || "${{ github.event.schedule }}" == "30 8 * * *" ]]; then
+            python scripts/update_execution_params_live.py --calendar 24X7
+          else
+            python scripts/update_execution_params_live.py --calendar XNYS
+          fi
+      - name: Publish changed parameters
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/execution_params.json
+          if git diff --cached --quiet; then
+            echo "No parameter change to publish."
+          else
+            git commit -m "Update rolling execution parameters"
+            git push
+          fi

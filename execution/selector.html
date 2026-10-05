@@ -9,7 +9,7 @@
 <p id="status" role="status">Loading published parameters…</p>
 <div id="details" hidden><section class="panel stats"><div><div class="label">Eligible candidates</div><div class="value" id="eligible"></div></div><div><div class="label">Common scoring weeks</div><div class="value" id="weeks"></div></div><div><div class="label">Latest input session</div><div class="value" id="data-date"></div></div></section>
 <section class="panel"><div class="scroll"><table><thead><tr><th>Selection</th><th>Lookback</th><th>First offset</th><th>Spacing</th><th>Mean modeled cost</th></tr></thead><tbody id="comparison"></tbody></table></div><p id="reason"></p><p id="gap"></p></section>
-<section class="panel"><p id="window"></p><p>Each candidate is scored on the same 26 completed weeks. Its weekly cost difference from the raw minimum determines its own one-standard-error band, with a 0.25 bp floor. Within that band, the nearest prior parameter combination is retained.</p><p class="note">This is a stability heuristic, not a significance test or proof of equal performance. The model values unfilled quantity at the next reference and does not simulate spreads, fees, queue position or market impact. Listed instruments use spot proxies. The frozen prospective shadow study continues separately; this production repair has no established prospective performance advantage.</p><p class="note" id="version"></p></section></div>
+<section class="panel"><p id="window"></p><p>Each candidate is scored on the same 26 completed weeks. Its weekly cost difference from the raw minimum determines its own one-standard-error band, with a 0.25 bp floor. Within that selection band, the nearest prior parameter combination is retained.</p><p class="note">Eligible ranges are selection bands, not confidence intervals. This is a stability heuristic, not a significance test or proof of equal performance. The model values unfilled quantity at the next reference and does not simulate spreads, fees, queue position or market impact. Listed instruments use spot proxies. The frozen prospective shadow study continues separately; this production repair has no established prospective performance advantage.</p><p class="note" id="version"></p></section></div>
 <script>
 "use strict";
 let bundle;
@@ -32,7 +32,7 @@ function render(){
   }
   $("reason").textContent=d.reason;
   $("gap").textContent=`Adopted excess cost: ${number(d.adopted.gap_to_raw_minimum_bps)} bp. Paired standard error: ${number(d.adopted.paired_standard_error_bps)} bp. Allowed gap: ${number(d.adopted.allowed_gap_bps)} bp.`;
-  $("window").textContent=`Common scoring weeks: ${d.common_scoring_weeks[0]} through ${d.common_scoring_weeks.at(-1)}. Lower modeled cost is better.`;
+  $("window").textContent=`Scoring weeks start ${d.common_scoring_weeks[0]} through ${d.common_scoring_weeks.at(-1)}; latest market input is ${p.data_as_of}. Completed scoring weeks need later reference labels, so new daily data need not change adopted parameters. Lower modeled cost is better.`;
   $("version").textContent=`Selector: ${d.selector_version}`;
 }
 $("instrument").addEventListener("change",render);$("side").addEventListener("change",render);

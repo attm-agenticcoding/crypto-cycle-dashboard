@@ -6,6 +6,7 @@ on:
     branches: [codex/execution-v2-validation]
     paths:
       - 'research/execution-v2-protocol.json'
+      - 'research/frozen/execution-prospective-2026-09-v1/**'
       - 'scripts/*execution_v2*'
       - 'tests/test_execution_v2*'
       - '.github/workflows/validate-execution-v2.yml'
@@ -40,17 +41,17 @@ jobs:
           node --test tests/test_execution_*.cjs
       - name: Prepare reproducible public-market sessions
         if: github.event_name != 'pull_request'
-        run: python scripts/prepare_execution_v2.py
+        run: python research/frozen/execution-prospective-2026-09-v1/scripts/prepare_execution_v2.py
       - name: Causal comparison without publishing
         if: github.event_name != 'pull_request'
-        run: node scripts/validate_execution_v2.cjs
+        run: node research/frozen/execution-prospective-2026-09-v1/scripts/validate_execution_v2.cjs
       - name: Verify tracked production files remain unchanged
         run: git diff --exit-code -- data execution scripts/update_execution_params.py
       - uses: actions/upload-artifact@v4
         if: github.event_name != 'pull_request'
         with:
           name: execution-v2-validation-${{ github.run_id }}
-          path: .research/report/
+          path: research/frozen/execution-prospective-2026-09-v1/.research/report/
           include-hidden-files: true
           if-no-files-found: error
           retention-days: 30
