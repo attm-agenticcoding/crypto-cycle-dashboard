@@ -10,11 +10,13 @@ production rollout approval remain separate gates.
 
 ## Activation and isolation
 
-The `Execution prospective shadow` workflow is prepared on the research branch.
-**A research-branch/PR run is not activation.** Only an approved merge to the
-default `main` branch can enable scheduled collection. Only that exact workflow,
-repository, branch, and a scheduled/manual event can create prospective records.
-All other runs are explicitly `test_only` and cannot enter the trial.
+The separately approved `Execution prospective shadow` workflow already collects
+on the default `main` branch. This phase-one repair only relocates its runtime
+to the identical frozen kernel; it does not create or restart the experiment.
+**A research-branch/PR run is not live collection.** Only the exact approved
+workflow, repository, main branch and scheduled/manual event can create
+prospective records. All other runs are explicitly `test_only` and cannot enter
+the trial.
 
 Permissions are `contents: read` and `actions: read`; there is no repository
 push, production dispatch, Pages publishing step, credential secret, broker
@@ -22,8 +24,8 @@ connection, or order submission. Neither this workflow nor its runner edits the
 production scaling schedule, calculator, registry, or parameter bundle. The
 existing main-dashboard and scaling producers remain in place.
 
-Once approved and merged, a manual main-branch run can initialize the ledger;
-subsequent scheduled runs are independent of the user's computer. The daily
+Keep restoring the existing ledger; do not reinitialize it for this calculator
+release. Scheduled runs remain independent of the user's computer. The daily
 times are **05:17 UTC** and **07:17 UTC** (retry), with UTC explicitly declared.
 These earlier attempts provide buffer for the multi-hour dispatch delays
 observed on September 20–21; they do not guarantee punctual execution.
@@ -40,8 +42,10 @@ on-time artifacts, not scheduled start times, determine eligibility.
 
 Crypto's candidate-cost replay uses the same one-session observation lag. The
 original fixed retrospective experiment retains its original semantics, so its
-reported results remain reproducible. The production listed-buy extra sample
-lag is preserved; buy and sell freeze separate hit-estimation samples.
+reported results remain reproducible. The experiment-era listed-buy extra sample
+lag remains preserved inside the frozen study; the repaired live calculator no
+longer drops that newest completed excursion. Buy and sell freeze separate
+hit-estimation samples.
 
 The next anchor price is unknown when a receipt is frozen. The receipt commits
 to a parameter-selection result and deterministic execution policy, not to
@@ -58,15 +62,47 @@ to have placed earlier orders. Missing/late prior sessions stay missing.
 `execution-shadow-protocol.json` pins the original protocol hash and registry
 hash. The cohort is ARCX:BTC, ARCX:ETH, BINANCE:SPOT:BTCUSDT, and
 BINANCE:SPOT:ETHUSDT, each independently fitted for buy/sell and
-price-seeking/finish-by-deadline tasks. Fit code, calendar helpers, and the live
-planning functions are hashed into the experiment contract. A changed registry
-or implementation stops collection; a different experiment/version must be
+price-seeking/finish-by-deadline tasks. Fit code, calendar helpers, and the experiment-era
+planning functions are hashed into the experiment contract. A changed frozen registry
+or frozen implementation stops collection; a different experiment/version must be
 declared rather than silently mixing it into this one. The sole maintenance
 exception is the exact old/new code-contract pair in
 `execution-shadow-compatibility.json`: the September 21 timestamp-precision
 repair leaves the study protocol and execution policy unchanged. It records a
 hashed migration audit while preserving every frozen receipt and settled result.
 Unknown future code hashes still fail closed.
+
+### Frozen execution boundary (October 2026)
+
+Both research workflows now execute the byte-identical September experiment
+implementation under `research/frozen/execution-prospective-2026-09-v1/`.
+That tree preserves the original relative paths, all nine `CODE_FILES`, the
+registry, protocols, compatibility manifest, and protected-file sentinels.
+The retrospective entry point is frozen there too. The source snapshot is
+`dcc2d5feb9a3054a7eae570e3b6ef487496e70e4`; `frozen-manifest.json`
+records each original Git blob and SHA-256 hash.
+
+This is a relocation, not a new policy version or a compatibility migration.
+The prospective contract remains
+`ef1ef81a5a6515ed9642f98a4a9df15c403e3e23f33879e7af8144f204578724`,
+and the existing compatibility manifest is unchanged byte-for-byte. New live
+calculator changes do not enter this experiment. Receipt source commits still
+identify the current workflow checkout, while implementation hashes identify
+its unchanged frozen policy. Original receipts retain their original commits.
+
+The untouched collector resolves its own `ROOT` inside the frozen tree and
+exports to that tree's ignored `.research/` directory. The workflow uploads the
+collector's actual `output_path`; it does not guess the old root output path.
+The outer workflow still verifies that live production files were untouched.
+The copied production parameter bundle and scaling workflow are immutable
+integrity sentinels only: the collector never runs the copied production
+workflow or reads its parameter bundle to select decisions.
+
+Root-level legacy research scripts remain unchanged for source history; they
+are no longer the supported reproduction or collection entry points because
+root-level replay can import the evolving live core. Use the frozen commands
+below. Freeze changes require a separately declared experiment, not an expanded
+maintenance allowlist. [Frozen-tree details](frozen/execution-prospective-2026-09-v1/README.md).
 
 The predeclared 12 full weeks are **2026-09-21 through 2026-12-13**. Earlier
 receipts are pilot records only. Collection continues through December 16 to
@@ -155,16 +191,41 @@ Local verification (never counts as prospective evidence):
 ```sh
 python -m unittest discover -s tests -v
 node --test tests/test_execution_*.cjs
-python scripts/run_execution_shadow.py --local-test
-python scripts/run_execution_shadow.py --local-test --restore-only
+python research/frozen/execution-prospective-2026-09-v1/scripts/run_execution_shadow.py --local-test
+python research/frozen/execution-prospective-2026-09-v1/scripts/run_execution_shadow.py --local-test --restore-only
 ```
 
-These commands write only ignored `.research/` research outputs. Cloud/local
+These commands write only ignored `.research/` research outputs inside the frozen tree. Cloud/local
 generation timestamps and run IDs differ; on identical observations, compare
 the frozen task selections, score fingerprints, histories and target sessions.
-The restore-only test requires authenticated `gh` read access to the official
-workflow artifacts. The repair branch runs this same recovery test in GitHub;
-PR checks run the offline regression/integrity tests only.
+The operational restore-only command requires authenticated `gh` read access to
+the official workflow artifacts. PR checks run synthetic offline regression and
+integrity tests only; they do not fetch archived trial data.
+
+## Verification boundary
+
+The public regression suite uses generated synthetic observations, receipts and
+server metadata. It does not contain or download archived trial state. CI checks:
+
+- every one of the 16 frozen source files against its original Git blob and
+  SHA-256 hash, plus the exact contract and unchanged compatibility manifest;
+- byte-identical synthetic ledger replay and idempotent restore-only sealing;
+- synthetic settlement for all four instruments, both sides and both modes,
+  across five policies and three scenarios;
+- isolation from deliberately broken live planner and registry copies;
+- Python dependency resolution within the frozen tree, current-checkout Git
+  provenance, and the frozen workflow/output paths.
+
+Separately, before publication, a local-only replay of the existing archived
+artifact preserved all 28 actual receipt payloads/hashes and all 16 settled
+task-weeks. Their outcomes were independently recomputed, the last eight-task
+crypto receipt was refitted exactly, and restore-only sealing was checked against
+verified server metadata. Those real-artifact inputs and replay tools remain
+outside the published repository. These are completed local verification results,
+not claims that GitHub CI replays actual trial data.
+
+Neither synthetic tests nor local replay create new prospective evidence or
+validate the repaired live calculator's new policy.
 
 ## Limitations
 
