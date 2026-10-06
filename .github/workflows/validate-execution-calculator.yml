@@ -2,7 +2,7 @@ name: Validate execution calculator phase one
 
 on:
   push:
-    branches: [codex/fix-execution-calculator-consistency]
+    branches: [codex/fix-execution-calculator-consistency, codex/execution-optional-progress-ledger]
     paths:
       - 'execution/**'
       - 'tests/**'
@@ -45,7 +45,7 @@ jobs:
           EXECUTION_BROWSER_ARTIFACTS: ${{ runner.temp }}/execution-browser-artifacts
         run: |
           export NODE_PATH="$RUNNER_TEMP/execution-browser/node_modules"
-          node --test tests/test_execution_browser.cjs
+          node --test tests/test_execution_browser.cjs tests/test_execution_progress_browser.cjs
       - name: Verify no tracked data or source was mutated
         run: git diff --exit-code
       - uses: actions/upload-artifact@v4

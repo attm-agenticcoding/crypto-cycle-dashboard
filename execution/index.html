@@ -124,6 +124,33 @@
     th:first-child, td:first-child { text-align: left; }
     .notice { margin: 11px 14px 14px; padding: 10px 11px; border-left: 2px solid var(--gold); color: var(--muted); background: rgba(255, 201, 107, .06); font-size: .75rem; line-height: 1.45; }
     .method { grid-column: 1 / -1; padding: 20px; }
+    .progress-panel { grid-column: 1 / -1; padding: 18px 20px; }
+    .progress-panel > details { margin: 0; padding: 0; border: 0; }
+    .progress-copy { color: var(--muted); font-size: .83rem; line-height: 1.6; }
+    .progress-toolbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: end; margin: 14px 0; }
+    .progress-toolbar > .field { flex: 1 1 180px; }
+    .progress-toolbar button, .progress-panel button { cursor: pointer; white-space: normal; }
+    .progress-panel button:disabled { opacity: .45; cursor: not-allowed; }
+    .progress-card { border: 1px solid var(--line); border-radius: 14px; padding: 15px; margin-top: 14px; min-width: 0; }
+    .progress-card h3 { font-size: .95rem; margin: 0 0 10px; overflow-wrap: anywhere; }
+    .progress-records { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .progress-records details { min-width: 0; }
+    .progress-records .field-grid { margin-top: 14px; }
+    .progress-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .progress-stats .metric-value { white-space: normal; overflow-wrap: anywhere; }
+    .progress-orders { padding: 0; list-style: none; }
+    .progress-order { border-top: 1px solid var(--line); padding: 12px 0; overflow-wrap: anywhere; }
+    .progress-order p { margin: 0 0 8px; }
+    .progress-binding { margin: 12px 0 0; padding: 11px 12px; border-left: 2px solid var(--cyan); font-size: .82rem; line-height: 1.5; background: rgba(99,234,215,.06); }
+    .progress-confirm { border: 1px solid var(--red); padding: 14px; border-radius: 12px; margin-top: 14px; }
+    .progress-confirm label { display: flex; gap: 9px; align-items: start; line-height: 1.5; }
+    .progress-confirm input { width: auto; margin-top: 3px; }
+    .progress-panel :focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; }
+    @media (max-width: 620px) {
+      .progress-records, .progress-stats { grid-template-columns: 1fr; }
+      .progress-toolbar { align-items: stretch; }
+      .progress-toolbar > * { flex-basis: 100%; }
+    }
     details { border-top: 1px solid var(--line); margin-top: 15px; padding-top: 15px; }
     summary { cursor: pointer; font-weight: 700; font-size: .9rem; }
     .method-copy { color: var(--muted); font-size: .84rem; line-height: 1.65; max-width: 930px; }
@@ -242,8 +269,8 @@
 
           <div class="account-title">Account 1</div>
           <div class="field" data-buy>
-            <label for="weekly-one">Remaining to deploy this week</label>
-            <div class="input-wrap has-prefix"><span class="prefix currency-prefix">$</span><input id="weekly-one" type="number" min="0" step="any" value="10000" required></div>
+            <label for="weekly-one">This week’s remaining target</label>
+            <div class="input-wrap has-prefix"><span class="prefix currency-prefix">$</span><input id="weekly-one" type="number" min="0" step="any" placeholder="Enter remaining amount"></div>
           </div>
           <div class="field" data-buy>
             <label for="capital-one">Total remaining budget (optional)</label>
@@ -251,22 +278,22 @@
           </div>
           <div class="field" data-sell hidden><label for="sell-weekly-one">Shares remaining to sell this week</label><input id="sell-weekly-one" type="number" min="0" step="any" value="0" required disabled></div>
           <div class="field" data-sell hidden><label for="sell-total-one">Total shares remaining (optional)</label><input id="sell-total-one" type="number" min="0" step="any" placeholder="Optional for price seeking" disabled></div>
-          <div class="field" data-sell hidden><label for="sell-held-one">Current held shares</label><input id="sell-held-one" type="number" min="0" step="any" value="0" required disabled></div>
+          <div class="field" data-sell hidden><label for="sell-held-one">Current held shares</label><input id="sell-held-one" type="number" min="0" step="any" placeholder="Enter current holdings" disabled></div>
           <div class="field" data-sell hidden><label for="sell-reserved-one">Shares in existing sell orders</label><input id="sell-reserved-one" type="number" min="0" step="any" value="0" required disabled></div>
 
-          <div class="account-title">Account 2</div>
+          <div class="account-title">Account 2 · optional</div>
           <div class="field" data-buy>
-            <label for="weekly-two">Remaining to deploy this week</label>
-            <div class="input-wrap has-prefix"><span class="prefix currency-prefix">$</span><input id="weekly-two" type="number" min="0" step="any" value="10000" required></div>
+            <label for="weekly-two">This week’s remaining target</label>
+            <div class="input-wrap has-prefix"><span class="prefix currency-prefix">$</span><input id="weekly-two" type="number" min="0" step="any" placeholder="Optional account"></div>
           </div>
           <div class="field" data-buy>
             <label for="capital-two">Total remaining budget (optional)</label>
             <div class="input-wrap has-prefix"><span class="prefix currency-prefix">$</span><input id="capital-two" type="number" min="0" step="any" placeholder="Optional"></div>
           </div>
-          <div class="field" data-sell hidden><label for="sell-weekly-two">Shares remaining to sell this week</label><input id="sell-weekly-two" type="number" min="0" step="any" value="0" required disabled></div>
+          <div class="field" data-sell hidden><label for="sell-weekly-two">Shares remaining to sell this week</label><input id="sell-weekly-two" type="number" min="0" step="any" placeholder="Optional account" disabled></div>
           <div class="field" data-sell hidden><label for="sell-total-two">Total shares remaining (optional)</label><input id="sell-total-two" type="number" min="0" step="any" placeholder="Optional for price seeking" disabled></div>
-          <div class="field" data-sell hidden><label for="sell-held-two">Current held shares</label><input id="sell-held-two" type="number" min="0" step="any" value="0" required disabled></div>
-          <div class="field" data-sell hidden><label for="sell-reserved-two">Shares in existing sell orders</label><input id="sell-reserved-two" type="number" min="0" step="any" value="0" required disabled></div>
+          <div class="field" data-sell hidden><label for="sell-held-two">Current held shares</label><input id="sell-held-two" type="number" min="0" step="any" placeholder="If selling" disabled></div>
+          <div class="field" data-sell hidden><label for="sell-reserved-two">Shares in existing sell orders</label><input id="sell-reserved-two" type="number" min="0" step="any" placeholder="0 if none" disabled></div>
           <p id="buy-hint" class="hint" data-buy>Leave the deadline blank for weekly pacing without completion pressure. A supplied total caps orders, including an explicit zero. With both total and deadline, the guardrail can raise the target. Listed orders begin at 09:36 ET and stop at the actual session close.</p>
           <p id="sell-hint" class="hint" data-sell hidden>Enter remaining quantities, including unfilled sell orders. Existing orders are deducted from both the target and held shares when sizing new orders. Subtract actual fills from both remaining targets and holdings each day. Output uses whole shares; switching ticker clears sale quantities.</p>
           <p id="form-error" class="field wide form-error" role="alert" hidden></p>
@@ -277,7 +304,75 @@
       <section class="panel results">
         <div class="section-head"><h2>Order plan</h2><span id="session-label" class="status live">—</span></div>
         <div id="empty" class="result-empty">Choose an instrument, enter today's reference and remaining amounts, then calculate. Both accounts use the selected instrument's price ladder; sizing is solved independently.</div>
+        <p id="progress-binding" class="progress-binding" role="status" hidden></p>
         <div id="result-stack" class="result-stack" hidden></div>
+      </section>
+
+      <section class="panel progress-panel" aria-label="Optional local progress">
+        <details id="progress-details">
+          <summary>Optional: remember progress on this device</summary>
+          <p class="progress-copy">Keep using the calculator without any setup. If you want to track fills across weeks, you can keep a separate record for each instrument, direction and account.</p>
+          <p class="progress-copy">Records stay in this browser’s local storage on this device. There is no cross-device sync or broker connection. Anyone using this browser profile may see them; clearing site data can erase them. Export a copy if you need a backup. Nothing here places or cancels an order.</p>
+          <button id="progress-enable" class="secondary" type="button">Open local progress</button>
+          <p id="progress-message" class="progress-copy" role="status" aria-live="polite"></p>
+          <p id="progress-error" class="form-error" role="alert" hidden></p>
+          <div id="progress-workspace" hidden>
+            <div class="progress-toolbar">
+              <div class="field"><label for="progress-account">Record for selected instrument and direction</label><select id="progress-account"><option value="one">Account 1</option><option value="two">Account 2</option></select></div>
+              <button id="progress-reload" class="secondary" type="button">Reload local records</button>
+              <button id="progress-export" class="secondary" type="button">Export local JSON</button>
+            </div>
+            <div id="progress-create" class="progress-card">
+              <h3 id="progress-create-title">Start from today’s remaining amounts</h3>
+              <p id="progress-create-summary" class="progress-copy"></p>
+              <p class="progress-copy">Enter this week’s remaining target and total remaining above, then confirm them here. These become your starting point; earlier fills and whole-position cost basis are unknown. The initial weekly amount is only the remainder for this week, not a recurring quota.</p>
+              <button id="progress-create-button" class="secondary" type="button">Confirm entered amounts and create local record</button>
+            </div>
+            <div id="progress-task" class="progress-card" hidden>
+              <h3 id="progress-task-title"></h3>
+              <p id="progress-task-period" class="progress-copy"></p>
+              <div class="progress-stats" id="progress-stats"></div>
+              <p id="progress-warning" class="progress-copy warning" hidden></p>
+              <div id="progress-week" class="progress-card" hidden>
+                <p id="progress-week-label" class="progress-copy"></p>
+                <label for="progress-week-cap">Confirm this week’s cap, including any recorded fills this week</label>
+                <input id="progress-week-cap" type="number" min="0" step="any" placeholder="Enter a new weekly amount">
+                <button id="progress-confirm-week" class="secondary" type="button">Confirm new week</button>
+              </div>
+              <div class="progress-toolbar"><button id="progress-use" class="secondary" type="button">Use available remaining in calculator</button></div>
+              <p id="progress-use-note" class="progress-copy">This only copies remaining amounts after recorded fills and open orders. Calculation still requires your reference price and a separate click. The confirmed weekly amount is a hard cap, even if deadline pacing asks for more.</p>
+              <div class="progress-records">
+                <details><summary>Record an actual fill</summary>
+                  <form id="progress-fill-form" class="field-grid">
+                    <div class="field wide"><label for="progress-fill-order">Related order</label><select id="progress-fill-order"><option value="">Unlinked actual fill</option></select></div>
+                    <div class="field"><label for="progress-fill-qty">Filled quantity</label><input id="progress-fill-qty" type="number" min="0" step="any" required></div>
+                    <div class="field"><label for="progress-fill-price">Actual price per unit</label><input id="progress-fill-price" type="number" min="0" step="any" required></div>
+                    <div class="field wide"><label for="progress-fill-id">Fill reference (unique; optional)</label><input id="progress-fill-id" maxlength="100" placeholder="Broker trade ID, if available"></div>
+                    <div class="field wide"><label for="progress-fill-at">Execution time in UTC (optional)</label><input id="progress-fill-at" type="datetime-local" step="1"><p class="progress-copy">Blank means now. For a late report, enter when the fill actually happened. Fees are treated as zero.</p></div>
+                    <button id="progress-fill-save" class="secondary field wide" type="submit">Save actual fill</button>
+                  </form>
+                </details>
+                <details><summary>Record an already-working order</summary>
+                  <form id="progress-order-form" class="field-grid">
+                    <p class="hint">Only record an order you have already placed and verified at your broker or exchange. A calculated ladder is never recorded automatically.</p>
+                    <div class="field"><label for="progress-order-qty">Working quantity</label><input id="progress-order-qty" type="number" min="0" step="any" required></div>
+                    <div class="field"><label for="progress-order-price">Limit price per unit</label><input id="progress-order-price" type="number" min="0" step="any" required></div>
+                    <div class="field wide"><label for="progress-order-id">Order reference (optional)</label><input id="progress-order-id" maxlength="100" placeholder="Broker order ID, if available"></div>
+                    <button id="progress-order-save" class="secondary field wide" type="submit">Confirm working order and save</button>
+                  </form>
+                </details>
+              </div>
+              <p class="progress-copy">Cancel requested keeps the unfilled amount reserved. Only confirmed cancellation releases it. Partial and late fills can still be recorded. Check the actual order status with your broker.</p>
+              <ul id="progress-orders" class="progress-orders"></ul>
+              <button id="progress-delete" class="secondary danger" type="button">Delete this local record…</button>
+            </div>
+            <div class="progress-toolbar"><button id="progress-reset" class="secondary danger" type="button">Clear all local progress…</button></div>
+            <div id="progress-confirm" class="progress-confirm" hidden>
+              <p id="progress-confirm-text" class="progress-copy"></p>
+              <div class="progress-toolbar"><button id="progress-confirm-yes" class="secondary danger" type="button">Confirm deletion</button><button id="progress-confirm-no" class="secondary" type="button">Keep records</button></div>
+            </div>
+          </div>
+        </details>
       </section>
 
       <section class="panel method">
@@ -510,10 +605,13 @@
       const next = nextSession(dataDate);
       return next ? `${tradingDateLabel(next)} after 8:30 PM ET` : "Calendar update required";
     }
+    function progressPlan(name, plan) {
+      return window.ExecutionProgressUI?.capPlan(name === "Account 2" ? "two" : "one", plan) || plan;
+    }
     function renderAccount(name, weekly, capital, reference, deadlineSessions, weekSessions) {
       if (isCrypto()) return renderCryptoBuyAccount(name, weekly, capital, reference, deadlineSessions, weekSessions);
       if (+weekly === 0 && (capital === "" || capital === null || +capital === 0)) return "";
-      const plan = ExecutionCore.buyPlan({weekly, total: capital, reference, weekSessions, horizon: deadlineSessions, params});
+      const plan = progressPlan(name, ExecutionCore.buyPlan({weekly, total: capital, reference, weekSessions, horizon: deadlineSessions, params}));
       const controller = plan.controller, effectiveWeekly = controller.weekly;
       const {first, spacing, hits} = plan;
       const rows = plan.orders.map(o => `<tr><td>Rung ${o.rung}</td><td>${money2.format(o.price)}</td><td>${o.shares.toLocaleString()}</td><td>${money2.format(o.notional)}</td></tr>`).join("");
@@ -530,33 +628,33 @@
       return `<article class="account-result">
         <div class="result-title"><h3>${name}</h3><span class="urgency ${urgencyClass(controller.urgency)}">${controller.urgency}</span></div>
         <div class="result-metrics">
-          <div class="result-metric"><span>Effective weekly target</span><strong>${money.format(effectiveWeekly)}</strong></div>
+          <div class="result-metric"><span>${plan.progressNote ? "Planner weekly target before cap" : "Effective weekly target"}</span><strong>${money.format(effectiveWeekly)}</strong></div>
           <div class="result-metric"><span>Even-pace floor</span><strong>${controller.enabled ? money.format(controller.scheduleFloor) : "—"}</strong></div>
           <div class="result-metric"><span>Shares / rung</span><strong>${plan.perRung.toLocaleString()}</strong></div>
           <div class="result-metric"><span>Effective offset / spacing</span><strong>${(first * 100).toFixed(2)}% / ${(spacing * 100).toFixed(2)}%</strong></div>
           <div class="result-metric"><span>Deadline pace lift</span><strong>${controller.enabled ? controller.lift.toFixed(2) + "×" : "—"}</strong></div>
         </div>
         <div class="table-wrap"><table><thead><tr><th>Order</th><th>Limit</th><th>Shares</th><th>Max notional</th></tr></thead><tbody>${rows}</tbody></table></div>
-        <div class="notice">${controllerNote} Target quantity is ${plan.targetShares.toLocaleString()} shares; the displayed orders allocate ${plan.orderQuantity.toLocaleString()} shares. ${plan.unallocated > 0 ? `<strong>${plan.unallocated.toLocaleString()} shares are unallocated because of the 30-rung limit. This ladder does not cover the target.</strong> ` : ""}Amounts are planning limits, not filled quantity or a completion guarantee.</div>
+        <div class="notice">${plan.progressNote || ""}${controllerNote} Target quantity is ${plan.targetShares.toLocaleString()} shares; the displayed orders allocate ${plan.orderQuantity.toLocaleString()} shares. ${plan.unallocated > 0 ? `<strong>${plan.unallocated.toLocaleString()} shares are unallocated ${plan.progressCapped ? "after the local progress cap and order limits" : "because of the 30-rung limit"}. This ladder does not cover the target.</strong> ` : ""}Amounts are planning limits, not filled quantity or a completion guarantee.</div>
       </article>`;
     }
     function renderCryptoBuyAccount(name, weekly, capital, reference, horizon, weekSessions) {
       if (!(+weekly > 0) && !(+capital > 0)) return "";
-      const plan = ExecutionCore.cryptoPlan({weekly, total: capital === "" ? null : capital, reference, horizon, weekSessions, params});
+      const plan = progressPlan(name, ExecutionCore.cryptoPlan({weekly, total: capital === "" ? null : capital, reference, horizon, weekSessions, params}));
       const c = plan.controller;
       const rows = plan.orders.map(o => `<tr><td>Rung ${o.rung}</td><td>${priceText(o.price)}</td><td>${qty(o.shares)}</td><td>${money2.format(o.notional)}</td></tr>`).join("");
       const remainder = plan.fractionalRemainder + plan.unallocated;
       return `<article class="account-result">
         <div class="result-title"><h3>${name} · BUY ${params.symbol} · GTC</h3><span class="urgency ${urgencyClass(c.urgency)}">${c.urgency}</span></div>
         <div class="result-metrics">
-          <div class="result-metric"><span>Effective weekly target</span><strong>${money.format(c.weekly)}</strong></div>
+          <div class="result-metric"><span>${plan.progressNote ? "Planner weekly target before cap" : "Effective weekly target"}</span><strong>${money.format(c.weekly)}</strong></div>
           <div class="result-metric"><span>Even-pace floor</span><strong>${c.enabled ? money.format(c.scheduleFloor) : "—"}</strong></div>
           <div class="result-metric"><span>${unitLabel()} / rung</span><strong>${qty(plan.perRung)}</strong></div>
           <div class="result-metric"><span>Effective offset / spacing</span><strong>${(plan.first * 100).toFixed(2)}% / ${(plan.spacing * 100).toFixed(2)}%</strong></div>
           <div class="result-metric"><span>Deadline pace lift</span><strong>${c.enabled ? c.lift.toFixed(2) + "×" : "—"}</strong></div>
         </div>
         ${rows ? `<div class="table-wrap"><table><thead><tr><th>Buy order</th><th>Limit</th><th>${unitLabel()}</th><th>Cost at limit</th></tr></thead><tbody>${rows}</tbody></table></div>` : ""}
-        <div class="notice">${c.enabled ? "Deadline pacing is active. " : "Price seeking at the weekly budget; no deadline pressure. "}${c.hasTotal ? "Total remaining caps this plan. " : ""}New orders total ${qty(plan.orderQuantity)} ${unitLabel()}, with cost at their limits of ${money2.format(plan.orders.reduce((sum, o) => sum + o.notional, 0))}, before fees. ${remainder > 1e-12 ? `Unallocated remainder: ${qty(remainder)} ${unitLabel()} due to order limits, price bounds or minimum size; it is not filled quantity. ` : ""}GTC orders do not expire at UTC midnight. Cancel unfilled orders from the previous plan before placing this replacement ladder. Deduct actual spend from remaining budgets; allow for exchange fees.</div>
+        <div class="notice">${plan.progressNote || ""}${c.enabled ? "Deadline pacing is active. " : "Price seeking at the weekly budget; no deadline pressure. "}${c.hasTotal ? "Total remaining caps this plan. " : ""}New orders total ${qty(plan.orderQuantity)} ${unitLabel()}, with cost at their limits of ${money2.format(plan.orders.reduce((sum, o) => sum + o.notional, 0))}, before fees. ${remainder > 1e-12 ? `Unallocated remainder: ${qty(remainder)} ${unitLabel()} due to order limits, price bounds or minimum size; it is not filled quantity. ` : ""}GTC orders do not expire at UTC midnight. Cancel unfilled orders from the previous plan before placing this replacement ladder. Deduct actual spend from remaining budgets; allow for exchange fees.</div>
       </article>`;
     }
     function clockLabel(minutes) { return `${String(Math.floor(minutes / 60)).padStart(2, "0")}:${String(minutes % 60).padStart(2, "0")}`; }
@@ -596,6 +694,7 @@
       const value = field => document.getElementById(`sell-${field}-${suffix}`).value;
       const weekly = value("weekly"), rawTotal = value("total"), total = rawTotal === "" ? null : rawTotal;
       if (+weekly === 0 && (total === null || +total === 0)) return "";
+      if (value("held") === "") throw new Error(`${name}: enter current held quantity for an active sell account.`);
       const hard = document.getElementById("sell-policy").value === "deadline";
       const state = sellDeadlineState();
       if (hard && total === null) throw new Error(`${name}: total remaining ${unitLabel()} are required for Finish by deadline.`);
@@ -605,7 +704,7 @@
       if (closeout && Date.now() - bidUpdatedAt > 60000) throw new Error("Refresh the current best bid before calculating a closeout order (quote entry expires after 60 seconds).");
       let plan;
       try {
-        plan = ExecutionCore.sellPlan({ weekly, total, held: value("held"), reserved: value("reserved"), reference, weekSessions, horizon, params, closeout, bid: document.getElementById("closeout-bid").value });
+        plan = progressPlan(name, ExecutionCore.sellPlan({ weekly, total, held: value("held"), reserved: value("reserved"), reference, weekSessions, horizon, params, closeout, bid: document.getElementById("closeout-bid").value }));
       } catch (error) { throw new Error(`${name}: ${error.message}`); }
       const c = plan.controller;
       const shares = value => `${qty(value)} ${unitLabel()}`;
@@ -624,14 +723,14 @@
       return `<article class="account-result">
         <div class="result-title"><h3>${name} · SELL ${params.symbol} · ${isCrypto() ? "GTC" : "DAY"}</h3><span class="urgency ${closeout ? "high" : urgencyClass(c.urgency)}">${closeout ? "CLOSEOUT" : c.urgency}</span></div>
         <div class="result-metrics">
-          <div class="result-metric"><span>Effective weekly target</span><strong>${shares(c.weekly)}</strong></div>
+          <div class="result-metric"><span>${plan.progressNote ? "Planner weekly target before cap" : "Effective weekly target"}</span><strong>${shares(c.weekly)}</strong></div>
           <div class="result-metric"><span>Available for new orders</span><strong>${shares(plan.available)}</strong></div>
           <div class="result-metric"><span>${unitLabel()} / rung</span><strong>${qty(plan.perRung)}</strong></div>
           <div class="result-metric"><span>${closeout ? "Pricing" : "Effective offset / spacing"}</span><strong>${closeout ? "Live best bid" : `${(plan.first * 100).toFixed(2)}% / ${(plan.spacing * 100).toFixed(2)}%`}</strong></div>
           <div class="result-metric"><span>Deadline pace lift</span><strong>${c.enabled ? c.lift.toFixed(2) + "×" : "—"}</strong></div>
         </div>
         ${rows ? `<div class="table-wrap"><table><thead><tr><th>Sell order</th><th>Limit</th><th>${unitLabel()}</th><th>Proceeds at limit</th></tr></thead><tbody>${rows}</tbody></table></div>` : ""}
-        <div class="notice">${note}Subtract actual fills from both remaining targets and current holdings before the next calculation.</div>
+        <div class="notice">${plan.progressNote || ""}${note}Subtract actual fills from both remaining targets and current holdings before the next calculation.</div>
       </article>`;
     }
     function selectSide(nextSide) {
@@ -720,14 +819,14 @@
       const selected = paramsById[instrumentId] || FALLBACK;
       if (instrumentId !== selectedInstrumentId) {
         for (const suffix of ["one", "two"]) for (const field of ["weekly", "total", "held", "reserved"])
-          document.getElementById(`sell-${field}-${suffix}`).value = field === "total" ? "" : "0";
+          document.getElementById(`sell-${field}-${suffix}`).value = ["total", "held"].includes(field) ? "" : "0";
         document.getElementById("closeout-bid").value = "";
         bidUpdatedAt = 0;
         // Amounts in one quote currency must not silently become another.
         document.getElementById("capital-one").value = "";
         document.getElementById("capital-two").value = "";
-        document.getElementById("weekly-one").value = selected.market_calendar === "24X7" ? "0" : "10000";
-        document.getElementById("weekly-two").value = selected.market_calendar === "24X7" ? "0" : "10000";
+        document.getElementById("weekly-one").value = "";
+        document.getElementById("weekly-two").value = "";
       }
       selectedInstrumentId = instrumentId || selected.instrument_id;
       params = ExecutionCore.sideParameters(selected, side);
@@ -746,7 +845,7 @@
         const labels = {weekly: `${unitLabel()} remaining to sell this week`, total: `Total ${unitLabel()} remaining (optional)`, held: `Current held ${unitLabel()}`, reserved: `${unitLabel()} in existing sell orders`};
         for (const [field, label] of Object.entries(labels)) document.querySelector(`label[for="sell-${field}-${suffix}"]`).textContent = label;
       }
-      document.getElementById("buy-hint").textContent = `No deadline means price seeking at your weekly budget; total remaining only caps it. Supply both total and deadline to enable catch-up. ${isCrypto() ? "Budgets use the quote asset; weeks end Sunday UTC, including weekends. Cancel old GTC orders before replacing a daily ladder." : "Orders begin at 09:36 ET and stop at the actual close: 13:00 on half days, otherwise 16:00."}`;
+      document.getElementById("buy-hint").textContent = `In manual mode, this week is a soft target: a deadline can increase the pace. Total remaining always caps orders. Leave the deadline blank for weekly pacing. ${isCrypto() ? "Budgets use the quote asset; weeks end Sunday UTC, including weekends. Cancel old GTC orders before replacing a daily ladder." : "Orders begin at 09:36 ET and stop at the actual close: 13:00 on half days, otherwise 16:00."}`;
       document.getElementById("sell-hint").textContent = `Remaining quantities include unfilled orders. Existing sell orders are deducted from the target and holdings when sizing new orders. Subtract actual fills from both targets and holdings. ${isCrypto() ? "Quantities use the exchange step, including fractions." : "Output uses whole shares."} Switching ticker clears sale quantities.`;
       document.getElementById("method-reference").textContent = params.reference_time || "09:35";
       document.getElementById("method-fill").textContent = params.fill_start_time || "09:36";
@@ -769,6 +868,7 @@
       clearResults();
       applyTradingWindow();
       syncSellPolicy();
+      window.ExecutionProgressUI?.contextChanged();
     }
     function installParameterPayload(payload, registry) {
       let parameterEntries = [];
@@ -894,6 +994,7 @@
       applyTradingWindow();
     });
     function refreshClock() {
+      window.ExecutionProgressUI?.refresh();
       const cycle = `${selectedInstrumentId}:${key(nyParts().date)}`;
       if (isCrypto() && cycle !== lastDailyCycle) {
         lastDailyCycle = cycle;
@@ -919,6 +1020,17 @@
     document.addEventListener("visibilitychange", refreshClock);
     applyTradingWindow();
     loadParams();
+  </script>
+  <script src="./task-ledger.js?v=1"></script>
+  <script src="./task-ledger-ui.js?v=1"></script>
+  <script>
+    window.ExecutionProgressUI?.init({
+      context: () => ({ instrumentId: selectedInstrumentId, side, params }),
+      clearResults,
+      amountFields: account => side === "buy"
+        ? { weekly: document.getElementById(`weekly-${account}`), total: document.getElementById(`capital-${account}`) }
+        : { weekly: document.getElementById(`sell-weekly-${account}`), total: document.getElementById(`sell-total-${account}`) }
+    });
   </script>
 </body>
 </html>
