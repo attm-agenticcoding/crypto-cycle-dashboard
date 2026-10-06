@@ -33,8 +33,9 @@ Phase-one calculator consistency:
   reference-return label used in weekly scoring.
 - Blank totals are optional; an explicit zero total produces no new orders.
   A zero weekly pace can catch up only when both total and deadline are supplied.
-- Deadline defaults to blank. Without it, the entered weekly pace is used and an
-  optional total remains a cap, with no hidden completion horizon or tightening.
+- Deadline defaults to March 1, 2027 and remains editable or clearable. Clearing
+  it uses the entered weekly pace, and an optional total remains a cap, with no
+  hidden completion horizon or tightening.
   Finish-by-deadline sells still require an explicit date and total.
 - Both listed sides use the published 2025–2028 NYSE calendar, start at 09:36 ET
   after the reference minute completes, and stop at the actual 13:00/16:00 close.
