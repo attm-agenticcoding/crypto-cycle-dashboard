@@ -99,7 +99,7 @@ test("page delegates buy sizing and pacing to the identical shared core", () => 
   }
   assert.match(html, /ExecutionCore\.buyPlan\(/);
   assert.match(html, /const values = id => document.getElementById\(id\).value/);
-  assert.doesNotMatch(html, /id="deadline"[^>]*value=/);
+  assert.match(html, /id="deadline"[^>]*value="2027-03-01"/);
 });
 
 test("closeout rejects unsupported calendars and honors last actual holiday session", () => {

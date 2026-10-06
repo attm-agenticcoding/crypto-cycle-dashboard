@@ -109,7 +109,7 @@ if (process.env.RUN_EXECUTION_BROWSER_TESTS !== "1") {
     if (server) await new Promise(resolve => server.close(resolve));
   });
 
-  async function open(t, { time = "2026-10-05T14:00:00Z", data = fixture(), viewport = { width: 1440, height: 1000 }, mobile = false } = {}) {
+  async function open(t, { time = "2026-10-05T14:00:00Z", data = fixture(), viewport = { width: 1440, height: 1000 }, mobile = false, keepDefaultDeadline = false } = {}) {
     const context = await browser.newContext({ viewport, locale: "en-US", timezoneId: "UTC",
       ...(mobile ? { isMobile: true, hasTouch: true, deviceScaleFactor: 1 } : {}) });
     t.after(() => context.close());
@@ -154,6 +154,8 @@ if (process.env.RUN_EXECUTION_BROWSER_TESTS !== "1") {
     }
     await page.goto(`${origin}/execution/`);
     await page.waitForFunction(() => !document.getElementById("instrument-select").disabled);
+    // Existing parity cases explicitly exercise no-deadline weekly pacing.
+    if (!keepDefaultDeadline) await page.locator("#deadline").fill("");
     await page.locator("#weekly-one").fill("10000");
     await page.locator("#weekly-two").fill("0");
     return page;
@@ -218,6 +220,30 @@ if (process.env.RUN_EXECUTION_BROWSER_TESTS !== "1") {
   async function settlePaint(page) {
     await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
   }
+
+  test("deadline defaults to March 1, 2027 on load and reload, and remains editable or clearable", async t => {
+    const page = await open(t, { keepDefaultDeadline: true });
+    const deadline = page.locator("#deadline");
+    assert.equal(await deadline.inputValue(), "2027-03-01");
+    assert.equal(await deadline.evaluate(node => node.readOnly || node.disabled), false);
+    await deadline.fill("2027-02-15");
+    await page.locator("#instrument-select").selectOption("ARCX:ETH");
+    await page.locator("#side-sell").click();
+    await page.locator("#side-buy").click();
+    assert.equal(await deadline.inputValue(), "2027-02-15", "context changes preserve the edited deadline");
+    await deadline.fill("");
+    await page.locator("#instrument-select").selectOption("ARCX:BTC");
+    await setFields(page, { "weekly-one": 10000, "weekly-two": 0 });
+    await submit(page);
+    await assertPlan(page, buyBase());
+    assert.equal(await deadline.inputValue(), "", "clearing the default enables no-deadline pacing");
+    await page.reload();
+    await page.waitForFunction(() => !document.getElementById("instrument-select").disabled);
+    assert.equal(await deadline.inputValue(), "2027-03-01", "a fresh load needs no repeated date entry");
+    for (const id of ["weekly-one", "weekly-two", "capital-one", "capital-two"]) {
+      assert.equal(await page.locator(`#${id}`).inputValue(), "", "no account amount becomes a default");
+    }
+  });
 
   // Chromium emits non-interlaced 8-bit RGB(A) PNGs. Inspect actual screenshot
   // pixels, not just DOM visibility: offscreen compositor omissions can leave
