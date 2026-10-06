@@ -37,8 +37,8 @@ code push, the privileged check waits for its regression tests to pass. It uses 
 ordinary `GITHUB_TOKEN` (`contents: read`, `actions: write`), and no private App
 credentials, new persistent credentials, or new repository grants.
 
-The watchdog may cancel at most one production-clock run per check, only when
-all of these observations hold immediately before cancellation:
+The watchdog may cancel at most one production-clock run per check. The original
+runner-queue case requires all of these observations immediately before cancellation:
 
 - exact clock workflow, main branch, recognized production event/name, first attempt;
 - run and its sole `tick` job remain `queued` for strictly more than twenty minutes,
@@ -47,13 +47,37 @@ all of these observations hold immediately before cancellation:
 - no pending environment approval or protection remains;
 - a fresh second run/jobs read still meets every condition.
 
+It also handles the separately verified **expired environment timer** case:
+
+- both the run and sole `tick` remain `waiting`, first attempt, with no runner,
+  runner group or execution steps;
+- there is exactly one pending environment, the pinned `dashboard-clock` ID
+  `23425337962`, with the configured five-minute timer and explicit empty reviewers;
+- the timer's actual start plus five minutes is more than twenty minutes in the
+  past; later run/job metadata makes this test more conservative;
+- current environment configuration contains only that timer and the branch
+  policy, the policy permits only the `main` branch, and the separate enabled
+  custom-protection-rule inventory is explicitly empty;
+- the complete evidence, including timer start, job ID, environment rules and
+  inventories, is fetched again and must remain identical before cancellation.
+
+This does not approve a deployment, skip a timer, use administrator bypass, or
+change any environment rule. A replacement goes through the existing protected
+production clock and its normal five-minute wait again. Missing, changed,
+unreadable or unknown protection data blocks cancellation. The environment
+metadata endpoints are exact GET-only additions using the existing Actions read
+permission; no new permissions, credentials or secret access are added.
+
 It never force-cancels, cancels an observed running job, or operates on a private
 renderer, verification run, `/test/`, execution workflow, or unrelated repository.
 Older manual runs without the new production/verification run-name marker are
 ambiguous and deliberately left alone. Reruns are excluded because their original
 creation time is not the queue start of the new attempt.
 
-After cancellation, the watchdog re-lists runs. An existing active or pending
+After cancellation, the watchdog checks that the exact run is conclusively
+cancelled and re-lists runs. An unconfirmed cancellation blocks a restart in that
+invocation even if the inventory temporarily misses the transitioning run.
+An existing active or pending
 production successor takes over without another dispatch. Only when no possible
 production run remains does it request one existing production clock; a recent
 terminal run imposes a twenty-minute restart cooldown. POST requests are not
@@ -81,4 +105,7 @@ Validation: `python3 -m unittest discover -s tests -p 'test_dashboard_*.py' -v`.
 Coverage includes queue boundaries, running/verification/rerun exclusions,
 approval protection, race rechecks, incomplete inventory, cancellation conflicts,
 uncertain POST responses, restart cooldown/idempotency, actual served hashes,
-stale/future timestamps, close/live ordering, Sunday close and DST.
+stale/future timestamps, close/live ordering, Sunday close and DST. Timer recovery
+adds the exact stuck-wait fixture, the 25-minute strict boundary, timer resets,
+reviewer/custom-rule additions, unknown configuration, main-only policy checks,
+read failures and confirmation of cancellation before any replacement.

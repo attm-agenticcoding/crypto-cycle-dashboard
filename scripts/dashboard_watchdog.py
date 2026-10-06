@@ -17,6 +17,10 @@ PRODUCTION_NAME = 'Dashboard publication clock (production)'
 VERIFY_NAME = 'Dashboard publication clock (verify)'
 THRESHOLD = timedelta(minutes=20)
 ACTIVE = ('requested', 'pending', 'waiting', 'queued', 'in_progress')
+ENVIRONMENT_ID = 23425337962
+ENVIRONMENT_PATH = PREFIX + '/environments/dashboard-clock'
+ENVIRONMENT_READS = (ENVIRONMENT_PATH, ENVIRONMENT_PATH + '/deployment_protection_rules',
+                     ENVIRONMENT_PATH + '/deployment-branch-policies?per_page=100&page=1')
 
 
 def timestamp(value):
@@ -30,7 +34,8 @@ def timestamp(value):
 
 def request(path, token, method='GET', body=None):
     # Fixed repository, fixed endpoints supplied only by this program.
-    if not path.startswith(PREFIX + '/actions/'):
+    if not (path.startswith(PREFIX + '/actions/')
+            or (method == 'GET' and path in ENVIRONMENT_READS)):
         raise ValueError('Watchdog API target is outside the public repository')
     payload = None if body is None else json.dumps(body).encode()
     req = urllib.request.Request('https://api.github.com' + path, data=payload, method=method,
@@ -125,19 +130,31 @@ def recent_production_runs(api, token, now):
     raise ValueError('Recent run inventory exceeds safety bound; refusing dispatch')
 
 
-def stalled(run, jobs, now):
-    if (not production_run(run) or run.get('status') != 'queued'
-            or run.get('conclusion') is not None or run.get('run_attempt') != 1):
+def unstarted_clock(run, jobs, status):
+    if (not production_run(run) or run.get('status') != status
+            or 'conclusion' not in run or run['conclusion'] is not None
+            or type(run.get('run_attempt')) is not int or run['run_attempt'] != 1):
         return False
-    if not isinstance(jobs, dict) or jobs.get('total_count') != 1 or len(jobs.get('jobs', [])) != 1:
+    if (not isinstance(jobs, dict) or type(jobs.get('total_count')) is not int
+            or jobs['total_count'] != 1 or not isinstance(jobs.get('jobs'), list) or len(jobs['jobs']) != 1):
         return False
     job = jobs['jobs'][0]
-    if (job.get('name') != 'tick' or job.get('run_id') != run.get('id')
-            or job.get('run_attempt') != 1 or job.get('status') != 'queued'
-            or job.get('conclusion') is not None or job.get('steps') != []
-            or 'runner_id' not in job or job['runner_id'] is not None
-            or job.get('runner_name') not in (None, '') or job.get('runner_group_id') is not None):
+    if (not isinstance(job, dict) or type(job.get('id')) is not int or job['id'] <= 0
+            or job.get('name') != 'tick' or job.get('run_id') != run.get('id')
+            or type(job.get('run_attempt')) is not int or job['run_attempt'] != 1
+            or job.get('status') != status or 'conclusion' not in job or job['conclusion'] is not None
+            or job.get('steps') != []
+            or any(key not in job for key in ('runner_id', 'runner_name', 'runner_group_id'))
+            or job['runner_id'] is not None or job['runner_name'] not in (None, '')
+            or job['runner_group_id'] is not None or job.get('runner_group_name') not in (None, '')):
         return False
+    return True
+
+
+def stalled(run, jobs, now):
+    if not unstarted_clock(run, jobs, 'queued'):
+        return False
+    job = jobs['jobs'][0]
     try:
         # updated_at includes the transition out of the five-minute environment
         # wait. This conservative maximum never counts that wait as queue age.
@@ -145,6 +162,71 @@ def stalled(run, jobs, now):
         return now - since > THRESHOLD
     except (KeyError, TypeError, ValueError):
         return False
+
+
+def expired_wait(run, jobs, pending, config, custom, branches, now):
+    """Only the already-expired, verified timer may be canceled; no approval."""
+    if not unstarted_clock(run, jobs, 'waiting') or not isinstance(pending, list) or len(pending) != 1:
+        return False
+    protection = pending[0]
+    if not isinstance(protection, dict):
+        return False
+    environment = protection.get('environment')
+    if (not isinstance(environment, dict) or type(environment.get('id')) is not int
+            or environment['id'] != ENVIRONMENT_ID or environment.get('name') != 'dashboard-clock'
+            or type(protection.get('wait_timer')) is not int or protection['wait_timer'] != 5
+            or protection.get('reviewers') != [] or protection.get('current_user_can_approve') is not False):
+        return False
+    if (not isinstance(config, dict) or config.get('id') != ENVIRONMENT_ID
+            or config.get('name') != 'dashboard-clock'
+            or config.get('deployment_branch_policy') != {'protected_branches': False, 'custom_branch_policies': True}):
+        return False
+    rules = config.get('protection_rules')
+    if (not isinstance(rules, list) or len(rules) != 2
+            or any(not isinstance(rule, dict) or type(rule.get('id')) is not int for rule in rules)):
+        return False
+    if sorted(rule.get('type', '') for rule in rules) != ['branch_policy', 'wait_timer']:
+        return False
+    timer = next(rule for rule in rules if rule['type'] == 'wait_timer')
+    if type(timer.get('wait_timer')) is not int or timer['wait_timer'] != 5:
+        return False
+    if (not isinstance(custom, dict) or type(custom.get('total_count')) is not int or custom['total_count'] != 0
+            or custom.get('custom_deployment_protection_rules') != []):
+        return False
+    if (not isinstance(branches, dict) or type(branches.get('total_count')) is not int or branches['total_count'] != 1
+            or not isinstance(branches.get('branch_policies'), list) or len(branches['branch_policies']) != 1):
+        return False
+    branch = branches['branch_policies'][0]
+    if (not isinstance(branch, dict) or type(branch.get('id')) is not int
+            or branch.get('name') != 'main' or branch.get('type') != 'branch'):
+        return False
+    try:
+        started = timestamp(protection.get('wait_timer_started_at'))
+        created = timestamp(run.get('created_at'))
+        job_created = timestamp(jobs['jobs'][0].get('created_at'))
+        if started < max(created, job_created):
+            return False
+        eligible_after = max(started + timedelta(minutes=5), created,
+                             timestamp(run.get('updated_at')), job_created)
+        return now - eligible_after > THRESHOLD
+    except (KeyError, TypeError, ValueError):
+        return False
+
+
+def cancellation_evidence(api, token, path, now):
+    run = api(path, token)
+    jobs = api(path + '/jobs?filter=latest&per_page=100', token)
+    if run.get('status') == 'queued' and stalled(run, jobs, now):
+        pending = api(path + '/pending_deployments', token)
+        if pending == []:
+            return {'reason': 'queued-without-runner', 'run': run, 'jobs': jobs, 'pending': pending}
+    elif run.get('status') == 'waiting' and unstarted_clock(run, jobs, 'waiting'):
+        pending = api(path + '/pending_deployments', token)
+        config, custom, branches = (api(endpoint, token) for endpoint in ENVIRONMENT_READS)
+        if expired_wait(run, jobs, pending, config, custom, branches, now):
+            return {'reason': 'expired-five-minute-timer', 'run': run, 'jobs': jobs, 'pending': pending,
+                    'config': config, 'custom': custom, 'branches': branches}
+    return None
 
 
 def slot_time(mode, slot):
@@ -217,37 +299,45 @@ def recover(env, api=request, now=None, read=public_bytes):
     now = now or datetime.now(timezone.utc)
     token = env['GH_TOKEN']
     result = {'cancelled': [], 'cancel_requested': [], 'restart_requested': False}
+    cancellation_unconfirmed = False
     runs = active_runs(api, token)
     for candidate in sorted(runs, key=lambda run: run.get('created_at', '')):
-        if not production_run(candidate) or candidate.get('status') != 'queued':
+        if not production_run(candidate) or candidate.get('status') not in ('queued', 'waiting'):
             continue
         run_id = int(candidate['id'])
         path = f'{PREFIX}/actions/runs/{run_id}'
-        run = api(path, token)
-        jobs = api(path + '/jobs?filter=latest&per_page=100', token)
-        if not stalled(run, jobs, now):
-            continue
-        # Never bypass a pending approval or environment protection rule.
-        if api(path + '/pending_deployments', token) != []:
+        first = cancellation_evidence(api, token, path, now)
+        if first is None:
             continue
         # Reduce the queue-to-runner race using fresh metadata and jobs. REST
         # cancellation has no atomic conditional operation; that residual race
         # cannot be eliminated by a client-side predicate.
-        run = api(path, token)
-        jobs = api(path + '/jobs?filter=latest&per_page=100', token)
-        if not stalled(run, jobs, now):
+        second = cancellation_evidence(api, token, path, now)
+        # Require identical evidence, including timer start, job ID and all
+        # protection rules. A changed or vanished protection is not approval.
+        if second is None or first != second:
+            continue
+        # Protection/configuration reads can be slow. End the final evidence
+        # collection with execution state so a runner allocated during those
+        # reads is not canceled using the earlier no-runner observation.
+        if (api(path, token) != second['run']
+                or api(path + '/jobs?filter=latest&per_page=100', token) != second['jobs']):
             continue
         api(path + '/cancel', token, 'POST')
         result['cancel_requested'].append(run_id)
+        result['cancel_reason'] = second['reason']
         terminal = api(path, token)
         if terminal.get('status') == 'completed' and terminal.get('conclusion') == 'cancelled':
             result['cancelled'].append(run_id)
+        else:
+            cancellation_unconfirmed = True
+            result['restart_blocked'] = 'Cancellation has not reached confirmed cancelled state'
         break  # At most one cancellation per check; no broad cleanup loops.
     # A pre-existing pending successor should take over without another dispatch.
     # If cancellation is still asynchronous, its active run also blocks dispatch.
     remaining = [run for run in active_runs(api, token) if is_blocker(run)]
     result['active_clock_ids'] = sorted(run['id'] for run in remaining)
-    if not remaining:
+    if not remaining and not cancellation_unconfirmed:
         # A visible terminal clock in the last twenty minutes is a dispatch
         # cooldown for ambiguous prior responses and canceled manual attempts.
         cooling = recent_production_runs(api, token, now)

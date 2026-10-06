@@ -33,6 +33,27 @@ def jobs(value, **updates):
     return {'total_count': 1, 'jobs': [job]}
 
 
+def timer_pending(age=26):
+    return [{'environment': {'id': wd.ENVIRONMENT_ID, 'name': 'dashboard-clock'},
+             'wait_timer': 5, 'wait_timer_started_at': (NOW - timedelta(minutes=age)).isoformat(),
+             'current_user_can_approve': False, 'reviewers': []}]
+
+
+def timer_config():
+    return {'id': wd.ENVIRONMENT_ID, 'name': 'dashboard-clock',
+            'protection_rules': [{'id': 67634661, 'type': 'wait_timer', 'wait_timer': 5},
+                                 {'id': 67634662, 'type': 'branch_policy'}],
+            'deployment_branch_policy': {'protected_branches': False, 'custom_branch_policies': True}}
+
+
+def no_custom_rules():
+    return {'total_count': 0, 'custom_deployment_protection_rules': []}
+
+
+def main_branch_policy():
+    return {'total_count': 1, 'branch_policies': [{'id': 61939260, 'name': 'main', 'type': 'branch'}]}
+
+
 def env(**updates):
     value = {'GITHUB_REPOSITORY': wd.PUBLIC_REPOSITORY, 'GITHUB_REF': 'refs/heads/main',
              'GITHUB_EVENT_NAME': 'schedule', 'CLOCK_ENABLED': 'true', 'GH_TOKEN': 'test-only', 'GITHUB_RUN_ID': '11'}
@@ -67,6 +88,12 @@ class FakeAPI:
         self.cancel_error = None
         self.dispatch_error = None
         self.job_override = None
+        self.config = timer_config()
+        self.custom = no_custom_rules()
+        self.branches = main_branch_policy()
+        self.environment_error = None
+        self.inventory_misses_after_cancel = False
+        self.cancel_requested = False
 
     def __call__(self, path, token, method='GET', body=None):
         self.calls.append((path, method, body))
@@ -75,6 +102,7 @@ class FakeAPI:
                 if self.cancel_error:
                     raise self.cancel_error
                 run_id = int(path.split('/')[-2])
+                self.cancel_requested = True
                 if not self.cancel_stays_active:
                     for item in self.values:
                         if item['id'] == run_id:
@@ -86,8 +114,14 @@ class FakeAPI:
                     raise self.dispatch_error
                 return {}
             raise AssertionError(path)
+        if path in wd.ENVIRONMENT_READS:
+            if self.environment_error:
+                raise self.environment_error
+            return deepcopy(dict(zip(wd.ENVIRONMENT_READS, (self.config, self.custom, self.branches)))[path])
         if '/workflows/' in path:
             if '?status=' in path:
+                if self.inventory_misses_after_cancel and self.cancel_requested:
+                    return {'total_count': 0, 'workflow_runs': []}
                 status = path.split('?status=')[1].split('&')[0]
                 rows = deepcopy([item for item in self.values if item['status'] == status])
                 return {'workflow_runs': rows, 'total_count': len(rows)}
@@ -95,9 +129,9 @@ class FakeAPI:
         run_id = int(path.split('/runs/')[1].split('/')[0])
         item = next(item for item in self.values if item['id'] == run_id)
         if '/jobs?' in path:
-            return deepcopy(self.job_override or jobs(item))
+            return deepcopy(self.job_override or jobs(item, status=item['status']))
         if path.endswith('/pending_deployments'):
-            return self.protections
+            return deepcopy(self.protections)
         self.rechecks += 1
         if self.rechecks == 2 and self.mutate:
             self.mutate(item)
@@ -264,6 +298,165 @@ class RecoveryTests(unittest.TestCase):
         result = self.recover(api)
         self.assertEqual(result['cancelled'], [7])
         self.assertEqual(len(api.posts()), 1)
+
+
+class ExpiredTimerTests(unittest.TestCase):
+    def eligible(self, value=None, payload=None, pending=None, config=None, custom=None, branches=None):
+        value = run(age=30, status='waiting') if value is None else value
+        payload = jobs(value, status='waiting', started_at=value['created_at']) if payload is None else payload
+        return wd.expired_wait(value, payload, timer_pending() if pending is None else pending,
+                               timer_config() if config is None else config,
+                               no_custom_rules() if custom is None else custom,
+                               main_branch_policy() if branches is None else branches, NOW)
+
+    def fake(self):
+        api = FakeAPI([run(age=30, status='waiting')])
+        api.protections = timer_pending()
+        return api
+
+    def recover(self, api):
+        return wd.recover(env(), api, NOW, reader(publication()))
+
+    def test_timer_expiry_plus_twenty_minutes_strict_boundary(self):
+        for seconds, expected in ((1499, False), (1500, False), (1501, True)):
+            self.assertEqual(self.eligible(pending=timer_pending(seconds / 60)), expected)
+
+    def test_exact_incident_shape_non_null_job_started_at(self):
+        value = run(run_id=37509957699, status='waiting', created_at='2026-10-06T18:15:56Z',
+                    updated_at='2026-10-06T18:16:00Z')
+        payload = jobs(value, id=112428237690, status='waiting', created_at='2026-10-06T18:15:58Z',
+                       started_at='2026-10-06T18:15:58Z', runner_group_name=None)
+        pending = timer_pending(); pending[0]['wait_timer_started_at'] = '2026-10-06T18:16:00Z'
+        self.assertTrue(wd.expired_wait(value, payload, pending, timer_config(), no_custom_rules(),
+                                       main_branch_policy(), datetime(2026, 10, 6, 20, 37, tzinfo=timezone.utc)))
+
+    def test_waiting_jobs_must_still_be_unstarted_first_attempt_production(self):
+        for update in ({'runner_id': 2}, {'runner_group_id': 2}, {'runner_name': 'runner'},
+                       {'steps': [{'name': 'setup'}]}, {'status': 'queued'}, {'status': 'in_progress'},
+                       {'run_attempt': 2}):
+            value = run(age=30, status='waiting')
+            self.assertFalse(self.eligible(value, jobs(value, status='waiting', **{k: v for k, v in update.items() if k != 'status'})
+                                          if 'status' not in update else jobs(value, **update)))
+        for update in ({'head_branch': 'other'}, {'repository': {'full_name': 'other/repo'}},
+                       {'run_attempt': 2}, {'display_title': wd.VERIFY_NAME}, {'status': 'queued'}):
+            value = run(age=30, **dict({'status': 'waiting'}, **update))
+            self.assertFalse(self.eligible(value))
+
+    def test_missing_run_or_job_execution_fields_are_unknown(self):
+        for key in ('conclusion', 'runner_id', 'runner_name', 'runner_group_id', 'steps', 'id'):
+            value = run(age=30, status='waiting'); payload = jobs(value, status='waiting')
+            del payload['jobs'][0][key]
+            self.assertFalse(self.eligible(value, payload))
+        value = run(age=30, status='waiting'); del value['conclusion']
+        self.assertFalse(self.eligible(value))
+
+    def test_rejects_unknown_review_timer_environment_or_missing_metadata(self):
+        for key, val in (('reviewers', [{'type': 'User'}]), ('reviewers', None),
+                         ('current_user_can_approve', True), ('current_user_can_approve', None),
+                         ('wait_timer', 4), ('wait_timer', 5.0), ('wait_timer', True),
+                         ('wait_timer_started_at', 'unknown'), ('wait_timer_started_at', NOW.isoformat()),
+                         ('environment', {'id': wd.ENVIRONMENT_ID + 1, 'name': 'dashboard-clock'}),
+                         ('environment', {'id': wd.ENVIRONMENT_ID, 'name': 'dashboard-clock-verify'})):
+            pending = timer_pending(); pending[0][key] = val
+            with self.subTest(key=key, val=val): self.assertFalse(self.eligible(pending=pending))
+        for key in ('reviewers', 'current_user_can_approve', 'wait_timer', 'wait_timer_started_at', 'environment'):
+            pending = timer_pending(); del pending[0][key]
+            self.assertFalse(self.eligible(pending=pending))
+        self.assertFalse(self.eligible(pending=[]))
+        self.assertFalse(self.eligible(pending=timer_pending() * 2))
+
+    def test_timer_cannot_predate_this_attempt_or_recent_update(self):
+        self.assertFalse(self.eligible(pending=timer_pending(40)))
+        value = run(age=30, status='waiting', updated_at=(NOW - timedelta(minutes=19)).isoformat())
+        self.assertFalse(self.eligible(value))
+
+    def test_builtin_review_or_unknown_rules_fail_closed(self):
+        for rule in ({'id': 1, 'type': 'required_reviewers', 'reviewers': []}, {'id': 1, 'type': 'unknown'}):
+            config = timer_config(); config['protection_rules'].append(rule)
+            self.assertFalse(self.eligible(config=config))
+        for update in ({'id': wd.ENVIRONMENT_ID + 1}, {'name': 'other'}, {'protection_rules': []},
+                       {'deployment_branch_policy': None}):
+            config = timer_config(); config.update(update)
+            self.assertFalse(self.eligible(config=config))
+        config = timer_config(); config['protection_rules'][0]['wait_timer'] = 10
+        self.assertFalse(self.eligible(config=config))
+
+    def test_custom_and_branch_inventories_must_be_explicit_complete_and_narrow(self):
+        for custom in ({}, {'total_count': 1, 'custom_deployment_protection_rules': []},
+                       {'total_count': 0, 'custom_deployment_protection_rules': [{'id': 1}]},
+                       {'total_count': False, 'custom_deployment_protection_rules': []}):
+            self.assertFalse(self.eligible(custom=custom))
+        for branches in ({}, {'total_count': 2, 'branch_policies': main_branch_policy()['branch_policies']},
+                         {'total_count': 1, 'branch_policies': [{'id': 1, 'name': '*', 'type': 'branch'}]},
+                         {'total_count': 1, 'branch_policies': [{'id': 1, 'name': 'main', 'type': 'tag'}]}):
+            self.assertFalse(self.eligible(branches=branches))
+
+    def test_cancel_exact_expired_timer_then_restart_through_normal_protected_clock(self):
+        api = self.fake(); result = self.recover(api)
+        self.assertEqual(result['cancelled'], [7])
+        self.assertEqual(result['cancel_reason'], 'expired-five-minute-timer')
+        self.assertTrue(result['restart_requested'])
+        self.assertEqual([call[0] for call in api.posts()],
+                         [wd.PREFIX + '/actions/runs/7/cancel',
+                          wd.PREFIX + '/actions/workflows/dashboard-clock.yml/dispatches'])
+        for endpoint in wd.ENVIRONMENT_READS:
+            self.assertEqual(sum(call[0] == endpoint for call in api.calls), 2)
+
+    def test_full_recheck_detects_timer_reset_id_change_review_rule_and_state_changes(self):
+        def reset(api, item): api.protections[0]['wait_timer_started_at'] = (NOW - timedelta(minutes=5)).isoformat()
+        def old_reset(api, item): api.protections[0]['wait_timer_started_at'] = (NOW - timedelta(minutes=27)).isoformat()
+        def reviewer(api, item): api.protections[0]['reviewers'] = [{'type': 'User'}]
+        def custom(api, item): api.custom = {'total_count': 1, 'custom_deployment_protection_rules': [{'id': 1}]}
+        def missing(api, item): api.protections = []
+        def rule_id(api, item): api.config['protection_rules'][0]['id'] += 1
+        def runner(api, item): api.job_override = jobs(item, status='waiting', runner_id=3)
+        def job_id(api, item): api.job_override = jobs(item, status='waiting', id=99)
+        for mutation in (reset, old_reset, reviewer, custom, missing, rule_id, runner, job_id,
+                         lambda api, item: item.update(status='queued'),
+                         lambda api, item: item.update(status='in_progress')):
+            api = self.fake(); api.mutate = lambda item: mutation(api, item)
+            with self.subTest(mutation=mutation):
+                self.assertEqual(self.recover(api)['cancelled'], [])
+                self.assertEqual(api.posts(), [])
+
+    def test_rule_read_failure_never_mutates(self):
+        api = self.fake(); api.environment_error = RuntimeError('HTTP 403')
+        with self.assertRaises(RuntimeError): self.recover(api)
+        self.assertEqual(api.posts(), [])
+
+    def test_runner_start_during_final_environment_read_never_cancels(self):
+        for change_run_status in (True, False):
+            api = self.fake(); count = 0
+            def request(path, token, method='GET', body=None):
+                nonlocal count
+                result = api(path, token, method, body)
+                if path == wd.ENVIRONMENT_READS[-1]:
+                    count += 1
+                    if count == 2:
+                        item = api.values[0]
+                        if change_run_status: item['status'] = 'in_progress'
+                        api.job_override = jobs(item, status='in_progress', runner_id=42,
+                                                steps=[{'name': 'Set up job'}])
+                return result
+            result = wd.recover(env(), request, NOW, reader(publication()))
+            self.assertEqual(result['cancelled'], [])
+            self.assertEqual(api.posts(), [])
+
+    def test_unconfirmed_cancel_blocks_restart_even_when_inventory_misses_transition(self):
+        api = self.fake(); api.cancel_stays_active = True; api.inventory_misses_after_cancel = True
+        result = self.recover(api)
+        self.assertEqual(result['cancel_requested'], [7]); self.assertEqual(result['cancelled'], [])
+        self.assertFalse(result['restart_requested'])
+        self.assertIn('restart_blocked', result)
+        self.assertEqual(len(api.posts()), 1)
+
+    def test_environment_allowlist_is_exact_and_read_only(self):
+        for method in ('POST', 'PUT', 'PATCH', 'DELETE'):
+            for endpoint in wd.ENVIRONMENT_READS:
+                with self.assertRaises(ValueError): wd.request(endpoint, 'test', method)
+        for endpoint in (wd.ENVIRONMENT_PATH + '/secrets', wd.ENVIRONMENT_PATH + '-verify',
+                         wd.ENVIRONMENT_PATH + '/deployment_protection_rules/apps'):
+            with self.assertRaises(ValueError): wd.request(endpoint, 'test')
 
 
 class FreshnessTests(unittest.TestCase):
