@@ -124,7 +124,8 @@
     enabled = true; clearError(); $("progress-fill-form").reset(); $("progress-order-form").reset(); $("progress-enable").hidden = true; $("progress-workspace").hidden = false;
     invalidate("Records reloaded. Use available remaining again to refresh the calculator, or edit amounts for manual mode.");
     try {
-      baseline = localStorage.getItem(KEY);
+      try { baseline = localStorage.getItem(KEY); }
+      catch (_) { throw new Error("Browser storage is unavailable. Local records could not be loaded; nothing was changed. The manual calculator still works."); }
       envelope = decode(baseline); stale = false; storageError = false;
       announce(envelope.tasks.length ? "Local records loaded. Nothing has been copied into the calculator." : "No local records yet. Nothing is saved until you confirm a starting point.");
     } catch (problem) {

@@ -108,7 +108,7 @@ if (process.env.RUN_EXECUTION_BROWSER_TESTS !== "1") {
     t.after(() => {
       assert.deepEqual(errors, [], "no uncaught browser errors");
       for (const request of requests) {
-        const url = new URL(request.url());
+        const url = new URL(request.url);
         assert.equal(url.origin, origin, "all requests stay on the fixture origin");
         assert.equal(request.method, "GET"); assert.equal(request.body, null, "financial inputs never enter a network body");
         assert.ok(["", "?v=1", "?v=6"].includes(url.search), "URLs contain only static asset versions");
@@ -221,7 +221,7 @@ if (process.env.RUN_EXECUTION_BROWSER_TESTS !== "1") {
     await page.clock.setFixedTime(new Date("2026-10-05T14:02:00Z"));
     await page.getByRole("button", {name: "Record broker-confirmed cancellation", exact: true}).click(); await page.locator("#progress-confirm-yes").click();
     await page.clock.setFixedTime(new Date("2026-10-05T14:03:00Z"));
-    await recordFill(page, {executedAt: "2026-10-05T14:01:00"});
+    await recordFill(page, {executedAt: "2026-10-05T14:01"});
     assert.equal((await snapshot(page)).totalRemaining, 482); assert.equal((await snapshot(page)).reservedCash, 0);
   });
   test("new week blocks copied amounts until explicit confirmation; working orders carry over", async t => {
