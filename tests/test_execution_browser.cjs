@@ -91,7 +91,9 @@ if (process.env.RUN_EXECUTION_BROWSER_TESTS !== "1") {
         "/execution/": "execution/index.html",
         "/execution/index.html": "execution/index.html",
         "/execution/execution-core.js": "execution/execution-core.js",
-        "/execution/market-calendar.js": "execution/market-calendar.js"
+        "/execution/market-calendar.js": "execution/market-calendar.js",
+        "/execution/task-ledger.js": "execution/task-ledger.js",
+        "/execution/task-ledger-ui.js": "execution/task-ledger-ui.js"
       };
       if (!files[pathname]) { response.writeHead(404); response.end(); return; }
       response.writeHead(200, { "Content-Type": pathname.endsWith(".js") ? "application/javascript" : "text/html", "Cache-Control": "no-store" });
@@ -152,6 +154,7 @@ if (process.env.RUN_EXECUTION_BROWSER_TESTS !== "1") {
     }
     await page.goto(`${origin}/execution/`);
     await page.waitForFunction(() => !document.getElementById("instrument-select").disabled);
+    await page.locator("#weekly-one").fill("10000");
     await page.locator("#weekly-two").fill("0");
     return page;
   }
@@ -273,6 +276,7 @@ if (process.env.RUN_EXECUTION_BROWSER_TESTS !== "1") {
     assert.equal(btc.expected.perRung, 34);
     assert.equal(btc.expected.targetShares, 285);
     await page.locator("#instrument-select").selectOption("ARCX:ETH");
+    if (await page.locator("#side-buy").getAttribute("aria-pressed") === "true") await page.locator("#weekly-one").fill("10000");
     await cleared(page);
     await page.locator("#weekly-two").fill("0");
     await submit(page);
@@ -287,6 +291,7 @@ if (process.env.RUN_EXECUTION_BROWSER_TESTS !== "1") {
   test("fresh mobile form supports touch, exact core parity, scrolling, and painted screenshots", async t => {
     const page = await open(t, { mobile: true, viewport: { width: 390, height: 844 } });
     await page.locator("#instrument-select").selectOption("ARCX:ETH");
+    if (await page.locator("#side-buy").getAttribute("aria-pressed") === "true") await page.locator("#weekly-one").fill("10000");
     await setFields(page, { "weekly-one": 10000, "weekly-two": 0, "capital-one": "", deadline: "" });
     await page.locator("#reference-price").evaluate(node => node.scrollIntoView({ block: "center" }));
     await page.locator("#reference-price").tap();
@@ -573,10 +578,11 @@ if (process.env.RUN_EXECUTION_BROWSER_TESTS !== "1") {
     await page.locator("#side-sell").click();
     await submit(page);
     await page.locator("#instrument-select").selectOption("ARCX:ETH");
+    if (await page.locator("#side-buy").getAttribute("aria-pressed") === "true") await page.locator("#weekly-one").fill("10000");
     await cleared(page);
     assert.equal(await page.locator("#reference-price").inputValue(), "23.32");
     for (const suffix of ["one", "two"]) for (const field of ["weekly", "held", "reserved", "total"])
-      assert.equal(await page.locator(`#sell-${field}-${suffix}`).inputValue(), field === "total" ? "" : "0");
+      assert.equal(await page.locator(`#sell-${field}-${suffix}`).inputValue(), ["total", "held"].includes(field) ? "" : "0");
     await setFields(page, { "sell-weekly-one": 100, "sell-held-one": 500 });
     await submit(page);
     await setFields(page, { "sell-weekly-two": 100, "sell-held-two": 50, "sell-reserved-two": 60 });

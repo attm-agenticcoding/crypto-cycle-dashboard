@@ -180,3 +180,19 @@ Refresh cadence:
 - 20:30 ET close snapshot, which writes the historical close record.
 
 Research / educational only. Not investment advice.
+
+
+## Optional device-local execution progress
+
+The calculator still works with manual remaining amounts; no record setup or trade entry is required. The default budget fields are empty, and Account 2 is optional. The existing 720-candidate / 26-complete-week selector and its production update schedules are unchanged.
+
+The collapsed **Optional: remember progress on this device** section can retain a separate task for each instrument, direction and account. Records are created only after you explicitly confirm the entered starting amounts. Buy progress is recorded cash spent; sell progress is recorded units sold. Average fill price covers only the fills recorded since tracking began, not unknown earlier trades or the cost basis of the whole position. Fees are treated as zero. Nothing connects to a broker or places, amends or cancels an order.
+
+- Record only actual fills and already-working orders verified at the broker. Working and cancellation-pending orders reserve capacity. A requested cancellation does not release it; confirmed cancellation releases only the unfilled remainder. Late reports can record their actual UTC execution time. Use broker order/trade references where available to identify duplicate records.
+- Total remaining carries across weeks. A new week requires an explicitly confirmed cap; the previous week's remaining amount is not assumed to be the next week's full quota. Outstanding reservations still count. Actual fills above a planned limit remain recorded and visibly block further ledger planning pending review.
+- **Use available remaining in calculator** is explicit. With local progress bound, confirmed weekly and total availability are hard caps on new orders even if deadline pacing asks for more. Without a local record, the existing manual weekly input is a pace target: a supplied total and deadline can raise it. Total remaining still caps the plan. A deadline cannot guarantee a limit-order fill.
+- Sell holdings and the total quantity in existing sell orders remain user-entered current state. Include all working orders, including those in the local record; reservations are not subtracted twice. Editing target/holdings/reservation inputs returns that account to manual mode.
+- Records stay in this browser profile on this device. There is no cross-device sync. Shared-profile users may see them, and clearing site data can erase them. Optional JSON export is a local download containing financial records; keep it private. No import or server backup is provided. Deletion requires an explicit on-page confirmation.
+- Browser storage failures, corrupt state and concurrent-tab changes must be visible. Web Locks are required to coordinate writes; unsupported browsers can keep using the manual calculator. No financial/task data is written while the optional feature is off; the existing nonfinancial ticker preference is unchanged.
+
+New logic is in `execution/task-ledger.js` and `execution/task-ledger-ui.js`. Deterministic synthetic coverage is in `tests/test_execution_task_ledger.cjs`; browser/privacy/interaction coverage is in `tests/test_execution_progress_browser.cjs`. The existing calculator workflow runs both old and new browser suites and uploads synthetic screenshots. Do not commit real local progress JSON or real holdings/fill fixtures to this public repository.
