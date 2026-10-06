@@ -1,0 +1,64 @@
+name: Dashboard queue watchdog
+
+on:
+  schedule:
+    - cron: '3,8,13,18,23,28,33,38,43,48,53,58 * * * *'
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/dashboard-watchdog.yml'
+      - '.github/workflows/dashboard-clock.yml'
+      - 'scripts/dashboard_watchdog.py'
+      - 'scripts/dashboard_clock.py'
+      - 'tests/test_dashboard_watchdog.py'
+      - 'tests/test_dashboard_clock.py'
+  pull_request:
+    paths:
+      - '.github/workflows/dashboard-watchdog.yml'
+      - '.github/workflows/dashboard-clock.yml'
+      - 'scripts/dashboard_watchdog.py'
+      - 'scripts/dashboard_clock.py'
+      - 'tests/test_dashboard_watchdog.py'
+      - 'tests/test_dashboard_clock.py'
+
+permissions: {}
+
+# Never join the production clock's group or its environment wait timer.
+concurrency:
+  group: dashboard-watchdog-${{ github.event_name == 'pull_request' && github.event.pull_request.number || 'production' }}
+  cancel-in-progress: false
+
+jobs:
+  tests:
+    if: github.event_name == 'push' || github.event_name == 'pull_request'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          persist-credentials: false
+      - run: python3 -m unittest discover -s tests -p 'test_dashboard_*.py' -v
+  inspect:
+    needs: tests
+    if: always() && (needs.tests.result == 'success' || needs.tests.result == 'skipped') && github.repository == 'attm-agenticcoding/crypto-cycle-dashboard' && github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && vars.DASHBOARD_CLOCK_ENABLED == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    permissions:
+      contents: read
+      actions: write
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          persist-credentials: false
+          sparse-checkout: |
+            scripts/dashboard_clock.py
+            scripts/dashboard_watchdog.py
+          sparse-checkout-cone-mode: false
+      - name: Recover only a confirmed stalled clock and verify served publication
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CLOCK_ENABLED: ${{ vars.DASHBOARD_CLOCK_ENABLED }}
+        run: python3 scripts/dashboard_watchdog.py

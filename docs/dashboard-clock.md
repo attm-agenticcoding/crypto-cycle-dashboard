@@ -2,7 +2,7 @@
 
 The existing private renderer continues to own code, market inputs, durable state and the publishing key. This public workflow contains only the publication clock; it never checks out private source or downloads private artifacts.
 
-The clock uses GitHub environment wait timers, then dispatches its next wait with the repository-scoped `GITHUB_TOKEN`. GitHub permits `workflow_dispatch` events initiated by that token. Wait time does not consume runner minutes. This removes cron event delivery from the continuing clock, while an hourly cron remains a restart attempt. Runner queues, API failures and GitHub availability can still delay or interrupt it; this is not an exact-time SLA.
+The clock uses GitHub environment wait timers, then dispatches its next wait with the repository-scoped `GITHUB_TOKEN`. GitHub permits `workflow_dispatch` events initiated by that token. Wait time does not consume runner minutes. This removes cron event delivery from the continuing clock, while the independent queue watchdog handles scheduled restart attempts. Runner queues, API failures and GitHub availability can still delay or interrupt it; this is not an exact-time SLA.
 
 ## Configuration
 
@@ -26,3 +26,59 @@ The [automatic successor](https://github.com/attm-agenticcoding/crypto-cycle-das
 The one-time mobile authorization form is closed. The App key is stored only as an encrypted environment Secret; temporary local private keys were deleted after storage and scope verification. No account-wide token was placed in a workflow, and the source repository remains private.
 
 References: [environment wait timers](https://docs.github.com/en/actions/reference/workflows-and-actions/deployments-and-environments#wait-timer), [GITHUB_TOKEN dispatch behavior](https://docs.github.com/en/actions/concepts/security/github_token#when-github_token-triggers-workflow-runs), [scoping installation tokens](https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/generating-an-installation-access-token-for-a-github-app).
+
+## Queue recovery and publication freshness
+
+`dashboard-watchdog.yml` is independent of the production clock's concurrency
+group and five-minute environment wait. It requests a check every five minutes,
+with a three-minute execution timeout, replacing the old hourly restart trigger
+so the two schedulers cannot inject competing production ticks. On a main-branch
+code push, the privileged check waits for its regression tests to pass. It uses only this public repository's
+ordinary `GITHUB_TOKEN` (`contents: read`, `actions: write`), and no private App
+credentials, new persistent credentials, or new repository grants.
+
+The watchdog may cancel at most one production-clock run per check, only when
+all of these observations hold immediately before cancellation:
+
+- exact clock workflow, main branch, recognized production event/name, first attempt;
+- run and its sole `tick` job remain `queued` for strictly more than twenty minutes,
+  conservatively measured after the most recent run update/job creation;
+- no runner, runner group, or execution steps exist; the jobs response is complete;
+- no pending environment approval or protection remains;
+- a fresh second run/jobs read still meets every condition.
+
+It never force-cancels, cancels an observed running job, or operates on a private
+renderer, verification run, `/test/`, execution workflow, or unrelated repository.
+Older manual runs without the new production/verification run-name marker are
+ambiguous and deliberately left alone. Reruns are excluded because their original
+creation time is not the queue start of the new attempt.
+
+After cancellation, the watchdog re-lists runs. An existing active or pending
+production successor takes over without another dispatch. Only when no possible
+production run remains does it request one existing production clock; a recent
+terminal run imposes a twenty-minute restart cooldown. POST requests are not
+automatically retried after uncertain network responses. This bounds recovery
+and prevents watchdog-created self-enqueue chains or duplicate retry storms.
+
+Recovery is not reported as healthy merely because an API accepted a request.
+The check fetches the served main receipt, `index.html`, and `snapshot.json` with
+a cache-busting query; checks both file hashes and the snapshot generation time;
+and compares the publication's New York logical slot with the due slot, allowing
+twenty minutes for publication. An old, mismatched, unavailable, or test-kind
+publication fails the watchdog check and is described in its Actions summary.
+The next scheduled check verifies recovery after the clock's normal wait.
+
+Limitations: `timeout-minutes` limits execution, not the pre-run queue. GitHub
+cron delivery and the watchdog's own runner allocation can also be delayed, so
+this is not a guaranteed twenty-minute cancellation or refresh SLA. Cancellation
+has no server-side atomic “only if still queued” condition: the final runner
+assignment race is minimized by rechecking, not eliminated. Running jobs remain
+subject to the existing three-minute clock timeout. Keep the production clock's
+`cancel-in-progress: false`: its successor is enqueued before the current tick
+finishes, so unconditional replacement could cancel its own parent.
+
+Validation: `python3 -m unittest discover -s tests -p 'test_dashboard_*.py' -v`.
+Coverage includes queue boundaries, running/verification/rerun exclusions,
+approval protection, race rechecks, incomplete inventory, cancellation conflicts,
+uncertain POST responses, restart cooldown/idempotency, actual served hashes,
+stale/future timestamps, close/live ordering, Sunday close and DST.

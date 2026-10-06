@@ -1,4 +1,5 @@
 name: Dashboard publication clock
+run-name: Dashboard publication clock (${{ (github.event_name == 'schedule' || inputs.verify_only == false) && 'production' || 'verify' }})
 
 on:
   workflow_dispatch:
@@ -12,8 +13,9 @@ on:
         options: ['0', '1']
         default: '0'
         description: Additional verification ticks (production always continues)
-  schedule:
-    - cron: '23 * * * *'
+
+# Scheduled restart checks are owned by dashboard-watchdog.yml. Production
+# ticks continue to enqueue their existing five-minute successor.
 
 permissions: {}
 
