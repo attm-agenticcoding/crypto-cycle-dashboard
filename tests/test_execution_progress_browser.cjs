@@ -111,7 +111,7 @@ if (process.env.RUN_EXECUTION_BROWSER_TESTS !== "1") {
         const url = new URL(request.url);
         assert.equal(url.origin, origin, "all requests stay on the fixture origin");
         assert.equal(request.method, "GET"); assert.equal(request.body, null, "financial inputs never enter a network body");
-        assert.ok(["", "?v=1", "?v=6"].includes(url.search), "URLs contain only static asset versions");
+        assert.ok(["", "?v=1", "?v=2", "?v=6"].includes(url.search), "URLs contain only static asset versions");
       }
     });
     return page;
@@ -223,6 +223,20 @@ if (process.env.RUN_EXECUTION_BROWSER_TESTS !== "1") {
     await page.clock.setFixedTime(new Date("2026-10-05T14:03:00Z"));
     await recordFill(page, {executedAt: "2026-10-05T14:01"});
     assert.equal((await snapshot(page)).totalRemaining, 482); assert.equal((await snapshot(page)).reservedCash, 0);
+  });
+  test("Friday-close preview never reuses current-week progress caps for next week", async t => {
+    const page = await open(t); await expand(page); await create(page);
+    await page.locator("#progress-use").click();
+    await page.clock.setFixedTime(new Date("2026-10-09T20:00:00Z"));
+    await page.evaluate(() => document.dispatchEvent(new Event("visibilitychange")));
+    await page.locator("#calculate-button").click();
+    assert.equal(await page.locator("#result-stack").isHidden(), true);
+    assert.match(await page.locator("#form-error").innerText(), /current week, not the next planning week/);
+    await fields(page, {"weekly-one": 101});
+    await page.locator("#calculate-button").click();
+    assert.equal(await page.locator("#result-stack").isVisible(), true);
+    assert.match(await page.locator("#plan-context").innerText(), /Oct 12, 2026/);
+    assert.equal((await snapshot(page)).freeWeekly, 100, "preview does not mutate saved progress");
   });
   test("new week blocks copied amounts until explicit confirmation; working orders carry over", async t => {
     const page = await open(t); await expand(page); await create(page); await recordOrder(page, {quantity: 2}); await page.locator("#progress-use").click();
