@@ -4,7 +4,7 @@
     "buy",
     "sell"
   ],
-  "generated_at": "2026-10-06T11:26:17.195235Z",
+  "generated_at": "2026-10-07T06:21:13.194831Z",
   "default_instrument_id": "ARCX:BTC",
   "instrument_count": 4,
   "instruments": {
@@ -46,8 +46,8 @@
       "enabled": true,
       "trade_side": "buy",
       "status": "minute-rolling",
-      "generated_at": "2026-10-06T06:46:15.389178Z",
-      "data_as_of": "2026-10-05",
+      "generated_at": "2026-10-07T06:21:13.194831Z",
+      "data_as_of": "2026-10-06",
       "market_proxy": "BTCUSDT",
       "execution_instrument": "Grayscale Bitcoin Mini Trust ETF (BTC)",
       "lookback_sessions": 10,
@@ -65,12 +65,6 @@
       "excursion_measure": "drawdown",
       "completion_assumption": "unfilled weekly shares valued at next reference; no automatic broker execution",
       "session_samples": [
-        {
-          "date": "2026-05-28",
-          "drawdown_pct": 0.50986,
-          "runup_pct": 1.08958,
-          "next_reference_return_pct": 0.13434
-        },
         {
           "date": "2026-05-29",
           "drawdown_pct": 0.73962,
@@ -603,6 +597,12 @@
           "date": "2026-10-05",
           "drawdown_pct": 1.30779,
           "runup_pct": 0.72839,
+          "next_reference_return_pct": 0.34039
+        },
+        {
+          "date": "2026-10-06",
+          "drawdown_pct": 1.12287,
+          "runup_pct": 0.35644,
           "next_reference_return_pct": null
         }
       ],
@@ -669,15 +669,15 @@
         },
         "prior": {
           "lookback_sessions": 10,
-          "first_offset_pct": 0.25,
+          "first_offset_pct": 0.3,
           "spacing_pct": 0.95,
-          "mean_cost_bps": 13.134013031451369,
-          "gap_to_raw_minimum_bps": 6.117273731494913,
-          "paired_standard_error_bps": 6.097795322339444,
-          "allowed_gap_bps": 6.097795322339444,
-          "eligible": false
+          "mean_cost_bps": 13.114120112539878,
+          "gap_to_raw_minimum_bps": 6.097380812583423,
+          "paired_standard_error_bps": 6.852470541548377,
+          "allowed_gap_bps": 6.852470541548377,
+          "eligible": true
         },
-        "reason": "Prior excluded by paired excess-cost band; adopt nearest eligible candidate",
+        "reason": "Prior retained within its paired excess-cost band",
         "score_contract": "fixed weekly ladder and next-reference residual valuation; no spread, fees, queue or impact simulation",
         "prospective_validation": "not established; frozen shadow experiment is separate"
       },
@@ -720,8 +720,8 @@
           "enabled": true,
           "trade_side": "buy",
           "status": "minute-rolling",
-          "generated_at": "2026-10-06T06:46:15.389178Z",
-          "data_as_of": "2026-10-05",
+          "generated_at": "2026-10-07T06:21:13.194831Z",
+          "data_as_of": "2026-10-06",
           "market_proxy": "BTCUSDT",
           "execution_instrument": "Grayscale Bitcoin Mini Trust ETF (BTC)",
           "lookback_sessions": 10,
@@ -739,12 +739,6 @@
           "excursion_measure": "drawdown",
           "completion_assumption": "unfilled weekly shares valued at next reference; no automatic broker execution",
           "session_samples": [
-            {
-              "date": "2026-05-28",
-              "drawdown_pct": 0.50986,
-              "runup_pct": 1.08958,
-              "next_reference_return_pct": 0.13434
-            },
             {
               "date": "2026-05-29",
               "drawdown_pct": 0.73962,
@@ -1277,6 +1271,12 @@
               "date": "2026-10-05",
               "drawdown_pct": 1.30779,
               "runup_pct": 0.72839,
+              "next_reference_return_pct": 0.34039
+            },
+            {
+              "date": "2026-10-06",
+              "drawdown_pct": 1.12287,
+              "runup_pct": 0.35644,
               "next_reference_return_pct": null
             }
           ],
@@ -1343,15 +1343,15 @@
             },
             "prior": {
               "lookback_sessions": 10,
-              "first_offset_pct": 0.25,
+              "first_offset_pct": 0.3,
               "spacing_pct": 0.95,
-              "mean_cost_bps": 13.134013031451369,
-              "gap_to_raw_minimum_bps": 6.117273731494913,
-              "paired_standard_error_bps": 6.097795322339444,
-              "allowed_gap_bps": 6.097795322339444,
-              "eligible": false
+              "mean_cost_bps": 13.114120112539878,
+              "gap_to_raw_minimum_bps": 6.097380812583423,
+              "paired_standard_error_bps": 6.852470541548377,
+              "allowed_gap_bps": 6.852470541548377,
+              "eligible": true
             },
-            "reason": "Prior excluded by paired excess-cost band; adopt nearest eligible candidate",
+            "reason": "Prior retained within its paired excess-cost band",
             "score_contract": "fixed weekly ladder and next-reference residual valuation; no spread, fees, queue or impact simulation",
             "prospective_validation": "not established; frozen shadow experiment is separate"
           }
@@ -1394,16 +1394,16 @@
           "enabled": true,
           "trade_side": "sell",
           "status": "minute-rolling",
-          "generated_at": "2026-10-06T06:46:15.389178Z",
-          "data_as_of": "2026-10-05",
+          "generated_at": "2026-10-07T06:21:13.194831Z",
+          "data_as_of": "2026-10-06",
           "market_proxy": "BTCUSDT",
           "execution_instrument": "Grayscale Bitcoin Mini Trust ETF (BTC)",
           "lookback_sessions": 20,
           "lookback_unit": "trading sessions",
           "first_offset_pct": 0.5,
           "spacing_pct": 0.8,
-          "expected_rungs_per_session": 1.25,
-          "zero_fill_probability": 0.25,
+          "expected_rungs_per_session": 1.2,
+          "zero_fill_probability": 0.3,
           "sample_sessions": 251,
           "walk_forward_weeks": 26,
           "walk_forward_mean_implementation_shortfall_bps": 3.019,
@@ -1413,12 +1413,6 @@
           "excursion_measure": "runup",
           "completion_assumption": "unfilled weekly shares valued at next reference; no automatic broker execution",
           "session_samples": [
-            {
-              "date": "2026-05-28",
-              "drawdown_pct": 0.50986,
-              "runup_pct": 1.08958,
-              "next_reference_return_pct": 0.13434
-            },
             {
               "date": "2026-05-29",
               "drawdown_pct": 0.73962,
@@ -1951,6 +1945,12 @@
               "date": "2026-10-05",
               "drawdown_pct": 1.30779,
               "runup_pct": 0.72839,
+              "next_reference_return_pct": 0.34039
+            },
+            {
+              "date": "2026-10-06",
+              "drawdown_pct": 1.12287,
+              "runup_pct": 0.35644,
               "next_reference_return_pct": null
             }
           ],
@@ -2070,8 +2070,8 @@
       "enabled": true,
       "trade_side": "buy",
       "status": "minute-rolling",
-      "generated_at": "2026-10-06T06:46:15.389178Z",
-      "data_as_of": "2026-10-05",
+      "generated_at": "2026-10-07T06:21:13.194831Z",
+      "data_as_of": "2026-10-06",
       "market_proxy": "ETHUSDT",
       "execution_instrument": "Grayscale Ethereum Staking Mini ETH Shares (ETH)",
       "lookback_sessions": 10,
@@ -2089,12 +2089,6 @@
       "excursion_measure": "drawdown",
       "completion_assumption": "unfilled weekly shares valued at next reference; no automatic broker execution",
       "session_samples": [
-        {
-          "date": "2026-05-28",
-          "drawdown_pct": 0.82271,
-          "runup_pct": 2.33402,
-          "next_reference_return_pct": 0.49352
-        },
         {
           "date": "2026-05-29",
           "drawdown_pct": 0.85328,
@@ -2627,6 +2621,12 @@
           "date": "2026-10-05",
           "drawdown_pct": 1.44071,
           "runup_pct": 0.42225,
+          "next_reference_return_pct": -0.01067
+        },
+        {
+          "date": "2026-10-06",
+          "drawdown_pct": 1.27938,
+          "runup_pct": 0.24352,
           "next_reference_return_pct": null
         }
       ],
@@ -2744,8 +2744,8 @@
           "enabled": true,
           "trade_side": "buy",
           "status": "minute-rolling",
-          "generated_at": "2026-10-06T06:46:15.389178Z",
-          "data_as_of": "2026-10-05",
+          "generated_at": "2026-10-07T06:21:13.194831Z",
+          "data_as_of": "2026-10-06",
           "market_proxy": "ETHUSDT",
           "execution_instrument": "Grayscale Ethereum Staking Mini ETH Shares (ETH)",
           "lookback_sessions": 10,
@@ -2763,12 +2763,6 @@
           "excursion_measure": "drawdown",
           "completion_assumption": "unfilled weekly shares valued at next reference; no automatic broker execution",
           "session_samples": [
-            {
-              "date": "2026-05-28",
-              "drawdown_pct": 0.82271,
-              "runup_pct": 2.33402,
-              "next_reference_return_pct": 0.49352
-            },
             {
               "date": "2026-05-29",
               "drawdown_pct": 0.85328,
@@ -3301,6 +3295,12 @@
               "date": "2026-10-05",
               "drawdown_pct": 1.44071,
               "runup_pct": 0.42225,
+              "next_reference_return_pct": -0.01067
+            },
+            {
+              "date": "2026-10-06",
+              "drawdown_pct": 1.27938,
+              "runup_pct": 0.24352,
               "next_reference_return_pct": null
             }
           ],
@@ -3418,15 +3418,15 @@
           "enabled": true,
           "trade_side": "sell",
           "status": "minute-rolling",
-          "generated_at": "2026-10-06T06:46:15.389178Z",
-          "data_as_of": "2026-10-05",
+          "generated_at": "2026-10-07T06:21:13.194831Z",
+          "data_as_of": "2026-10-06",
           "market_proxy": "ETHUSDT",
           "execution_instrument": "Grayscale Ethereum Staking Mini ETH Shares (ETH)",
           "lookback_sessions": 20,
           "lookback_unit": "trading sessions",
           "first_offset_pct": 0.1,
           "spacing_pct": 0.8,
-          "expected_rungs_per_session": 2.15,
+          "expected_rungs_per_session": 2.05,
           "zero_fill_probability": 0.15,
           "sample_sessions": 251,
           "walk_forward_weeks": 26,
@@ -3437,12 +3437,6 @@
           "excursion_measure": "runup",
           "completion_assumption": "unfilled weekly shares valued at next reference; no automatic broker execution",
           "session_samples": [
-            {
-              "date": "2026-05-28",
-              "drawdown_pct": 0.82271,
-              "runup_pct": 2.33402,
-              "next_reference_return_pct": 0.49352
-            },
             {
               "date": "2026-05-29",
               "drawdown_pct": 0.85328,
@@ -3975,6 +3969,12 @@
               "date": "2026-10-05",
               "drawdown_pct": 1.44071,
               "runup_pct": 0.42225,
+              "next_reference_return_pct": -0.01067
+            },
+            {
+              "date": "2026-10-06",
+              "drawdown_pct": 1.27938,
+              "runup_pct": 0.24352,
               "next_reference_return_pct": null
             }
           ],
