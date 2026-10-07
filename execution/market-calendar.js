@@ -107,6 +107,26 @@
     return { ...state, open: true, reason: "open" };
   }
 
+  // Arithmetic is available outside the modeled execution window. Keep that
+  // window intact for labeling, and size previews from the next eligible day
+  // after a close/holiday/weekend, never from a closed or invented session.
+  function planningWindow(now, symbol = "selected instrument") {
+    const execution = tradingWindow(now, symbol);
+    if (["invalid-calendar-input", "unsupported-calendar"].includes(execution.reason))
+      return { ...execution, executionOpen: false, preview: false, planningDate: null };
+    let planningDate = new Date(now.date);
+    if (!isSession(planningDate) || now.hour * 60 + now.minute >= sessionCloseMinutes(planningDate)) {
+      do { planningDate.setUTCDate(planningDate.getUTCDate() + 1); }
+      while (isSupportedDate(planningDate) && !isSession(planningDate));
+    }
+    if (!isSupportedDate(planningDate))
+      return { ...execution, open: false, reason: "unsupported-calendar", executionOpen: false, preview: false, planningDate: null,
+        label: "Calendar update required", message: "The next eligible session is outside the verified 2025–2028 NYSE calendar." };
+    return { ...execution, open: true, executionOpen: execution.open, preview: !execution.open, planningDate,
+      label: execution.open ? "Regular session" : "Planning preview",
+      message: execution.open ? "" : `Planning preview for ${dateKey(planningDate)} ET using your reference input. The model uses the completed 09:35 reference and fills from 09:36; this is not a live quote or an instruction to trade outside that window.` };
+  }
+
   return Object.freeze({ supportedRange, sources, regularOpenMinutes, referenceReadyMinutes,
-    dateKey, isSupportedDate, isSession, sessionCloseMinutes, calendarParts, tradingWindow });
+    dateKey, isSupportedDate, isSession, sessionCloseMinutes, calendarParts, tradingWindow, planningWindow });
 });

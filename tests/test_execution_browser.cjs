@@ -221,10 +221,10 @@ if (process.env.RUN_EXECUTION_BROWSER_TESTS !== "1") {
     await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
   }
 
-  test("deadline defaults to March 1, 2027 on load and reload, and remains editable or clearable", async t => {
+  test("deadline defaults to March 31, 2027 on load and reload, and remains editable or clearable", async t => {
     const page = await open(t, { keepDefaultDeadline: true });
     const deadline = page.locator("#deadline");
-    assert.equal(await deadline.inputValue(), "2027-03-01");
+    assert.equal(await deadline.inputValue(), "2027-03-31");
     assert.equal(await deadline.evaluate(node => node.readOnly || node.disabled), false);
     await deadline.fill("2027-02-15");
     await page.locator("#instrument-select").selectOption("ARCX:ETH");
@@ -239,7 +239,7 @@ if (process.env.RUN_EXECUTION_BROWSER_TESTS !== "1") {
     assert.equal(await deadline.inputValue(), "", "clearing the default enables no-deadline pacing");
     await page.reload();
     await page.waitForFunction(() => !document.getElementById("instrument-select").disabled);
-    assert.equal(await deadline.inputValue(), "2027-03-01", "a fresh load needs no repeated date entry");
+    assert.equal(await deadline.inputValue(), "2027-03-31", "a fresh load needs no repeated date entry");
     for (const id of ["weekly-one", "weekly-two", "capital-one", "capital-two"]) {
       assert.equal(await page.locator(`#${id}`).inputValue(), "", "no account amount becomes a default");
     }
@@ -535,29 +535,56 @@ if (process.env.RUN_EXECUTION_BROWSER_TESTS !== "1") {
   });
 
   for (const side of ["buy", "sell"]) {
-    test(`${side.toUpperCase()} is blocked at 09:35:59 ET and opens at 09:36`, async t => {
+    for (const [label, time, expectedDate, weekSessions] of [
+      ["premarket", "2026-10-05T10:00:00Z", "Oct 5, 2026", 5],
+      ["after close", "2026-10-05T20:00:00Z", "Oct 6, 2026", 4],
+      ["Friday close", "2026-10-09T20:00:00Z", "Oct 12, 2026", 5],
+      ["weekend", "2026-10-10T14:00:00Z", "Oct 12, 2026", 5],
+      ["holiday", "2026-11-26T14:00:00Z", "Nov 27, 2026", 1],
+      ["New York Sunday despite UTC Monday", "2026-10-05T03:59:59Z", "Oct 5, 2026", 5],
+      ["winter premarket", "2026-11-02T14:00:00Z", "Nov 2, 2026", 5],
+    ]) test(`${side.toUpperCase()} ${label} computes a clearly labeled preview with eligible-session sizing`, async t => {
+      const page = await open(t, { time });
+      if (side === "sell") await sellInputs(page);
+      await page.locator("#reference-price").fill("36");
+      assert.equal(await page.locator("#calculate-button").isEnabled(), true);
+      await submit(page);
+      await assertPlan(page, { ...(side === "buy" ? buyBase() : sellBase()), reference: 36, weekSessions });
+      const note = await page.locator("#plan-context").innerText();
+      assert.match(note, /Planning preview/); assert.ok(note.includes(expectedDate));
+      assert.match(note, /reference input, not a fetched live quote/);
+      assert.match(await page.locator("#reference-hint").innerText(), /seed values, not live quotes/);
+      await page.locator("#deadline").fill("2026-10-04");
+      await submit(page);
+      await errorIncludes(page, /no eligible sessions|passed/i);
+    });
+    test(`${side.toUpperCase()} can preview at 09:35:59 ET and recalculate at 09:36`, async t => {
       const page = await open(t, { time: "2026-10-05T13:35:59Z" });
       if (side === "sell") await sellInputs(page);
-      assert.equal(await page.locator("#calculate-button").isDisabled(), true);
-      await page.locator("#calculator-form").dispatchEvent("submit");
-      assert.equal(await page.locator("#result-stack").isHidden(), true);
+      assert.equal(await page.locator("#calculate-button").isEnabled(), true);
+      await submit(page);
+      await assertPlan(page, side === "buy" ? buyBase() : sellBase());
+      assert.match(await page.locator("#plan-context").innerText(), /Planning preview.*Oct 5, 2026/);
       await moveClock(page, "2026-10-05T13:36:00Z");
+      await cleared(page);
       assert.equal(await page.locator("#calculate-button").isEnabled(), true);
       await submit(page);
       await assertPlan(page, side === "buy" ? buyBase() : sellBase());
     });
-    test(`${side.toUpperCase()} respects Nov 27 half-day: 12:59 open, 13:00 closed`, async t => {
+    test(`${side.toUpperCase()} respects Nov 27 half-day: 12:59 session, 13:00 next-session preview`, async t => {
       const page = await open(t, { time: "2026-11-27T17:59:00Z" });
       if (side === "sell") await sellInputs(page);
       assert.equal(await page.locator("#calculate-button").isEnabled(), true);
       await submit(page);
       await assertPlan(page, { ...(side === "buy" ? buyBase() : sellBase()), weekSessions: 1 });
       await moveClock(page, "2026-11-27T18:00:00Z");
-      assert.equal(await page.locator("#calculate-button").isDisabled(), true);
+      assert.equal(await page.locator("#calculate-button").isEnabled(), true);
       assert.equal(await page.locator("#result-stack").isHidden(), true);
-      assert.match(await page.locator("#session-label").innerText(), /13:00/);
+      assert.match(await page.locator("#plan-context").innerText(), /Planning preview.*Nov 30, 2026/);
+      await submit(page);
+      await assertPlan(page, { ...(side === "buy" ? buyBase() : sellBase()), weekSessions: 5 });
     });
-    test(`crypto ${side.toUpperCase()} excludes 00:00 and opens at 00:01 UTC`, async t => {
+    test(`crypto ${side.toUpperCase()} can preview at 00:00 and retains its UTC daily reference reset`, async t => {
       const page = await open(t, { time: "2026-10-05T00:00:00Z" });
       await page.locator("#instrument-select").selectOption("BINANCE:SPOT:BTCUSDT");
       let input = { ...buyBase(), weekly: 1000, reference: 100000, weekSessions: 7, params: params("BINANCE:SPOT:BTCUSDT") };
@@ -565,15 +592,19 @@ if (process.env.RUN_EXECUTION_BROWSER_TESTS !== "1") {
         await sellInputs(page, { "sell-weekly-one": .01, "sell-held-one": .1 });
         input = { ...sellBase(), weekly: .01, held: .1, reference: 100000, weekSessions: 7, params: params("BINANCE:SPOT:BTCUSDT", "sell") };
       } else await page.locator("#weekly-one").fill("1000");
-      assert.equal(await page.locator("#calculate-button").isDisabled(), true);
+      assert.equal(await page.locator("#calculate-button").isEnabled(), true);
+      await submit(page);
+      await assertPlan(page, input, { method: side === "buy" ? "cryptoPlan" : "sellPlan" });
+      assert.match(await page.locator("#plan-context").innerText(), /reference minute is still forming/);
       await moveClock(page, "2026-10-05T00:01:00Z");
+      await cleared(page);
       assert.equal(await page.locator("#calculate-button").isEnabled(), true);
       await submit(page);
       await assertPlan(page, input, { method: side === "buy" ? "cryptoPlan" : "sellPlan" });
       await moveClock(page, "2026-10-06T00:00:00Z");
       await cleared(page);
       assert.equal(await page.locator("#reference-price").inputValue(), "", "UTC daily reset invalidates yesterday's reference");
-      assert.equal(await page.locator("#calculate-button").isDisabled(), true);
+      assert.equal(await page.locator("#calculate-button").isEnabled(), true);
       await moveClock(page, "2026-10-06T00:01:00Z");
       await submit(page);
       await cleared(page);
@@ -639,8 +670,10 @@ if (process.env.RUN_EXECUTION_BROWSER_TESTS !== "1") {
     result = await assertPlan(page, { ...sellBase(), total: 600, held: 550, reserved: 150, horizon: 1, closeout: true, bid: 34.251 });
     assert.equal(result.expected.orders[0].price, 34.25);
     await moveClock(page, "2026-10-05T20:00:00Z");
-    assert.equal(await page.locator("#calculate-button").isDisabled(), true);
+    assert.equal(await page.locator("#calculate-button").isEnabled(), true);
     assert.equal(await page.locator("#result-stack").isHidden(), true);
     assert.equal(await page.locator("#closeout-bid").inputValue(), "");
+    await submit(page);
+    await errorIncludes(page, /no eligible sessions|passed/i);
   });
 }

@@ -61,7 +61,7 @@ test("weekends close while NYSE-open bank holidays stay open", () => {
     assert.equal(calendar.sessionCloseMinutes(date), 960, date);
 });
 
-test("listed orders stay disabled before open and throughout the 09:35 minute", () => {
+test("modeled execution window stays closed before open and throughout the 09:35 minute", () => {
   for (const [hour, minute] of [[0, 0], [9, 29], [9, 30], [9, 34], [9, 35]]) {
     const state = calendar.tradingWindow(at("2026-10-05", hour, minute), "SPY");
     assert.equal(state.open, false, `${hour}:${minute}`);
@@ -165,4 +165,35 @@ test("browser bundle publishes the same dependency-free calendar API", () => {
   assert.equal(context.ExecutionCalendar.sessionCloseMinutes("2026-11-27"), 780);
   assert.equal(context.ExecutionCalendar.tradingWindow(at("2026-10-05", 9, 35)).open, false);
   assert.equal(context.ExecutionCalendar.tradingWindow(at("2026-10-05", 9, 36)).open, true);
+});
+
+
+test("planning is available outside the modeled window with an explicit next eligible session", () => {
+  for (const [stamp, date, preview] of [
+    ["2026-10-05T10:00:00Z", "2026-10-05", true],
+    ["2026-10-05T13:35:59Z", "2026-10-05", true],
+    ["2026-10-05T13:36:00Z", "2026-10-05", false],
+    ["2026-10-05T20:00:00Z", "2026-10-06", true],
+    ["2026-10-09T20:00:00Z", "2026-10-12", true],
+    ["2026-10-10T14:00:00Z", "2026-10-12", true],
+    ["2026-11-26T14:00:00Z", "2026-11-27", true],
+    ["2026-11-27T18:00:00Z", "2026-11-30", true],
+    ["2026-03-09T13:35:59Z", "2026-03-09", true],
+    ["2026-11-02T14:35:59Z", "2026-11-02", true],
+    ["2026-10-05T03:59:59Z", "2026-10-05", true],
+  ]) {
+    const state = calendar.planningWindow(ny(stamp), "SPY");
+    assert.equal(state.open, true, stamp);
+    assert.equal(state.preview, preview, stamp);
+    assert.equal(state.executionOpen, !preview, stamp);
+    assert.equal(calendar.dateKey(state.planningDate), date, stamp);
+    if (preview) assert.match(state.message, /Planning preview.*not a live quote/);
+  }
+});
+
+test("planning still fails closed for invalid or unverifiable calendar dates", () => {
+  for (const value of [null, at("2029-01-01", 10, 0), at("2024-12-31", 10, 0), at("2028-12-29", 16, 0), at("2028-12-31", 10, 0)]) {
+    const state = calendar.planningWindow(value);
+    assert.equal(state.open, false); assert.equal(state.planningDate, null);
+  }
 });

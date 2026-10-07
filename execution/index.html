@@ -194,7 +194,7 @@
       </div>
       <div class="stamp">
         <div class="stamp-label">Model contract</div>
-        <div id="contract-times" class="stamp-value">09:35 reference · fills from 09:36</div>
+        <div id="contract-times" class="stamp-value">Model: 09:35 reference · fills from 09:36</div>
         <div id="contract-note" class="stamp-sub">The reference minute is never reused as a fill minute. All order totals are capped at the effective weekly target.</div>
       </div>
     </section>
@@ -242,17 +242,18 @@
       </section>
 
       <section class="panel inputs">
-        <div class="section-head"><h2>Today's state</h2></div>
+        <div class="section-head"><h2>Planning inputs</h2></div>
         <form id="calculator-form" class="field-grid">
           <div class="field">
-            <label id="reference-price-label" for="reference-price">09:35 reference price</label>
-            <div class="input-wrap has-prefix"><span class="prefix currency-prefix">$</span><input id="reference-price" type="number" min="0.01" step="any" value="35" required></div>
+            <label id="reference-price-label" for="reference-price">Reference price for this plan</label>
+            <div class="input-wrap has-prefix"><span class="prefix currency-prefix">$</span><input id="reference-price" type="number" min="0.01" step="any" value="35" required aria-describedby="reference-hint"></div>
           </div>
           <div class="field">
             <label id="deadline-label" for="deadline">Capital deployment deadline</label>
-            <input id="deadline" type="date" value="2027-03-01" aria-describedby="deadline-hint">
+            <input id="deadline" type="date" value="2027-03-31" aria-describedby="deadline-hint">
           </div>
 
+          <p id="reference-hint" class="hint">Calculate at any time using a price you enter. Prefilled prices are seed values, not live quotes; their market timestamp is not verified. Use your broker or exchange quote and recheck it before placing orders.</p>
           <p id="deadline-hint" class="hint">Deadline is optional. Leave it blank for price seeking at your entered weekly pace. A total alone only caps that pace; it does not create a completion date.</p>
           <div class="field wide" data-sell hidden>
             <label for="sell-policy">Sale priority</label>
@@ -294,14 +295,15 @@
           <div class="field" data-sell hidden><label for="sell-total-two">Total shares remaining (optional)</label><input id="sell-total-two" type="number" min="0" step="any" placeholder="Optional for price seeking" disabled></div>
           <div class="field" data-sell hidden><label for="sell-held-two">Current held shares</label><input id="sell-held-two" type="number" min="0" step="any" placeholder="If selling" disabled></div>
           <div class="field" data-sell hidden><label for="sell-reserved-two">Shares in existing sell orders</label><input id="sell-reserved-two" type="number" min="0" step="any" placeholder="0 if none" disabled></div>
-          <p id="buy-hint" class="hint" data-buy>Leave the deadline blank for weekly pacing without completion pressure. A supplied total caps orders, including an explicit zero. With both total and deadline, the guardrail can raise the target. Listed orders begin at 09:36 ET and stop at the actual session close.</p>
+          <p id="buy-hint" class="hint" data-buy>Leave the deadline blank for weekly pacing without completion pressure. A supplied total caps orders, including an explicit zero. With both total and deadline, the guardrail can raise the target. Preview at any time; the modeled execution window is 09:36 ET to the actual session close.</p>
           <p id="sell-hint" class="hint" data-sell hidden>Enter remaining quantities, including unfilled sell orders. Existing orders are deducted from both the target and held shares when sizing new orders. Subtract actual fills from both remaining targets and holdings each day. Output uses whole shares; switching ticker clears sale quantities.</p>
           <p id="form-error" class="field wide form-error" role="alert" hidden></p>
-          <button id="calculate-button" class="primary wide" type="submit">Calculate today's buy orders</button>
+          <button id="calculate-button" class="primary wide" type="submit">Calculate buy plan</button>
         </form>
       </section>
 
       <section class="panel results">
+        <p id="plan-context" class="hint" role="status"></p>
         <div class="section-head"><h2>Order plan</h2><span id="session-label" class="status live">—</span></div>
         <div id="empty" class="result-empty">Choose an instrument, enter today's reference and remaining amounts, then calculate. Both accounts use the selected instrument's price ladder; sizing is solved independently.</div>
         <p id="progress-binding" class="progress-binding" role="status" hidden></p>
@@ -396,7 +398,7 @@
     <footer>Research and educational use only; not investment advice. Verify the live quote, tick size, buying power, order duration, and broker preview before submitting any order.</footer>
   </main>
 
-  <script src="./market-calendar.js?v=1"></script>
+  <script src="./market-calendar.js?v=2"></script>
   <script src="./execution-core.js?v=6"></script>
   <script>
     const PARAMS_URL = "../data/execution_params.json";
@@ -431,6 +433,7 @@
     let side = "buy";
     let selectedInstrumentId = FALLBACK.instrument_id;
     let lastDailyCycle = "";
+    let lastPlanningCycle = "";
     const isCrypto = () => params.market_calendar === "24X7";
     const zoneLabel = () => isCrypto() ? "UTC" : "ET";
     const unitLabel = () => isCrypto() ? params.base_asset : "shares";
@@ -468,10 +471,13 @@
     }
     function tradingWindow(now = nyParts()) {
       const symbol = params.symbol || "selected instrument";
-      if (isCrypto()) return now.hour === 0 && now.minute === 0
-        ? { open: false, label: "Daily reference forming", message: "The 00:00 UTC reference minute is forming. Recalculate from 00:01 with the new reference." }
-        : { open: true, label: "24/7 · UTC", message: "" };
-      return ExecutionCalendar.tradingWindow(now, symbol);
+      if (isCrypto()) {
+        const preview = now.hour === 0 && now.minute === 0;
+        return { open: true, executionOpen: !preview, preview, planningDate: now.date,
+          label: preview ? "Planning preview · UTC reference forming" : "24/7 · UTC",
+          message: preview ? "The 00:00 UTC reference minute is still forming. You can preview with your entered price; recheck the completed reference from 00:01 before placing orders." : "" };
+      }
+      return ExecutionCalendar.planningWindow(now, symbol);
     }
     function applyTradingWindow() {
       const button = document.getElementById("calculate-button");
@@ -482,17 +488,21 @@
           message: `${params.symbol || "This instrument"} has no fitted ${side} scaling yet. ${side === "sell" ? "Buy parameters are never substituted for sell parameters. " : ""}Orders stay disabled until this side's parameters are published.`
         };
         button.disabled = true;
+        document.getElementById("plan-context").textContent = pending.message;
         document.getElementById("session-label").textContent = pending.label;
         document.getElementById("empty").textContent = pending.message;
         return pending;
       }
       const state = tradingWindow();
+      document.getElementById("plan-context").textContent = state.open
+        ? `${state.message} Sizing starts ${tradingDateLabel(state.planningDate)} ${zoneLabel()}; weekly inputs apply to that planning week. Ladder prices use your reference input, not a fetched live quote; a closeout uses your separately entered fresh best bid.`.trim()
+        : state.message;
       button.disabled = !state.open;
       if (!state.open) {
         document.getElementById("session-label").textContent = state.label;
         document.getElementById("empty").textContent = state.message;
       } else {
-        document.getElementById("session-label").textContent = `${params.symbol || "Instrument"} · ${params.market_calendar || "market session"}`;
+        document.getElementById("session-label").textContent = `${params.symbol || "Instrument"} · ${state.label}`;
       }
       return state;
     }
@@ -500,9 +510,7 @@
       const now = nyParts();
       if (isCrypto()) return ExecutionCore.cryptoRemainingDays(now, endDate);
       if (!ExecutionCalendar.isSupportedDate(endDate)) throw new Error("The deadline is outside the verified NYSE calendar range (2025–2028).");
-      let cursor = now.date;
-      const cutoff = isSession(now.date) ? ExecutionCalendar.sessionCloseMinutes(now.date) : 0;
-      if (!isSession(cursor) || now.hour * 60 + now.minute >= cutoff) cursor = nextSession(cursor);
+      let cursor = tradingWindow(now).planningDate;
       if (!cursor) return 0;
       let count = 0;
       while (cursor <= endDate) { if (isSession(cursor)) count++; cursor = addDays(cursor, 1); }
@@ -511,12 +519,12 @@
     function remainingWeekSessions() {
       const now = nyParts();
       if (isCrypto()) return ExecutionCore.cryptoRemainingDays(now);
-      let cursor = now.date;
+      let cursor = tradingWindow(now).planningDate;
+      if (!cursor) return 0;
       let count = 0;
       for (let i = 0; i < 7; i++, cursor = addDays(cursor, 1)) {
         if (cursor.getUTCDay() === 0 && i > 0) break;
-        const cutoff = isSession(cursor) ? ExecutionCalendar.sessionCloseMinutes(cursor) : 0;
-        if (isSession(cursor) && (i > 0 || now.hour * 60 + now.minute < cutoff)) count++;
+        if (isSession(cursor)) count++;
         if (cursor.getUTCDay() === 5) break;
       }
       return count;
@@ -606,7 +614,12 @@
       return next ? `${tradingDateLabel(next)} after 8:30 PM ET` : "Calendar update required";
     }
     function progressPlan(name, plan) {
-      return window.ExecutionProgressUI?.capPlan(name === "Account 2" ? "two" : "one", plan) || plan;
+      const capped = window.ExecutionProgressUI?.capPlan(name === "Account 2" ? "two" : "one", plan) || plan;
+      const now = nyParts(), start = tradingWindow(now).planningDate;
+      const monday = date => key(addDays(date, -((date.getUTCDay() + 6) % 7)));
+      if (capped.progressNote && start && monday(start) !== monday(now.date))
+        throw new Error("Local progress is confirmed for the current week, not the next planning week. Edit target amounts to use manual preview mode; confirm the new progress week when it begins.");
+      return capped;
     }
     function renderAccount(name, weekly, capital, reference, deadlineSessions, weekSessions) {
       if (isCrypto()) return renderCryptoBuyAccount(name, weekly, capital, reference, deadlineSessions, weekSessions);
@@ -684,7 +697,7 @@
       document.getElementById("closeout-bid-field").hidden = !closeout;
       bid.disabled = !closeout;
       bid.required = !!closeout;
-      document.getElementById("calculate-button").textContent = closeout ? "Calculate closeout sell order" : `Calculate today's ${side} orders`;
+      document.getElementById("calculate-button").textContent = closeout ? "Calculate closeout sell order" : `Calculate ${side} plan`;
       const note = document.getElementById("sell-policy-note");
       note.textContent = hard && state
         ? `Final eligible session: ${tradingDateLabel(state.finalDate)}. ${clockLabel(state.startMinutes)}–${clockLabel(state.closeMinutes)} ${zoneLabel()} is the manual closeout window. Enter total remaining ${unitLabel()} for each active account. Recalculate then with a fresh best bid; the page cannot submit orders or guarantee completion.`
@@ -792,7 +805,7 @@
       const empty = document.getElementById("empty");
       empty.hidden = false;
       empty.textContent = parametersReady()
-        ? `Enter today's ${params.symbol || "instrument"} reference and ${side === "sell" ? `remaining ${unitLabel()}, holdings and existing sell orders` : "remaining amounts"}, then calculate ${side} orders. Accounts are sized independently.`
+        ? `Enter a ${params.symbol || "instrument"} reference price and ${side === "sell" ? `remaining ${unitLabel()}, holdings and existing sell orders` : "remaining amounts"}, then calculate ${side} orders. Accounts are sized independently.`
         : `${params.symbol || "This instrument"} has no fitted ${side} scaling yet. Orders stay disabled until parameters are published.`;
     }
     function updateRemoveLink() {
@@ -832,9 +845,9 @@
       params = ExecutionCore.sideParameters(selected, side);
       lastDailyCycle = `${selectedInstrumentId}:${key(nyParts().date)}`;
       setCurrency(params.currency);
-      document.getElementById("reference-price-label").textContent = `${params.reference_time || "09:35"} ${zoneLabel()} ${params.symbol} reference`;
-      document.getElementById("contract-times").textContent = `${params.reference_time || "09:35"} reference · fills from ${params.fill_start_time || "09:36"} ${zoneLabel()}`;
-      document.getElementById("contract-note").textContent = isCrypto() ? "24/7 spot · Daily UTC cycle · Reference minute excluded from fills. Reset unfilled GTC orders at next midnight." : "The reference minute is never reused as a fill minute. All order totals are capped at the effective weekly target.";
+      document.getElementById("reference-price-label").textContent = `${params.symbol} reference price for this plan`;
+      document.getElementById("contract-times").textContent = `Model: ${params.reference_time || "09:35"} reference · fills from ${params.fill_start_time || "09:36"} ${zoneLabel()}`;
+      document.getElementById("contract-note").textContent = isCrypto() ? "24/7 spot · Daily UTC cycle · Reference minute excluded from fills. Reset unfilled GTC orders at next midnight." : "Calculate at any time with your reference input. The historical model excludes the reference minute from fills; order totals remain capped at the effective weekly target.";
       document.getElementById("crypto-contract").hidden = !isCrypto();
       if (isCrypto()) document.getElementById("crypto-contract").textContent = `24/7 · UTC reset · Quantity step ${params.quantity_step} ${params.base_asset}; price tick ${params.price_tick} ${params.currency}; minimum order ${params.min_notional} ${params.currency}. GTC orders do not expire at midnight: manage old orders before replacing the ladder.`;
       document.getElementById("deadline-label").textContent = `${side === "sell" ? "Sale completion" : "Capital deployment"} deadline (${zoneLabel()}, optional)`;
@@ -845,7 +858,7 @@
         const labels = {weekly: `${unitLabel()} remaining to sell this week`, total: `Total ${unitLabel()} remaining (optional)`, held: `Current held ${unitLabel()}`, reserved: `${unitLabel()} in existing sell orders`};
         for (const [field, label] of Object.entries(labels)) document.querySelector(`label[for="sell-${field}-${suffix}"]`).textContent = label;
       }
-      document.getElementById("buy-hint").textContent = `In manual mode, this week is a soft target: a deadline can increase the pace. Total remaining always caps orders. Leave the deadline blank for weekly pacing. ${isCrypto() ? "Budgets use the quote asset; weeks end Sunday UTC, including weekends. Cancel old GTC orders before replacing a daily ladder." : "Orders begin at 09:36 ET and stop at the actual close: 13:00 on half days, otherwise 16:00."}`;
+      document.getElementById("buy-hint").textContent = `In manual mode, this week is a soft target: a deadline can increase the pace. Total remaining always caps orders. Leave the deadline blank for weekly pacing. ${isCrypto() ? "Budgets use the quote asset; weeks end Sunday UTC, including weekends. Cancel old GTC orders before replacing a daily ladder." : "Preview at any time. The modeled execution window is 09:36 ET to the actual close: 13:00 on half days, otherwise 16:00."}`;
       document.getElementById("sell-hint").textContent = `Remaining quantities include unfilled orders. Existing sell orders are deducted from the target and holdings when sizing new orders. Subtract actual fills from both targets and holdings. ${isCrypto() ? "Quantities use the exchange step, including fractions." : "Output uses whole shares."} Switching ticker clears sale quantities.`;
       document.getElementById("method-reference").textContent = params.reference_time || "09:35";
       document.getElementById("method-fill").textContent = params.fill_start_time || "09:36";
@@ -984,7 +997,7 @@
       }
       document.getElementById("empty").hidden = true;
       const stack = document.getElementById("result-stack"); stack.hidden = false; stack.innerHTML = html;
-      document.getElementById("session-label").textContent = `${weekSessions} sessions this week · ${deadlineSessions === null ? "no deadline · weekly pace / price seeking" : deadlineSessions + " to deadline"}`;
+      document.getElementById("session-label").textContent = `${windowState.preview ? "Preview · " : ""}${weekSessions} sessions in planning week · ${deadlineSessions === null ? "no deadline · weekly pace / price seeking" : deadlineSessions + " to deadline"}`;
     });
     document.getElementById("calculator-form").addEventListener("input", event => {
       if (event.target.id === "closeout-bid") bidUpdatedAt = Date.now();
@@ -1006,6 +1019,9 @@
       renderModel();
       syncSellPolicy();
       const windowState = applyTradingWindow();
+      const planningCycle = `${selectedInstrumentId}:${key(nyParts().date)}:${windowState.planningDate ? key(windowState.planningDate) : ""}:${!!windowState.preview}`;
+      if (lastPlanningCycle && planningCycle !== lastPlanningCycle) clearResults();
+      lastPlanningCycle = planningCycle;
       if (!windowState.open) {
         document.getElementById("result-stack").hidden = true;
         document.getElementById("empty").hidden = false;

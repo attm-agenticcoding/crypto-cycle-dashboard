@@ -33,12 +33,20 @@ Phase-one calculator consistency:
   reference-return label used in weekly scoring.
 - Blank totals are optional; an explicit zero total produces no new orders.
   A zero weekly pace can catch up only when both total and deadline are supplied.
-- Deadline defaults to March 1, 2027 and remains editable or clearable. Clearing
+- Deadline defaults to March 31, 2027 and remains editable or clearable. Clearing
   it uses the entered weekly pace, and an optional total remains a cap, with no
   hidden completion horizon or tightening.
   Finish-by-deadline sells still require an explicit date and total.
-- Both listed sides use the published 2025–2028 NYSE calendar, start at 09:36 ET
-  after the reference minute completes, and stop at the actual 13:00/16:00 close.
+- BUY and SELL calculations are available at any time with a manually entered
+  reference price. Seed defaults are not live quotes and have no verified quote
+  timestamp. Outside the model's execution window, output is labeled a preview;
+  after a close, weekend or holiday, sizing starts at the next eligible session
+  and weekly inputs refer to that session's week. Current-week progress caps
+  cannot silently carry into a next-week preview; use manual inputs instead.
+- The historical model still uses the completed 09:35 ET reference, fills from
+  09:36, and the actual 13:00/16:00 close on the published NYSE calendar. Crypto
+  allows a preview during the forming 00:00 minute, but keeps its daily reference
+  reset. Fresh-bid closeout safeguards and all strategy/scaling rules are intact.
   Unsupported calendar years fail closed until the calendar is updated; later
   emergency exchange closures also require a calendar-table update.
 - Listed BUY retains its 30-rung limit and reports both allocated shares and any
