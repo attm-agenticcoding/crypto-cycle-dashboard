@@ -111,7 +111,7 @@ if (process.env.RUN_EXECUTION_BROWSER_TESTS !== "1") {
         const url = new URL(request.url);
         assert.equal(url.origin, origin, "all requests stay on the fixture origin");
         assert.equal(request.method, "GET"); assert.equal(request.body, null, "financial inputs never enter a network body");
-        assert.ok(["", "?v=1", "?v=6"].includes(url.search), "URLs contain only static asset versions");
+        assert.ok(["", "?v=1", "?v=2", "?v=6"].includes(url.search), "URLs contain only static asset versions");
       }
     });
     return page;
