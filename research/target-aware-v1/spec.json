@@ -1,0 +1,25 @@
+{
+  "version": "target-aware-v1.0-prototype",
+  "locked_at": "2026-10-05T13:53:00Z",
+  "status": "LOCAL_RESEARCH_ONLY",
+  "phase1_base_commit": "a51d38e88360d90adcd7ff1583822311b6b54d8a",
+  "objective": "Execute an explicitly chosen change in asset-unit holdings; never select the user's target or forecast alpha.",
+  "forbidden": ["production activation", "automation changes", "broker orders", "publishing archived trial data", "retuning on previously inspected history"],
+  "quantity_model": "long-only asset units; integer quantity-step lots; quote-currency fees; no borrowing or shorting",
+  "volatility": {"estimator": "RMS of last 20 log returns between 21 completed session references", "lookback_returns": 20, "floor": "one price tick divided by current reference", "availability": "reference time and available-at must both be no later than decision time"},
+  "ladder": {"rungs": 3, "volatility_multipliers": [0.25, 0.75, 1.25], "allocation": "equal integer lots with remainder assigned to nearer rungs", "deadline_distance_factor": "max(0.25, 1 - elapsed eligible trading time fraction)", "no_deadline_distance_factor": 1},
+  "deadline_schedule": "Fixed initial task lots times elapsed eligible trading time through next review, minus actual filled lots and all still-reserved task lots; no reset from remaining lots. Integer floor until final checkpoint.",
+  "no_deadline_schedule": "Explicit weekly quantity allowance minus actual weekly fills and all still-open task lots. Weekly allowance is a cap, not an implied completion horizon. Null deadline never triggers tightening or closeout.",
+  "policies": ["immediate", "same_horizon_twap", "existing_ladder_fixed_synthetic_parameters", "paced_passive", "paced_hybrid_50"],
+  "aggressive_shares": {"paced_passive": 0, "paced_hybrid_50": 0.5, "same_horizon_twap": 1},
+  "closeout": "Separate scenario only: at explicit predeadline cutoff request cancellations, wait for acknowledgments, then use a fresh executable-price assumption for remaining feasible units. An unacknowledged cancel retains reservations. Market completion is never guaranteed.",
+  "synthetic_evaluation": {"seeds": 120, "sessions": 5, "reviews_per_session": 4, "target_units": 100, "initial_reference": 100, "sides": ["buy", "sell"], "path_families": ["flat", "rising", "falling", "volatile"], "weekly_units_no_deadline": 60},
+  "scenarios": [
+    {"name": "optimistic_touch", "passive_fill_probability": 1, "passive_fill_fraction": 1, "passive_fee_bps": 1, "aggressive_fee_bps": 5, "aggressive_slippage_bps": 2, "penetration_bps": 0, "capacity_units_per_bar": 100, "aggressive_capacity_units": 100},
+    {"name": "partial_uncertain", "passive_fill_probability": 0.5, "passive_fill_fraction": 0.5, "passive_fee_bps": 2, "aggressive_fee_bps": 5, "aggressive_slippage_bps": 5, "penetration_bps": 2, "capacity_units_per_bar": 10, "aggressive_capacity_units": 100},
+    {"name": "zero_passive_thin", "passive_fill_probability": 0, "passive_fill_fraction": 0, "passive_fee_bps": 10, "aggressive_fee_bps": 10, "aggressive_slippage_bps": 20, "penetration_bps": 5, "capacity_units_per_bar": 0, "aggressive_capacity_units": 10}
+  ],
+  "metrics": ["all-target implementation shortfall including residual marked at common terminal mid", "executed-only shortfall separately", "actual modeled completion", "passive completion", "aggressive fraction", "precloseout residual", "P95 and worst all-target cost", "P10 and worst completion", "infeasible cash/inventory/minimum-order residual", "cancel-pending reservation"],
+  "inference": "Synthetic engineering stress tests only. Scenario frequencies are not calibrated market probabilities; no historical or prospective performance claim. Pareto comparisons within each side/path/mode/scenario only. No pooled best-policy claim.",
+  "future_evaluation": "Frozen prospective timestamped policy receipts and untouched chronological data after readiness approval; historical inputs already inspected are development data only; meaningful independent episodes and prespecified uncertainty methodology must be justified before inferential claims."
+}
