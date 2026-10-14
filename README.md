@@ -33,7 +33,7 @@ Phase-one calculator consistency:
   reference-return label used in weekly scoring.
 - Blank totals are optional; an explicit zero total produces no new orders.
   A zero weekly pace can catch up only when both total and deadline are supplied.
-- Deadline defaults to March 31, 2027 and remains editable or clearable. Clearing
+- Deadline defaults to December 31, 2026 and remains editable or clearable. Clearing
   it uses the entered weekly pace, and an optional total remains a cap, with no
   hidden completion horizon or tightening.
   Finish-by-deadline sells still require an explicit date and total.
