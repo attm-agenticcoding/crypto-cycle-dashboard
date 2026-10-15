@@ -221,14 +221,14 @@ if (process.env.RUN_EXECUTION_BROWSER_TESTS !== "1") {
     await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
   }
 
-  test("deadline defaults to December 31, 2026 on load and reload, and remains editable or clearable", async t => {
+  test("deadline defaults to March 31, 2027 on load and reload, and remains editable or clearable", async t => {
     const page = await open(t, { keepDefaultDeadline: true });
     const deadline = page.locator("#deadline");
-    assert.equal(await deadline.inputValue(), "2026-12-31");
+    assert.equal(await deadline.inputValue(), "2027-03-31");
     await page.locator("#side-sell").click();
-    assert.equal(await deadline.inputValue(), "2026-12-31", "SELL shares the requested default");
+    assert.equal(await deadline.inputValue(), "2027-03-31", "SELL shares the requested default");
     await page.locator("#side-buy").click();
-    assert.equal(await deadline.inputValue(), "2026-12-31", "BUY keeps the requested default");
+    assert.equal(await deadline.inputValue(), "2027-03-31", "BUY keeps the requested default");
     assert.equal(await deadline.evaluate(node => node.readOnly || node.disabled), false);
     await deadline.fill("2027-02-15");
     await page.locator("#instrument-select").selectOption("ARCX:ETH");
@@ -243,7 +243,7 @@ if (process.env.RUN_EXECUTION_BROWSER_TESTS !== "1") {
     assert.equal(await deadline.inputValue(), "", "clearing the default enables no-deadline pacing");
     await page.reload();
     await page.waitForFunction(() => !document.getElementById("instrument-select").disabled);
-    assert.equal(await deadline.inputValue(), "2026-12-31", "a fresh load needs no repeated date entry");
+    assert.equal(await deadline.inputValue(), "2027-03-31", "a fresh load needs no repeated date entry");
     for (const id of ["weekly-one", "weekly-two", "capital-one", "capital-two"]) {
       assert.equal(await page.locator(`#${id}`).inputValue(), "", "no account amount becomes a default");
     }
