@@ -17,6 +17,7 @@ class ClockTests(unittest.TestCase):
     def env(self):
         return {'GITHUB_REPOSITORY': clock.PUBLIC_REPOSITORY, 'GITHUB_REF': 'refs/heads/main',
                 'GH_TOKEN': 'test-self-token', 'CLOCK_ENABLED': 'true', 'GITHUB_RUN_ID': '123',
+                'CLOCK_SUCCESSOR_STATUS': 'successor-enqueued',
                 'CYCLE_SOURCE_REPOSITORY': 'attm-agenticcoding/test-private-source',
                 'CYCLE_CLOCK_INSTALLATION_ID': '456'}
 
@@ -35,16 +36,16 @@ class ClockTests(unittest.TestCase):
         self.assertEqual(clock.target_at(datetime.fromisoformat('2026-10-06T00:29:00+00:00')), ('live', '2026-10-05 16:00'))
         self.assertEqual(clock.target_at(datetime.fromisoformat('2026-10-06T00:30:00+00:00')), ('close', '2026-10-05'))
 
-    def test_verification_enqueues_only_one_successor_and_never_reads_private_credentials(self):
+    def test_verification_never_dispatches_again_or_reads_private_credentials(self):
         calls = []
         env = self.env()
         request = lambda *args: calls.append(args) or {}
         with patch.object(clock, 'refresh_private') as private:
             result = clock.advance(env, True, 1, request)
             self.assertTrue(result['successor_enqueued'])
-            self.assertEqual(calls[0][3]['inputs'], {'verify_only': 'true', 'remaining': '0'})
+            env['CLOCK_SUCCESSOR_STATUS'] = 'verification-complete'
             clock.advance(env, True, 0, request)
-            self.assertEqual(len(calls), 1)
+            self.assertEqual(calls, [])
             private.assert_not_called()
 
     def test_wrong_branch_or_repository_cannot_use_the_clock(self):
@@ -69,16 +70,28 @@ class ClockTests(unittest.TestCase):
             result = clock.advance(self.env(), False, 0, lambda *args: calls.append(args) or {}, lambda: receipt,
                                    datetime.fromisoformat('2026-10-04T15:05:00+00:00'))
             self.assertEqual(result['status'], 'already-published')
-            self.assertEqual(len(calls), 1)
+            self.assertEqual(calls, [])
             private.assert_not_called()
 
-    def test_a_source_failure_does_not_stop_the_successor(self):
+    def test_a_source_failure_never_dispatches_another_successor(self):
         calls = []
         with patch.object(clock, 'refresh_private', side_effect=RuntimeError('source unavailable')):
             with self.assertRaisesRegex(RuntimeError, 'source unavailable'):
                 clock.advance(self.env(), False, 0, lambda *args: calls.append(args) or {}, lambda: {})
-        self.assertEqual(len(calls), 1)
-        self.assertEqual(calls[0][3]['inputs']['verify_only'], 'false')
+        self.assertEqual(calls, [])
+
+    def test_publication_requires_confirmed_successor_scheduling(self):
+        for status in (None, '', 'disabled', 'verification-complete', 'unknown'):
+            env = self.env(); env['CLOCK_SUCCESSOR_STATUS'] = status
+            with patch.object(clock, 'refresh_private') as private, self.assertRaisesRegex(ValueError, 'Successor'):
+                clock.advance(env, False, 0)
+            private.assert_not_called()
+
+    def test_existing_successor_allows_publication_without_another_dispatch(self):
+        env = self.env(); env['CLOCK_SUCCESSOR_STATUS'] = 'successor-already-active'
+        with patch.object(clock, 'refresh_private', return_value='refresh-already-running') as private:
+            self.assertEqual(clock.advance(env, False, 0, read_receipt=lambda: {})['status'], 'refresh-already-running')
+            private.assert_called_once()
 
     def mock_private(self, extra_permission=False, running=False, fail_dispatch=False):
         calls = []

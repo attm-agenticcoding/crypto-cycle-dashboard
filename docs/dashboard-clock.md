@@ -15,7 +15,42 @@ The clock uses GitHub environment wait timers, then dispatches its next wait wit
 
 Set `DASHBOARD_CLOCK_ENABLED=false` to stop the continuing clock; disable this workflow for an immediate dispatch stop. A run already executing can finish. The private renderer's cron configuration remains a fallback. No paid-plan or billing setting is changed.
 
-Run `python3 -m unittest discover -s tests -p test_dashboard_clock.py -v` for scheduling, credential isolation, bounded verification, successor continuity and token revocation checks.
+Run `python3 -m unittest discover -s tests -p 'test_dashboard_*.py' -v` for scheduling, credential isolation, bounded verification, successor continuity and token revocation checks.
+
+## Continuity across checkout failures
+
+The first runner step in `dashboard-clock.yml` ensures a successor **before
+checkout**. Its Python is inline so a failed Git fetch, missing promisor blob, or
+missing repository script cannot prevent that step from executing. The following
+checkout can still fail visibly; the next tick goes through the existing protected
+environment and its normal wait. The publication script no longer enqueues runs.
+It requires the first step's successful scheduling result before checking or
+requesting publication, preserving the existing slot and private-renderer semantics.
+
+Each tick reads all five active states for this exact public clock, excludes its
+own run ID (including reruns), and lets an existing main-branch successor continue.
+Known verification runs have their separate concurrency group; ambiguous main
+runs block a new production dispatch. Missing/malformed inventory or more than
+100 runs in any state fails closed. The step issues at most one dispatch POST,
+with no retry after a lost or failed response; read requests have at most two
+five-second attempts each. A later rerun or watchdog check reconciles any run
+GitHub accepted. No cancellation, extra credential, permission, service, or
+environment-rule change is introduced. Production retains `cancel-in-progress:
+false`, and verification still allows at most one successor with `remaining=0`.
+
+The inline program is executed directly by `tests/test_dashboard_successor.py`,
+including from an empty working directory followed by Git exit 128. Regression
+coverage includes each active state, reruns, disabled/untrusted contexts,
+verification isolation, incomplete inventories, API failures and ambiguous POST
+responses. The watchdog's existing CI job runs these tests on pull requests and
+main pushes.
+
+This protects against failures after the scheduling step begins. Runner startup,
+action preparation, GitHub API outages, and incomplete run visibility can still
+interrupt or delay a chain. GitHub dispatch has no atomic deduplication key; the
+inventory check plus existing concurrency controls bounds ordinary recovery but
+cannot eliminate every race with an independent dispatch. The independent
+watchdog remains the fallback, subject to GitHub's cron and runner availability.
 
 ## Production verification — 2026-10-04
 

@@ -127,13 +127,15 @@ def advance(env, verify_only, remaining, request=api, read_receipt=None, now=Non
         raise ValueError('Verification is bounded to at most two ticks')
     if not verify_only and env.get('CLOCK_ENABLED') != 'true':
         return {'status': 'disabled'}
-    # Enqueue the next wait before refreshing. A source failure must not kill the clock.
-    if not verify_only or remaining:
-        request(f'/repos/{PUBLIC_REPOSITORY}/actions/workflows/{WORKFLOW}/dispatches',
-                env['GH_TOKEN'], 'POST', {'ref': 'main', 'inputs': {
-                    'verify_only': str(verify_only).lower(), 'remaining': str(max(0, remaining - 1))}})
+    # The inline workflow step schedules before checkout. Never dispatch here:
+    # retrying publication or reaching this script must not create a second chain.
+    successor = env.get('CLOCK_SUCCESSOR_STATUS')
+    expected = ('successor-enqueued', 'successor-already-active') if not verify_only or remaining else ('verification-complete',)
+    if successor not in expected:
+        raise ValueError('Successor scheduling must complete before publication')
     if verify_only:
-        return {'status': 'clock-verified', 'successor_enqueued': bool(remaining),
+        return {'status': 'clock-verified', 'successor_enqueued': successor == 'successor-enqueued',
+                'successor_status': successor,
                 'run_id': env.get('GITHUB_RUN_ID'), 'actor': env.get('GITHUB_ACTOR')}
     target = target_at(now or datetime.now(timezone.utc))
     try:
