@@ -88,6 +88,8 @@ if (process.env.RUN_EXECUTION_BROWSER_TESTS !== "1") {
     server = http.createServer((request, response) => {
       const pathname = new URL(request.url, "http://localhost").pathname;
       const files = {
+        "/theme.js": "theme.js",
+        "/theme.css": "theme.css",
         "/execution/": "execution/index.html",
         "/execution/index.html": "execution/index.html",
         "/execution/execution-core.js": "execution/execution-core.js",
@@ -96,7 +98,7 @@ if (process.env.RUN_EXECUTION_BROWSER_TESTS !== "1") {
         "/execution/task-ledger-ui.js": "execution/task-ledger-ui.js"
       };
       if (!files[pathname]) { response.writeHead(404); response.end(); return; }
-      response.writeHead(200, { "Content-Type": pathname.endsWith(".js") ? "application/javascript" : "text/html", "Cache-Control": "no-store" });
+      response.writeHead(200, { "Content-Type": pathname.endsWith(".js") ? "application/javascript" : pathname.endsWith(".css") ? "text/css" : "text/html", "Cache-Control": "no-store" });
       response.end(fs.readFileSync(path.join(root, files[pathname])));
     });
     await new Promise((resolve, reject) => { server.once("error", reject); server.listen(0, "127.0.0.1", resolve); });
