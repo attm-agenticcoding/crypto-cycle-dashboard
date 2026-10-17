@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#07111f">
   <title>Execution Calculator</title>
+  <script src="../theme.js"></script>
   <style>
     :root {
       color-scheme: dark;
@@ -35,7 +36,7 @@
     a { color: inherit; }
     button, input, select { font: inherit; }
     .shell { width: min(1180px, calc(100% - 28px)); margin: 0 auto; padding: 28px 0 64px; }
-    .topbar { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 32px; }
+    .topbar { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 32px; }
     .back { text-decoration: none; color: var(--muted); font-size: .91rem; }
     .back:hover { color: var(--text); }
     .tag { border: 1px solid var(--line); border-radius: 999px; padding: 7px 11px; color: var(--muted); font-size: .77rem; letter-spacing: .04em; text-transform: uppercase; }
@@ -177,13 +178,54 @@
       .result-metrics { grid-template-columns: 1fr 1fr; }
       h1 { font-size: 3rem; }
     }
+    .topbar-tools { display: flex; align-items: center; gap: 16px; margin-left: auto; }
+    :focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; }
+    :root[data-theme="light"] {
+      --bg: #f5f7fa;
+      --panel: rgba(255, 255, 255, .94);
+      --panel-2: #f0f4f8;
+      --line: #cbd5e1;
+      --text: #182333;
+      --muted: #51647a;
+      --blue: #075bb8;
+      --cyan: #007766;
+      --gold: #956000;
+      --red: #b2263b;
+      --green: #18744c;
+      --shadow: 0 12px 38px rgba(38, 61, 88, .08);
+    }
+    :root[data-theme="light"] body {
+      background: radial-gradient(circle at 15% -10%, #dfeeff, transparent 32rem),
+        radial-gradient(circle at 92% 12%, #e0f5ee, transparent 28rem), var(--bg);
+    }
+    :root[data-theme="light"] .stamp { background: linear-gradient(135deg, #e8f2fb, #f5fafc); }
+    :root[data-theme="light"] .side-toggle,
+    :root[data-theme="light"] .result-metric { background: #edf3f8; }
+    :root[data-theme="light"] input,
+    :root[data-theme="light"] select { background: #fff; border-color: #778a9d; }
+    :root[data-theme="light"] .account-result { background: #fff; }
+    :root[data-theme="light"] .instrument-rationale,
+    :root[data-theme="light"] footer { color: var(--muted); }
+    :root[data-theme="light"] .primary { color: #082535; background: linear-gradient(135deg, #77e4d1, #8bcdff); }
+    :root[data-theme="light"] body[data-side="sell"] .primary { background: linear-gradient(135deg, #ffda91, #ffc27d); }
+    :root[data-theme="light"] .side-toggle button[aria-pressed="true"] { color: #082535; background: #77e4d1; }
+    :root[data-theme="light"] .side-toggle button#side-sell[aria-pressed="true"] { background: #ffda91; }
+    :root[data-theme="light"] .secondary { border-color: #70a99f; background: #edf8f5; }
+    :root[data-theme="light"] .secondary:hover { background: #dff2ed; }
+    :root[data-theme="light"] .secondary.danger { border-color: #c9838c; background: #fff0f1; }
+    :root[data-theme="light"] .secondary.danger:hover { background: #fce1e4; }
+    :root[data-theme="light"] .result-empty { border-color: #778a9d; }
   </style>
+  <link rel="stylesheet" href="../theme.css">
 </head>
 <body>
   <main class="shell">
     <div class="topbar">
       <a class="back" href="../">← Crypto Cycle Dashboard</a>
-      <span class="tag">Execution layer · v5</span>
+      <div class="topbar-tools">
+        <span class="tag">Execution layer · v5</span>
+        <div class="theme-control"><label for="theme-select">Theme</label><select id="theme-select" data-theme-select><option value="system">System</option><option value="light">Light</option><option value="dark">Dark</option></select></div>
+      </div>
     </div>
 
     <section class="hero">

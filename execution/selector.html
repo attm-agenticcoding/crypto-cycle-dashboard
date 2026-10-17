@@ -1,10 +1,21 @@
 <!doctype html>
 <html lang="en">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Execution parameter selection</title>
+<script src="../theme.js"></script>
 <style>
 :root{color-scheme:dark;font-family:system-ui,sans-serif;background:#091321;color:#e5edf6}body{max-width:1050px;margin:0 auto;padding:32px 20px}a{color:#75c9ff}h1{font-size:28px;margin-bottom:8px}p{line-height:1.6;color:#b9c8d9}.controls{display:flex;gap:12px;flex-wrap:wrap;margin:28px 0}select{background:#15253a;color:#e5edf6;border:1px solid #3c526c;border-radius:8px;padding:12px;font-size:16px}.panel{border:1px solid #30445e;background:#101e30;border-radius:14px;padding:22px;margin-top:20px}.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:20px}.label{color:#adc0d5;font-size:13px}.value{font-size:24px;margin-top:6px}.scroll{overflow:auto}table{width:100%;border-collapse:collapse;margin-top:12px;white-space:nowrap}td,th{text-align:left;padding:12px;border-bottom:1px solid #30445e}th{color:#b9c8d9;font-size:13px}.note{font-size:13px}.error{color:#ffafb2}#reason{color:#e5edf6}
-</style></head>
-<body><a href="./">← Execution calculator</a><h1>Execution parameter selection</h1><p>See the lowest sample cost, the adopted parameters, and why the prior was kept or replaced.</p>
+.selector-topbar{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+:focus-visible{outline:3px solid var(--theme-focus);outline-offset:3px}
+:root[data-theme="light"]{background:#f5f7fa;color:#182333}
+:root[data-theme="light"] a{color:#075bb8}
+:root[data-theme="light"] p,:root[data-theme="light"] .label,:root[data-theme="light"] th{color:#51647a}
+:root[data-theme="light"] select{background:#fff;color:#182333;border-color:#778a9d}
+:root[data-theme="light"] .panel{background:#fff;border-color:#cbd5e1}
+:root[data-theme="light"] td,:root[data-theme="light"] th{border-color:#cbd5e1}
+:root[data-theme="light"] .error{color:#b2263b}
+:root[data-theme="light"] #reason{color:#182333}
+</style><link rel="stylesheet" href="../theme.css"></head>
+<body><div class="selector-topbar"><a href="./">← Execution calculator</a><div class="theme-control"><label for="theme-select">Theme</label><select id="theme-select" data-theme-select><option value="system">System</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div><h1>Execution parameter selection</h1><p>See the lowest sample cost, the adopted parameters, and why the prior was kept or replaced.</p>
 <div class="controls"><label>Instrument <select id="instrument"></select></label><label>Direction <select id="side"><option value="buy">Buy</option><option value="sell">Sell</option></select></label></div>
 <p id="status" role="status">Loading published parameters…</p>
 <div id="details" hidden><section class="panel stats"><div><div class="label">Eligible candidates</div><div class="value" id="eligible"></div></div><div><div class="label">Common scoring weeks</div><div class="value" id="weeks"></div></div><div><div class="label">Latest input session</div><div class="value" id="data-date"></div></div></section>
