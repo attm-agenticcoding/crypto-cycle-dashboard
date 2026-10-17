@@ -37,7 +37,8 @@ class FakeAPI:
             return {}
         status = path.split('status=')[1].split('&')[0]
         rows = [deepcopy(item) for item in self.runs if item['status'] == status]
-        return {'workflow_runs': rows, 'total_count': len(rows)}
+        page = int(path.split('page=')[-1])
+        return {'workflow_runs': rows[(page - 1) * 100:page * 100], 'total_count': len(rows)}
 
     @property
     def posts(self):
@@ -55,7 +56,7 @@ class SuccessorTests(unittest.TestCase):
         for attempt in (1, 2):
             api = FakeAPI([run(run_attempt=attempt)])
             self.assertEqual(successor.enqueue(self.env(), api), {'status': 'successor-enqueued'})
-            self.assertEqual(len(api.calls), 6)
+            self.assertEqual(len(api.calls), 11)
             self.assertEqual(api.posts, [(successor.PREFIX + '/dispatches', 'test-self-token', 'POST',
                 {'ref': 'main', 'inputs': {'verify_only': 'false', 'remaining': '0'}})])
 
@@ -105,19 +106,179 @@ class SuccessorTests(unittest.TestCase):
                 successor.enqueue(self.env(**change), api)
             self.assertEqual(api.calls, [])
 
-    def test_missing_truncated_oversized_and_duplicate_inventories_fail_closed(self):
-        cases = ({}, {'total_count': 1, 'workflow_runs': []},
-                 {'total_count': 101, 'workflow_runs': [run(i + 1) for i in range(100)]},
-                 {'total_count': 2, 'workflow_runs': [run(), run()]},
-                 {'total_count': False, 'workflow_runs': []})
-        for payload in cases:
+    def test_malformed_and_oversized_inventories_fail_closed_without_retry(self):
+        for payload in ({}, [], None, {'total_count': False, 'workflow_runs': []},
+                        {'total_count': -1, 'workflow_runs': []},
+                        {'total_count': 1001, 'workflow_runs': [run(i + 1) for i in range(100)]}):
             calls = []
             def api(*args):
                 calls.append(args)
                 return payload
-            with self.assertRaises(ValueError):
+            with self.assertRaises(ValueError), patch.object(successor.time, 'sleep') as sleep:
                 successor.enqueue(self.env(), api)
             self.assertEqual(len(calls), 1)
+            sleep.assert_not_called()
+
+    def test_persistent_missing_rows_and_duplicates_retry_three_times_then_fail_closed(self):
+        for payload in ({'total_count': 1, 'workflow_runs': []},
+                        {'total_count': 0, 'workflow_runs': [run()]},
+                        {'total_count': 2, 'workflow_runs': [run(), run()]}):
+            calls = []
+            def api(*args):
+                calls.append(args)
+                return payload
+            with patch.object(successor.time, 'sleep') as sleep, patch('sys.stdout', new_callable=io.StringIO) as output:
+                with self.assertRaisesRegex(ValueError, 'inconsistent after 3'):
+                    successor.enqueue(self.env(), api)
+            self.assertEqual(len(calls), 3)
+            self.assertEqual([c.args[0] for c in sleep.call_args_list], [1, 2])
+            diagnostics = [json.loads(line) for line in output.getvalue().splitlines()]
+            self.assertEqual([d['attempt'] for d in diagnostics], [1, 2, 3])
+            self.assertIn('status=requested page=1', diagnostics[0]['reason'])
+            self.assertNotIn('test-self-token', output.getvalue())
+
+    def test_transient_count_mismatch_restarts_entire_scan_then_dispatches_once(self):
+        api = FakeAPI([run()])
+        failed = False
+        def request(*args):
+            nonlocal failed
+            if 'status=in_progress' in args[0] and not failed:
+                failed = True
+                api.calls.append((*args, 'GET', None))
+                return {'total_count': 1, 'workflow_runs': []}
+            return api(*args)
+        with patch.object(successor.time, 'sleep') as sleep:
+            self.assertEqual(successor.enqueue(self.env(), request)['status'], 'successor-enqueued')
+        self.assertEqual(len(api.posts), 1)
+        self.assertEqual(sum('status=requested' in c[0] for c in api.calls), 3)
+        sleep.assert_called_once_with(1)
+
+    def test_transient_mismatch_recovery_finds_new_blocker_without_post(self):
+        api = FakeAPI([run(124, 'waiting')])
+        first = True
+        def request(*args):
+            nonlocal first
+            if first:
+                first = False
+                return {'total_count': 1, 'workflow_runs': []}
+            return api(*args)
+        with patch.object(successor.time, 'sleep'):
+            self.assertEqual(successor.enqueue(self.env(), request),
+                             {'status': 'successor-already-active', 'run_ids': [124]})
+        self.assertEqual(api.posts, [])
+
+    def test_inventory_paginates_and_finds_blocker_after_first_page(self):
+        for total in (100, 101, 1000):
+            rows = [run(1000 + i, 'waiting', head_branch='other') for i in range(total)]
+            rows[-1]['head_branch'] = 'main'
+            api = FakeAPI(rows)
+            self.assertEqual(successor.enqueue(self.env(), api),
+                             {'status': 'successor-already-active', 'run_ids': [rows[-1]['id']]})
+            pages = [c[0] for c in api.calls if 'status=waiting' in c[0]]
+            self.assertEqual(len(pages), (total + 99) // 100)
+            self.assertEqual(api.posts, [])
+
+    def test_complete_paginated_nonblockers_can_dispatch_once(self):
+        api = FakeAPI([run(i + 1000, 'waiting', head_branch='other') for i in range(101)])
+        self.assertEqual(successor.enqueue(self.env(), api)['status'], 'successor-enqueued')
+        self.assertEqual(len(api.posts), 1)
+        self.assertEqual(sum('page=2' in c[0] for c in api.calls), 2)
+
+    def test_total_drift_or_duplicate_across_pages_restarts_from_page_one(self):
+        for problem in ('count', 'duplicate'):
+            rows = [run(i + 1000, 'waiting', head_branch='other') for i in range(101)]
+            api = FakeAPI(rows)
+            failed = False
+            def request(*args):
+                nonlocal failed
+                payload = api(*args)
+                if 'status=waiting' in args[0] and 'page=2' in args[0] and not failed:
+                    failed = True
+                    if problem == 'count':
+                        payload['total_count'] = 100
+                        payload['workflow_runs'] = []
+                    else:
+                        payload['workflow_runs'] = [deepcopy(rows[0])]
+                return payload
+            with patch.object(successor.time, 'sleep'):
+                self.assertEqual(successor.enqueue(self.env(), request)['status'], 'successor-enqueued')
+            self.assertEqual(sum('status=requested' in c[0] for c in api.calls), 3)
+            self.assertEqual(len(api.posts), 1)
+
+    def test_cross_status_transition_does_not_erase_observed_active_blocker(self):
+        api = FakeAPI()
+        def request(path, *args):
+            api.calls.append((path, *args))
+            if 'status=waiting' in path:
+                return {'total_count': 1, 'workflow_runs': [run(124, 'waiting')]}
+            if 'status=in_progress' in path:
+                return {'total_count': 1, 'workflow_runs': [run(124, 'completed')]}
+            return {'total_count': 0, 'workflow_runs': []}
+        self.assertEqual(successor.enqueue(self.env(), request),
+                         {'status': 'successor-already-active', 'run_ids': [124]})
+        self.assertFalse(any('/dispatches' in c[0] for c in api.calls))
+
+    def test_cross_status_metadata_change_cannot_erase_earlier_blocker(self):
+        for change in ({'head_branch': 'other'}, {'display_title': successor.VERIFY_NAME}):
+            calls = []
+            def request(path, *args):
+                calls.append(path)
+                if 'status=waiting' in path:
+                    return {'total_count': 1, 'workflow_runs': [run(124, 'waiting')]}
+                if 'status=in_progress' in path:
+                    return {'total_count': 1, 'workflow_runs': [run(124, **change)]}
+                return {'total_count': 0, 'workflow_runs': []}
+            self.assertEqual(successor.enqueue(self.env(), request),
+                             {'status': 'successor-already-active', 'run_ids': [124]})
+            self.assertFalse(any('/dispatches' in path for path in calls))
+
+    def test_second_complete_scan_observes_new_successor(self):
+        api = FakeAPI()
+        def request(*args):
+            if len(api.calls) == 5:
+                api.runs.append(run(124, 'waiting'))
+            return api(*args)
+        self.assertEqual(successor.enqueue(self.env(), request)['status'], 'successor-already-active')
+        self.assertEqual(api.posts, [])
+
+    def test_deadline_expiring_during_scan_never_dispatches(self):
+        api = FakeAPI()
+        seconds = 0
+        def request(*args):
+            nonlocal seconds
+            result = api(*args)
+            seconds = 91
+            return result
+        with patch.object(successor.time, 'monotonic', side_effect=lambda: seconds):
+            with self.assertRaisesRegex(ValueError, 'deadline'):
+                successor.enqueue(self.env(), request)
+        self.assertEqual(api.posts, [])
+
+    def test_deadline_expiring_after_final_read_never_dispatches(self):
+        api = FakeAPI()
+        seconds = 0
+        def request(*args):
+            nonlocal seconds
+            result = api(*args)
+            if len(api.calls) == 10:
+                seconds = 91
+            return result
+        with patch.object(successor.time, 'monotonic', side_effect=lambda: seconds):
+            with self.assertRaisesRegex(ValueError, 'deadline'):
+                successor.enqueue(self.env(), request)
+        self.assertEqual(len(api.calls), 10)
+        self.assertEqual(api.posts, [])
+
+    def test_http_get_timeout_and_retry_fit_remaining_budget(self):
+        with patch.object(successor.time, 'monotonic', return_value=89.5), \
+                patch.object(successor.urllib.request, 'build_opener') as opener, \
+                patch.object(successor.time, 'sleep') as sleep:
+            opener.return_value.open.side_effect = TimeoutError()
+            with self.assertRaisesRegex(ValueError, 'deadline'):
+                successor.github_api(successor.PREFIX + '/runs', 'test', deadline=90)
+            self.assertEqual(opener.return_value.open.call_args.kwargs['timeout'], 0.5)
+            self.assertEqual(opener.return_value.open.call_count, 1)
+            sleep.assert_not_called()
 
     def test_malformed_run_identity_never_dispatches(self):
         for change in ({'path': 'other.yml'}, {'repository': {}}, {'id': None},

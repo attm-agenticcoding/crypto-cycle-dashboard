@@ -64,7 +64,7 @@ jobs:
               def redirect_request(self, req, fp, code, msg, headers, newurl):
                   return None
 
-          def github_api(path, token, method='GET', body=None):
+          def github_api(path, token, method='GET', body=None, deadline=None):
               payload = None if body is None else json.dumps(body).encode()
               req = urllib.request.Request('https://api.github.com' + path, data=payload, method=method,
                   headers={'Authorization': 'Bearer ' + token, 'Accept': 'application/vnd.github+json',
@@ -74,8 +74,11 @@ jobs:
               # GitHub may have accepted it before the response was lost.
               attempts = 2 if method == 'GET' else 1
               for attempt in range(attempts):
+                  if deadline is not None:
+                      check_budget(deadline)
+                  timeout = 5 if deadline is None else min(5, deadline - time.monotonic())
                   try:
-                      with urllib.request.build_opener(NoRedirect).open(req, timeout=5) as response:
+                      with urllib.request.build_opener(NoRedirect).open(req, timeout=max(0.001, timeout)) as response:
                           data = response.read()
                           return json.loads(data) if data else {}
                   except urllib.error.HTTPError as exc:
@@ -85,7 +88,82 @@ jobs:
                       retry = True
                   if not retry or attempt == attempts - 1:
                       raise RuntimeError(f'GitHub {method} failed; reconcile before another dispatch') from None
+                  if deadline is not None and time.monotonic() + 1 >= deadline:
+                      raise ValueError('Run inventory deadline exceeded; refusing dispatch')
                   time.sleep(1)
+
+          class InventoryChanged(ValueError):
+              """A read was valid JSON but not a complete, consistent inventory."""
+
+          def check_budget(deadline):
+              if time.monotonic() >= deadline:
+                  raise ValueError('Run inventory deadline exceeded; refusing dispatch')
+
+          def inventory(env, request, deadline):
+              found = []
+              for status in ACTIVE:
+                  expected_total, seen = None, set()
+                  for page in range(1, 11):
+                      check_budget(deadline)
+                      payload = request(PREFIX + f'/runs?status={status}&per_page=100&page={page}', env['GH_TOKEN'])
+                      rows = payload.get('workflow_runs') if isinstance(payload, dict) else None
+                      total = payload.get('total_count') if isinstance(payload, dict) else None
+                      if not isinstance(rows, list) or type(total) is not int or total < 0:
+                          raise ValueError(f'Malformed run inventory: status={status} page={page}; refusing dispatch')
+                      detail = f'status={status} page={page} total={total} rows={len(rows)} expected_total={expected_total}'
+                      if total > 1000:
+                          raise ValueError(f'Run inventory exceeds 1000-row safety bound: {detail}; refusing dispatch')
+                      if (expected_total is not None and total != expected_total
+                              or len(rows) != min(100, max(0, total - (page - 1) * 100))):
+                          raise InventoryChanged(f'Incomplete or changing run inventory: {detail}')
+                      expected_total = total
+                      for run in rows:
+                          if (not isinstance(run, dict) or type(run.get('id')) is not int or run['id'] <= 0
+                                  or run.get('path') != '.github/workflows/' + WORKFLOW
+                                  or not isinstance(run.get('repository'), dict)
+                                  or run['repository'].get('full_name') != REPOSITORY
+                                  or any(not isinstance(run.get(key), str) or not run[key]
+                                         for key in ('head_branch', 'event', 'display_title', 'status'))
+                                  or run['status'] not in (*ACTIVE, 'completed')):
+                              raise ValueError(f'Malformed run identity: {detail}; refusing dispatch')
+                          if run['id'] in seen:
+                              raise InventoryChanged(f'Duplicate run across inventory pages: {detail}')
+                          seen.add(run['id'])
+                          # Preserve every validated sighting: later status or
+                          # identity metadata must not erase an earlier blocker.
+                          found.append(run)
+                      if len(seen) == total:
+                          break
+                  else:
+                      raise ValueError('Run inventory exceeds page bound; refusing dispatch')
+              return found
+
+          def reconcile(env, request, current, verify, deadline):
+              # Retry the entire read-only scan, never the dispatch. Counts and
+              # rows can disagree while GitHub updates its run-state indexes.
+              for attempt in range(1, 4):
+                  try:
+                      blockers = set()
+                      # Two complete scans reduce the window for state transitions
+                      # between filters. They are not an atomic GitHub snapshot.
+                      for _ in range(2):
+                          for run in inventory(env, request, deadline):
+                              if (run['id'] != current and run['head_branch'] == 'main'
+                                      and run['status'] in ACTIVE
+                                      and (run['display_title'] == VERIFY_NAME) == verify):
+                                  blockers.add(run['id'])
+                          if blockers:
+                              return blockers
+                      check_budget(deadline)
+                      return blockers
+                  except InventoryChanged as exc:
+                      print(json.dumps({'event': 'successor-inventory-retry', 'attempt': attempt,
+                                        'reason': str(exc)}, sort_keys=True))
+                      if attempt == 3:
+                          raise ValueError(f'Run inventory inconsistent after {attempt} scans; refusing dispatch: {exc}') from None
+                      check_budget(deadline)
+                      time.sleep(attempt)
+              raise AssertionError('Unreachable inventory retry state')
 
           def enqueue(env, request=github_api):
               if (env.get('GITHUB_REPOSITORY') != REPOSITORY or env.get('GITHUB_REF') != 'refs/heads/main'
@@ -101,30 +179,12 @@ jobs:
               current = int(env['GITHUB_RUN_ID'])
               if current <= 0:
                   raise ValueError('Missing current run identity')
-              blockers = set()
-              for status in ACTIVE:
-                  inventory = request(PREFIX + f'/runs?status={status}&per_page=100', env['GH_TOKEN'])
-                  rows, total = inventory.get('workflow_runs'), inventory.get('total_count')
-                  if (not isinstance(rows, list) or type(total) is not int
-                          or not 0 <= total <= 100 or len(rows) != total):
-                      raise ValueError('Incomplete or oversized run inventory; refusing dispatch')
-                  seen = set()
-                  for run in rows:
-                      if (not isinstance(run, dict) or type(run.get('id')) is not int or run['id'] <= 0
-                              or run['id'] in seen or run.get('path') != '.github/workflows/' + WORKFLOW
-                              or not isinstance(run.get('repository'), dict)
-                              or run['repository'].get('full_name') != REPOSITORY
-                              or any(not isinstance(run.get(key), str) or not run[key]
-                                     for key in ('head_branch', 'event', 'display_title', 'status'))
-                              or run['status'] not in (*ACTIVE, 'completed')):
-                          raise ValueError('Malformed run identity; refusing dispatch')
-                      seen.add(run['id'])
-                      if (run['id'] != current and run['head_branch'] == 'main'
-                              and run['status'] in ACTIVE
-                              and (run['display_title'] == VERIFY_NAME) == verify):
-                          blockers.add(run['id'])
+              deadline = time.monotonic() + 90
+              read = (lambda path, token: github_api(path, token, deadline=deadline)) if request is github_api else request
+              blockers = reconcile(env, read, current, verify, deadline)
               if blockers:
                   return {'status': 'successor-already-active', 'run_ids': sorted(blockers)}
+              check_budget(deadline)
               request(PREFIX + '/dispatches', env['GH_TOKEN'], 'POST',
                       {'ref': 'main', 'inputs': {'verify_only': str(verify).lower(), 'remaining': '0'}})
               return {'status': 'successor-enqueued'}
