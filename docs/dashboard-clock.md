@@ -30,10 +30,22 @@ requesting publication, preserving the existing slot and private-renderer semant
 Each tick reads all five active states for this exact public clock, excludes its
 own run ID (including reruns), and lets an existing main-branch successor continue.
 Known verification runs have their separate concurrency group; ambiguous main
-runs block a new production dispatch. Missing/malformed inventory or more than
-100 runs in any state fails closed. The step issues at most one dispatch POST,
-with no retry after a lost or failed response; read requests have at most two
-five-second attempts each. A later rerun or watchdog check reconciles any run
+runs block a new production dispatch. Each state is paginated in batches of 100,
+up to GitHub's 1,000-result filtered-search bound. A count mismatch, changing total,
+or repeated ID within a state's pages restarts the **whole read-only scan**, at
+most three attempts with one- and two-second backoff. A dispatch requires two
+complete scans without a blocker. An observed active blocker is retained even if
+a later status query reports that run completed. Missing/malformed schema or
+identity, more than 1,000 results, persistent inconsistency, and exhausted read
+budget all fail closed. Retry diagnostics record the attempt, status, page, total,
+and received row count without tokens or response bodies.
+
+The reconciliation budget is 90 seconds, checked before reads and immediately
+before dispatch; each HTTP read attempt uses at most five seconds or the remaining
+budget, with at most two attempts. This is a cooperative budget, not a hard
+whole-response deadline (urllib timeouts bound blocking socket operations).
+The existing two-minute step timeout remains the outer bound. The step issues at
+most one dispatch POST, with no retry after a lost or failed response. A later rerun or watchdog check reconciles any run
 GitHub accepted. No cancellation, extra credential, permission, service, or
 environment-rule change is introduced. Production retains `cancel-in-progress:
 false`, and verification still allows at most one successor with `remaining=0`.
@@ -41,8 +53,9 @@ false`, and verification still allows at most one successor with `remaining=0`.
 The inline program is executed directly by `tests/test_dashboard_successor.py`,
 including from an empty working directory followed by Git exit 128. Regression
 coverage includes each active state, reruns, disabled/untrusted contexts,
-verification isolation, incomplete inventories, API failures and ambiguous POST
-responses. The watchdog's existing CI job runs these tests on pull requests and
+verification isolation, page boundaries through 1,000 results, transient and
+persistent count mismatches, pagination drift and duplicates, cross-status
+transitions, deadline exhaustion, API failures and ambiguous POST responses. The watchdog's existing CI job runs these tests on pull requests and
 main pushes.
 
 This protects against failures after the scheduling step begins. Runner startup,
@@ -51,6 +64,30 @@ interrupt or delay a chain. GitHub dispatch has no atomic deduplication key; the
 inventory check plus existing concurrency controls bounds ordinary recovery but
 cannot eliminate every race with an independent dispatch. The independent
 watchdog remains the fallback, subject to GitHub's cron and runner availability.
+
+
+## Inventory interruption investigation — 2026-10-17
+
+The [16:36 UTC run](https://github.com/attm-agenticcoding/crypto-cycle-dashboard/actions/runs/39049787551)
+and [21:14 UTC run](https://github.com/attm-agenticcoding/crypto-cycle-dashboard/actions/runs/39069720956)
+both failed at the inline `Incomplete or oversized run inventory` guard before
+checkout, successor dispatch, or publication. The original guard required the
+first page's row count to equal `total_count` and rejected totals above 100;
+transport retries did not cover a successful HTTP response with inconsistent
+inventory. The historic logs contain no queried status, count, or payload, so
+these logs cannot establish whether each failure was count drift, truncation, or
+malformed data. Read-only checks at 22:06 UTC found zero active runs and consistent
+zero-count responses for all five states; the historical failure was not reproduced
+in those later reads. Do not describe pagination overflow as a proven incident cause.
+
+The repair covers both complete multi-page responses and transient count/page
+inconsistency without relaxing completeness or identity validation. Future failures
+will contain the missing status/count evidence. This change does not alter watchdog
+recovery, the wait timer, environment settings, concurrency groups, private token
+scope, publication code, or production data. A passing PR test is not evidence of
+production recovery; merge and live continuation verification remain separate.
+
+Reference: [GitHub workflow-run pagination and filtered-search limits](https://docs.github.com/en/rest/actions/workflow-runs?apiVersion=2022-11-28#list-workflow-runs-for-a-workflow).
 
 ## Production verification — 2026-10-04
 
