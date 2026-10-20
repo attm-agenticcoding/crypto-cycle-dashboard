@@ -21,20 +21,24 @@ WORKFLOW = 'dashboard-clock.yml'
 ET = ZoneInfo('America/New_York')
 
 
+LIVE_TIMES = [(8, 30), (10, 30), (12, 30), (14, 30), (16, 30)]
+
+
+def close_at(day):
+    return datetime.combine(day, datetime.min.time().replace(hour=20, minute=30), ET)
+
+
 def target_at(now):
     now = now.astimezone(ET)
-    today = now.date()
-    close = datetime.combine(today, datetime.min.time().replace(hour=20, minute=30), ET)
-    if today.weekday() == 6:
-        close = datetime.combine(today + timedelta(days=1), datetime.min.time(), timezone.utc).astimezone(ET)
-    if now >= close:
-        return 'close', today.isoformat()
-    clock = now.hour * 60 + now.minute
-    if clock < 390:
-        return 'close', (today - timedelta(days=1)).isoformat()
-    # Match private main: hourly from 09:30, retaining the 16:00 endpoint.
-    minute = 390 if clock < 570 else 960 if clock >= 960 else 570 + (clock - 570) // 60 * 60
-    return 'live', f'{today} {minute // 60:02d}:{minute % 60:02d}'
+    day = now.date()
+    if now >= close_at(day):
+        return 'close', day.isoformat()
+    if day.weekday() < 5:
+        slots = [datetime.combine(day, datetime.min.time().replace(hour=h, minute=m), ET) for h, m in LIVE_TIMES]
+        past = [slot for slot in slots if slot <= now]
+        if past:
+            return 'live', max(past).strftime('%Y-%m-%d %H:%M')
+    return 'close', (day - timedelta(days=1)).isoformat()
 
 
 def is_current(receipt, target):

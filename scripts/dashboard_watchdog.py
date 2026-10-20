@@ -9,7 +9,7 @@ import time
 import urllib.error
 import urllib.request
 
-from dashboard_clock import PUBLIC_REPOSITORY, WORKFLOW, RECEIPT_URL, ET, target_at, NoRedirect
+from dashboard_clock import PUBLIC_REPOSITORY, WORKFLOW, RECEIPT_URL, ET, target_at, NoRedirect, LIVE_TIMES, close_at
 
 PREFIX = f'/repos/{PUBLIC_REPOSITORY}'
 CLOCK_PATH = '.github/workflows/' + WORKFLOW
@@ -232,15 +232,12 @@ def cancellation_evidence(api, token, path, now):
 def slot_time(mode, slot):
     if mode == 'live':
         result = datetime.strptime(slot, '%Y-%m-%d %H:%M').replace(tzinfo=ET)
-        if result.strftime('%H:%M') != '06:30' and not (9 <= result.hour <= 16 and result.minute in (0, 30)
-            and '09:30' <= result.strftime('%H:%M') <= '16:00'):
+        if result.weekday()>=5 or (result.hour,result.minute) not in LIVE_TIMES:
             raise ValueError('Invalid live slot')
         return result
     if mode == 'close':
         day = datetime.strptime(slot, '%Y-%m-%d').date()
-        if day.weekday() == 6:
-            return datetime.combine(day + timedelta(days=1), datetime.min.time(), timezone.utc)
-        return datetime.combine(day, datetime.min.time().replace(hour=20, minute=30), ET)
+        return close_at(day)
     raise ValueError('Not a main publication mode')
 
 

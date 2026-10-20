@@ -21,40 +21,41 @@ class ClockTests(unittest.TestCase):
                 'CYCLE_SOURCE_REPOSITORY': 'attm-agenticcoding/test-private-source',
                 'CYCLE_CLOCK_INSTALLATION_ID': '456'}
 
-    def test_new_york_morning_boundary_in_both_seasons(self):
-        for date, hour in [('2026-03-07', '11'), ('2026-03-08', '10'), ('2026-10-04', '10'), ('2026-11-01', '11')]:
-            self.assertEqual(clock.target_at(datetime.fromisoformat(f'{date}T{hour}:30:00+00:00')), ('live', f'{date} 06:30'))
-            self.assertEqual(clock.target_at(datetime.fromisoformat(f'{date}T{hour}:29:00+00:00'))[0], 'close')
+    def test_weekday_boundaries_and_two_hour_spacing(self):
+        for date in ('2026-03-06','2026-03-09','2026-10-20','2026-10-30','2026-11-02'):
+            for instant, mode, slot in [('06:30','close',None),('08:29','close',None),
+                    ('08:30','live','08:30'),('09:30','live','08:30'),('10:29','live','08:30'),
+                    ('10:30','live','10:30'),('12:30','live','12:30'),('14:30','live','14:30'),
+                    ('16:00','live','14:30'),('16:30','live','16:30'),('20:29','live','16:30'),
+                    ('20:30','close',date),('23:59','close',date)]:
+                now=datetime.fromisoformat(f'{date}T{instant}').replace(tzinfo=clock.ET)
+                target=slot if slot else (now.date()-clock.timedelta(days=1)).isoformat()
+                if mode=='live':target=f'{date} {slot}'
+                self.assertEqual(clock.target_at(now),(mode,target))
+            self.assertEqual([h*60+m for h,m in clock.LIVE_TIMES],[510,630,750,870,990])
 
-    def test_delayed_clock_selects_current_slot_and_stops_at_sixteen(self):
-        self.assertEqual(clock.target_at(datetime.fromisoformat('2026-10-04T15:34:00+00:00')), ('live', '2026-10-04 11:30'))
-        self.assertEqual(clock.target_at(datetime.fromisoformat('2026-10-04T21:00:00+00:00')), ('live', '2026-10-04 16:00'))
+    def test_weekends_only_close_and_sunday_follows_new_york_dst(self):
+        for date in ('2026-03-07','2026-03-08','2026-10-31','2026-11-01'):
+            for hour in range(24):
+                now=datetime.fromisoformat(f'{date}T{hour:02d}:30').replace(tzinfo=clock.ET)
+                day=now.date() if hour>=20 else now.date()-clock.timedelta(days=1)
+                self.assertEqual(clock.target_at(now),('close',day.isoformat()))
+        for date,utc in [('2026-03-08','2026-03-09T00:30:00+00:00'),('2026-11-01','2026-11-02T01:30:00+00:00')]:
+            self.assertEqual(clock.close_at(datetime.fromisoformat(date).date()).astimezone(clock.timezone.utc).isoformat(),utc)
 
-    def test_hourly_boundaries_in_both_seasons(self):
-        for date in ('2026-03-07', '2026-03-08', '2026-10-20', '2026-11-01', '2026-11-02'):
-            for instant, slot in [('09:29', '06:30'), ('09:30', '09:30'), ('10:00', '09:30'),
-                                  ('10:29', '09:30'), ('10:30', '10:30'), ('15:59', '15:30'),
-                                  ('16:00', '16:00'), ('18:59', '16:00')]:
-                now = datetime.fromisoformat(f'{date}T{instant}').replace(tzinfo=clock.ET)
-                self.assertEqual(clock.target_at(now), ('live', f'{date} {slot}'))
-
-    def test_removed_half_hour_never_repeatedly_dispatches_private(self):
-        receipt = {'publisher': 'github-actions', 'kind': 'main', 'mode': 'live', 'logical_slot': '2026-10-20 09:30'}
-        with patch.object(clock, 'refresh_private') as private:
-            for minute in range(60):
-                now = datetime.fromisoformat('2026-10-20T09:30').replace(tzinfo=clock.ET) + clock.timedelta(minutes=minute)
-                result = clock.advance(self.env(), False, 0, read_receipt=lambda: receipt, now=now)
-                self.assertEqual(result['status'], 'already-published')
+    def test_removed_slots_do_not_dispatch_private(self):
+        for date,slot,start,count in [('2026-10-20','08:30','08:30',120),('2026-10-20','14:30','14:30',120)]:
+            receipt={'publisher':'github-actions','kind':'main','mode':'live','logical_slot':f'{date} {slot}'}
+            with patch.object(clock,'refresh_private') as private:
+                for minute in range(count):
+                    now=datetime.fromisoformat(f'{date}T{start}').replace(tzinfo=clock.ET)+clock.timedelta(minutes=minute)
+                    self.assertEqual(clock.advance(self.env(),False,0,read_receipt=lambda:receipt,now=now)['status'],'already-published')
+                private.assert_not_called()
+        receipt={'publisher':'github-actions','kind':'main','mode':'close','logical_slot':'2026-10-23'}
+        now=datetime.fromisoformat('2026-10-24T16:00').replace(tzinfo=clock.ET)
+        with patch.object(clock,'refresh_private') as private:
+            self.assertEqual(clock.advance(self.env(),False,0,read_receipt=lambda:receipt,now=now)['status'],'already-published')
             private.assert_not_called()
-            now = datetime.fromisoformat('2026-10-20T10:30').replace(tzinfo=clock.ET)
-            clock.advance(self.env(), False, 0, read_receipt=lambda: receipt, now=now)
-            private.assert_called_once()
-
-    def test_sunday_close_stays_fixed_to_utc_in_both_seasons(self):
-        for utc_date, day in [('2026-10-05', '2026-10-04'), ('2026-11-02', '2026-11-01')]:
-            self.assertEqual(clock.target_at(datetime.fromisoformat(f'{utc_date}T00:00:00+00:00')), ('close', day))
-        self.assertEqual(clock.target_at(datetime.fromisoformat('2026-10-06T00:29:00+00:00')), ('live', '2026-10-05 16:00'))
-        self.assertEqual(clock.target_at(datetime.fromisoformat('2026-10-06T00:30:00+00:00')), ('close', '2026-10-05'))
 
     def test_verification_never_dispatches_again_or_reads_private_credentials(self):
         calls = []
@@ -84,11 +85,11 @@ class ClockTests(unittest.TestCase):
             with self.assertRaises(ValueError): clock.advance(self.env(), True, value)
 
     def test_completed_publication_skips_private_credentials_but_keeps_clock_running(self):
-        receipt = {'publisher': 'github-actions', 'kind': 'main', 'mode': 'live', 'logical_slot': '2026-10-04 11:00'}
+        receipt = {'publisher': 'github-actions', 'kind': 'main', 'mode': 'live', 'logical_slot': '2026-10-06 10:30'}
         calls = []
         with patch.object(clock, 'refresh_private') as private:
             result = clock.advance(self.env(), False, 0, lambda *args: calls.append(args) or {}, lambda: receipt,
-                                   datetime.fromisoformat('2026-10-04T15:05:00+00:00'))
+                                   datetime.fromisoformat('2026-10-06T15:05:00+00:00'))
             self.assertEqual(result['status'], 'already-published')
             self.assertEqual(calls, [])
             private.assert_not_called()

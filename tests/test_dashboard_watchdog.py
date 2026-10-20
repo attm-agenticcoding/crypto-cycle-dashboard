@@ -61,7 +61,7 @@ def env(**updates):
     return value
 
 
-def publication(mode='live', slot='2026-10-06 11:00', **updates):
+def publication(mode='live', slot='2026-10-06 10:30', **updates):
     snap = {'masked': True, 'run_kind': mode, 'generated_at': '2026-10-06T11:02:00-04:00'}
     raw = json.dumps(snap).encode()
     index = b'<html>actual main publication</html>'
@@ -494,11 +494,16 @@ class FreshnessTests(unittest.TestCase):
         self.assertFalse(wd.freshness(NOW, '9', reader(contents))['fresh'])
 
     def test_new_close_is_newer_than_prior_live_across_mode_transition(self):
-        self.assertGreater(wd.slot_time('close', '2026-10-05'), wd.slot_time('live', '2026-10-05 16:00'))
+        self.assertGreater(wd.slot_time('close', '2026-10-05'), wd.slot_time('live', '2026-10-05 16:30'))
+
+    def test_removed_and_weekend_live_slots_are_rejected(self):
+        for slot in ('2026-10-20 06:30','2026-10-20 09:30','2026-10-20 15:30','2026-10-20 16:00','2026-10-24 08:30','2026-11-01 16:30'):
+            with self.subTest(slot=slot), self.assertRaises(ValueError):wd.slot_time('live',slot)
+        self.assertEqual(wd.slot_time('live','2026-10-20 16:30').hour,16)
 
     def test_sunday_and_dst_close_times(self):
-        for date, expected in (('2026-10-04', '2026-10-05T00:00:00+00:00'),
-                               ('2026-11-01', '2026-11-02T00:00:00+00:00'),
+        for date, expected in (('2026-10-04', '2026-10-05T00:30:00+00:00'),
+                               ('2026-11-01', '2026-11-02T01:30:00+00:00'),
                                ('2026-11-02', '2026-11-03T01:30:00+00:00')):
             self.assertEqual(wd.slot_time('close', date).astimezone(timezone.utc).isoformat(), expected)
 
