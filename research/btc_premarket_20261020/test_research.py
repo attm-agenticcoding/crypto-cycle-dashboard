@@ -1,7 +1,19 @@
 import csv, io, json, unittest
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timezone, timedelta
 import run
 class ResearchTests(unittest.TestCase):
+    def test_expected_fixed_at_week_start_matches_calibrator(self):
+        # Monday zero hits must not lower Tuesday expected; a daily rolling
+        # lookback would yield 1/(4*.9), whereas both implementations give .25.
+        days=[date(2026,9,21)+timedelta(days=i) for i in range(16)]
+        excursions=[.01]*10+[0,.01,0,0,0,0]
+        ss=[run.legacy.Session(d,100,e,None,e,'XNYS') for d,e in zip(days,excursions)]
+        prices={str(d):100 for d in days}
+        for side in ('buy','sell'):
+            actual=run.evaluate(ss,list(range(10,15)),(10,.01,.1),side,0,prices,prices)
+            production=run.live.score_candidate(ss,[list(range(10,15))],10,.01,.1,side)
+            self.assertAlmostEqual(actual['completion'],.25)
+            self.assertAlmostEqual(actual['completion'],production.passive_completion[0])
     def test_dst(self):
         self.assertEqual(datetime(2026,3,6,12,tzinfo=timezone.utc).astimezone(run.legacy.ET).hour,7)
         self.assertEqual(datetime(2026,3,9,11,tzinfo=timezone.utc).astimezone(run.legacy.ET).hour,7)

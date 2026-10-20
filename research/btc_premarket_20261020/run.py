@@ -55,6 +55,8 @@ def count(exc,first,spacing,side,penetration):
 
 def evaluate(sessions,indices,p,side,pen,common,terminal):
     lookback,first,spacing=p; start=indices[0]
+    # Match production calibration: estimate before the week, then hold fixed.
+    # Only remaining quantity/days and each day reference change within the week.
     expected=statistics.fmean(count(legacy.excursion(s,side),first,spacing,side,pen) for s in sessions[start-lookback:start])
     initial=common[str(sessions[start].session_date)]; end=terminal[str(sessions[indices[-1]].session_date)]
     rem=1.; value=0.; cash=1.2*initial; budget_bound=False; zero=0
