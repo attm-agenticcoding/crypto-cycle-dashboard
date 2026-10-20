@@ -20,6 +20,8 @@ touch 乐观情景假设 low<=buy limit 或 high>=sell limit 即可按limit成�
 
 BTCUSDT为BTC/USDT，不是BTC/USD，更不是ETF可成交报价。ETF相对NAV溢折价、USDT基差、盘前点差、券商时段权限、最小股数和排队可能改变结果。没有ETF实际fill数据，Yahoo稀疏零volume盘前bar未用于研究。范围均晚于2024-07-31上市及2024-11-19反拆股；没有直接使用ETF价或上市前ETF业绩，全部是underlying proxy情景。
 
-复现：python3 research/btc_premarket_20261020/download.py（需要公共网络，约27MB）；python3 research/btc_premarket_20261020/run.py；cd research/btc_premarket_20261020 && python3 -m unittest -v。最后运行 python3 research/btc_premarket_20261020/report.py 生成中文报告及robustness.csv。冻结参数对照只在首个26周训练一次，其后每周开始仍按该周开始之前的lookback重算expected，并在整周固定；日内/日间只按剩余量与剩余天数调整每档数量；另给配对差的删一周和前6/后7周敏感性，不作为额外独立样本。无需第三方依赖。不要运行生产updater或GitHub Actions。
+复现：python3 research/btc_premarket_20261020/download.py（需要公共网络，约27MB）；python3 research/btc_premarket_20261020/run.py；python3 -m unittest discover -s research/btc_premarket_20261020 -p 'test*.py' -v。最后运行 python3 research/btc_premarket_20261020/report.py 生成中文报告及robustness.csv。冻结参数对照只在首个26周训练一次，其后每周开始仍按该周开始之前的lookback重算expected，并在整周固定；日内/日间只按剩余量与剩余天数调整每档数量；另给配对差的删一周和前6/后7周敏感性，不作为额外独立样本。无需第三方依赖。不要运行生产updater或GitHub Actions。
 
 校准器与实时看板边界：本研究复现的是生产校准器的历史周评分及发布参数，不是实时看板的完整订单计划。execution/execution-core.js::expectedHits 按传入bundle的最新session_samples估计并夹在[0.1,12]，bundle刷新后可能变化，另有股数/价格取整及实时进度控制；本研究沿用校准器周初expected固定、零expected整周不挂量且连续数量的约定，没有声称复现这些实时行为。此文档澄清不更改任何既有数值结果。
+
+重要统计边界：07:00买入touch相对09:35的13周均值+28.8908824496bps，其bootstrap描述性95%区间[-10.83,74.54]bps跨零，不能声称统计证明07:00更差；现有证据不足以支持更改生产。补充验证详见VALIDATION_ZH.md。

@@ -14,6 +14,20 @@ def write_csv(name,rows):
     with (ROOT/name).open('w') as f:
         w=csv.DictWriter(f,fieldnames=list(rows[0])); w.writeheader(); w.writerows(rows)
 
+def session_excursions(minute_map, anchor, end):
+    """Anchor close is known only after that minute; never fill in anchor bar."""
+    ref=minute_map[anchor].close
+    eligible=[minute_map[x] for x in range(anchor+1,end)]
+    down=max(0,1-min(b.low for b in eligible)/ref)
+    up=max(0,max(b.high for b in eligible)/ref-1)
+    return ref,down,up
+
+def select_training_window(costs, fold, prior):
+    """Use only the 26 completed weeks before fold, including for paired SE."""
+    candidates=[legacy.CandidateResult(p[0],p[1],p[2],values[fold-26:fold],[],0)
+                for p,values in costs.items()]
+    return live.select_scored(candidates,prior)
+
 def load():
     byday=defaultdict(dict); total=0
     for item in json.loads((ROOT/'input_manifest.json').read_text()):
@@ -34,8 +48,7 @@ def load():
             assert set(range(420,end))<=mp.keys(),f'missing minute {d}'
             terminal=mp[end-1].close
             for a,m in ANCHORS.items():
-                ref=mp[m].close; eligible=[mp[x] for x in range(m+1,end)]
-                down=max(0,1-min(b.low for b in eligible)/ref); up=max(0,max(b.high for b in eligible)/ref-1)
+                ref,down,up=session_excursions(mp,m,end)
                 sessions[a].append(legacy.Session(d,ref,down,None,up,'XNYS'))
                 rows.append(dict(date=str(d),anchor=a,reference=ref,drawdown=down,runup=up,common_reference=mp[420].close,terminal=terminal,close_minute=end,eligible_minutes=end-m-1,anchor_utc=mp[m].opened_at.isoformat()))
             bars.extend(mp[x] for x in range(575,end))
@@ -53,7 +66,7 @@ def count(exc,first,spacing,side,penetration):
         hits+=exc+1e-12>=threshold
     return hits
 
-def evaluate(sessions,indices,p,side,pen,common,terminal):
+def evaluate(sessions,indices,p,side,pen,common,terminal,trace=None):
     lookback,first,spacing=p; start=indices[0]
     # Match production calibration: estimate before the week, then hold fixed.
     # Only remaining quantity/days and each day reference change within the week.
@@ -63,6 +76,8 @@ def evaluate(sessions,indices,p,side,pen,common,terminal):
     for pos,index in enumerate(indices):
         row=sessions[index]; hits=count(legacy.excursion(row,side),first,spacing,side,pen); zero+=hits==0
         per=rem/((len(indices)-pos)*expected) if expected>0 else 0.
+        if trace is not None:
+            trace.append(dict(date=str(row.session_date),expected=expected,per_rung=per,fills=[]))
         for rung in range(hits):
             limit=row.reference*(1+(first+rung*spacing)*(1 if side=='sell' else -1))
             qty=min(per,rem)
@@ -70,6 +85,7 @@ def evaluate(sessions,indices,p,side,pen,common,terminal):
                 allowed=cash/limit
                 if qty>allowed+1e-12: budget_bound=True
                 qty=min(qty,allowed); cash-=qty*limit
+            if trace is not None: trace[-1]['fills'].append((limit,qty))
             value+=qty*limit; rem-=qty
             if rem<=1e-12: rem=0.; break
     sign=1 if side=='buy' else -1
@@ -126,8 +142,7 @@ def main():
                 for fold in range(26,len(weeks)):
                     train=weeks[fold-26:fold]; test=weeks[fold]
                     assert train[-1][-1]<test[0]
-                    candidates=[legacy.CandidateResult(p[0],p[1],p[2],costs[p][fold-26:fold],[],0) for p in grid]
-                    selected,best,plateau,old=live.select_scored(candidates,prior)
+                    selected,best,plateau,old=select_training_window(costs,fold,prior)
                     p=(selected.lookback,selected.first_offset,selected.spacing); prior=p
                     score=selected.mean_cost_bps
                     if frozen_p is None: frozen_p=p
