@@ -21,7 +21,7 @@ WORKFLOW = 'dashboard-clock.yml'
 ET = ZoneInfo('America/New_York')
 
 
-LIVE_TIMES = [(8, 30), (10, 30), (12, 30), (14, 30), (16, 30)]
+LIVE_TIMES = [(8, 30), (12, 30), (16, 30)]
 
 
 def close_at(day):

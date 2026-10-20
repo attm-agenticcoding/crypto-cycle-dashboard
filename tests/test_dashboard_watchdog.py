@@ -61,7 +61,7 @@ def env(**updates):
     return value
 
 
-def publication(mode='live', slot='2026-10-06 10:30', **updates):
+def publication(mode='live', slot='2026-10-06 08:30', **updates):
     snap = {'masked': True, 'run_kind': mode, 'generated_at': '2026-10-06T11:02:00-04:00'}
     raw = json.dumps(snap).encode()
     index = b'<html>actual main publication</html>'
@@ -497,7 +497,7 @@ class FreshnessTests(unittest.TestCase):
         self.assertGreater(wd.slot_time('close', '2026-10-05'), wd.slot_time('live', '2026-10-05 16:30'))
 
     def test_removed_and_weekend_live_slots_are_rejected(self):
-        for slot in ('2026-10-20 06:30','2026-10-20 09:30','2026-10-20 15:30','2026-10-20 16:00','2026-10-24 08:30','2026-11-01 16:30'):
+        for slot in ('2026-10-20 06:30','2026-10-20 09:30','2026-10-20 10:30','2026-10-20 14:30','2026-10-20 15:30','2026-10-20 16:00','2026-10-24 08:30','2026-11-01 16:30'):
             with self.subTest(slot=slot), self.assertRaises(ValueError):wd.slot_time('live',slot)
         self.assertEqual(wd.slot_time('live','2026-10-20 16:30').hour,16)
 
