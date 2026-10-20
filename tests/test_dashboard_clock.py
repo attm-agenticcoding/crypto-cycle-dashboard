@@ -30,6 +30,26 @@ class ClockTests(unittest.TestCase):
         self.assertEqual(clock.target_at(datetime.fromisoformat('2026-10-04T15:34:00+00:00')), ('live', '2026-10-04 11:30'))
         self.assertEqual(clock.target_at(datetime.fromisoformat('2026-10-04T21:00:00+00:00')), ('live', '2026-10-04 16:00'))
 
+    def test_hourly_boundaries_in_both_seasons(self):
+        for date in ('2026-03-07', '2026-03-08', '2026-10-20', '2026-11-01', '2026-11-02'):
+            for instant, slot in [('09:29', '06:30'), ('09:30', '09:30'), ('10:00', '09:30'),
+                                  ('10:29', '09:30'), ('10:30', '10:30'), ('15:59', '15:30'),
+                                  ('16:00', '16:00'), ('18:59', '16:00')]:
+                now = datetime.fromisoformat(f'{date}T{instant}').replace(tzinfo=clock.ET)
+                self.assertEqual(clock.target_at(now), ('live', f'{date} {slot}'))
+
+    def test_removed_half_hour_never_repeatedly_dispatches_private(self):
+        receipt = {'publisher': 'github-actions', 'kind': 'main', 'mode': 'live', 'logical_slot': '2026-10-20 09:30'}
+        with patch.object(clock, 'refresh_private') as private:
+            for minute in range(60):
+                now = datetime.fromisoformat('2026-10-20T09:30').replace(tzinfo=clock.ET) + clock.timedelta(minutes=minute)
+                result = clock.advance(self.env(), False, 0, read_receipt=lambda: receipt, now=now)
+                self.assertEqual(result['status'], 'already-published')
+            private.assert_not_called()
+            now = datetime.fromisoformat('2026-10-20T10:30').replace(tzinfo=clock.ET)
+            clock.advance(self.env(), False, 0, read_receipt=lambda: receipt, now=now)
+            private.assert_called_once()
+
     def test_sunday_close_stays_fixed_to_utc_in_both_seasons(self):
         for utc_date, day in [('2026-10-05', '2026-10-04'), ('2026-11-02', '2026-11-01')]:
             self.assertEqual(clock.target_at(datetime.fromisoformat(f'{utc_date}T00:00:00+00:00')), ('close', day))

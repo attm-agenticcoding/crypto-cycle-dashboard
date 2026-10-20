@@ -32,7 +32,8 @@ def target_at(now):
     clock = now.hour * 60 + now.minute
     if clock < 390:
         return 'close', (today - timedelta(days=1)).isoformat()
-    minute = 390 if clock < 570 else min(960, clock // 30 * 30)
+    # Match private main: hourly from 09:30, retaining the 16:00 endpoint.
+    minute = 390 if clock < 570 else 960 if clock >= 960 else 570 + (clock - 570) // 60 * 60
     return 'live', f'{today} {minute // 60:02d}:{minute % 60:02d}'
 
 
