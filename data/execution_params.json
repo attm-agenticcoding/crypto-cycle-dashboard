@@ -4,7 +4,7 @@
     "buy",
     "sell"
   ],
-  "generated_at": "2026-10-21T02:30:28.313562Z",
+  "generated_at": "2026-10-21T04:30:19.185077Z",
   "default_instrument_id": "ARCX:BTC",
   "instrument_count": 4,
   "instruments": {
@@ -4078,7 +4078,7 @@
       "max_notional": 9000000.0,
       "min_price": 0.01,
       "max_price": 1000000.0,
-      "exchange_rules_checked_at": "2026-10-20T22:10:14.025055+00:00",
+      "exchange_rules_checked_at": "2026-10-21T04:30:20.410686+00:00",
       "market_calendar": "24X7",
       "timezone": "UTC",
       "reference_time": "00:00",
@@ -4094,15 +4094,15 @@
       "enabled": true,
       "trade_side": "buy",
       "status": "minute-rolling",
-      "generated_at": "2026-10-20T22:10:12.515492Z",
-      "data_as_of": "2026-10-19",
+      "generated_at": "2026-10-21T04:30:19.185077Z",
+      "data_as_of": "2026-10-20",
       "market_proxy": "BTCUSDT",
       "execution_instrument": "BTC / USDT spot (BTCUSDT)",
       "lookback_sessions": 15,
       "lookback_unit": "UTC calendar days",
       "first_offset_pct": 0.2,
       "spacing_pct": 0.3,
-      "expected_rungs_per_session": 4.6667,
+      "expected_rungs_per_session": 4.5333,
       "zero_fill_probability": 0.0667,
       "sample_sessions": 365,
       "walk_forward_weeks": 26,
@@ -4113,12 +4113,6 @@
       "excursion_measure": "drawdown",
       "completion_assumption": "unfilled weekly shares valued at next reference; no automatic broker execution",
       "session_samples": [
-        {
-          "date": "2026-07-22",
-          "drawdown_pct": 1.48822,
-          "runup_pct": 0.29439,
-          "next_reference_return_pct": -0.6351
-        },
         {
           "date": "2026-07-23",
           "drawdown_pct": 2.22526,
@@ -4651,6 +4645,12 @@
           "date": "2026-10-19",
           "drawdown_pct": 0.43742,
           "runup_pct": 1.27879,
+          "next_reference_return_pct": -0.22031
+        },
+        {
+          "date": "2026-10-20",
+          "drawdown_pct": 0.88752,
+          "runup_pct": 1.8454,
           "next_reference_return_pct": null
         }
       ],
@@ -4715,8 +4715,17 @@
           "paired_standard_error_bps": 0.0,
           "allowed_gap_bps": 0.25
         },
-        "prior": null,
-        "reason": "No prior grid candidate; adopt the raw minimum",
+        "prior": {
+          "lookback_sessions": 15,
+          "first_offset_pct": 0.2,
+          "spacing_pct": 0.3,
+          "mean_cost_bps": -10.223469526458492,
+          "gap_to_raw_minimum_bps": 0.0,
+          "paired_standard_error_bps": 0.0,
+          "allowed_gap_bps": 0.25,
+          "eligible": true
+        },
+        "reason": "Prior retained within its paired excess-cost band",
         "score_contract": "fixed weekly ladder and next-reference residual valuation; no spread, fees, queue or impact simulation",
         "prospective_validation": "not established; frozen shadow experiment is separate"
       },
@@ -4743,7 +4752,7 @@
           "max_notional": 9000000.0,
           "min_price": 0.01,
           "max_price": 1000000.0,
-          "exchange_rules_checked_at": "2026-10-20T22:10:14.025055+00:00",
+          "exchange_rules_checked_at": "2026-10-21T04:30:20.410686+00:00",
           "market_calendar": "24X7",
           "timezone": "UTC",
           "reference_time": "00:00",
@@ -4759,15 +4768,15 @@
           "enabled": true,
           "trade_side": "buy",
           "status": "minute-rolling",
-          "generated_at": "2026-10-20T22:10:12.515492Z",
-          "data_as_of": "2026-10-19",
+          "generated_at": "2026-10-21T04:30:19.185077Z",
+          "data_as_of": "2026-10-20",
           "market_proxy": "BTCUSDT",
           "execution_instrument": "BTC / USDT spot (BTCUSDT)",
           "lookback_sessions": 15,
           "lookback_unit": "UTC calendar days",
           "first_offset_pct": 0.2,
           "spacing_pct": 0.3,
-          "expected_rungs_per_session": 4.6667,
+          "expected_rungs_per_session": 4.5333,
           "zero_fill_probability": 0.0667,
           "sample_sessions": 365,
           "walk_forward_weeks": 26,
@@ -4778,12 +4787,6 @@
           "excursion_measure": "drawdown",
           "completion_assumption": "unfilled weekly shares valued at next reference; no automatic broker execution",
           "session_samples": [
-            {
-              "date": "2026-07-22",
-              "drawdown_pct": 1.48822,
-              "runup_pct": 0.29439,
-              "next_reference_return_pct": -0.6351
-            },
             {
               "date": "2026-07-23",
               "drawdown_pct": 2.22526,
@@ -5316,6 +5319,12 @@
               "date": "2026-10-19",
               "drawdown_pct": 0.43742,
               "runup_pct": 1.27879,
+              "next_reference_return_pct": -0.22031
+            },
+            {
+              "date": "2026-10-20",
+              "drawdown_pct": 0.88752,
+              "runup_pct": 1.8454,
               "next_reference_return_pct": null
             }
           ],
@@ -5380,8 +5389,17 @@
               "paired_standard_error_bps": 0.0,
               "allowed_gap_bps": 0.25
             },
-            "prior": null,
-            "reason": "No prior grid candidate; adopt the raw minimum",
+            "prior": {
+              "lookback_sessions": 15,
+              "first_offset_pct": 0.2,
+              "spacing_pct": 0.3,
+              "mean_cost_bps": -10.223469526458492,
+              "gap_to_raw_minimum_bps": 0.0,
+              "paired_standard_error_bps": 0.0,
+              "allowed_gap_bps": 0.25,
+              "eligible": true
+            },
+            "reason": "Prior retained within its paired excess-cost band",
             "score_contract": "fixed weekly ladder and next-reference residual valuation; no spread, fees, queue or impact simulation",
             "prospective_validation": "not established; frozen shadow experiment is separate"
           }
@@ -5408,7 +5426,7 @@
           "max_notional": 9000000.0,
           "min_price": 0.01,
           "max_price": 1000000.0,
-          "exchange_rules_checked_at": "2026-10-20T22:10:14.025055+00:00",
+          "exchange_rules_checked_at": "2026-10-21T04:30:20.410686+00:00",
           "market_calendar": "24X7",
           "timezone": "UTC",
           "reference_time": "00:00",
@@ -5424,15 +5442,15 @@
           "enabled": true,
           "trade_side": "sell",
           "status": "minute-rolling",
-          "generated_at": "2026-10-20T22:10:12.515492Z",
-          "data_as_of": "2026-10-19",
+          "generated_at": "2026-10-21T04:30:19.185077Z",
+          "data_as_of": "2026-10-20",
           "market_proxy": "BTCUSDT",
           "execution_instrument": "BTC / USDT spot (BTCUSDT)",
           "lookback_sessions": 15,
           "lookback_unit": "UTC calendar days",
           "first_offset_pct": 0.5,
           "spacing_pct": 0.9,
-          "expected_rungs_per_session": 1.0667,
+          "expected_rungs_per_session": 1.1333,
           "zero_fill_probability": 0.2,
           "sample_sessions": 365,
           "walk_forward_weeks": 26,
@@ -5443,12 +5461,6 @@
           "excursion_measure": "runup",
           "completion_assumption": "unfilled weekly shares valued at next reference; no automatic broker execution",
           "session_samples": [
-            {
-              "date": "2026-07-22",
-              "drawdown_pct": 1.48822,
-              "runup_pct": 0.29439,
-              "next_reference_return_pct": -0.6351
-            },
             {
               "date": "2026-07-23",
               "drawdown_pct": 2.22526,
@@ -5981,6 +5993,12 @@
               "date": "2026-10-19",
               "drawdown_pct": 0.43742,
               "runup_pct": 1.27879,
+              "next_reference_return_pct": -0.22031
+            },
+            {
+              "date": "2026-10-20",
+              "drawdown_pct": 0.88752,
+              "runup_pct": 1.8454,
               "next_reference_return_pct": null
             }
           ],
@@ -6045,8 +6063,17 @@
               "paired_standard_error_bps": 0.0,
               "allowed_gap_bps": 0.25
             },
-            "prior": null,
-            "reason": "No prior grid candidate; adopt the raw minimum",
+            "prior": {
+              "lookback_sessions": 15,
+              "first_offset_pct": 0.5,
+              "spacing_pct": 0.9,
+              "mean_cost_bps": 18.61397899258552,
+              "gap_to_raw_minimum_bps": 0.0,
+              "paired_standard_error_bps": 0.0,
+              "allowed_gap_bps": 0.25,
+              "eligible": true
+            },
+            "reason": "Prior retained within its paired excess-cost band",
             "score_contract": "fixed weekly ladder and next-reference residual valuation; no spread, fees, queue or impact simulation",
             "prospective_validation": "not established; frozen shadow experiment is separate"
           }
@@ -6075,7 +6102,7 @@
       "max_notional": 9000000.0,
       "min_price": 0.01,
       "max_price": 1000000.0,
-      "exchange_rules_checked_at": "2026-10-20T22:10:14.939405+00:00",
+      "exchange_rules_checked_at": "2026-10-21T04:30:21.434411+00:00",
       "market_calendar": "24X7",
       "timezone": "UTC",
       "reference_time": "00:00",
@@ -6091,16 +6118,16 @@
       "enabled": true,
       "trade_side": "buy",
       "status": "minute-rolling",
-      "generated_at": "2026-10-20T22:10:12.515492Z",
-      "data_as_of": "2026-10-19",
+      "generated_at": "2026-10-21T04:30:19.185077Z",
+      "data_as_of": "2026-10-20",
       "market_proxy": "ETHUSDT",
       "execution_instrument": "ETH / USDT spot (ETHUSDT)",
       "lookback_sessions": 10,
       "lookback_unit": "UTC calendar days",
       "first_offset_pct": 0.5,
       "spacing_pct": 0.9,
-      "expected_rungs_per_session": 2.4,
-      "zero_fill_probability": 0.2,
+      "expected_rungs_per_session": 2.6,
+      "zero_fill_probability": 0.1,
       "sample_sessions": 365,
       "walk_forward_weeks": 26,
       "walk_forward_mean_implementation_shortfall_bps": -33.835,
@@ -6110,12 +6137,6 @@
       "excursion_measure": "drawdown",
       "completion_assumption": "unfilled weekly shares valued at next reference; no automatic broker execution",
       "session_samples": [
-        {
-          "date": "2026-07-22",
-          "drawdown_pct": 0.95793,
-          "runup_pct": 1.41461,
-          "next_reference_return_pct": 0.28562
-        },
         {
           "date": "2026-07-23",
           "drawdown_pct": 3.37163,
@@ -6648,6 +6669,12 @@
           "date": "2026-10-19",
           "drawdown_pct": 1.02207,
           "runup_pct": 1.51298,
+          "next_reference_return_pct": -0.09752
+        },
+        {
+          "date": "2026-10-20",
+          "drawdown_pct": 1.44717,
+          "runup_pct": 2.93006,
           "next_reference_return_pct": null
         }
       ],
@@ -6712,8 +6739,17 @@
           "paired_standard_error_bps": 0.0,
           "allowed_gap_bps": 0.25
         },
-        "prior": null,
-        "reason": "No prior grid candidate; adopt the raw minimum",
+        "prior": {
+          "lookback_sessions": 10,
+          "first_offset_pct": 0.5,
+          "spacing_pct": 0.9,
+          "mean_cost_bps": -33.83516751678456,
+          "gap_to_raw_minimum_bps": 0.0,
+          "paired_standard_error_bps": 0.0,
+          "allowed_gap_bps": 0.25,
+          "eligible": true
+        },
+        "reason": "Prior retained within its paired excess-cost band",
         "score_contract": "fixed weekly ladder and next-reference residual valuation; no spread, fees, queue or impact simulation",
         "prospective_validation": "not established; frozen shadow experiment is separate"
       },
@@ -6740,7 +6776,7 @@
           "max_notional": 9000000.0,
           "min_price": 0.01,
           "max_price": 1000000.0,
-          "exchange_rules_checked_at": "2026-10-20T22:10:14.939405+00:00",
+          "exchange_rules_checked_at": "2026-10-21T04:30:21.434411+00:00",
           "market_calendar": "24X7",
           "timezone": "UTC",
           "reference_time": "00:00",
@@ -6756,16 +6792,16 @@
           "enabled": true,
           "trade_side": "buy",
           "status": "minute-rolling",
-          "generated_at": "2026-10-20T22:10:12.515492Z",
-          "data_as_of": "2026-10-19",
+          "generated_at": "2026-10-21T04:30:19.185077Z",
+          "data_as_of": "2026-10-20",
           "market_proxy": "ETHUSDT",
           "execution_instrument": "ETH / USDT spot (ETHUSDT)",
           "lookback_sessions": 10,
           "lookback_unit": "UTC calendar days",
           "first_offset_pct": 0.5,
           "spacing_pct": 0.9,
-          "expected_rungs_per_session": 2.4,
-          "zero_fill_probability": 0.2,
+          "expected_rungs_per_session": 2.6,
+          "zero_fill_probability": 0.1,
           "sample_sessions": 365,
           "walk_forward_weeks": 26,
           "walk_forward_mean_implementation_shortfall_bps": -33.835,
@@ -6775,12 +6811,6 @@
           "excursion_measure": "drawdown",
           "completion_assumption": "unfilled weekly shares valued at next reference; no automatic broker execution",
           "session_samples": [
-            {
-              "date": "2026-07-22",
-              "drawdown_pct": 0.95793,
-              "runup_pct": 1.41461,
-              "next_reference_return_pct": 0.28562
-            },
             {
               "date": "2026-07-23",
               "drawdown_pct": 3.37163,
@@ -7313,6 +7343,12 @@
               "date": "2026-10-19",
               "drawdown_pct": 1.02207,
               "runup_pct": 1.51298,
+              "next_reference_return_pct": -0.09752
+            },
+            {
+              "date": "2026-10-20",
+              "drawdown_pct": 1.44717,
+              "runup_pct": 2.93006,
               "next_reference_return_pct": null
             }
           ],
@@ -7377,8 +7413,17 @@
               "paired_standard_error_bps": 0.0,
               "allowed_gap_bps": 0.25
             },
-            "prior": null,
-            "reason": "No prior grid candidate; adopt the raw minimum",
+            "prior": {
+              "lookback_sessions": 10,
+              "first_offset_pct": 0.5,
+              "spacing_pct": 0.9,
+              "mean_cost_bps": -33.83516751678456,
+              "gap_to_raw_minimum_bps": 0.0,
+              "paired_standard_error_bps": 0.0,
+              "allowed_gap_bps": 0.25,
+              "eligible": true
+            },
+            "reason": "Prior retained within its paired excess-cost band",
             "score_contract": "fixed weekly ladder and next-reference residual valuation; no spread, fees, queue or impact simulation",
             "prospective_validation": "not established; frozen shadow experiment is separate"
           }
@@ -7405,7 +7450,7 @@
           "max_notional": 9000000.0,
           "min_price": 0.01,
           "max_price": 1000000.0,
-          "exchange_rules_checked_at": "2026-10-20T22:10:14.939405+00:00",
+          "exchange_rules_checked_at": "2026-10-21T04:30:21.434411+00:00",
           "market_calendar": "24X7",
           "timezone": "UTC",
           "reference_time": "00:00",
@@ -7421,15 +7466,15 @@
           "enabled": true,
           "trade_side": "sell",
           "status": "minute-rolling",
-          "generated_at": "2026-10-20T22:10:12.515492Z",
-          "data_as_of": "2026-10-19",
+          "generated_at": "2026-10-21T04:30:19.185077Z",
+          "data_as_of": "2026-10-20",
           "market_proxy": "ETHUSDT",
           "execution_instrument": "ETH / USDT spot (ETHUSDT)",
           "lookback_sessions": 20,
           "lookback_unit": "UTC calendar days",
           "first_offset_pct": 0.4,
           "spacing_pct": 1.0,
-          "expected_rungs_per_session": 1.65,
+          "expected_rungs_per_session": 1.7,
           "zero_fill_probability": 0.05,
           "sample_sessions": 365,
           "walk_forward_weeks": 26,
@@ -7440,12 +7485,6 @@
           "excursion_measure": "runup",
           "completion_assumption": "unfilled weekly shares valued at next reference; no automatic broker execution",
           "session_samples": [
-            {
-              "date": "2026-07-22",
-              "drawdown_pct": 0.95793,
-              "runup_pct": 1.41461,
-              "next_reference_return_pct": 0.28562
-            },
             {
               "date": "2026-07-23",
               "drawdown_pct": 3.37163,
@@ -7978,6 +8017,12 @@
               "date": "2026-10-19",
               "drawdown_pct": 1.02207,
               "runup_pct": 1.51298,
+              "next_reference_return_pct": -0.09752
+            },
+            {
+              "date": "2026-10-20",
+              "drawdown_pct": 1.44717,
+              "runup_pct": 2.93006,
               "next_reference_return_pct": null
             }
           ],
@@ -8042,8 +8087,17 @@
               "paired_standard_error_bps": 0.0,
               "allowed_gap_bps": 0.25
             },
-            "prior": null,
-            "reason": "No prior grid candidate; adopt the raw minimum",
+            "prior": {
+              "lookback_sessions": 20,
+              "first_offset_pct": 0.4,
+              "spacing_pct": 1.0,
+              "mean_cost_bps": 26.550224058543826,
+              "gap_to_raw_minimum_bps": 0.0,
+              "paired_standard_error_bps": 0.0,
+              "allowed_gap_bps": 0.25,
+              "eligible": true
+            },
+            "reason": "Prior retained within its paired excess-cost band",
             "score_contract": "fixed weekly ladder and next-reference residual valuation; no spread, fees, queue or impact simulation",
             "prospective_validation": "not established; frozen shadow experiment is separate"
           }
