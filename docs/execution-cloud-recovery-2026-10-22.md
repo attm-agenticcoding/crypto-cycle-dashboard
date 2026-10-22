@@ -41,3 +41,18 @@ Each publication was verified against the actual Pages parameter file SHA256.
 Validation: 157 Python tests and 11 JavaScript core tests passed locally. On macOS,
 use `TMPDIR=/private/tmp` for the existing frozen-shadow test's path comparison.
 No private Actions workflow is enabled or used by this recovery.
+
+## Cloud acceptance completed
+
+[Production run 39789814441](https://github.com/attm-agenticcoding/crypto-cycle-dashboard/actions/runs/39789814441)
+ran on GitHub's `ubuntu-latest` runner and passed all checks. Both real calibration
+fits completed at 13:48:22 UTC; output commit
+`bd4c4d4a69f69cc88e2748708ccc809bcf255357` was pushed. The explicit Pages build and
+served-byte hash verification succeeded at 13:49:16 UTC. All four instruments and
+both sides cover October 21. This verifies real cloud compute and publication,
+not just workflow enablement. The next unattended scheduled run is still future.
+
+The local runtime config has `execution=false` (other flags preserved), confirmed
+by a subsequent natural heartbeat. Cloud `update-execution-params.yml` is active.
+A local backup of the previous config is retained for recovery. No private-runner
+quota, billing configuration, or Mac sleep setting was changed.
