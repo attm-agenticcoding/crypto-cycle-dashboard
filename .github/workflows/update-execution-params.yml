@@ -9,7 +9,8 @@ on:
       timezone: "America/New_York"
     - cron: "30 22 * * 1-5"
       timezone: "America/New_York"
-    # Crypto daily UTC archives: every calendar day, with a later retry.
+    # Morning checks also recover ETF archives that arrived after both evening slots.
+    # Current calendars skip before downloading; no forced scheduled refits.
     - cron: "30 4 * * *"
       timezone: "UTC"
     - cron: "30 8 * * *"
@@ -17,6 +18,7 @@ on:
 
 permissions:
   contents: write
+  pages: write
 
 concurrency:
   group: execution-data-write
@@ -39,15 +41,26 @@ jobs:
       - name: Verify buy and sell calculation guards
         run: node --test tests/test_execution_core.cjs
       - name: Refit buy and sell for every registered execution instrument
+        id: fit
         shell: bash
         run: |
+          failed=0
+          force=()
           if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-            python scripts/update_execution_params_live.py --force
-          elif [[ "${{ github.event.schedule }}" == "30 4 * * *" || "${{ github.event.schedule }}" == "30 8 * * *" ]]; then
-            python scripts/update_execution_params_live.py --calendar 24X7
-          else
-            python scripts/update_execution_params_live.py --calendar XNYS
+            force=(--force)
           fi
+          # Isolate calendars: an unavailable ETF archive must not prevent crypto
+          # publication. Morning slots also catch up the prior ETF session.
+          calendars=(XNYS 24X7)
+          if [[ "${{ github.event_name }}" == "schedule" && ( "${{ github.event.schedule }}" == "30 20 * * 1-5" || "${{ github.event.schedule }}" == "30 22 * * 1-5" ) ]]; then
+            calendars=(XNYS)
+          fi
+          for calendar in "${calendars[@]}"; do
+            if ! python scripts/update_execution_params_live.py --calendar "$calendar" "${force[@]}"; then
+              failed=1
+            fi
+          done
+          echo "failed=$failed" >> "$GITHUB_OUTPUT"
       - name: Publish changed parameters
         shell: bash
         run: |
@@ -58,5 +71,17 @@ jobs:
             echo "No parameter change to publish."
           else
             git commit -m "Update rolling execution parameters"
+            # Other dashboard writers may advance main while calibration runs.
+            # Rebase preserves their changes; conflicts fail without force-pushing.
+            git pull --rebase origin main
             git push
           fi
+      - name: Verify published parameters on Pages
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python scripts/verify_execution_publication.py
+      - name: Report any incomplete calendar
+        if: steps.fit.outputs.failed == '1'
+        run: |
+          echo 'At least one calendar failed; its last complete parameters were preserved.'
+          exit 1
