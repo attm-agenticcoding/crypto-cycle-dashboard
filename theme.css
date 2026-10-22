@@ -1,0 +1,46 @@
+/* Shared accessible control. Page palettes are owned by their own styles. */
+:root {
+  --theme-control-bg: #161b22;
+  --theme-control-text: #e6edf3;
+  --theme-control-border: #64748b;
+  --theme-focus: #79c0ff;
+}
+:root[data-theme="light"] {
+  color-scheme: light;
+  --theme-control-bg: #fff;
+  --theme-control-text: #182333;
+  --theme-control-border: #6b7d90;
+  --theme-focus: #075bb8;
+}
+:root[data-theme="dark"] { color-scheme: dark; }
+.theme-control {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+  color: var(--theme-control-text);
+  font: 600 13px/1.4 system-ui, sans-serif;
+}
+.theme-control label { margin: 0; color: inherit; font: inherit; }
+.theme-control select {
+  width: auto;
+  min-width: 102px;
+  min-height: 44px;
+  margin: 0;
+  padding: 8px 10px;
+  border: 1px solid var(--theme-control-border);
+  border-radius: 8px;
+  background: var(--theme-control-bg);
+  color: var(--theme-control-text);
+  font: inherit;
+  cursor: pointer;
+}
+.theme-control select:focus-visible {
+  outline: 3px solid var(--theme-focus);
+  outline-offset: 3px;
+  box-shadow: none;
+}
+@media (forced-colors: active) {
+  .theme-control select { border: 1px solid ButtonText; }
+}
