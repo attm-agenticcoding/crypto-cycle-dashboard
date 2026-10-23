@@ -706,4 +706,20 @@ if (process.env.RUN_EXECUTION_BROWSER_TESTS !== "1") {
     await page.waitForFunction(()=>document.getElementById("reference-price").value==="35");
   });
 
+  test("Use latest explicitly applies an older trade and reports failed refreshes", async t => {
+    const page=await open(t);
+    await page.waitForFunction(()=>document.getElementById('reference-price').value==='35');
+    await page.route('https://execution-market-quotes.attmgromov.chatgpt.site/api/quote?*',route=>route.fulfill({json:{instrumentId:'ARCX:BTC',currency:'USD',latest:{price:36.04,time:'2026-10-05T12:00:00Z',source:'Fixture',realtime:true,stale:true},reference:{date:'2026-10-05',status:'pending'}}}));
+    await page.locator('#reference-price').fill('40');
+    await page.locator('#use-latest-price').click();
+    await page.waitForFunction(()=>document.getElementById('reference-price').value==='36.04');
+    assert.match(await page.locator('#quote-action-status').innerText(),/updated.*older than 5 minutes/);
+    assert.equal(await page.locator('#use-latest-price').isEnabled(),true);
+    await page.route('https://execution-market-quotes.attmgromov.chatgpt.site/api/quote?*',route=>route.fulfill({status:503,body:'Unavailable'}));
+    await page.locator('#use-latest-price').click();
+    await page.waitForFunction(()=>document.getElementById('quote-action-status').textContent.includes('Could not retrieve'));
+    assert.equal(await page.locator('#reference-price').inputValue(),'36.04');
+    assert.equal(await page.locator('#use-latest-price').isEnabled(),true);
+  });
+
 }

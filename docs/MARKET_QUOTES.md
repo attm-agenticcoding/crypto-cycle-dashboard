@@ -37,3 +37,13 @@ Validation completed locally because this task has no cloud execution tool:
 - Today's 09:35 bar is not yet formed at test time; readiness and exact-bar
   selection were tested with fixtures. Deployed ETF latest trades and direct Binance latest trades were verified;
   actual current-day 09:35 close retrieval cannot be checked until that minute forms.
+
+## Explicit refresh feedback (2026-10-23)
+
+Use latest price now fills the latest available valid trade even when it is more
+than five minutes old: the user's explicit click is distinct from auto-defaults,
+which still reject stale quotes. The event timestamp and age warning stay visible.
+The button shows fetching, applied, manual-input-preserved or failure feedback;
+background polling cannot supersede an explicit request. A failed request leaves
+the reference unchanged. Six controller tests and two focused Chromium interaction
+tests cover stale acceptance, failed requests, click/poll races and manual edits.

@@ -261,6 +261,7 @@
             <p id="latest-quote" class="hint" role="status">Loading latest market price…</p>
             <p id="opening-reference" class="hint" role="status">09:35 ET minute close: loading…</p>
             <div style="display:flex;flex-wrap:wrap;gap:10px"><button id="use-latest-price" type="button">Use latest price</button><button id="use-opening-reference" type="button" disabled>Use 09:35 ET price</button></div>
+            <p id="quote-action-status" class="hint" role="status" aria-live="polite"></p>
           </div>
           <p id="reference-hint" class="hint">Defaults to a recent last trade when available. Manual edits and calculated plans stay fixed during quote refreshes. The 09:35 ET minute close appears after 09:36 and stays fixed for that date; it is a comparison reference and does not replace the crypto model’s 00:00 UTC anchor. Verify your broker’s quote before placing orders.</p>
           <p id="deadline-hint" class="hint">Deadline is optional. Leave it blank for price seeking at your entered weekly pace. A total alone only caps that pace; it does not create a completion date.</p>
@@ -409,7 +410,7 @@
 
   <script src="./market-calendar.js?v=2"></script>
   <script src="./execution-core.js?v=6"></script>
-  <script src="./market-quotes.js?v=1"></script>
+  <script src="./market-quotes.js?v=2"></script>
   <script>
     const PARAMS_URL = "../data/execution_params.json";
     const REGISTRY_URL = "../data/execution_instruments.json";
