@@ -45,7 +45,8 @@ export async function getQuote(id,{now=Date.now(),fetcher=fetch,referenceCache=n
   const {symbol,currency,crypto}=instrument;
   let reference=referenceState(now,crypto);
   const key=`https://execution-reference.invalid/${encodeURIComponent(id)}/${reference.date}`;
-  const cached=referenceCache&&await referenceCache.match(key);
+  let cached=null;
+  try { cached=referenceCache&&await referenceCache.match(key); } catch { /* Cache availability must not block market data. */ }
   if(cached&&reference.status==='unavailable')reference=await cached.json();
   const latestTask=(async()=>{
     if(crypto){
@@ -71,7 +72,7 @@ export async function getQuote(id,{now=Date.now(),fetcher=fetch,referenceCache=n
       const payload=await json(`https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1m&range=1d&includePrePost=true`,fetcher);
       reference=yahooReference(payload,reference,symbol);
     }
-    if(reference.status==='ready'&&referenceCache)await referenceCache.put(key, new Response(JSON.stringify(reference),{headers:{'Content-Type':'application/json','Cache-Control':'public,max-age=86400'}}));
+    if(reference.status==='ready'&&referenceCache) { try { await referenceCache.put(key, new Response(JSON.stringify(reference),{headers:{'Content-Type':'application/json','Cache-Control':'public,max-age=86400'}})); } catch { /* Still return the verified minute close. */ } }
     return reference;
   })();
   const [latestResult,referenceResult]=await Promise.allSettled([latestTask,referenceTask]);

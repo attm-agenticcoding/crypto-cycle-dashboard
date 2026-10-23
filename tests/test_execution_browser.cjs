@@ -116,6 +116,12 @@ if (process.env.RUN_EXECUTION_BROWSER_TESTS !== "1") {
     t.after(() => context.close());
     await context.route("**/*", async route => {
       const url = new URL(route.request().url());
+      if(url.origin === "https://data-api.binance.vision") {
+        const item=data.instruments[`BINANCE:SPOT:${url.searchParams.get("symbol")}`];
+        if(url.pathname.endsWith('/trades'))return route.fulfill({json:[{price:String(item.default_reference_price),time:Date.parse(time)}]});
+        const start=Number(url.searchParams.get('startTime'));
+        return route.fulfill({json:[[start,0,0,0,String(item.default_reference_price-.1),0,start+59999]]});
+      }
       if (url.origin === "https://execution-market-quotes.attmgromov.chatgpt.site" && url.pathname === "/api/quote") {
         const id=url.searchParams.get("instrument"), item=data.instruments[id];
         return route.fulfill({json:{instrumentId:id,currency:item.currency,latest:{price:item.default_reference_price,time:"2026-10-05T14:00:00Z",source:"Fixture",realtime:true,stale:false},reference:{date:"2026-10-05",status:"ready",price:item.default_reference_price-.1,source:"Fixture minute"}}});

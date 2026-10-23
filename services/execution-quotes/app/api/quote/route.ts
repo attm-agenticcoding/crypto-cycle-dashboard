@@ -7,5 +7,5 @@ export async function GET(request:Request){
   try {
     const referenceCache=(globalThis as any).caches?.default||null;
     return Response.json(await getQuote(id,{referenceCache}),{headers});
-  }catch{return Response.json({error:'Market data unavailable'},{status:503,headers});}
+  }catch(error){console.error('Quote request failed:', error instanceof Error ? error.message : 'unknown');return Response.json({error:'Market data unavailable'},{status:503,headers});}
 }

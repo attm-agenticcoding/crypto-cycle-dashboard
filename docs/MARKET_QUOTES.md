@@ -1,15 +1,15 @@
 # Market price defaults and 09:35 ET reference
 
-Implementation prepared 2026-10-23 on `codex/reference-market-quotes`.
-The public calculator has NOT been updated yet: the quote service is deployed
-owner-private pending the user's explicit authorization to make the read-only
-public-data endpoint public. Then verify the deployed endpoint/CORS for all four
-instruments, merge the branch into current main, push, and verify the normal
-Pages deployment and served source. Do not expose a Sites bypass token to clients.
+The user authorized public read-only access on 2026-10-23. The quote service
+is public, and this change is ready for the normal main-branch Pages deployment.
+ETF latest trades were verified through the deployed endpoint with correct CORS.
+Crypto trades are read directly from Binance in the browser (verified), because
+that upstream is unavailable from the hosting environment. No bypass credentials
+are exposed. Only public instrument identifiers are sent to the service.
 
 Service: https://execution-market-quotes.attmgromov.chatgpt.site
 Sites project: appgprj_6adb4a5dc728819180965e554c09151b
-Initial private deployed version: appgprj_6adb4a5dc728819180965e554c09151b~appgver_de832efe4b6c8191ac80f9a0738973e9
+Public backend version: appgprj_6adb4a5dc728819180965e554c09151b~appgver_d1795ec8a95c819184dba15721eb0fac
 Maintainable backend source: services/execution-quotes/
 
 Opening or changing ticker starts with a blank input and requests the latest
@@ -28,12 +28,12 @@ first ready daily value during quote refreshes. No automatic trades are placed.
 
 Validation completed locally because this task has no cloud execution tool:
 - 40 calculation/calendar/quote-controller Node tests passed.
-- 4 backend tests passed (DST, NYSE holidays, exact current-day minute, event time,
+- 5 backend tests passed (DST, NYSE holidays, exact current-day minute, event time,
   missing prices, independent source failures).
-- 55 existing Chromium desktop/mobile and progress-ledger regressions passed.
-- Additional quote/time/default/manual-edit/reference-button Chromium test passed.
+- 56 Chromium desktop/mobile, ledger, and quote-interaction regressions passed.
+- 4 quote-controller/direct-crypto tests passed, including ET/DST candle selection.
 - Sites production build passed and private deployment succeeded.
 - Local backend successfully read real latest trades for both ETFs and both pairs.
 - Today's 09:35 bar is not yet formed at test time; readiness and exact-bar
-  selection were tested with fixtures. Deployed provider access remains to verify
-  after public authorization, since private browser sign-in was unavailable.
+  selection were tested with fixtures. Deployed ETF latest trades and direct Binance latest trades were verified;
+  actual current-day 09:35 close retrieval cannot be checked until that minute forms.

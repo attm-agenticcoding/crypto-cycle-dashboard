@@ -2,6 +2,28 @@
 (function(root,factory){const api=factory();if(typeof module==='object'&&module.exports)module.exports=api;else root.ExecutionQuotes=api;})(typeof globalThis!=='undefined'?globalThis:this,function(){
   'use strict';
   const endpoint='https://execution-market-quotes.attmgromov.chatgpt.site/api/quote';
+  function cryptoReference(now=Date.now()) {
+    const parts=Object.fromEntries(new Intl.DateTimeFormat('en-CA',{timeZone:'America/New_York',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date(now)).map(p=>[p.type,p.value]));
+    const date=`${parts.year}-${parts.month}-${parts.day}`;
+    const zone=new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',timeZoneName:'shortOffset'}).formatToParts(new Date(date+'T18:00:00Z')).find(p=>p.type==='timeZoneName').value;
+    const offset=Number(zone.replace('GMT',''));
+    const start=Date.parse(date+'T09:35:00Z')-offset*3600000;
+    return {date,start,status:now<start+60000?'pending':'unavailable',price:null};
+  }
+  async function directCrypto(id,fetcher=fetch,now=Date.now()) {
+    const symbol=id==='BINANCE:SPOT:BTCUSDT'?'BTCUSDT':id==='BINANCE:SPOT:ETHUSDT'?'ETHUSDT':null;
+    if(!symbol)throw Error('Unsupported crypto instrument');
+    const reference=cryptoReference(now),base='https://data-api.binance.vision/api/v3/';
+    const json=async path=>{const r=await fetcher(base+path,{cache:'no-store',signal:AbortSignal.timeout(10000)});if(!r.ok)throw Error('Unavailable');return r.json();};
+    const [trade,bar]=await Promise.allSettled([
+      json(`trades?symbol=${symbol}&limit=1`),
+      reference.status==='pending'?Promise.resolve(null):json(`klines?symbol=${symbol}&interval=1m&startTime=${reference.start}&endTime=${reference.start+59999}&limit=1`)
+    ]);
+    let latest=null;
+    if(trade.status==='fulfilled') {const row=trade.value?.[0],price=Number(row?.price),time=Number(row?.time);if(price>0&&Number.isFinite(price)&&time>0&&time<=now+60000)latest={price,time:new Date(time).toISOString(),source:'Binance Spot',realtime:true,stale:now-time>300000};}
+    if(bar.status==='fulfilled'&&bar.value) {const row=bar.value[0],price=Number(row?.[4]);if(row?.[0]===reference.start&&row?.[6]===reference.start+59999&&price>0&&Number.isFinite(price))Object.assign(reference,{price,status:'ready',source:'Binance Spot · 1-minute close'});}
+    return {instrumentId:id,currency:'USDT',latest,reference};
+  }
   function controller({fetchQuote,render,apply}) {
     let instrument='',generation=0,edit=0,filled=false,latest=null,reference=null;
     async function refresh({useLatest=false}={}) {
@@ -27,7 +49,7 @@
     const money=(value,currency)=>`${Number(value).toLocaleString('en-US',{maximumFractionDigits:8})} ${currency}`;
     const stamp=value=>new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',month:'short',day:'numeric',year:'numeric',hour:'2-digit',minute:'2-digit',second:'2-digit',timeZoneName:'short'}).format(new Date(value));
     const c=controller({
-      fetchQuote:async id=>{const r=await fetch(`${endpoint}?instrument=${encodeURIComponent(id)}`,{cache:'no-store',signal:AbortSignal.timeout(15000)});if(!r.ok)throw Error('Unavailable');return r.json();},
+      fetchQuote:async id=>{if(id==='BINANCE:SPOT:BTCUSDT'||id==='BINANCE:SPOT:ETHUSDT')return directCrypto(id);const r=await fetch(`${endpoint}?instrument=${encodeURIComponent(id)}`,{cache:'no-store',signal:AbortSignal.timeout(15000)});if(!r.ok)throw Error('Unavailable');return r.json();},
       render(p){
         const q=p.latest,r=p.reference;
         latestEl.textContent=p.loading?'Loading latest market price…':q?`Latest trade: ${money(q.price,p.currency)} · Last trade time: ${stamp(q.time)} · ${q.source}${q.marketStatus?` · ${q.marketStatus}`:''}${q.stale?' · Older than 5 minutes; enter or confirm a price manually.':''}${!q.realtime?' · Not marked real-time by source.':''}`:'Latest price unavailable. Enter a reference manually or retry.';
@@ -43,5 +65,5 @@
     document.addEventListener('visibilitychange',()=>{if(!document.hidden)c.refresh();});
     return c;
   }
-  return {controller,mount};
+  return {controller,mount,cryptoReference,directCrypto};
 });

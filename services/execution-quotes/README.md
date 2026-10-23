@@ -25,7 +25,9 @@ the currently displayed day. No market data is bundled into source control.
 
 `node --test tests/quotes.test.mjs` checks DST, reference readiness, exact bar
 matching, event timestamps and independent provider failures. Build using the
-Sites plugin build helper. The Site is initially owner-private; it must be
-explicitly authorized for public access before the public calculator can call it.
+Sites plugin build helper. The user authorized public read-only access on 2026-10-23; the Site is public.
+The calculator fetches crypto directly from Binance because the hosted backend
+could not read that upstream. ETF quotes and minute bars use this backend.
+Edge cache failures are best-effort and never block upstream reads.
 Maintainable source is archived in the calculator repository's
 `services/execution-quotes/` directory; Sites holds the deployment checkout.
