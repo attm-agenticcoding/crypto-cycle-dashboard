@@ -92,6 +92,10 @@
     .results { grid-column: span 7; padding: 20px; }
     .field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; margin-top: 18px; }
     .field.wide { grid-column: 1 / -1; }
+    .quote-panel { display: grid; gap: 10px; padding: 14px; border: 1px solid var(--line); border-radius: 10px; }
+    .quote-panel button { padding: 9px 12px; border: 1px solid var(--cyan); border-radius: 7px; color: var(--cyan); background: transparent; font-size: .8rem; cursor: pointer; }
+    .quote-panel button:disabled { opacity: .45; cursor: not-allowed; }
+    .quote-panel button:focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; }
     label { display: block; margin: 0 0 7px; color: var(--muted); font-size: .79rem; }
     .input-wrap { position: relative; }
     .prefix { position: absolute; top: 50%; left: 12px; transform: translateY(-50%); color: var(--muted); pointer-events: none; }
@@ -246,14 +250,19 @@
         <form id="calculator-form" class="field-grid">
           <div class="field">
             <label id="reference-price-label" for="reference-price">Reference price for this plan</label>
-            <div class="input-wrap has-prefix"><span class="prefix currency-prefix">$</span><input id="reference-price" type="number" min="0.01" step="any" value="35" required aria-describedby="reference-hint"></div>
+            <div class="input-wrap has-prefix"><span class="prefix currency-prefix">$</span><input id="reference-price" type="number" min="0.01" step="any" placeholder="Loading latest price" required aria-describedby="reference-hint latest-quote"></div>
           </div>
           <div class="field">
             <label id="deadline-label" for="deadline">Capital deployment deadline</label>
             <input id="deadline" type="date" value="2027-03-31" aria-describedby="deadline-hint">
           </div>
 
-          <p id="reference-hint" class="hint">Calculate at any time using a price you enter. Prefilled prices are seed values, not live quotes; their market timestamp is not verified. Use your broker or exchange quote and recheck it before placing orders.</p>
+          <div class="field wide quote-panel">
+            <p id="latest-quote" class="hint" role="status">Loading latest market price…</p>
+            <p id="opening-reference" class="hint" role="status">09:35 ET minute close: loading…</p>
+            <div style="display:flex;flex-wrap:wrap;gap:10px"><button id="use-latest-price" type="button">Use latest price</button><button id="use-opening-reference" type="button" disabled>Use 09:35 ET price</button></div>
+          </div>
+          <p id="reference-hint" class="hint">Defaults to a recent last trade when available. Manual edits and calculated plans stay fixed during quote refreshes. The 09:35 ET minute close appears after 09:36 and stays fixed for that date; it is a comparison reference and does not replace the crypto model’s 00:00 UTC anchor. Verify your broker’s quote before placing orders.</p>
           <p id="deadline-hint" class="hint">Deadline is optional. Leave it blank for price seeking at your entered weekly pace. A total alone only caps that pace; it does not create a completion date.</p>
           <div class="field wide" data-sell hidden>
             <label for="sell-policy">Sale priority</label>
@@ -400,6 +409,7 @@
 
   <script src="./market-calendar.js?v=2"></script>
   <script src="./execution-core.js?v=6"></script>
+  <script src="./market-quotes.js?v=1"></script>
   <script>
     const PARAMS_URL = "../data/execution_params.json";
     const REGISTRY_URL = "../data/execution_instruments.json";
@@ -495,7 +505,7 @@
       }
       const state = tradingWindow();
       document.getElementById("plan-context").textContent = state.open
-        ? `${state.message} Sizing starts ${tradingDateLabel(state.planningDate)} ${zoneLabel()}; weekly inputs apply to that planning week. Ladder prices use your reference input, not a fetched live quote; a closeout uses your separately entered fresh best bid.`.trim()
+        ? `${state.message} Sizing starts ${tradingDateLabel(state.planningDate)} ${zoneLabel()}; weekly inputs apply to that planning week. Ladder prices use the reference input shown in your plan; a closeout uses your separately entered fresh best bid.`.trim()
         : state.message;
       button.disabled = !state.open;
       if (!state.open) {
@@ -828,6 +838,7 @@
       ].join("\n"));
       link.href = issueUrl.toString();
     }
+    const quoteController = ExecutionQuotes.mount();
     function selectInstrument(instrumentId, { resetReference = true, persist = true } = {}) {
       const selected = paramsById[instrumentId] || FALLBACK;
       if (instrumentId !== selectedInstrumentId) {
@@ -867,8 +878,9 @@
       document.getElementById("method-proxy").textContent = proxy;
       document.getElementById("instrument-meta").textContent = `${params.exchange || "Unknown exchange"} (${params.venue_code || params.exchange_mic || "venue unknown"}) · ${params.name || params.execution_instrument || params.symbol} · ${params.asset_class || "listed instrument"} · ${isCrypto() ? "direct pair data" : "scaling proxy"} ${proxy}`;
       document.getElementById("instrument-rationale").textContent = params.scaling_source?.rationale ? `Proxy mapping: ${params.scaling_source.rationale}` : "";
-      if (resetReference && Number(params.default_reference_price) > 0) {
-        document.getElementById("reference-price").value = params.default_reference_price;
+      if (resetReference) {
+        document.getElementById("reference-price").value = "";
+        quoteController.select(selectedInstrumentId);
       }
       if (persist) {
         try { localStorage.setItem("execution-instrument", params.instrument_id); } catch (error) { /* preference is optional */ }

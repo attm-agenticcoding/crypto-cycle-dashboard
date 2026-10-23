@@ -38,8 +38,11 @@ Phase-one calculator consistency:
   hidden completion horizon or tightening.
   Finish-by-deadline sells still require an explicit date and total.
 - BUY and SELL calculations are available at any time with a manually entered
-  reference price. Seed defaults are not live quotes and have no verified quote
-  timestamp. Outside the model's execution window, output is labeled a preview;
+  reference price. When available, a recent last trade fills the initial input;
+  source event time is displayed, and quotes older than five minutes are not
+  autofilled. Background refreshes never replace manual inputs or existing plans.
+  A separate exact 09:35 ET minute close appears after 09:36, fixed for that day;
+  use it explicitly with the reference button. Missing prices remain unavailable. Outside the model's execution window, output is labeled a preview;
   after a close, weekend or holiday, sizing starts at the next eligible session
   and weekly inputs refer to that session's week. Current-week progress caps
   cannot silently carry into a next-week preview; use manual inputs instead.

@@ -62,7 +62,7 @@ if (process.env.RUN_EXECUTION_BROWSER_TESTS !== "1") {
     fs.mkdirSync(artifacts, {recursive: true});
     server = http.createServer((request, response) => {
       const pathname = new URL(request.url, "http://localhost").pathname;
-      const allowed = ["execution/index.html", "execution/execution-core.js", "execution/market-calendar.js", "execution/task-ledger.js", "execution/task-ledger-ui.js"];
+      const allowed = ["execution/index.html", "execution/execution-core.js", "execution/market-calendar.js", "execution/market-quotes.js", "execution/task-ledger.js", "execution/task-ledger-ui.js"];
       const file = pathname === "/execution/" ? "execution/index.html" : pathname.slice(1);
       if (!allowed.includes(file)) { response.writeHead(404); response.end(); return; }
       response.writeHead(200, {"Content-Type": file.endsWith(".js") ? "application/javascript" : "text/html", "Cache-Control": "no-store"});
@@ -80,6 +80,10 @@ if (process.env.RUN_EXECUTION_BROWSER_TESTS !== "1") {
     await context.route("**/*", route => {
       const request = route.request(), url = new URL(request.url());
       requests.push({url: request.url(), method: request.method(), body: request.postData()});
+      if (url.origin === "https://execution-market-quotes.attmgromov.chatgpt.site" && url.pathname === "/api/quote") {
+        const id=url.searchParams.get("instrument"), item=fixture().instruments[id];
+        return route.fulfill({json:{instrumentId:id,currency:item.currency,latest:{price:item.default_reference_price,time:"2026-10-05T14:00:00Z",source:"Fixture",realtime:true,stale:false},reference:{date:"2026-10-05",status:"ready",price:item.default_reference_price-.1,source:"Fixture minute"}}});
+      }
       if (url.origin !== origin) return route.abort();
       if (url.pathname === "/data/execution_params.json") return route.fulfill({json: fixture()});
       if (url.pathname === "/data/execution_instruments.json") return route.fulfill({json: {schema_version: 1, default_instrument_id: "ARCX:BTC", instruments: Object.values(fixture().instruments).map(item => ({instrument_id: item.instrument_id, enabled: true}))}});
@@ -109,7 +113,10 @@ if (process.env.RUN_EXECUTION_BROWSER_TESTS !== "1") {
       assert.deepEqual(errors, [], "no uncaught browser errors");
       for (const request of requests) {
         const url = new URL(request.url);
-        assert.equal(url.origin, origin, "all requests stay on the fixture origin");
+        if(url.origin === "https://execution-market-quotes.attmgromov.chatgpt.site") {
+          assert.equal(url.pathname,"/api/quote");assert.deepEqual([...url.searchParams.keys()],["instrument"]);assert.ok(fixture().instruments[url.searchParams.get("instrument")]);assert.equal(request.method,"GET");assert.equal(request.body,null);continue;
+        }
+        assert.equal(url.origin, origin, "other requests stay on the fixture origin");
         assert.equal(request.method, "GET"); assert.equal(request.body, null, "financial inputs never enter a network body");
         assert.ok(["", "?v=1", "?v=2", "?v=6"].includes(url.search), "URLs contain only static asset versions");
       }

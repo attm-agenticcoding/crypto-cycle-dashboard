@@ -92,6 +92,7 @@ if (process.env.RUN_EXECUTION_BROWSER_TESTS !== "1") {
         "/execution/index.html": "execution/index.html",
         "/execution/execution-core.js": "execution/execution-core.js",
         "/execution/market-calendar.js": "execution/market-calendar.js",
+        "/execution/market-quotes.js": "execution/market-quotes.js",
         "/execution/task-ledger.js": "execution/task-ledger.js",
         "/execution/task-ledger-ui.js": "execution/task-ledger-ui.js"
       };
@@ -115,6 +116,10 @@ if (process.env.RUN_EXECUTION_BROWSER_TESTS !== "1") {
     t.after(() => context.close());
     await context.route("**/*", async route => {
       const url = new URL(route.request().url());
+      if (url.origin === "https://execution-market-quotes.attmgromov.chatgpt.site" && url.pathname === "/api/quote") {
+        const id=url.searchParams.get("instrument"), item=data.instruments[id];
+        return route.fulfill({json:{instrumentId:id,currency:item.currency,latest:{price:item.default_reference_price,time:"2026-10-05T14:00:00Z",source:"Fixture",realtime:true,stale:false},reference:{date:"2026-10-05",status:"ready",price:item.default_reference_price-.1,source:"Fixture minute"}}});
+      }
       if (url.origin !== origin) return route.abort();
       if (url.pathname === "/data/execution_params.json") return route.fulfill({ json: data });
       if (url.pathname === "/data/execution_instruments.json") return route.fulfill({ json: {
@@ -556,8 +561,8 @@ if (process.env.RUN_EXECUTION_BROWSER_TESTS !== "1") {
       await assertPlan(page, { ...(side === "buy" ? buyBase() : sellBase()), reference: 36, weekSessions });
       const note = await page.locator("#plan-context").innerText();
       assert.match(note, /Planning preview/); assert.ok(note.includes(expectedDate));
-      assert.match(note, /reference input, not a fetched live quote/);
-      assert.match(await page.locator("#reference-hint").innerText(), /seed values, not live quotes/);
+      assert.match(note, /reference input shown in your plan/);
+      assert.match(await page.locator("#reference-hint").innerText(), /Defaults to a recent last trade/);
       await page.locator("#deadline").fill("2026-10-04");
       await submit(page);
       await errorIncludes(page, /no eligible sessions|passed/i);
@@ -680,4 +685,19 @@ if (process.env.RUN_EXECUTION_BROWSER_TESTS !== "1") {
     await submit(page);
     await errorIncludes(page, /no eligible sessions|passed/i);
   });
+  test("quote time, default, manual preservation, and explicit 09:35 reference selection", async t => {
+    const page=await open(t);
+    await page.waitForFunction(()=>document.getElementById("latest-quote").textContent.includes("Fixture"));
+    assert.equal(await page.locator("#reference-price").inputValue(),"35");
+    assert.match(await page.locator("#latest-quote").innerText(),/Last trade time:.*10:00:00 AM EDT/);
+    assert.match(await page.locator("#opening-reference").innerText(),/09:35 ET minute close: 34.9 USD/);
+    await page.locator("#reference-price").fill("40");
+    await page.clock.runFor(31000);
+    assert.equal(await page.locator("#reference-price").inputValue(),"40");
+    await page.locator("#use-opening-reference").click();
+    assert.equal(await page.locator("#reference-price").inputValue(),"34.9");
+    await page.locator("#use-latest-price").click();
+    await page.waitForFunction(()=>document.getElementById("reference-price").value==="35");
+  });
+
 }
