@@ -4,18 +4,18 @@ const core = require('../execution/execution-core.js');
 const params = {market_calendar:'XNYS', trade_side:'buy', first_offset_pct:.25, spacing_pct:.95, lookback_sessions:10, expected_rungs_per_session:1.7};
 const base = {weekly:10000, total:null, reference:35, weekSessions:5, horizon:null, params, accumulation:{used:0,working:0,reserve:0}};
 const plan = extra => core.buyPlan({...base,...extra});
-test('annual 49 permits one trade; 50, over-limit and committed slots produce HOLD', () => {
-  for (const used of [0,49,50,51]) for (const working of [0,1,50]) for (const reserve of [0,1,10]) {
+test('monthly 4 permits one trade; 5, over-limit and committed slots produce HOLD', () => {
+  for (const used of [0,4,5,6]) for (const working of [0,1,5]) for (const reserve of [0,1,2]) {
     const p=plan({accumulation:{used,working,reserve}});
-    assert.equal(p.orders.length, used+working+reserve<50 ? 1 : 0);
+    assert.equal(p.orders.length, used+working+reserve<5 ? 1 : 0);
     assert.ok(p.orders.length<=1);
-    if(p.orders.length) assert.ok(used+working+reserve+p.orders.length<=50);
+    if(p.orders.length) assert.ok(used+working+reserve+p.orders.length<=5);
   }
 });
 test('counts must be supplied, nonnegative and integral', () => {
   for(const bad of ['',null,undefined,-1,.5,NaN,Infinity]) for(const field of ['used','working','reserve'])
     if (!(field === 'reserve' && bad === undefined)) assert.throws(()=>plan({accumulation:{used:0,working:0,reserve:0,[field]:bad}}));
-  assert.throws(()=>plan({accumulation:{used:0,working:0,reserve:51}}));
+  assert.throws(()=>plan({accumulation:{used:0,working:0,reserve:6}}));
 });
 test('deadline never raises cash or tightens price; explicit zero remains HOLD', () => {
   for(const weekly of [0,10,1000]) for(const total of [null,'',0,500,100000]) for(const horizon of [null,1,30]) {
@@ -45,8 +45,8 @@ test('crypto order filters yield one bounded order or HOLD, never a second rung'
   assert.equal(capped.orders.length,1);assert.equal(capped.orderQuantity,100);assert.equal(capped.unallocated,185);
   const min=plan({params:{...params,min_notional:20000}});assert.equal(min.orders.length,0);
 });
-test('recalculating is pure and cannot reset or consume actual annual history', () => {
-  const accumulation={used:49,working:0,reserve:0};
+test('recalculating is pure and cannot reset or consume actual monthly history', () => {
+  const accumulation={used:4,working:0,reserve:0};
   assert.deepEqual(plan({accumulation}),plan({accumulation}));
-  assert.deepEqual(accumulation,{used:49,working:0,reserve:0});
+  assert.deepEqual(accumulation,{used:4,working:0,reserve:0});
 });

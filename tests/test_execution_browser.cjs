@@ -169,8 +169,8 @@ if (process.env.RUN_EXECUTION_BROWSER_TESTS !== "1") {
     if (!keepDefaultDeadline) await page.locator("#deadline").fill("");
     await page.locator("#weekly-one").fill("10000");
     await page.locator("#weekly-two").fill("0");
-    await page.locator("#annual-used").fill("0");
-    await page.locator("#annual-working").fill("0");
+    await page.locator("#monthly-used").fill("0");
+    await page.locator("#monthly-working").fill("0");
     return page;
   }
   async function setFields(page, values) {
@@ -727,32 +727,60 @@ if (process.env.RUN_EXECUTION_BROWSER_TESTS !== "1") {
     assert.equal(await page.locator('#use-latest-price').isEnabled(),true);
   });
 
-  test("shared annual allowance blocks the 51st trade and never creates a second-account order", async t => {
+  test("shared monthly allowance blocks the sixth trade and never creates a second-account order", async t => {
     const page = await open(t);
-    await setFields(page, {"annual-used":49,"weekly-two":5000});
+    await setFields(page, {"monthly-used":4,"weekly-two":5000});
     await submit(page);
     assert.equal(await page.locator("#result-stack tbody tr").count(),1);
     assert.match(await page.locator("#result-stack h3").innerText(),/Account 1/);
-    assert.equal(await page.locator("#annual-used").inputValue(),"49");
+    assert.equal(await page.locator("#monthly-used").inputValue(),"4");
     await page.locator("#buy-account").selectOption("two"); await cleared(page); await submit(page);
     assert.equal(await page.locator("#result-stack tbody tr").count(),1);
     assert.match(await page.locator("#result-stack h3").innerText(),/Account 2/);
-    await page.locator("#annual-working").fill("1"); await submit(page);
+    await page.locator("#monthly-working").fill("1"); await submit(page);
     assert.equal(await page.locator("#result-stack tbody tr").count(),0);
     assert.match(await page.locator("#result-stack").innerText(),/HOLD/);
-    await setFields(page,{"annual-working":0,"annual-used":50}); await submit(page);
+    await setFields(page,{"monthly-working":0,"monthly-used":5}); await submit(page);
     assert.equal(await page.locator("#result-stack tbody tr").count(),0);
-    await page.locator("#annual-year").fill("2025"); await submit(page); await errorIncludes(page,/planning calendar year 2026/);
+    await page.locator("#budget-month").fill("2026-09"); await setFields(page,{"monthly-used":0,"monthly-working":0}); await submit(page); await errorIncludes(page,/planning calendar month 2026-10/);
     await page.locator("#side-sell").click();
-    assert.equal(await page.locator("#annual-used").isDisabled(),true);
+    assert.equal(await page.locator("#monthly-used").isDisabled(),true);
   });
-  test("annual history is required and resets to unknown on reload, not zero", async t => {
+  test("monthly history is required and resets to unknown on reload, not zero", async t => {
     const page = await open(t);
     await page.reload(); await page.waitForFunction(()=>!document.getElementById("instrument-select").disabled);
-    for (const id of ["annual-used","annual-working"]) {
+    for (const id of ["monthly-used","monthly-working"]) {
       assert.equal(await page.locator(`#${id}`).inputValue(),"");
       assert.equal(await page.locator(`#${id}`).evaluate(n=>n.validity.valueMissing),true);
     }
+  });
+
+  test("month rollover needs fresh counts and carried orders still reserve capacity", async t => {
+    const page = await open(t, {time:"2026-10-30T19:59:00Z"});
+    await page.locator("#monthly-used").fill("4"); await submit(page);
+    assert.equal(await page.locator("#result-stack tbody tr").count(),1);
+    // Friday's close previews Monday Nov 2, rather than reusing October counts.
+    await moveClock(page,"2026-10-30T20:00:00Z"); await cleared(page); await submit(page);
+    await errorIncludes(page,/planning calendar month 2026-11/);
+    await page.locator("#budget-month").fill("2026-11");
+    assert.equal(await page.locator("#monthly-used").inputValue(),"");
+    assert.equal(await page.locator("#monthly-working").inputValue(),"");
+    await setFields(page,{"monthly-used":0,"monthly-working":5}); await submit(page);
+    assert.equal(await page.locator("#result-stack tbody tr").count(),0);
+    assert.match(await page.locator("#result-stack").innerText(),/HOLD/);
+    await page.locator("#monthly-working").fill("4"); await submit(page);
+    assert.equal(await page.locator("#result-stack tbody tr").count(),1);
+    assert.match(await page.locator("#result-stack").innerText(),/0 \/ 5/);
+  });
+
+  test("crypto shares the New York PA month rather than resetting at UTC midnight", async t => {
+    const page = await open(t, {time:"2026-11-01T00:01:00Z"});
+    await page.locator("#instrument-select").selectOption("BINANCE:SPOT:BTCUSDT");
+    await page.locator("#budget-month").fill("2026-10");
+    await setFields(page,{"monthly-used":4,"monthly-working":0,"weekly-one":1000});
+    await submit(page); assert.equal(await page.locator("#result-stack tbody tr").count(),1);
+    await moveClock(page,"2026-11-01T04:01:00Z"); await cleared(page); await submit(page);
+    await errorIncludes(page,/planning calendar month 2026-11/);
   });
 
 }

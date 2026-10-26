@@ -87,16 +87,16 @@
       unallocated: remaining, rungCapReached: remaining > 0 && orders.length === 30};
   }
 
-  // One shared calendar-year allowance across instruments, accounts and sides.
+  // One shared period allowance across instruments, accounts and sides.
   // Counts are supplied by the user; a calculation never records an actual trade.
-  function annualTradeBudget({used, working, reserve = 0}) {
+  function monthlyTradeBudget({used, working, reserve = 0}) {
+    const limit = 5;
     const counts = {used, working, reserve};
     for (const [key, value] of Object.entries(counts)) {
       counts[key] = nonnegative(value, `${key} trade count`);
       if (!Number.isSafeInteger(counts[key])) throw new Error("Trade counts must be whole numbers.");
     }
-    const limit = 50;
-    if (counts.reserve > limit) throw new Error("Reserved trades cannot exceed the 50-trade annual limit.");
+    if (counts.reserve > limit) throw new Error("Reserved trades cannot exceed the 5-trade monthly limit.");
     const remaining = Math.max(0, limit - counts.used);
     const available = Math.max(0, remaining - counts.working - counts.reserve);
     return {...counts, limit, remaining, available};
@@ -104,7 +104,7 @@
 
   function accumulationBuyPlan({weekly, total = null, reference, weekSessions, horizon = null, params, accumulation}) {
     if (!parametersReady(params) || params.trade_side !== "buy") throw new Error("Independent buy scaling is not ready.");
-    const allowance = annualTradeBudget(accumulation);
+    const allowance = monthlyTradeBudget(accumulation);
     const pace = sellPace(weekly, total, weekSessions, horizon);
     // Deadline pace is diagnostic only: neither cash nor price aggressiveness
     // is increased automatically in the accumulation policy.
@@ -132,7 +132,7 @@
     const minimum = Math.max(step, params.min_quantity || 0);
     const orders = [];
     let reason = "One limit order for this week's remaining budget. Review once a week; an unfilled order is not an instruction to submit another.";
-    if (allowance.available < 1) reason = "HOLD: no annual trade slot is available after actual trades, working-order reservations and optional reserves.";
+    if (allowance.available < 1) reason = "HOLD: no monthly trade slot is available after actual trades, working-order reservations and optional reserves.";
     else if (!(budget > 0)) reason = "HOLD: the remaining weekly or total buy budget is zero.";
     else if (shares < minimum || shares * price < (params.min_notional || 0)) reason = "HOLD: the budget is below the minimum order size. Accumulate cash before the next review.";
     else orders.push({rung: 1, price, shares, notional: shares * price});
@@ -295,5 +295,5 @@
   }
 
   return { parametersReady, sideParameters, hitCount, expectedHits, sellExpectedHits, sellPace, listedBuyOrders, buyPlan, sellPlan, sellSessionCloseMinutes, sellCloseoutState,
-    stepDecimals, quantize, quantityText, cryptoPlan, calendarParts, cryptoRemainingDays, annualTradeBudget, accumulationBuyPlan };
+    stepDecimals, quantize, quantityText, cryptoPlan, calendarParts, cryptoRemainingDays, monthlyTradeBudget, accumulationBuyPlan };
 });

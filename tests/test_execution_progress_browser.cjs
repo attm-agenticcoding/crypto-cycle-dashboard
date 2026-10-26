@@ -127,10 +127,10 @@ if (process.env.RUN_EXECUTION_BROWSER_TESTS !== "1") {
         }
         assert.equal(url.origin, origin, "other requests stay on the fixture origin");
         assert.equal(request.method, "GET"); assert.equal(request.body, null, "financial inputs never enter a network body");
-        assert.ok(["", "?v=1", "?v=2", "?v=6", "?v=7"].includes(url.search), "URLs contain only static asset versions");
+        assert.ok(["", "?v=1", "?v=2", "?v=6", "?v=7", "?v=8"].includes(url.search), "URLs contain only static asset versions");
       }
     });
-    await fields(page, {"annual-used":0,"annual-working":0});
+    await fields(page, {"monthly-used":0,"monthly-working":0});
     return page;
   }
   const read = page => page.evaluate(key => { const raw = localStorage.getItem(key); return raw === null ? null : JSON.parse(raw); }, KEY);
