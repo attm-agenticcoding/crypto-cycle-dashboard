@@ -87,7 +87,63 @@
       unallocated: remaining, rungCapReached: remaining > 0 && orders.length === 30};
   }
 
-  function buyPlan({weekly, total = null, reference, weekSessions, horizon = null, params}) {
+  // One shared calendar-year allowance across instruments, accounts and sides.
+  // Counts are supplied by the user; a calculation never records an actual trade.
+  function annualTradeBudget({used, working, reserve = 0}) {
+    const counts = {used, working, reserve};
+    for (const [key, value] of Object.entries(counts)) {
+      counts[key] = nonnegative(value, `${key} trade count`);
+      if (!Number.isSafeInteger(counts[key])) throw new Error("Trade counts must be whole numbers.");
+    }
+    const limit = 50;
+    if (counts.reserve > limit) throw new Error("Reserved trades cannot exceed the 50-trade annual limit.");
+    const remaining = Math.max(0, limit - counts.used);
+    const available = Math.max(0, remaining - counts.working - counts.reserve);
+    return {...counts, limit, remaining, available};
+  }
+
+  function accumulationBuyPlan({weekly, total = null, reference, weekSessions, horizon = null, params, accumulation}) {
+    if (!parametersReady(params) || params.trade_side !== "buy") throw new Error("Independent buy scaling is not ready.");
+    const allowance = annualTradeBudget(accumulation);
+    const pace = sellPace(weekly, total, weekSessions, horizon);
+    // Deadline pace is diagnostic only: neither cash nor price aggressiveness
+    // is increased automatically in the accumulation policy.
+    const budget = Math.min(+weekly, pace.hasTotal ? +total : +weekly);
+    const controller = {...pace, weekly: budget, factor: 1, lift: 1, urgency: "BASE"};
+    const behindSchedule = pace.enabled && pace.scheduleFloor > budget;
+    const ref = nonnegative(reference, "Reference price");
+    const crypto = params.market_calendar === "24X7";
+    const step = crypto ? Number(params.quantity_step) : 1;
+    const tick = crypto ? Number(params.price_tick) : .01;
+    if (!(ref > 0 && step > 0 && tick > 0 && Number.isFinite(step) && Number.isFinite(tick)))
+      throw new Error("A positive reference price and verified order increments are required.");
+    if (crypto && ![params.min_quantity, params.min_notional].every(x => Number.isFinite(x) && x >= 0))
+      throw new Error("Verified exchange minimum order sizes are missing.");
+    const first = params.first_offset_pct / 100, spacing = 0;
+    const price = quantize(ref * (1 - first), tick);
+    if (!(price > 0) || price < (params.min_price || tick) || (params.max_price > 0 && price > params.max_price))
+      throw new Error("The single buy limit is outside the instrument's price bounds.");
+    // Retain reference-based exposure sizing; the discount is not used to
+    // increase the desired position. Never split a size-limit remainder.
+    const targetShares = quantize(budget / ref, step);
+    let shares = quantize(Math.min(targetShares, params.max_quantity || Infinity,
+      params.max_notional > 0 ? params.max_notional / price : Infinity), step);
+    while (shares > 0 && shares * price > budget) shares = quantize(Math.max(0, shares - step), step);
+    const minimum = Math.max(step, params.min_quantity || 0);
+    const orders = [];
+    let reason = "One limit order for this week's remaining budget. Review once a week; an unfilled order is not an instruction to submit another.";
+    if (allowance.available < 1) reason = "HOLD: no annual trade slot is available after actual trades, working-order reservations and optional reserves.";
+    else if (!(budget > 0)) reason = "HOLD: the remaining weekly or total buy budget is zero.";
+    else if (shares < minimum || shares * price < (params.min_notional || 0)) reason = "HOLD: the budget is below the minimum order size. Accumulate cash before the next review.";
+    else orders.push({rung: 1, price, shares, notional: shares * price});
+    const orderQuantity = orders.length ? shares : 0;
+    return {controller, first, spacing, targetShares, perRung: orderQuantity, orders, orderQuantity,
+      unallocated: Math.max(0, quantize(targetShares - orderQuantity, step)), fractionalRemainder: 0,
+      allowance, behindSchedule, accumulation: true, reason};
+  }
+
+  function buyPlan({weekly, total = null, reference, weekSessions, horizon = null, params, accumulation = null}) {
+    if (accumulation) return accumulationBuyPlan({weekly, total, reference, weekSessions, horizon, params, accumulation});
     if (params.market_calendar === "24X7") return cryptoPlan({weekly, total, reference, weekSessions, horizon, params});
     if (!parametersReady(params) || params.trade_side !== "buy") throw new Error("Independent buy scaling is not ready.");
     const controller = sellPace(weekly, total, weekSessions, horizon);
@@ -239,5 +295,5 @@
   }
 
   return { parametersReady, sideParameters, hitCount, expectedHits, sellExpectedHits, sellPace, listedBuyOrders, buyPlan, sellPlan, sellSessionCloseMinutes, sellCloseoutState,
-    stepDecimals, quantize, quantityText, cryptoPlan, calendarParts, cryptoRemainingDays };
+    stepDecimals, quantize, quantityText, cryptoPlan, calendarParts, cryptoRemainingDays, annualTradeBudget, accumulationBuyPlan };
 });

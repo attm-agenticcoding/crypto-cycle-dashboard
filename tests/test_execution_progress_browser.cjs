@@ -127,9 +127,10 @@ if (process.env.RUN_EXECUTION_BROWSER_TESTS !== "1") {
         }
         assert.equal(url.origin, origin, "other requests stay on the fixture origin");
         assert.equal(request.method, "GET"); assert.equal(request.body, null, "financial inputs never enter a network body");
-        assert.ok(["", "?v=1", "?v=2", "?v=6"].includes(url.search), "URLs contain only static asset versions");
+        assert.ok(["", "?v=1", "?v=2", "?v=6", "?v=7"].includes(url.search), "URLs contain only static asset versions");
       }
     });
+    await fields(page, {"annual-used":0,"annual-working":0});
     return page;
   }
   const read = page => page.evaluate(key => { const raw = localStorage.getItem(key); return raw === null ? null : JSON.parse(raw); }, KEY);
@@ -168,7 +169,7 @@ if (process.env.RUN_EXECUTION_BROWSER_TESTS !== "1") {
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), true, "no page-level horizontal overflow");
     await page.screenshot({path: path.join(artifacts, filename), fullPage: true});
   }
-  test("default stays collapsed, empty, optional and financially stateless; manual math unchanged", async t => {
+  test("default stays collapsed, empty, optional and financially stateless; single-buy policy preserves local progress", async t => {
     const page = await open(t);
     assert.equal(await page.locator("#progress-details").evaluate(node => node.open), false);
     for (const id of ["weekly-one", "weekly-two", "capital-one", "capital-two", "sell-held-one", "sell-held-two"]) assert.equal(await page.locator(`#${id}`).inputValue(), "");
@@ -269,8 +270,8 @@ if (process.env.RUN_EXECUTION_BROWSER_TESTS !== "1") {
     const page = await open(t); await expand(page); await create(page, {weekly: 100, total: 10000}); await page.locator("#progress-use").click();
     await fields(page, {deadline: "2026-10-05", "reference-price": 35}); await page.locator("#calculate-button").click();
     let orders = await renderedOrders(page); assert.ok(orders.length); assert.ok(orders.reduce((sum, item) => sum + item.quantity * item.price, 0) <= 100);
-    const call = await page.evaluate(() => window.__executionCalls.at(-1)); assert.ok(call.output.orders.reduce((sum, item) => sum + item.notional, 0) > 100, "original core deadline target unchanged");
-    assert.match(await page.locator("#result-stack").innerText(), /Deadline pace exceeds.*confirmed weekly limit/);
+    const call = await page.evaluate(() => window.__executionCalls.at(-1)); assert.ok(call.output.orders.reduce((sum, item) => sum + item.notional, 0) <= 100, "accumulation never lifts the weekly cash cap");
+    assert.match(await page.locator("#result-stack").innerText(), /deadline never raises this buy budget/);
     await fields(page, {"weekly-one": 200}); assert.match(await page.locator("#progress-binding").innerText(), /Manual mode/);
     await page.locator("#calculate-button").click(); orders = await renderedOrders(page); assert.ok(orders.reduce((sum, item) => sum + item.quantity * item.price, 0) > 100);
   });
@@ -359,7 +360,7 @@ if (process.env.RUN_EXECUTION_BROWSER_TESTS !== "1") {
     const orders = await renderedOrders(page); assert.ok(orders.length);
     assert.ok(orders.reduce((sum, order) => sum + order.quantity * order.price, 0) <= 10 + 1e-10);
     for (const order of orders) { assert.ok(order.quantity * order.price >= 5 - 1e-10); assert.ok(Math.abs(order.quantity / .00001 - Math.round(order.quantity / .00001)) < 1e-8); }
-    assert.match(await page.locator("#result-stack").innerText(), /Unallocated remainder/);
+    assert.equal(orders.length, 1, "crypto accumulation remains a single order");
   });
   test("already-working exposure beyond a cap is recorded truthfully and blocks new planning", async t => {
     const page = await open(t); await expand(page); await create(page);

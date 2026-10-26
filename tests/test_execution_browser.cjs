@@ -169,6 +169,8 @@ if (process.env.RUN_EXECUTION_BROWSER_TESTS !== "1") {
     if (!keepDefaultDeadline) await page.locator("#deadline").fill("");
     await page.locator("#weekly-one").fill("10000");
     await page.locator("#weekly-two").fill("0");
+    await page.locator("#annual-used").fill("0");
+    await page.locator("#annual-working").fill("0");
     return page;
   }
   async function setFields(page, values) {
@@ -192,6 +194,9 @@ if (process.env.RUN_EXECUTION_BROWSER_TESTS !== "1") {
     await cleared(page);
   }
   async function assertPlan(page, input, { account = 0, method = input.params.trade_side === "sell" ? "sellPlan" : "buyPlan" } = {}) {
+    if (input.params.trade_side === "buy") {
+      method = "buyPlan"; input = {...input, accumulation: input.accumulation || {used:0,working:0,reserve:0}};
+    }
     const expected = core[method](input);
     const article = page.locator("#result-stack .account-result").nth(account);
     assert.equal(await article.isVisible(), true, "calculation should render an account plan");
@@ -208,15 +213,16 @@ if (process.env.RUN_EXECUTION_BROWSER_TESTS !== "1") {
       ? `${value.toLocaleString("en-US", { maximumFractionDigits: 8 })} ${input.params.currency}` : cash(value);
     const actualRows = await article.locator("tbody tr").evaluateAll(rows => rows.map(row => [...row.cells].map(cell => cell.textContent.trim())));
     assert.deepEqual(actualRows, expected.orders.map(order => [
-      expected.closeout ? "Closeout" : `Rung ${order.rung}`, formattedPrice(order.price),
+      expected.accumulation ? "Single buy" : expected.closeout ? "Closeout" : `Rung ${order.rung}`, formattedPrice(order.price),
       core.quantityText(order.shares, input.params.quantity_step || 1), formattedNotional(order.notional)
     ]), "every displayed price, quantity, rung, and rounded notional matches the shared core");
     const metrics = await article.locator(".result-metric").evaluateAll(nodes => Object.fromEntries(nodes.map(node => [node.querySelector("span").textContent, node.querySelector("strong").textContent])));
-    assert.equal(numeric(metrics[crypto ? `${input.params.base_asset} / rung` : input.params.trade_side === "sell" ? "shares / rung" : "Shares / rung"]), expected.perRung);
+    if (!expected.accumulation) assert.equal(numeric(metrics[crypto ? `${input.params.base_asset} / rung` : input.params.trade_side === "sell" ? "shares / rung" : "Shares / rung"]), expected.perRung);
     const expectedTarget = input.params.trade_side === "sell" ? `${core.quantityText(expected.controller.weekly, input.params.quantity_step || 1)} ${crypto ? input.params.base_asset : "shares"}`
       : crypto ? `${expected.controller.weekly.toLocaleString("en-US", { maximumFractionDigits: 8 })} ${input.params.currency}` : wholeCash(expected.controller.weekly);
-    assert.equal(metrics["Effective weekly target"], expectedTarget);
-    assert.equal(metrics["Deadline pace lift"], expected.controller.enabled ? `${expected.controller.lift.toFixed(2)}×` : "—");
+    assert.equal(metrics[expected.accumulation ? "Weekly budget cap" : "Effective weekly target"], expectedTarget);
+    if (expected.accumulation) { assert.equal(numeric(metrics["Planned quantity"]), expected.orderQuantity); assert.equal(numeric(metrics["Free slots after this plan"]), expected.allowance.available - expected.orders.length); }
+    if (!expected.accumulation) assert.equal(metrics["Deadline pace lift"], expected.controller.enabled ? `${expected.controller.lift.toFixed(2)}×` : "—");
     assert.doesNotMatch(await article.innerText(), /NaN|Infinity|undefined/);
     return { expected, metrics, article, call };
   }
@@ -309,12 +315,12 @@ if (process.env.RUN_EXECUTION_BROWSER_TESTS !== "1") {
     }
   }
 
-  test("real BTC and ETH forms retain newest unlabeled excursion and match every core order", async t => {
+  test("BTC and ETH forms match the shared single-order accumulation policy", async t => {
     const page = await open(t);
     await submit(page);
     const btc = await assertPlan(page, buyBase());
-    assert.equal(btc.expected.hits, 1.7);
-    assert.equal(btc.expected.perRung, 34);
+    assert.equal(btc.expected.orders.length, 1);
+    assert.equal(btc.expected.perRung, 285);
     assert.equal(btc.expected.targetShares, 285);
     await page.locator("#instrument-select").selectOption("ARCX:ETH");
     if (await page.locator("#side-buy").getAttribute("aria-pressed") === "true") await page.locator("#weekly-one").fill("10000");
@@ -322,8 +328,8 @@ if (process.env.RUN_EXECUTION_BROWSER_TESTS !== "1") {
     await page.locator("#weekly-two").fill("0");
     await submit(page);
     const eth = await assertPlan(page, { ...buyBase(), reference: 23.32, params: params("ARCX:ETH") });
-    assert.equal(eth.expected.hits, 2.3);
-    assert.equal(eth.expected.perRung, 38);
+    assert.equal(eth.expected.orders.length, 1);
+    assert.equal(eth.expected.perRung, 428);
     assert.equal(eth.expected.targetShares, 428);
     await page.screenshot({ path: path.join(artifacts, "listed-buy-desktop.png"), fullPage: true });
     t.diagnostic(`Desktop screenshot: ${artifacts}`);
@@ -344,8 +350,8 @@ if (process.env.RUN_EXECUTION_BROWSER_TESTS !== "1") {
     assertTextPainted(inputViewport, { "mobile reference input": await page.locator("#reference-price").boundingBox() });
     await page.locator("#calculate-button").tap();
     const { expected } = await assertPlan(page, { ...buyBase(), reference: 23.32, params: params("ARCX:ETH") });
-    assert.equal(expected.hits, 2.3);
-    assert.equal(expected.perRung, 38);
+    assert.equal(expected.orders.length, 1);
+    assert.equal(expected.perRung, 428);
     assert.equal(expected.targetShares, 428);
     await page.locator("#result-stack").evaluate(node => node.scrollIntoView({ block: "start" }));
     await settlePaint(page);
@@ -433,8 +439,8 @@ if (process.env.RUN_EXECUTION_BROWSER_TESTS !== "1") {
     await cleared(page);
     await page.locator("#weekly-one").fill("0");
     await submit(page);
-    await cleared(page);
-    assert.match(await page.locator("#empty").innerText(), /No buy quantity is requested/);
+    assert.equal(await page.locator("#result-stack tbody tr").count(), 0);
+    assert.match(await page.locator("#result-stack").innerText(), /HOLD/);
     await sellInputs(page, { "sell-weekly-one": 100.5, "sell-total-one": 1000.5, "sell-held-one": 1000.75, "sell-reserved-one": 25.25 });
     assert.equal(await page.locator("#weekly-one").isDisabled(), true, "hidden BUY fields do not interfere with SELL validation");
     assert.equal(await page.locator("#calculator-form").evaluate(node => node.checkValidity()), true);
@@ -442,14 +448,15 @@ if (process.env.RUN_EXECUTION_BROWSER_TESTS !== "1") {
     await assertPlan(page, { ...sellBase(), weekly: 100.5, total: 1000.5, held: 1000.75, reserved: 25.25 });
   });
 
-  test("weekly zero plus total and five-session deadline activates the valid pace floor", async t => {
+  test("BUY zero budget stays HOLD under deadline pressure; SELL retains pace floor", async t => {
     const page = await open(t);
     await setFields(page, { "weekly-one": 0, "capital-one": 10000, deadline: "2026-10-09" });
     await submit(page);
     const { expected } = await assertPlan(page, { ...buyBase(), weekly: 0, total: 10000, horizon: 5 });
-    assert.equal(expected.controller.weekly, 10000);
+    assert.equal(expected.controller.weekly, 0);
     assert.equal(expected.controller.scheduleFloor, 10000);
-    assert.equal(expected.controller.factor, .4);
+    assert.equal(expected.controller.factor, 1);
+    assert.equal(expected.orders.length, 0);
     await sellInputs(page, { "sell-weekly-one": 0, "sell-total-one": 1000 });
     await submit(page);
     assert.equal((await assertPlan(page, { ...sellBase(), weekly: 0, total: 1000, horizon: 5 })).expected.targetShares, 1000);
@@ -463,7 +470,7 @@ if (process.env.RUN_EXECUTION_BROWSER_TESTS !== "1") {
     assert.equal(result.expected.controller.weekly, 10000);
     assert.equal(result.expected.controller.enabled, false);
     assert.equal(result.expected.controller.factor, 1);
-    assert.equal(result.metrics["Even-pace floor"], "—");
+    assert.match(await result.article.innerText(), /No deadline pressure/);
     assert.match(await page.locator("#session-label").innerText(), /no deadline/);
     await page.locator("#capital-one").fill("3500");
     await submit(page);
@@ -533,7 +540,7 @@ if (process.env.RUN_EXECUTION_BROWSER_TESTS !== "1") {
     await assertPlan(page, sellBase());
   });
 
-  test("30-rung BUY ceiling reports target 600, per rung 10, allocated 300, unallocated 300", async t => {
+  test("high daily touch rates still produce one accumulation BUY", async t => {
     const data = fixture();
     Object.assign(data.instruments["ARCX:BTC"].sides.buy, { session_samples: [], expected_rungs_per_session: 12 });
     const page = await open(t, { data });
@@ -541,12 +548,10 @@ if (process.env.RUN_EXECUTION_BROWSER_TESTS !== "1") {
     await submit(page);
     const result = await assertPlan(page, { ...buyBase(), weekly: 6000, reference: 10, params: params("ARCX:BTC", "buy", data) });
     assert.equal(result.expected.targetShares, 600);
-    assert.equal(result.expected.perRung, 10);
-    assert.equal(result.expected.orders.length, 30);
-    assert.equal(result.expected.orderQuantity, 300);
-    assert.equal(result.expected.unallocated, 300);
-    assert.match(await result.article.locator(".notice").innerText(), /300 shares are unallocated.*30-rung/i);
-    assert.match(await result.article.locator(".notice").innerText(), /does not cover the target/i);
+    assert.equal(result.expected.perRung, 600);
+    assert.equal(result.expected.orders.length, 1);
+    assert.equal(result.expected.orderQuantity, 600);
+    assert.equal(result.expected.unallocated, 0);
   });
 
   for (const side of ["buy", "sell"]) {
@@ -720,6 +725,34 @@ if (process.env.RUN_EXECUTION_BROWSER_TESTS !== "1") {
     await page.waitForFunction(()=>document.getElementById('quote-action-status').textContent.includes('Could not retrieve'));
     assert.equal(await page.locator('#reference-price').inputValue(),'36.04');
     assert.equal(await page.locator('#use-latest-price').isEnabled(),true);
+  });
+
+  test("shared annual allowance blocks the 51st trade and never creates a second-account order", async t => {
+    const page = await open(t);
+    await setFields(page, {"annual-used":49,"weekly-two":5000});
+    await submit(page);
+    assert.equal(await page.locator("#result-stack tbody tr").count(),1);
+    assert.match(await page.locator("#result-stack h3").innerText(),/Account 1/);
+    assert.equal(await page.locator("#annual-used").inputValue(),"49");
+    await page.locator("#buy-account").selectOption("two"); await cleared(page); await submit(page);
+    assert.equal(await page.locator("#result-stack tbody tr").count(),1);
+    assert.match(await page.locator("#result-stack h3").innerText(),/Account 2/);
+    await page.locator("#annual-working").fill("1"); await submit(page);
+    assert.equal(await page.locator("#result-stack tbody tr").count(),0);
+    assert.match(await page.locator("#result-stack").innerText(),/HOLD/);
+    await setFields(page,{"annual-working":0,"annual-used":50}); await submit(page);
+    assert.equal(await page.locator("#result-stack tbody tr").count(),0);
+    await page.locator("#annual-year").fill("2025"); await submit(page); await errorIncludes(page,/planning calendar year 2026/);
+    await page.locator("#side-sell").click();
+    assert.equal(await page.locator("#annual-used").isDisabled(),true);
+  });
+  test("annual history is required and resets to unknown on reload, not zero", async t => {
+    const page = await open(t);
+    await page.reload(); await page.waitForFunction(()=>!document.getElementById("instrument-select").disabled);
+    for (const id of ["annual-used","annual-working"]) {
+      assert.equal(await page.locator(`#${id}`).inputValue(),"");
+      assert.equal(await page.locator(`#${id}`).evaluate(n=>n.validity.valueMissing),true);
+    }
   });
 
 }
