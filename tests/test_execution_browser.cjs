@@ -204,7 +204,11 @@ if (process.env.RUN_EXECUTION_BROWSER_TESTS !== "1") {
     const call = calls.filter(item => item.method === method).slice(-(account === 0 ? await page.locator(".account-result").count() : 1))[0];
     assert.ok(call, `UI must call ExecutionCore.${method}`);
     assert.deepEqual(call.output, expected, "browser core output exactly equals the Node shared-core result");
-    assert.equal(call.input.weekSessions, input.weekSessions);
+    if (expected.accumulation) {
+      assert.equal(call.input.deployment, String(input.weekly));
+      assert.equal(call.input.capital, input.total === null ? "" : String(input.total));
+      assert.equal(call.input.weekSessions, undefined, "BUY amount is independent of weekly pacing");
+    } else assert.equal(call.input.weekSessions, input.weekSessions);
     assert.equal(call.input.horizon, input.horizon ?? null, "optional deadline must remain absent, never invented");
     const crypto = input.params.market_calendar === "24X7";
     const formattedPrice = value => crypto
@@ -220,7 +224,7 @@ if (process.env.RUN_EXECUTION_BROWSER_TESTS !== "1") {
     if (!expected.accumulation) assert.equal(numeric(metrics[crypto ? `${input.params.base_asset} / rung` : input.params.trade_side === "sell" ? "shares / rung" : "Shares / rung"]), expected.perRung);
     const expectedTarget = input.params.trade_side === "sell" ? `${core.quantityText(expected.controller.weekly, input.params.quantity_step || 1)} ${crypto ? input.params.base_asset : "shares"}`
       : crypto ? `${expected.controller.weekly.toLocaleString("en-US", { maximumFractionDigits: 8 })} ${input.params.currency}` : wholeCash(expected.controller.weekly);
-    assert.equal(metrics[expected.accumulation ? "Weekly budget cap" : "Effective weekly target"], expectedTarget);
+    assert.equal(metrics[expected.accumulation ? "Deployment amount cap" : "Effective weekly target"], expectedTarget);
     if (expected.accumulation) { assert.equal(numeric(metrics["Planned quantity"]), expected.orderQuantity); assert.equal(numeric(metrics["Free slots after this plan"]), expected.allowance.available - expected.orders.length); }
     if (!expected.accumulation) assert.equal(metrics["Deadline pace lift"], expected.controller.enabled ? `${expected.controller.lift.toFixed(2)}×` : "—");
     assert.doesNotMatch(await article.innerText(), /NaN|Infinity|undefined/);
@@ -454,7 +458,7 @@ if (process.env.RUN_EXECUTION_BROWSER_TESTS !== "1") {
     await submit(page);
     const { expected } = await assertPlan(page, { ...buyBase(), weekly: 0, total: 10000, horizon: 5 });
     assert.equal(expected.controller.weekly, 0);
-    assert.equal(expected.controller.scheduleFloor, 10000);
+    assert.equal(expected.controller.scheduleFloor, 0);
     assert.equal(expected.controller.factor, 1);
     assert.equal(expected.orders.length, 0);
     await sellInputs(page, { "sell-weekly-one": 0, "sell-total-one": 1000 });
@@ -462,7 +466,7 @@ if (process.env.RUN_EXECUTION_BROWSER_TESTS !== "1") {
     assert.equal((await assertPlan(page, { ...sellBase(), weekly: 0, total: 1000, horizon: 5 })).expected.targetShares, 1000);
   });
 
-  test("no deadline preserves BUY and patient SELL weekly pace and total cap without invented horizon", async t => {
+  test("no deadline preserves BUY deployment amount and patient SELL pace without invented horizon", async t => {
     const page = await open(t);
     await page.locator("#capital-one").fill("100000");
     await submit(page);
@@ -470,8 +474,8 @@ if (process.env.RUN_EXECUTION_BROWSER_TESTS !== "1") {
     assert.equal(result.expected.controller.weekly, 10000);
     assert.equal(result.expected.controller.enabled, false);
     assert.equal(result.expected.controller.factor, 1);
-    assert.match(await result.article.innerText(), /No deadline pressure/);
-    assert.match(await page.locator("#session-label").innerText(), /no deadline/);
+    assert.match(await result.article.innerText(), /deadline does not increase this amount/);
+    assert.match(await page.locator("#session-label").innerText(), /maximum 4 trades/);
     await page.locator("#capital-one").fill("3500");
     await submit(page);
     assert.equal((await assertPlan(page, { ...buyBase(), total: 3500 })).expected.targetShares, 100);
@@ -727,20 +731,20 @@ if (process.env.RUN_EXECUTION_BROWSER_TESTS !== "1") {
     assert.equal(await page.locator('#use-latest-price').isEnabled(),true);
   });
 
-  test("shared monthly allowance blocks the sixth trade and never creates a second-account order", async t => {
+  test("shared monthly allowance blocks the fifth trade and never creates a second-account order", async t => {
     const page = await open(t);
-    await setFields(page, {"monthly-used":4,"weekly-two":5000});
+    await setFields(page, {"monthly-used":3,"weekly-two":5000});
     await submit(page);
     assert.equal(await page.locator("#result-stack tbody tr").count(),1);
     assert.match(await page.locator("#result-stack h3").innerText(),/Account 1/);
-    assert.equal(await page.locator("#monthly-used").inputValue(),"4");
+    assert.equal(await page.locator("#monthly-used").inputValue(),"3");
     await page.locator("#buy-account").selectOption("two"); await cleared(page); await submit(page);
     assert.equal(await page.locator("#result-stack tbody tr").count(),1);
     assert.match(await page.locator("#result-stack h3").innerText(),/Account 2/);
     await page.locator("#monthly-working").fill("1"); await submit(page);
     assert.equal(await page.locator("#result-stack tbody tr").count(),0);
     assert.match(await page.locator("#result-stack").innerText(),/HOLD/);
-    await setFields(page,{"monthly-working":0,"monthly-used":5}); await submit(page);
+    await setFields(page,{"monthly-working":0,"monthly-used":4}); await submit(page);
     assert.equal(await page.locator("#result-stack tbody tr").count(),0);
     await page.locator("#budget-month").fill("2026-09"); await setFields(page,{"monthly-used":0,"monthly-working":0}); await submit(page); await errorIncludes(page,/planning calendar month 2026-10/);
     await page.locator("#side-sell").click();
@@ -757,7 +761,7 @@ if (process.env.RUN_EXECUTION_BROWSER_TESTS !== "1") {
 
   test("month rollover needs fresh counts and carried orders still reserve capacity", async t => {
     const page = await open(t, {time:"2026-10-30T19:59:00Z"});
-    await page.locator("#monthly-used").fill("4"); await submit(page);
+    await page.locator("#monthly-used").fill("3"); await submit(page);
     assert.equal(await page.locator("#result-stack tbody tr").count(),1);
     // Friday's close previews Monday Nov 2, rather than reusing October counts.
     await moveClock(page,"2026-10-30T20:00:00Z"); await cleared(page); await submit(page);
@@ -765,19 +769,19 @@ if (process.env.RUN_EXECUTION_BROWSER_TESTS !== "1") {
     await page.locator("#budget-month").fill("2026-11");
     assert.equal(await page.locator("#monthly-used").inputValue(),"");
     assert.equal(await page.locator("#monthly-working").inputValue(),"");
-    await setFields(page,{"monthly-used":0,"monthly-working":5}); await submit(page);
+    await setFields(page,{"monthly-used":0,"monthly-working":4}); await submit(page);
     assert.equal(await page.locator("#result-stack tbody tr").count(),0);
     assert.match(await page.locator("#result-stack").innerText(),/HOLD/);
-    await page.locator("#monthly-working").fill("4"); await submit(page);
+    await page.locator("#monthly-working").fill("3"); await submit(page);
     assert.equal(await page.locator("#result-stack tbody tr").count(),1);
-    assert.match(await page.locator("#result-stack").innerText(),/0 \/ 5/);
+    assert.match(await page.locator("#result-stack").innerText(),/0 \/ 4/);
   });
 
   test("crypto shares the New York PA month rather than resetting at UTC midnight", async t => {
     const page = await open(t, {time:"2026-11-01T00:01:00Z"});
     await page.locator("#instrument-select").selectOption("BINANCE:SPOT:BTCUSDT");
     await page.locator("#budget-month").fill("2026-10");
-    await setFields(page,{"monthly-used":4,"monthly-working":0,"weekly-one":1000});
+    await setFields(page,{"monthly-used":3,"monthly-working":0,"weekly-one":1000});
     await submit(page); assert.equal(await page.locator("#result-stack tbody tr").count(),1);
     await moveClock(page,"2026-11-01T04:01:00Z"); await cleared(page); await submit(page);
     await errorIncludes(page,/planning calendar month 2026-11/);

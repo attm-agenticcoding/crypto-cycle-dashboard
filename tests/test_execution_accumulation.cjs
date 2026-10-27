@@ -4,18 +4,18 @@ const core = require('../execution/execution-core.js');
 const params = {market_calendar:'XNYS', trade_side:'buy', first_offset_pct:.25, spacing_pct:.95, lookback_sessions:10, expected_rungs_per_session:1.7};
 const base = {weekly:10000, total:null, reference:35, weekSessions:5, horizon:null, params, accumulation:{used:0,working:0,reserve:0}};
 const plan = extra => core.buyPlan({...base,...extra});
-test('monthly 4 permits one trade; 5, over-limit and committed slots produce HOLD', () => {
-  for (const used of [0,4,5,6]) for (const working of [0,1,5]) for (const reserve of [0,1,2]) {
+test('monthly 3 permits one trade; 4, over-limit and committed slots produce HOLD', () => {
+  for (const used of [0,1,2,3,4,5,6]) for (const working of [0,1,5]) for (const reserve of [0,1,2]) {
     const p=plan({accumulation:{used,working,reserve}});
-    assert.equal(p.orders.length, used+working+reserve<5 ? 1 : 0);
+    assert.equal(p.orders.length, used+working+reserve<4 ? 1 : 0);
     assert.ok(p.orders.length<=1);
-    if(p.orders.length) assert.ok(used+working+reserve+p.orders.length<=5);
+    if(p.orders.length) assert.ok(used+working+reserve+p.orders.length<=4);
   }
 });
 test('counts must be supplied, nonnegative and integral', () => {
   for(const bad of ['',null,undefined,-1,.5,NaN,Infinity]) for(const field of ['used','working','reserve'])
     if (!(field === 'reserve' && bad === undefined)) assert.throws(()=>plan({accumulation:{used:0,working:0,reserve:0,[field]:bad}}));
-  assert.throws(()=>plan({accumulation:{used:0,working:0,reserve:6}}));
+  assert.throws(()=>plan({accumulation:{used:0,working:0,reserve:5}}));
 });
 test('deadline never raises cash or tightens price; explicit zero remains HOLD', () => {
   for(const weekly of [0,10,1000]) for(const total of [null,'',0,500,100000]) for(const horizon of [null,1,30]) {
@@ -26,7 +26,7 @@ test('deadline never raises cash or tightens price; explicit zero remains HOLD',
     assert.ok(p.orders.reduce((s,o)=>s+o.notional,0)<=cap);
     if(cap===0) assert.equal(p.orders.length,0);
   }
-  assert.equal(plan({weekly:100,total:10000,horizon:1}).behindSchedule,true);
+  assert.equal(plan({weekly:100,total:10000,horizon:1}).controller.scheduleFloor,0);
 });
 test('daily touch estimates do not split or resize an accumulation purchase', () => {
   const p=plan(); assert.equal(p.orders.length,1); assert.equal(p.orders[0].shares,285);
@@ -49,4 +49,23 @@ test('recalculating is pure and cannot reset or consume actual monthly history',
   const accumulation={used:4,working:0,reserve:0};
   assert.deepEqual(plan({accumulation}),plan({accumulation}));
   assert.deepEqual(accumulation,{used:4,working:0,reserve:0});
+});
+
+test('remaining deployment is passed through without weekly or slot-based division', () => {
+  for (const used of [0,1,2,3]) for (const weekSessions of [1,3,5]) for (const horizon of [null,1,100]) {
+    const p=plan({weekly:999, total:888, deployment:12000, capital:null, reference:100, weekSessions, horizon, accumulation:{used,working:0,reserve:0}});
+    assert.equal(p.controller.budget,12000);
+    assert.equal(p.orderQuantity,120);
+    assert.equal(p.controller.scheduleFloor,0);
+  }
+});
+test('optional remaining capital is a cash cap, with blank and zero kept distinct', () => {
+  for(const capital of [null,'',0,'0',500,20000]) {
+    const p=plan({deployment:12000,capital,reference:100});
+    const cap=capital===null||capital==='' ? 12000 : Math.min(12000,+capital);
+    assert.equal(p.controller.budget,cap);
+    assert.equal(p.orderQuantity,Math.floor(cap/100));
+  }
+  for(const bad of ['',null,NaN,Infinity,-1]) assert.throws(()=>plan({deployment:bad}));
+  for(const bad of ['bad',Infinity,-1]) assert.throws(()=>plan({capital:bad}));
 });

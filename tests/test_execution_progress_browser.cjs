@@ -127,7 +127,7 @@ if (process.env.RUN_EXECUTION_BROWSER_TESTS !== "1") {
         }
         assert.equal(url.origin, origin, "other requests stay on the fixture origin");
         assert.equal(request.method, "GET"); assert.equal(request.body, null, "financial inputs never enter a network body");
-        assert.ok(["", "?v=1", "?v=2", "?v=6", "?v=7", "?v=8"].includes(url.search), "URLs contain only static asset versions");
+        assert.ok(["", "?v=1", "?v=2", "?v=6", "?v=7", "?v=8", "?v=9"].includes(url.search), "URLs contain only static asset versions");
       }
     });
     await fields(page, {"monthly-used":0,"monthly-working":0});
@@ -271,7 +271,7 @@ if (process.env.RUN_EXECUTION_BROWSER_TESTS !== "1") {
     await fields(page, {deadline: "2026-10-05", "reference-price": 35}); await page.locator("#calculate-button").click();
     let orders = await renderedOrders(page); assert.ok(orders.length); assert.ok(orders.reduce((sum, item) => sum + item.quantity * item.price, 0) <= 100);
     const call = await page.evaluate(() => window.__executionCalls.at(-1)); assert.ok(call.output.orders.reduce((sum, item) => sum + item.notional, 0) <= 100, "accumulation never lifts the weekly cash cap");
-    assert.match(await page.locator("#result-stack").innerText(), /deadline never raises this buy budget/);
+    assert.match(await page.locator("#result-stack").innerText(), /deadline does not increase this amount/);
     await fields(page, {"weekly-one": 200}); assert.match(await page.locator("#progress-binding").innerText(), /Manual mode/);
     await page.locator("#calculate-button").click(); orders = await renderedOrders(page); assert.ok(orders.reduce((sum, item) => sum + item.quantity * item.price, 0) > 100);
   });

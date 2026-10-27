@@ -27,6 +27,29 @@ Current display contract:
 
 Execution calculator:
 
+Current accumulation BUY contract:
+
+- Enter **remaining capital to deploy** for this plan, plus optional **total
+  remaining capital** as a cash cap. The selected account receives at most one
+  buy order using the smaller amount directly. No weekly conversion or division
+  by unused trade slots is applied. The upstream CCD deployment policy is unchanged.
+- The shared allowance is **four trades per New York calendar month**, across
+  accounts, instruments and buys/sells. Enter actual executed trades and slots
+  reserved for open orders. BUY returns HOLD when no slot remains; four is a
+  maximum, not a required number of purchases. SELL retains its separate planner;
+  its trades must still be included in the shared actual count.
+- Blank optional cash leaves the deployment amount unchanged; explicit zero
+  returns HOLD. Deadline and daily touch statistics do not resize this amount or
+  tighten its price. One order uses the existing first-offset price and instrument
+  rounding/minimum/maximum guards. Refresh counts and remaining cash after fills.
+- Existing opt-in local records retain their explicitly confirmed weekly caps.
+  Creating/binding those records is a separate opt-in to additional limits; the
+  manual monthly calculator does not require weekly records or reinterpret saved
+  history. The frozen historical ladder and SELL pacing APIs remain unchanged.
+
+The phase-one notes below describe the retained legacy ladder/SELL and optional
+weekly-record paths where they differ from the current accumulation BUY form.
+
 Phase-one calculator consistency:
 
 - BUY touch sizing uses every completed excursion; it does not wait for the next
