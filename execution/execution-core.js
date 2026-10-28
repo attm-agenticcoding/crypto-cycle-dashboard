@@ -89,14 +89,20 @@
 
   // One shared period allowance across instruments, accounts and sides.
   // Counts are supplied by the user; a calculation never records an actual trade.
-  function monthlyTradeBudget({used, working, reserve = 0}) {
-    const limit = 4;
+  function monthlyTradeLimit(value) {
+    const limit = value === "" || value === null || value === undefined ? 5 : nonnegative(value, "Monthly trade limit");
+    if (!Number.isSafeInteger(limit)) throw new Error("Monthly trade limit must be a whole number.");
+    return limit;
+  }
+
+  function monthlyTradeBudget({used, working, reserve = 0, limit: enteredLimit}) {
+    const limit = monthlyTradeLimit(enteredLimit);
     const counts = {used, working, reserve};
     for (const [key, value] of Object.entries(counts)) {
       counts[key] = nonnegative(value, `${key} trade count`);
       if (!Number.isSafeInteger(counts[key])) throw new Error("Trade counts must be whole numbers.");
     }
-    if (counts.reserve > limit) throw new Error("Reserved trades cannot exceed the 4-trade monthly limit.");
+    if (counts.reserve > limit) throw new Error(`Reserved trades cannot exceed the ${limit}-trade monthly limit.`);
     const remaining = Math.max(0, limit - counts.used);
     const available = Math.max(0, remaining - counts.working - counts.reserve);
     return {...counts, limit, remaining, available};
@@ -301,5 +307,5 @@
   }
 
   return { parametersReady, sideParameters, hitCount, expectedHits, sellExpectedHits, sellPace, listedBuyOrders, buyPlan, sellPlan, sellSessionCloseMinutes, sellCloseoutState,
-    stepDecimals, quantize, quantityText, cryptoPlan, calendarParts, cryptoRemainingDays, monthlyTradeBudget, accumulationBuyPlan };
+    stepDecimals, quantize, quantityText, cryptoPlan, calendarParts, cryptoRemainingDays, monthlyTradeLimit, monthlyTradeBudget, accumulationBuyPlan };
 });

@@ -93,6 +93,7 @@ if (process.env.RUN_EXECUTION_BROWSER_TESTS !== "1") {
         "/execution/execution-core.js": "execution/execution-core.js",
         "/execution/market-calendar.js": "execution/market-calendar.js",
         "/execution/market-quotes.js": "execution/market-quotes.js",
+        "/execution/monthly-scaling.js": "execution/monthly-scaling.js",
         "/execution/task-ledger.js": "execution/task-ledger.js",
         "/execution/task-ledger-ui.js": "execution/task-ledger-ui.js"
       };
@@ -475,7 +476,7 @@ if (process.env.RUN_EXECUTION_BROWSER_TESTS !== "1") {
     assert.equal(result.expected.controller.enabled, false);
     assert.equal(result.expected.controller.factor, 1);
     assert.match(await result.article.innerText(), /deadline does not increase this amount/);
-    assert.match(await page.locator("#session-label").innerText(), /maximum 4 trades/);
+    assert.match(await page.locator("#session-label").innerText(), /maximum 5 trades/);
     await page.locator("#capital-one").fill("3500");
     await submit(page);
     assert.equal((await assertPlan(page, { ...buyBase(), total: 3500 })).expected.targetShares, 100);
@@ -733,6 +734,7 @@ if (process.env.RUN_EXECUTION_BROWSER_TESTS !== "1") {
 
   test("shared monthly allowance blocks the fifth trade and never creates a second-account order", async t => {
     const page = await open(t);
+    await page.locator("#monthly-limit").fill("4");
     await setFields(page, {"monthly-used":3,"weekly-two":5000});
     await submit(page);
     assert.equal(await page.locator("#result-stack tbody tr").count(),1);
@@ -761,6 +763,7 @@ if (process.env.RUN_EXECUTION_BROWSER_TESTS !== "1") {
 
   test("month rollover needs fresh counts and carried orders still reserve capacity", async t => {
     const page = await open(t, {time:"2026-10-30T19:59:00Z"});
+    await page.locator("#monthly-limit").fill("4");
     await page.locator("#monthly-used").fill("3"); await submit(page);
     assert.equal(await page.locator("#result-stack tbody tr").count(),1);
     // Friday's close previews Monday Nov 2, rather than reusing October counts.
@@ -785,6 +788,45 @@ if (process.env.RUN_EXECUTION_BROWSER_TESTS !== "1") {
     await submit(page); assert.equal(await page.locator("#result-stack tbody tr").count(),1);
     await moveClock(page,"2026-11-01T04:01:00Z"); await cleared(page); await submit(page);
     await errorIncludes(page,/planning calendar month 2026-11/);
+  });
+
+  test("monthly maximum defaults to five, blank uses five, and edited caps invalidate plans", async t => {
+    const page = await open(t);
+    assert.equal(await page.locator('#monthly-limit').inputValue(),'5');
+    assert.match(await page.locator('label[for="weekly-one"]').innerText(),/Remaining capital to deploy/);
+    await setFields(page, {'monthly-used':4}); await submit(page);
+    assert.equal(await page.locator('#result-stack tbody tr').count(),1);
+    await page.locator('#monthly-limit').fill('4'); await cleared(page); await submit(page);
+    assert.equal(await page.locator('#result-stack tbody tr').count(),0);
+    assert.equal(await page.locator('#monthly-used').inputValue(),'4');
+    await page.locator('#monthly-limit').fill(''); await submit(page);
+    assert.equal(await page.locator('#result-stack tbody tr').count(),1);
+    await setFields(page, {'monthly-limit':0,'monthly-used':0}); await submit(page);
+    assert.match(await page.locator('#result-stack').innerText(),/HOLD/);
+    await setFields(page, {'monthly-limit':10,'monthly-used':9}); await submit(page);
+    assert.equal(await page.locator('#result-stack tbody tr').count(),1);
+    for (const value of ['-1','2.5']) {
+      await page.locator('#monthly-limit').fill(value);
+      assert.equal(await page.locator('#monthly-limit').evaluate(n=>n.checkValidity()),false);
+      await cleared(page);
+    }
+  });
+
+  test("monthly research follows cap selection and never silently replaces live order parameters", async t => {
+    const page = await open(t);
+    const p = limit => ({monthly_limit:limit,next_offset_pct:limit===5?.25:.5,candidate:{id:'fixture-'+limit},oos_months:['2026-01','2026-02'],retrospective_gate_passed:false,production_promoted:false,oos:{nominal:{mean_completion:.9,comparisons:{immediate:{mean_excess_cost_bps:20,block_interval_95_bps:[-10,50]}}}}});
+    await page.route('**/data/execution_monthly_params.json', route=>route.fulfill({json:{schema_version:1,policy_version:'monthly-single-order-v1',status:'research_only',instruments:{'ARCX:BTC':{instrument_id:'ARCX:BTC',data_as_of:'2026-10-02',price_source:'indexed_spot_proxy_NOT_ETF_quotes',profiles:{'4':p(4),'5':p(5)}}}}}));
+    await page.reload();
+    await page.waitForFunction(()=>document.getElementById('monthly-scaling-status').textContent.includes('fixture-5'));
+    const original = await page.locator('#base-first').innerText();
+    assert.match(await page.locator('#monthly-scaling-status').innerText(),/Validation threshold not passed/);
+    await page.locator('#monthly-limit').fill('4');
+    assert.match(await page.locator('#monthly-scaling-status').innerText(),/fixture-4/);
+    assert.equal(await page.locator('#base-first').innerText(),original);
+    await page.locator('#monthly-limit').fill('');
+    assert.match(await page.locator('#monthly-scaling-status').innerText(),/fixture-5/);
+    await page.locator('#monthly-limit').fill('32');
+    assert.match(await page.locator('#monthly-scaling-status').innerText(),/No monthly research profile/);
   });
 
 }

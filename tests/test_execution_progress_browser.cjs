@@ -62,7 +62,7 @@ if (process.env.RUN_EXECUTION_BROWSER_TESTS !== "1") {
     fs.mkdirSync(artifacts, {recursive: true});
     server = http.createServer((request, response) => {
       const pathname = new URL(request.url, "http://localhost").pathname;
-      const allowed = ["execution/index.html", "execution/execution-core.js", "execution/market-calendar.js", "execution/market-quotes.js", "execution/task-ledger.js", "execution/task-ledger-ui.js"];
+      const allowed = ["execution/index.html", "execution/execution-core.js", "execution/market-calendar.js", "execution/market-quotes.js", "execution/monthly-scaling.js", "execution/task-ledger.js", "execution/task-ledger-ui.js"];
       const file = pathname === "/execution/" ? "execution/index.html" : pathname.slice(1);
       if (!allowed.includes(file)) { response.writeHead(404); response.end(); return; }
       response.writeHead(200, {"Content-Type": file.endsWith(".js") ? "application/javascript" : "text/html", "Cache-Control": "no-store"});
@@ -127,7 +127,7 @@ if (process.env.RUN_EXECUTION_BROWSER_TESTS !== "1") {
         }
         assert.equal(url.origin, origin, "other requests stay on the fixture origin");
         assert.equal(request.method, "GET"); assert.equal(request.body, null, "financial inputs never enter a network body");
-        assert.ok(["", "?v=1", "?v=2", "?v=6", "?v=7", "?v=8", "?v=9"].includes(url.search), "URLs contain only static asset versions");
+        assert.ok(["", "?v=1", "?v=2", "?v=6", "?v=7", "?v=8", "?v=9", "?v=10"].includes(url.search), "URLs contain only static asset versions");
       }
     });
     await fields(page, {"monthly-used":0,"monthly-working":0});

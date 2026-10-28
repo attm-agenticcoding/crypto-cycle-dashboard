@@ -33,9 +33,10 @@ Current accumulation BUY contract:
   remaining capital** as a cash cap. The selected account receives at most one
   buy order using the smaller amount directly. No weekly conversion or division
   by unused trade slots is applied. The upstream CCD deployment policy is unchanged.
-- The shared allowance is **four trades per New York calendar month**, across
-  accounts, instruments and buys/sells. Enter actual executed trades and slots
-  reserved for open orders. BUY returns HOLD when no slot remains; four is a
+- The optional monthly maximum defaults to **5** (blank also means 5; explicit 0
+  pauses new BUY plans). The shared allowance spans all accounts and instruments, across
+  buys/sells. Enter actual executed trades and slots
+  reserved for open orders. BUY returns HOLD when no slot remains; the limit is a
   maximum, not a required number of purchases. SELL retains its separate planner;
   its trades must still be included in the shared actual count.
 - Blank optional cash leaves the deployment amount unchanged; explicit zero
@@ -46,6 +47,22 @@ Current accumulation BUY contract:
   Creating/binding those records is a separate opt-in to additional limits; the
   manual monthly calculator does not require weekly records or reinterpret saved
   history. The frozen historical ladder and SELL pacing APIs remain unchanged.
+
+Monthly single-order optimization now has a separate reproducible research path:
+`python3 scripts/prepare_monthly_execution.py` followed by
+`python3 scripts/optimize_monthly_execution.py`. Run in the cloud environment,
+not GitHub Actions. It evaluates limits 1–31 against same-cap immediate execution
+and fixed 25 bp limits, with full residual-cash sizing, six-month causal training,
+strict month-boundary accounting, and both nominal/adverse fill assumptions.
+`research/execution-monthly-protocol.json` pins the assumptions before the run.
+The generated `data/execution_monthly_params.json` supplies the new read-only
+monthly research panel; it follows the entered limit and explicitly distinguishes
+candidates from live order parameters. Missing/unsupported profiles never
+substitute another cap. This dated snapshot has no automatic refresh schedule.
+The default-five fits did not pass the declared out-of-sample gate, so they are
+not promoted into order prices. See
+[the result and limitations](research/results/monthly-single-order-report.md).
+The prior daily-ladder fit is labeled as a legacy price reference on BUY.
 
 The phase-one notes below describe the retained legacy ladder/SELL and optional
 weekly-record paths where they differ from the current accumulation BUY form.

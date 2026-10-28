@@ -187,12 +187,12 @@
   <main class="shell">
     <div class="topbar">
       <a class="back" href="../">← Crypto Cycle Dashboard</a>
-      <span class="tag">Execution layer · v7</span>
+      <span class="tag">Execution layer · v8</span>
     </div>
 
     <section class="hero">
       <div>
-        <p class="eyebrow">Accumulate · one buy order · 4 trades / month</p>
+        <p class="eyebrow">Accumulate · one buy order · Monthly trade limit · default 5</p>
         <h1>Execution<br>Calculator</h1>
         <p class="lede">Build positions with one planned buy at a time and a shared monthly trade budget. Enter the remaining capital to deploy; keep cash when no order fits. Sell planning retains its separate price and deadline rules.</p>
       </div>
@@ -243,6 +243,12 @@
         <p id="selection-reason" class="instrument-meta"></p>
         <p id="selection-window" class="instrument-meta"></p>
         <p class="instrument-meta"><a href="./selector.html">View raw minimum, adopted parameters and selection details</a>. Eligible candidates form a selection band, not a confidence interval. Prospective advantage is not established.</p>
+        <div id="monthly-scaling" class="progress-card" aria-live="polite">
+          <h3>Monthly single-order optimization</h3>
+          <p id="monthly-scaling-status" class="instrument-meta">Loading monthly research…</p>
+          <p id="monthly-scaling-details" class="instrument-meta"></p>
+          <p class="instrument-meta"><a href="../research/results/monthly-single-order-report.md">Read assumptions and results</a></p>
+        </div>
       </section>
 
       <section class="panel inputs">
@@ -265,7 +271,12 @@
           </div>
           <p id="reference-hint" class="hint">Defaults to a recent last trade when available. Manual edits and calculated plans stay fixed during quote refreshes. The 09:35 ET minute close appears after 09:36 and stays fixed for that date; it is a comparison reference and does not replace the crypto model’s 00:00 UTC anchor. Verify your broker’s quote before placing orders.</p>
           <p id="deadline-hint" class="hint">Deadline is optional. BUY uses the entered deployment amount directly; neither the deadline nor remaining trade slots resizes it. SELL can use deadline pacing.</p>
-          <div class="account-title" data-buy>Accumulation · shared 4-trade monthly limit</div>
+          <div class="account-title" data-buy>Accumulation · shared monthly trade limit</div>
+          <div class="field" data-buy>
+            <label for="monthly-limit">Maximum trades per month (optional · default 5)</label>
+            <input id="monthly-limit" type="number" min="0" step="1" value="5" placeholder="5" aria-describedby="monthly-limit-hint">
+          </div>
+          <p id="monthly-limit-hint" class="hint" data-buy>Leave blank to use 5. Enter 0 to pause new buys. This is a maximum across all accounts and instruments, not a requirement to trade or a divisor for capital.</p>
           <div class="field" data-buy>
             <label for="budget-month">Calendar month for this plan · New York</label>
             <input id="budget-month" type="month" min="2025-01" required>
@@ -280,7 +291,7 @@
           </div>
           <div class="field" data-buy>
             <label for="monthly-reserve">Keep unused for later · optional</label>
-            <input id="monthly-reserve" type="number" min="0" max="4" step="1" value="0" required>
+            <input id="monthly-reserve" type="number" min="0" step="1" value="0" required>
           </div>
           <div class="field wide" data-buy>
             <label for="buy-account">Account for this one purchase</label>
@@ -414,7 +425,7 @@
         <details>
           <summary>Accumulation policy, daily price reference, and SELL deadline pacing</summary>
           <div class="method-copy">
-            <p data-buy><strong>Accumulation BUY policy.</strong> At most one order for the chosen account. The monthly 4-trade budget is shared across instruments, accounts, buys and sells; actual counts and additional open-order slots must be entered manually. Optional reserves default to zero during accumulation. The entered deployment amount and optional remaining capital are hard caps. The base first offset is retained as a price reference, with no spacing, daily-touch sizing or deadline tightening. This is a policy overlay, not a newly fitted or validated monthly strategy. The existing daily-ladder diagnostics below do not establish its performance.</p>
+            <p data-buy><strong>Accumulation BUY policy.</strong> At most one order for the chosen account. The optional monthly trade budget (default 5) is shared across instruments, accounts, buys and sells; actual counts and additional open-order slots must be entered manually. Optional reserves default to zero during accumulation. The entered deployment amount and optional remaining capital are hard caps. The base first offset is retained as a price reference, with no spacing, daily-touch sizing or deadline tightening. This is a policy overlay, not a newly fitted or validated monthly strategy. The existing daily-ladder diagnostics below do not establish its performance.</p>
             <p><strong>Market layer.</strong> The updater searches rolling lookback × first offset × spacing on the selected instrument's minute data, <strong id="method-proxy">—</strong>. Every historical reference is the close of the <span id="method-reference">09:35</span> <span id="method-timezone">ET</span> bar; eligible fills begin at <span id="method-fill">09:36</span>. Candidate ladders are compared by walk-forward weekly implementation shortfall. A paired excess-cost selection band and the prior published parameter regularize the result. The adopted values are a heuristic, not statistically optimal parameters; the eligible band is not a confidence interval.</p>
             <p><strong>24/7 spot pairs.</strong> The daily reference is the close of the 00:00 UTC minute, with eligible fills from 00:01 through 23:59. Weekends and holidays count; weeks run Monday–Sunday in UTC. Both directions are fitted separately from the pair's full-day highs and lows. Scaling runs daily at 04:30 UTC with an 08:30 retry after archives become available. GTC orders remain live until filled or cancelled. A new reference or calculation does not cancel them; accumulation BUY does not schedule daily replacements. Exchange tick, quantity and notional filters apply; changing market prices can also affect the exchange's dynamic price bands.</p>
             <p><strong>Sizing layer.</strong> Accumulation BUY takes the smaller of remaining capital to deploy and optional total remaining capital, divides only by the reference price, rounds quantity down, and places it in one order subject to instrument limits. SELL retains daily-ladder sizing: remaining target quantity divided by remaining sessions and expected rung hits, capped at holdings after accounting for existing sell orders. Buy prices round down and passive sell prices round up: to cents for listed securities, or the exchange price tick for crypto. Crypto quantities follow the exchange step and minimum order size.</p>
@@ -432,8 +443,9 @@
   </main>
 
   <script src="./market-calendar.js?v=2"></script>
-  <script src="./execution-core.js?v=9"></script>
+  <script src="./execution-core.js?v=10"></script>
   <script src="./market-quotes.js?v=2"></script>
+  <script src="./monthly-scaling.js?v=1"></script>
   <script>
     const PARAMS_URL = "../data/execution_params.json";
     const REGISTRY_URL = "../data/execution_instruments.json";
@@ -665,12 +677,12 @@
       const planningMonth = planningBudgetMonth();
       if (value("budget-month") !== planningMonth)
         throw new Error(`Enter counts for the planning calendar month ${planningMonth}. Include any open orders carried into that month.`);
-      const accumulation = {used: value("monthly-used"), working: value("monthly-working"), reserve: value("monthly-reserve")};
+      const accumulation = {used: value("monthly-used"), working: value("monthly-working"), reserve: value("monthly-reserve"), limit: value("monthly-limit")};
       const plan = progressPlan(name, ExecutionCore.buyPlan({deployment, capital, reference, horizon: deadlineSessions, params, accumulation}));
       const c = plan.controller, a = plan.allowance, count = plan.orders.length;
       const rows = plan.orders.map(o => `<tr><td>Single buy</td><td>${priceText(o.price)}</td><td>${qty(o.shares)}</td><td>${money2.format(o.notional)}</td></tr>`).join("");
       const spend = plan.orders.reduce((sum, o) => sum + o.notional, 0);
-      const schedule = `${c.inputCapped ? "Total remaining capital caps this plan below the requested deployment amount. " : ""}Four trades is a monthly maximum, not a target. The deadline does not increase this amount or tighten the limit.`;
+      const schedule = `${c.inputCapped ? "Total remaining capital caps this plan below the requested deployment amount. " : ""}${a.limit} trades is a monthly maximum, not a target. The deadline does not increase this amount or tighten the limit.`;
       const reason = count ? plan.reason : (plan.progressCapped ? "HOLD: local progress leaves insufficient capacity for a valid order." : plan.reason);
       return `<article class="account-result">
         <div class="result-title"><h3>${name} · BUY ${params.symbol} · ${isCrypto() ? "GTC" : "DAY"}</h3><span class="urgency ${count ? "" : "elevated"}">${count ? "1 BUY" : "HOLD"}</span></div>
@@ -780,11 +792,17 @@
       selectInstrument(selectedInstrumentId, { resetReference: false, persist: false });
       syncSellPolicy();
     }
+    function monthlyResearchContext() {
+      let limit = null;
+      try { limit = ExecutionCore.monthlyTradeLimit(document.getElementById("monthly-limit").value); } catch (_) {}
+      return {instrumentId: selectedInstrumentId, limit, side};
+    }
     function renderModel() {
+      window.ExecutionMonthlyScaling?.render(monthlyResearchContext());
       const live = params.status === "minute-rolling";
       const pending = !parametersReady();
       const status = document.getElementById("model-status");
-      status.textContent = pending ? `Awaiting first ${side} scaling` : (live ? `${side === "buy" ? "Buy" : "Sell"} adopted heuristic` : "Buy fallback seed");
+      status.textContent = pending ? `Awaiting first ${side} scaling` : (live ? `${side === "buy" ? "Buy legacy price reference" : "Sell adopted heuristic"}` : "Buy fallback seed");
       status.classList.toggle("live", live);
       document.getElementById("base-first").textContent = pending ? "—" : (+params.first_offset_pct).toFixed(2) + "%";
       document.getElementById("base-spacing").textContent = pending ? "—" : (+params.spacing_pct).toFixed(2) + "%";
@@ -871,14 +889,14 @@
       document.getElementById("deadline-label").textContent = `${side === "sell" ? "Sale completion" : "Capital deployment"} deadline (${zoneLabel()}, optional)`;
       document.getElementById("reference-price").min = params.min_price || params.price_tick || .01;
       document.getElementById("closeout-bid").min = params.min_price || params.price_tick || .01;
-      document.getElementById("side-note").textContent = side === "sell" ? `Sell above the reference · ${unitLabel()} targets` : "Accumulate · one account, one order · shared 4-trade monthly limit";
+      document.getElementById("side-note").textContent = side === "sell" ? `Sell above the reference · ${unitLabel()} targets` : "Accumulate · one account, one order · shared monthly trade limit (default 5)";
       for (const suffix of ["one", "two"]) {
         const labels = {weekly: `${unitLabel()} remaining to sell this week`, total: `Total ${unitLabel()} remaining (optional)`, held: `Current held ${unitLabel()}`, reserved: `${unitLabel()} in existing sell orders`};
         for (const [field, label] of Object.entries(labels)) document.querySelector(`label[for="sell-${field}-${suffix}"]`).textContent = label;
       }
       document.getElementById("buy-hint").textContent = "Enter the capital still to deploy for this plan, then optionally total cash available after fills and open-order reservations. At most one order uses the smaller amount directly, without a weekly conversion or split across trade slots. Update executed-trade counts and remaining amounts before each new plan.";
       if (side === "buy") {
-        document.getElementById("contract-note").textContent = "BUY: one order for one account. Remaining deployment amount and shared 4-trade monthly allowance; no automatic weekly conversion. Daily model statistics below do not validate this monthly policy.";
+        document.getElementById("contract-note").textContent = "BUY: one order for one account. Remaining deployment amount and user-set monthly trade allowance (default 5); no automatic weekly conversion. Daily model statistics below do not validate this monthly policy.";
         if (isCrypto()) document.getElementById("crypto-contract").textContent = `24/7 · Quantity step ${params.quantity_step} ${params.base_asset}; price tick ${params.price_tick} ${params.currency}; minimum order ${params.min_notional} ${params.currency}. Include existing GTC orders in cash and trade-slot reservations; no automatic daily replacement.`;
       }
       document.getElementById("sell-hint").textContent = `Remaining quantities include unfilled orders. Existing sell orders are deducted from the target and holdings when sizing new orders. Subtract actual fills from both targets and holdings. ${isCrypto() ? "Quantities use the exchange step, including fractions." : "Output uses whole shares."} Switching ticker clears sale quantities.`;
@@ -1021,7 +1039,7 @@
       document.getElementById("empty").hidden = true;
       const stack = document.getElementById("result-stack"); stack.hidden = false; stack.innerHTML = html;
       document.getElementById("session-label").textContent = side === "buy"
-        ? `${windowState.preview ? "Preview · " : ""}${planningBudgetMonth()} · maximum 4 trades · entered deployment amount`
+        ? `${windowState.preview ? "Preview · " : ""}${planningBudgetMonth()} · maximum ${ExecutionCore.monthlyTradeLimit(values("monthly-limit"))} trades · entered deployment amount`
         : `${windowState.preview ? "Preview · " : ""}${weekSessions} sessions in planning week · ${deadlineSessions === null ? "no deadline · weekly pace / price seeking" : deadlineSessions + " to deadline"}`;
     });
     document.getElementById("calculator-form").addEventListener("input", event => {
@@ -1034,6 +1052,7 @@
       document.getElementById("form-error").hidden = true;
       clearResults();
       syncSellPolicy();
+      window.ExecutionMonthlyScaling?.render(monthlyResearchContext());
       applyTradingWindow();
     });
     function refreshClock() {
@@ -1067,6 +1086,7 @@
     document.getElementById("budget-month").value = planningBudgetMonth();
     applyTradingWindow();
     loadParams();
+    window.ExecutionMonthlyScaling?.load(monthlyResearchContext);
   </script>
   <script src="./task-ledger.js?v=1"></script>
   <script src="./task-ledger-ui.js?v=2"></script>

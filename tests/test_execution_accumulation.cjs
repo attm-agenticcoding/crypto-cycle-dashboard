@@ -2,11 +2,11 @@
 const test = require('node:test'), assert = require('node:assert/strict');
 const core = require('../execution/execution-core.js');
 const params = {market_calendar:'XNYS', trade_side:'buy', first_offset_pct:.25, spacing_pct:.95, lookback_sessions:10, expected_rungs_per_session:1.7};
-const base = {weekly:10000, total:null, reference:35, weekSessions:5, horizon:null, params, accumulation:{used:0,working:0,reserve:0}};
+const base = {weekly:10000, total:null, reference:35, weekSessions:5, horizon:null, params, accumulation:{used:0,working:0,reserve:0,limit:4}};
 const plan = extra => core.buyPlan({...base,...extra});
 test('monthly 3 permits one trade; 4, over-limit and committed slots produce HOLD', () => {
   for (const used of [0,1,2,3,4,5,6]) for (const working of [0,1,5]) for (const reserve of [0,1,2]) {
-    const p=plan({accumulation:{used,working,reserve}});
+    const p=plan({accumulation:{used,working,reserve,limit:4}});
     assert.equal(p.orders.length, used+working+reserve<4 ? 1 : 0);
     assert.ok(p.orders.length<=1);
     if(p.orders.length) assert.ok(used+working+reserve+p.orders.length<=4);
@@ -15,7 +15,7 @@ test('monthly 3 permits one trade; 4, over-limit and committed slots produce HOL
 test('counts must be supplied, nonnegative and integral', () => {
   for(const bad of ['',null,undefined,-1,.5,NaN,Infinity]) for(const field of ['used','working','reserve'])
     if (!(field === 'reserve' && bad === undefined)) assert.throws(()=>plan({accumulation:{used:0,working:0,reserve:0,[field]:bad}}));
-  assert.throws(()=>plan({accumulation:{used:0,working:0,reserve:5}}));
+  assert.throws(()=>plan({accumulation:{used:0,working:0,reserve:5,limit:4}}));
 });
 test('deadline never raises cash or tightens price; explicit zero remains HOLD', () => {
   for(const weekly of [0,10,1000]) for(const total of [null,'',0,500,100000]) for(const horizon of [null,1,30]) {
@@ -68,4 +68,17 @@ test('optional remaining capital is a cash cap, with blank and zero kept distinc
   }
   for(const bad of ['',null,NaN,Infinity,-1]) assert.throws(()=>plan({deployment:bad}));
   for(const bad of ['bad',Infinity,-1]) assert.throws(()=>plan({capital:bad}));
+});
+
+test('monthly limit defaults to five only when omitted or blank, and honors explicit zero', () => {
+  for (const limit of [undefined,null,'',5,'5']) {
+    assert.equal(core.monthlyTradeLimit(limit),5);
+    assert.equal(plan({accumulation:{used:4,working:0,limit}}).orders.length,1);
+  }
+  for(const limit of [0,1,3,4,8,31,100]) for(const used of [0,limit-1,limit,limit+1].filter(n=>n>=0)) {
+    const p=plan({accumulation:{used,working:0,limit}});
+    assert.equal(p.allowance.limit,limit);
+    assert.equal(p.orders.length,used<limit?1:0);
+  }
+  for(const limit of [-1,.5,NaN,Infinity,'bad']) assert.throws(()=>core.monthlyTradeLimit(limit));
 });
