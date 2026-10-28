@@ -36,7 +36,9 @@ Current accumulation BUY contract:
 - The optional monthly maximum defaults to **5** (blank also means 5; explicit 0
   pauses new BUY plans). The shared allowance spans all accounts and instruments, across
   buys/sells. Enter actual executed trades and slots
-  reserved for open orders. BUY returns HOLD when no slot remains; the limit is a
+  reserved for open orders not yet counted this month. A distinct order with any
+  fill counts once in that month; its partial-fill reports do not count again.
+  BUY returns HOLD when no slot remains; the limit is a
   maximum, not a required number of purchases. SELL retains its separate planner;
   its trades must still be included in the shared actual count.
 - Blank optional cash leaves the deployment amount unchanged; explicit zero
