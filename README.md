@@ -27,6 +27,53 @@ Current display contract:
 
 Execution calculator:
 
+Current accumulation BUY contract:
+
+- Enter **remaining capital to deploy** for this plan, plus optional **total
+  remaining capital** as a cash cap. The selected account receives at most one
+  buy order using the smaller amount directly. No weekly conversion or division
+  by unused trade slots is applied. The upstream CCD deployment policy is unchanged.
+- The optional monthly maximum defaults to **5** (blank also means 5; explicit 0
+  pauses new BUY plans). The shared allowance spans all accounts and instruments, across
+  buys/sells. Enter actual executed trades and slots
+  reserved for open orders not yet counted this month. A distinct order with any
+  fill counts once in that month; its partial-fill reports do not count again.
+  BUY returns HOLD when no slot remains; the limit is a
+  maximum, not a required number of purchases. SELL retains its separate planner;
+  its trades must still be included in the shared actual count.
+- Blank optional cash leaves the deployment amount unchanged; explicit zero
+  returns HOLD. Deadline and daily touch statistics do not resize this amount or
+  tighten its price. One order uses the existing first-offset price and instrument
+  rounding/minimum/maximum guards. Refresh counts and remaining cash after fills.
+- Existing opt-in local records retain their explicitly confirmed weekly caps.
+  Creating/binding those records is a separate opt-in to additional limits; the
+  manual monthly calculator does not require weekly records or reinterpret saved
+  history. The frozen historical ladder and SELL pacing APIs remain unchanged.
+
+Monthly single-order optimization now has a separate reproducible research path:
+`python3 scripts/prepare_monthly_execution.py` followed by
+`python3 scripts/optimize_monthly_execution.py`. Run in the cloud environment,
+not GitHub Actions. It evaluates limits 1–31 against same-cap immediate execution
+and fixed 25 bp limits, with full residual-cash sizing, six-month causal training,
+strict month-boundary accounting, and both nominal/adverse fill assumptions.
+`research/execution-monthly-protocol.json` pins the assumptions before the run.
+The generated `data/execution_monthly_params.json` supplies the new read-only
+monthly research panel; it follows the entered limit and explicitly distinguishes
+candidates from live order parameters. Missing/unsupported profiles never
+substitute another cap. This dated snapshot has no automatic refresh schedule.
+The default-five fits did not pass the declared out-of-sample gate, so they are
+not promoted into order prices. See
+[the result and limitations](research/results/monthly-single-order-report.md).
+The prior daily-ladder fit is labeled as a legacy price reference on BUY.
+BUY displays the active limit offset and marks order spacing as not used, because
+each plan contains at most one order. Daily touch counts are hidden on BUY;
+legacy ladder selection diagnostics are in a separate collapsed disclosure.
+The monthly trade limit does not itself rescale the offset. SELL continues to
+show its independently fitted ladder spacing and touch estimates.
+
+The phase-one notes below describe the retained legacy ladder/SELL and optional
+weekly-record paths where they differ from the current accumulation BUY form.
+
 Phase-one calculator consistency:
 
 - BUY touch sizing uses every completed excursion; it does not wait for the next

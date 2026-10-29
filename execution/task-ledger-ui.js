@@ -152,7 +152,7 @@
     $("progress-account").disabled = busy;
     $("progress-reset").disabled = busy;
     $("progress-create-title").textContent = `Start ${title}`;
-    $("progress-create-summary").textContent = `Entered this week: ${fields.weekly.value === "" ? "not entered" : metric(+fields.weekly.value)}. Total remaining: ${fields.total.value === "" ? "not entered" : metric(+fields.total.value)}.`;
+    $("progress-create-summary").textContent = `Optional weekly cap to confirm: ${fields.weekly.value === "" ? "not entered" : metric(+fields.weekly.value)}. Total remaining: ${fields.total.value === "" ? "not entered" : metric(+fields.total.value)}.`;
     $("progress-create-button").disabled = busy || fields.weekly.value === "" || fields.total.value === "";
     if (!current) return;
     let snapshot;

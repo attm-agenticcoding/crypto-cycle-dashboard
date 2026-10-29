@@ -1,0 +1,37 @@
+{
+  "version": "monthly-single-order-v1",
+  "locked_on": "2026-10-28",
+  "start": "2025-01-01",
+  "as_of": "2026-10-27",
+  "training_months": 6,
+  "minimum_oos_months": 8,
+  "max_lookback": 60,
+  "monthly_limits": [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31],
+  "task_notional": 10000,
+  "fixed_offsets_bps": [5,10,15,25,50,100,200],
+  "lookbacks": [10,20,30,60],
+  "drawdown_quantiles": [0.25,0.5,0.75],
+  "offset_bounds_bps": [5,500],
+  "capital_arrivals": ["month_start", "five_installments"],
+  "scenarios": [
+    {"name":"nominal", "fee_bps":1, "penetration_bps":0, "fill_fraction":1, "immediate_slippage_bps":0},
+    {"name":"adverse", "fee_bps":10, "penetration_bps":5, "fill_fraction":0.5, "immediate_slippage_bps":5}
+  ],
+  "materiality_bps": 5,
+  "maximum_completion_deterioration": 0.01,
+  "bootstrap_replicates": 1024,
+  "bootstrap_block_months": 3,
+  "seed": 28102026,
+  "notes": [
+    "New York calendar-month trade allowance for every instrument. A newly submitted order with any fill consumes one slot; partial reports on that same order do not consume additional slots.",
+    "Review once each model session after its reference minute. At most one new order per session; all unfilled orders must be confirmed cancelled before a replacement. Crypto orders are also cancelled before New York month rollover in this replay.",
+    "At each review the FULL outstanding cash target is used, with optional cash constraints and instrument rounding. It is never divided by the monthly limit, unused slots, or three.",
+    "Five installments means five exogenous equal cash arrivals across the month, independent of the monthly limit. It is not an allocation rule for the calculator. Actual user/CCD deployment histories are not inferred.",
+    "All candidates, immediate reference execution, and a fixed 25 bp limit receive identical cash flows, limits, fees, and instrument filters. Cash carries within each task month. Unspent cash is reported and valued at month-end, never fabricated into a fill.",
+    "Cost is terminal wealth shortfall relative to immediate reference execution with the SAME trade limit, divided by the month's cash contributions. Completion and trade counts are reported separately.",
+    "Adaptive offsets are quantiles of drawdowns from strictly prior completed sessions, clipped to 5-500 bp. Lookback changes the price distance, not order sizing. No rung spacing is optimized.",
+    "Walk-forward selection uses six completed months before each scored month; both cash-arrival scenarios receive equal weight. The final partial month is never a scoring month. Missing required minutes exclude that whole task month for all policies and break training continuity.",
+    "ETF prices are indexed spot proxies, not historical ETF quotes. Hypothetical fees/penetration/partial-fill assumptions are sensitivities, not calibrated fill probabilities. Current static exchange filters are used.",
+    "This is retrospective research, not untouched prospective evidence. Paired monthly block intervals are exploratory and are not adjusted for scanning many limit/instrument profiles. No automatic production promotion or schedule change. Existing frozen experiments remain unchanged."
+  ]
+}
