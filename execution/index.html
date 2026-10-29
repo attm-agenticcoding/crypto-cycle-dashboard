@@ -236,23 +236,29 @@
           <div class="metric"><div id="base-lookback-label" class="metric-label">Price-reference lookback</div><div id="base-lookback" class="metric-value">—</div></div>
           <div class="metric"><div class="metric-label">Data status</div><div id="base-freshness" class="metric-value freshness">—</div></div>
           <div class="metric"><div class="metric-label">Latest completed session</div><div id="base-date" class="metric-value">—</div></div>
-          <div class="metric"><div class="metric-label">Parameters generated</div><div id="base-run" class="metric-value">—</div></div>
-          <div class="metric"><div class="metric-label">Next expected update</div><div id="base-next-run" class="metric-value">—</div></div>
+          <div class="metric"><div id="base-run-label" class="metric-label">Observation data updated</div><div id="base-run" class="metric-value">—</div></div>
+          <div class="metric"><div id="base-next-run-label" class="metric-label">Next observation update</div><div id="base-next-run" class="metric-value">—</div></div>
         </div>
-        <p id="buy-pricing-note" class="instrument-meta" data-buy>Each calculation plans at most one buy order, so ladder spacing and expected daily touches are not used. The limit uses the offset above, retained from the legacy price model. Monthly research has not replaced that offset; changing the trade limit does not change it.</p>
+        <p id="buy-pricing-note" class="instrument-meta" data-buy>Monthly pricing chooses one order's offset and amount from completed price history, remaining trading days and free trade slots. Unspent capital may carry into next month. Use the latest price to review today's plan; confirm cancellation or expiry of the previous order before replacing it.</p>
+        <div id="monthly-policy-panel" class="progress-card" data-buy aria-live="polite">
+          <h3>Monthly plan · price priority</h3>
+          <p id="monthly-policy-state" class="instrument-meta">Loading monthly price and allocation model…</p>
+          <p id="monthly-policy-evidence" class="instrument-meta"></p>
+          <p class="instrument-meta"><a href="../research/results/monthly-dynamic-report.md">Model assumptions and validation</a></p>
+        </div>
         <details id="selection-details">
           <summary id="selection-heading">Legacy ladder research · separate from monthly optimization</summary>
           <p id="selection-summary" class="instrument-meta"></p>
           <p id="selection-reason" class="instrument-meta"></p>
           <p id="selection-window" class="instrument-meta"></p>
           <p class="instrument-meta"><a href="./selector.html">View raw minimum, adopted parameters and selection details</a>. Eligible candidates form a selection band, not a confidence interval. Prospective advantage is not established.</p>
-        </details>
         <div id="monthly-scaling" class="progress-card" aria-live="polite">
-          <h3>Monthly single-order optimization</h3>
+          <h3>Earlier full-amount single-order research</h3>
           <p id="monthly-scaling-status" class="instrument-meta">Loading monthly research…</p>
           <p id="monthly-scaling-details" class="instrument-meta"></p>
           <p class="instrument-meta"><a href="../research/results/monthly-single-order-report.md">Read assumptions and results</a></p>
         </div>
+        </details>
       </section>
 
       <section class="panel inputs">
@@ -261,6 +267,13 @@
           <div class="field">
             <label id="reference-price-label" for="reference-price">Reference price for this plan</label>
             <div class="input-wrap has-prefix"><span class="prefix currency-prefix">$</span><input id="reference-price" type="number" min="0.01" step="any" placeholder="Loading latest price" required aria-describedby="reference-hint latest-quote"></div>
+          </div>
+          <div class="field wide" data-buy>
+            <label for="buy-policy">Buy price and allocation</label>
+            <select id="buy-policy">
+              <option value="monthly">Monthly model · price priority</option>
+              <option value="legacy">Legacy reference · full amount</option>
+            </select>
           </div>
           <div class="field">
             <label id="deadline-label" for="deadline">Capital deployment deadline</label>
@@ -273,14 +286,14 @@
             <div style="display:flex;flex-wrap:wrap;gap:10px"><button id="use-latest-price" type="button">Use latest price</button><button id="use-opening-reference" type="button" disabled>Use 09:35 ET price</button></div>
             <p id="quote-action-status" class="hint" role="status" aria-live="polite"></p>
           </div>
-          <p id="reference-hint" class="hint">Defaults to a recent last trade when available. Manual edits and calculated plans stay fixed during quote refreshes. The 09:35 ET minute close appears after 09:36 and stays fixed for that date; it is a comparison reference and does not replace the crypto model’s 00:00 UTC anchor. Verify your broker’s quote before placing orders.</p>
-          <p id="deadline-hint" class="hint">Deadline is optional. BUY uses the entered deployment amount directly; neither the deadline nor remaining trade slots resizes it. SELL can use deadline pacing.</p>
+          <p id="reference-hint" class="hint">Defaults to a recent last trade when available. Use latest price to update and recalculate a displayed plan. Intraday background quotes preserve manual inputs. On a new model day, monthly mode clears yesterday's plan and loads a fresh quote and completed-session data; review actual counts before calculating again. The fixed 09:35 ET comparison price is separate from the crypto model's 00:00 UTC anchor.</p>
+          <p id="deadline-hint" class="hint">Monthly BUY uses the trading days left this calendar month and permits unspent cash to carry forward. An optional overall deadline does not force a purchase. SELL can use deadline pacing.</p>
           <div class="account-title" data-buy>Accumulation · shared monthly trade limit</div>
           <div class="field" data-buy>
             <label for="monthly-limit">Maximum trades per month (optional · default 5)</label>
             <input id="monthly-limit" type="number" min="0" step="1" value="5" placeholder="5" aria-describedby="monthly-limit-hint">
           </div>
-          <p id="monthly-limit-hint" class="hint" data-buy>Leave blank to use 5. Enter 0 to pause new buys. This is a maximum across all accounts and instruments, not a requirement to trade or a divisor for capital.</p>
+          <p id="monthly-limit-hint" class="hint" data-buy>Leave blank to use 5. Enter 0 to pause new buys. This is a maximum across accounts and instruments. The monthly model allocates part of the remaining capital using available opportunities; it does not require five trades or equal installments.</p>
           <div class="field" data-buy>
             <label for="budget-month">Calendar month for this plan · New York</label>
             <input id="budget-month" type="month" min="2025-01" required>
@@ -429,8 +442,8 @@
         <details>
           <summary>Accumulation policy, daily price reference, and SELL deadline pacing</summary>
           <div class="method-copy">
-            <p data-buy><strong>Accumulation BUY policy.</strong> At most one order for the chosen account. The optional monthly trade budget (default 5) is shared across instruments, accounts, buys and sells; actual counts and additional open-order slots must be entered manually. Optional reserves default to zero during accumulation. The entered deployment amount and optional remaining capital are hard caps. The base first offset is retained as a price reference, with no spacing, daily-touch sizing or deadline tightening. This is a policy overlay, not a newly fitted or validated monthly strategy. The existing daily-ladder diagnostics below do not establish its performance.</p>
-            <p><strong>Market layer.</strong> The updater searches rolling lookback × first offset × spacing on the selected instrument's minute data, <strong id="method-proxy">—</strong>. Every historical reference is the close of the <span id="method-reference">09:35</span> <span id="method-timezone">ET</span> bar; eligible fills begin at <span id="method-fill">09:36</span>. Candidate ladders are compared by walk-forward weekly implementation shortfall. A paired excess-cost selection band and the prior published parameter regularize the result. The adopted values are a heuristic, not statistically optimal parameters; the eligible band is not a confidence interval.</p>
+            <p data-buy><strong>Monthly BUY policy.</strong> At most one new order per review. The default monthly model fits both price distance and an allocation scale, then recalculates from completed drawdowns, trading days left and available monthly slots. The entered deployment goal and optional cash amount cap the budget. Cash may carry into the next month; no closeout purchase is forced. Model candidates have separate historical validation results and are not claimed optimal. The optional legacy policy uses the full entered amount and old first offset. Neither policy submits or cancels broker orders.</p>
+            <p><strong>Legacy market layer.</strong> The existing updater supplies daily completed-session observations and independently fits the legacy BUY/SELL ladder using <strong id="method-proxy">—</strong>. Historical references are the close of the <span id="method-reference">09:35</span> <span id="method-timezone">ET</span> bar; eligible fills begin at <span id="method-fill">09:36</span>. The new monthly model uses those completed drawdowns, not the legacy ladder's spacing. Daily-replay performance does not establish execution quality at arbitrary intraday review times.</p>
             <p><strong>24/7 spot pairs.</strong> The daily reference is the close of the 00:00 UTC minute, with eligible fills from 00:01 through 23:59. Weekends and holidays count; weeks run Monday–Sunday in UTC. Both directions are fitted separately from the pair's full-day highs and lows. Scaling runs daily at 04:30 UTC with an 08:30 retry after archives become available. GTC orders remain live until filled or cancelled. A new reference or calculation does not cancel them; accumulation BUY does not schedule daily replacements. Exchange tick, quantity and notional filters apply; changing market prices can also affect the exchange's dynamic price bands.</p>
             <p><strong>Sizing layer.</strong> Accumulation BUY takes the smaller of remaining capital to deploy and optional total remaining capital, divides only by the reference price, rounds quantity down, and places it in one order subject to instrument limits. SELL retains daily-ladder sizing: remaining target quantity divided by remaining sessions and expected rung hits, capped at holdings after accounting for existing sell orders. Buy prices round down and passive sell prices round up: to cents for listed securities, or the exchange price tick for crypto. Crypto quantities follow the exchange step and minimum order size.</p>
             <p><strong>SELL deadline layer.</strong> Supplying both total remaining and a deadline activates an explicit schedule guardrail. With no deadline, the entered weekly pace is used, capped by total remaining if supplied; market distances are not tightened. The even-pace floor is total remaining × eligible sessions in the current window ÷ sessions to the deadline; the current window ends at the earlier of week-end or the deadline. The effective target is the larger of that floor and the entered weekly target, capped at total remaining. If the floor causes a pace lift, market distances tighten by 1 ÷ √(pace lift), bounded between 0.40× and 1.00×. This rule is deliberately monotone: moving the deadline closer can never reduce the target or widen the ladder.</p>
@@ -447,7 +460,8 @@
   </main>
 
   <script src="./market-calendar.js?v=2"></script>
-  <script src="./execution-core.js?v=10"></script>
+  <script src="./monthly-policy.js?v=1"></script>
+  <script src="./execution-core.js?v=11"></script>
   <script src="./market-quotes.js?v=2"></script>
   <script src="./monthly-scaling.js?v=1"></script>
   <script>
@@ -483,6 +497,7 @@
     let side = "buy";
     let selectedInstrumentId = FALLBACK.instrument_id;
     let lastDailyCycle = "";
+    let monthlyRefreshPending = false;
     let lastPlanningCycle = "";
     const isCrypto = () => params.market_calendar === "24X7";
     const zoneLabel = () => isCrypto() ? "UTC" : "ET";
@@ -545,9 +560,9 @@
       }
       const state = tradingWindow();
       document.getElementById("plan-context").textContent = state.open
-        ? `${state.message} Sizing starts ${tradingDateLabel(state.planningDate)} ${zoneLabel()}; ${side === "buy" ? "the entered deployment amount applies directly to this plan" : "weekly inputs apply to that planning week"}. Ladder prices use the reference input shown in your plan; a closeout uses your separately entered fresh best bid.`.trim()
+        ? `${state.message} Sizing starts ${tradingDateLabel(state.planningDate)} ${zoneLabel()}; ${side === "buy" ? usesMonthlyPolicy() ? "the remaining deployment goal caps the model's allocation" : "the entered deployment amount applies directly to this plan" : "weekly inputs apply to that planning week"}. Prices use the reference input shown in your plan; a closeout uses your separately entered fresh best bid.`.trim()
         : state.message;
-      button.disabled = !state.open;
+      button.disabled = !state.open || (usesMonthlyPolicy() && monthlyRefreshPending);
       if (!state.open) {
         document.getElementById("session-label").textContent = state.label;
         document.getElementById("empty").textContent = state.message;
@@ -676,22 +691,84 @@
       const date = isCrypto() ? ExecutionCore.calendarParts({market_calendar: "XNYS"}).date : tradingWindow().planningDate;
       return date ? key(date).slice(0, 7) : "";
     }
+    function usesMonthlyPolicy() { return side === "buy" && document.getElementById("buy-policy").value === "monthly"; }
+    function monthlyPlanInput(allowance) {
+      const state = ExecutionMonthlyPolicy.monthState({marketCalendar: params.market_calendar});
+      const fitted = ExecutionMonthlyPolicy.current(selectedInstrumentId, allowance.limit);
+      if (allowance.available > 0 && !fitted) {
+        const status = ExecutionMonthlyPolicy.status();
+        throw new Error(status.failed ? "Monthly model data is unavailable. Retry loading or explicitly choose the legacy policy."
+          : status.loaded ? "No fitted monthly model exists for this instrument and limit. Supported fitted limits are 1–31; choose a supported limit or the legacy policy."
+          : "Monthly model is still loading. Retry shortly.");
+      }
+      return {...state, candidate: fitted?.selected.candidate};
+    }
+    function renderMonthlyPolicy() {
+      const enabled = usesMonthlyPolicy();
+      document.getElementById("monthly-policy-panel").hidden = !enabled;
+      document.getElementById("base-run-label").textContent = enabled ? "Observation data updated" : "Parameters generated";
+      document.getElementById("base-next-run-label").textContent = enabled ? "Next observation update" : "Next expected update";
+      if (side === "buy") {
+        document.getElementById("model-heading").textContent = enabled ? "Buy · monthly price and allocation" : "Buy · single-order accumulation";
+        document.getElementById("contract-note").textContent = enabled
+          ? "BUY: one reviewed order. The model chooses its price and amount from remaining trading days and the shared monthly allowance. Price priority; unspent capital can carry forward. No automatic broker amendments."
+          : "BUY: one order using the full entered deployment amount, capped by available cash and the shared monthly allowance. Legacy price reference; no weekly conversion.";
+        document.getElementById("buy-hint").textContent = enabled
+          ? "Enter the remaining deployment goal, including carried cash, and optionally available capital after fills and open-order reservations. The monthly model chooses part of the smaller amount for today's order and keeps cash for later opportunities. Update actual counts before each review."
+          : "The legacy policy uses the smaller of the entered deployment amount and optional available capital directly for one order. It does not divide the amount by weeks or remaining trade slots.";
+      }
+      document.getElementById("buy-pricing-note").textContent = enabled
+        ? "One order's offset and amount adapt to completed price history, remaining trading days and free trade slots. Unspent capital may carry into next month. Use latest price to review today's plan; confirm cancellation or expiry of the previous order before replacing it. Background quotes do not silently amend an order."
+        : "Each calculation plans at most one buy order, so ladder spacing and expected daily touches are not used. This legacy policy uses the full entered amount and the earlier model's offset.";
+      if (!enabled) return;
+      document.getElementById("model-status").textContent = "Monthly fitted candidate";
+      document.getElementById("base-first").textContent = "—";
+      document.getElementById("base-lookback-label").textContent = "Monthly model lookback";
+      document.getElementById("base-lookback").textContent = "—";
+      const status = document.getElementById("monthly-policy-state"), evidence = document.getElementById("monthly-policy-evidence");
+      evidence.textContent = "";
+      if (monthlyRefreshPending) { status.textContent = "Refreshing today's quote and completed-session data. Review actual fills and remaining capital before calculating again."; return; }
+      try {
+        const context = ExecutionMonthlyPolicy.monthState({marketCalendar: params.market_calendar});
+        const limit = ExecutionCore.monthlyTradeLimit(document.getElementById("monthly-limit").value);
+        const fitted = ExecutionMonthlyPolicy.current(selectedInstrumentId, limit);
+        status.textContent = `${context.month} · ${context.remainingDays} trading days remaining · maximum ${limit} trades. `;
+        if (limit === 0) { status.textContent += "New buys paused."; return; }
+        if (!fitted) { status.textContent += ExecutionMonthlyPolicy.status().loaded ? "No fitted model for this instrument and limit." : "Monthly model loading or unavailable."; return; }
+        const p = fitted.selected;
+        document.getElementById("base-lookback").textContent = `${p.candidate.lookback} sessions`;
+        evidence.textContent = `${p.candidate.id} · fitted through completed training month ${p.latest_training_months?.at(-1) || "—"}; ${p.oos_months.length} walk-forward test months. ${p.advantage_check_passed ? "Retrospective advantage checks passed; future advantage is unproven." : "Historical advantage checks did not pass; this fitted candidate is not a validated optimum."} ${p.training_constraint_passed === false ? "The training deployment constraint was also not met. " : ""}${fitted.instrument.price_source === "direct_spot" ? "Direct spot replay." : "ETF replay uses an indexed spot proxy."} Daily prices and allocation use completed-session data; fitted coefficients are a dated snapshot.`;
+        const used = document.getElementById("monthly-used").value, working = document.getElementById("monthly-working").value;
+        if (used === "" || working === "") { status.textContent += "Enter actual executed and open-order counts to calculate today's offset and allocation."; return; }
+        const allowance = ExecutionCore.monthlyTradeBudget({limit, used, working, reserve: document.getElementById("monthly-reserve").value});
+        if (!allowance.available) { status.textContent += "No free trade slot; HOLD."; return; }
+        const plan = ExecutionMonthlyPolicy.decision({samples: params.session_samples, candidate: p.candidate,
+          remainingDays: context.remainingDays, sessionDate: context.sessionDate, slots: allowance.available});
+        document.getElementById("base-first").textContent = (plan.offset * 100).toFixed(3) + "%";
+        status.textContent += `${allowance.available} free slots · ${(plan.fraction * 100).toFixed(1)}% of remaining capital for this order · ${(plan.offset * 100).toFixed(3)}% below the entered current price. Cash may carry forward.`;
+      } catch (error) { status.textContent = error.message; }
+    }
     function renderAccount(name, deployment, capital, reference, deadlineSessions) {
       const value = id => document.getElementById(id).value;
       const planningMonth = planningBudgetMonth();
       if (value("budget-month") !== planningMonth)
         throw new Error(`Enter counts for the planning calendar month ${planningMonth}. Include any open orders carried into that month.`);
       const accumulation = {used: value("monthly-used"), working: value("monthly-working"), reserve: value("monthly-reserve"), limit: value("monthly-limit")};
-      const plan = progressPlan(name, ExecutionCore.buyPlan({deployment, capital, reference, horizon: deadlineSessions, params, accumulation}));
+      const monthly = usesMonthlyPolicy() ? monthlyPlanInput(ExecutionCore.monthlyTradeBudget(accumulation)) : null;
+      const plan = progressPlan(name, ExecutionCore.buyPlan({deployment, capital, reference, horizon: deadlineSessions, params, accumulation, ...(monthly ? {monthly} : {})}));
       const c = plan.controller, a = plan.allowance, count = plan.orders.length;
       const rows = plan.orders.map(o => `<tr><td>Single buy</td><td>${priceText(o.price)}</td><td>${qty(o.shares)}</td><td>${money2.format(o.notional)}</td></tr>`).join("");
       const spend = plan.orders.reduce((sum, o) => sum + o.notional, 0);
-      const schedule = `${c.inputCapped ? "Total remaining capital caps this plan below the requested deployment amount. " : ""}${a.limit} trades is a monthly maximum, not a target. The deadline does not increase this amount or tighten the limit.`;
+      const schedule = `${c.inputCapped ? "Total remaining capital caps this plan below the requested deployment amount. " : ""}${a.limit} trades is a monthly maximum, not a target. ${monthly ? "The model chooses today's fraction and limit; unused capital may carry into the next month." : "The deadline does not increase this amount or tighten the limit."}`;
       const reason = count ? plan.reason : (plan.progressCapped ? "HOLD: local progress leaves insufficient capacity for a valid order." : plan.reason);
       return `<article class="account-result">
         <div class="result-title"><h3>${name} · BUY ${params.symbol} · ${isCrypto() ? "GTC" : "DAY"}</h3><span class="urgency ${count ? "" : "elevated"}">${count ? "1 BUY" : "HOLD"}</span></div>
         <div class="result-metrics">
           <div class="result-metric"><span>Deployment amount cap</span><strong>${money.format(c.budget)}</strong></div>
+          ${plan.monthly ? `<div class="result-metric"><span>This order's budget</span><strong>${money2.format(plan.monthly.orderBudget)}</strong></div>
+          <div class="result-metric"><span>Capital kept for later</span><strong>${money2.format(Math.max(0, c.budget - spend))}</strong></div>
+          <div class="result-metric"><span>Trading days left this month</span><strong>${plan.monthly.remainingDays}</strong></div>
+          <div class="result-metric"><span>Today's limit offset</span><strong>${count ? (plan.first * 100).toFixed(3) + "%" : "—"}</strong></div>` : ""}
           <div class="result-metric"><span>Planned quantity</span><strong>${qty(plan.orderQuantity)}</strong></div>
           <div class="result-metric"><span>Cost at limit</span><strong>${money2.format(spend)}</strong></div>
           <div class="result-metric"><span>Executed trades / month</span><strong>${a.used} / ${a.limit}</strong></div>
@@ -835,6 +912,7 @@
       document.getElementById("fallback-note").hidden = live || pending;
       document.getElementById("pending-note").hidden = !pending;
       document.getElementById("pending-note").textContent = `This instrument has no fitted ${side} parameters yet. Order calculation stays disabled until this direction's scaling is published.`;
+      renderMonthlyPolicy();
     }
     function instrumentOptionLabel(item) {
       const venue = item.exchange_mic || item.exchange || "venue unknown";
@@ -901,9 +979,9 @@
         const labels = {weekly: `${unitLabel()} remaining to sell this week`, total: `Total ${unitLabel()} remaining (optional)`, held: `Current held ${unitLabel()}`, reserved: `${unitLabel()} in existing sell orders`};
         for (const [field, label] of Object.entries(labels)) document.querySelector(`label[for="sell-${field}-${suffix}"]`).textContent = label;
       }
-      document.getElementById("buy-hint").textContent = "Enter the capital still to deploy for this plan, then optionally total cash available after fills and open-order reservations. At most one order uses the smaller amount directly, without a weekly conversion or split across trade slots. Update executed-trade counts and remaining amounts before each new plan.";
+      document.getElementById("buy-hint").textContent = "Enter the remaining deployment goal, including any cash carried from earlier months, then optionally available cash after fills and open-order reservations. The monthly model chooses part of the smaller amount for today's order and keeps capital for later opportunities. Update actual trade counts and remaining amounts before each review; no weekly conversion applies.";
       if (side === "buy") {
-        document.getElementById("contract-note").textContent = "BUY: one order for one account. Remaining deployment amount and user-set monthly trade allowance (default 5); no automatic weekly conversion. Daily model statistics below do not validate this monthly policy.";
+        document.getElementById("contract-note").textContent = "BUY: one reviewed order for one account. The monthly model chooses its price and amount using the remaining trading days and shared trade allowance (default 5). Price priority; unspent capital can carry forward. No automatic broker amendments.";
         if (isCrypto()) document.getElementById("crypto-contract").textContent = `24/7 · Quantity step ${params.quantity_step} ${params.base_asset}; price tick ${params.price_tick} ${params.currency}; minimum order ${params.min_notional} ${params.currency}. Include existing GTC orders in cash and trade-slot reservations; no automatic daily replacement.`;
       }
       document.getElementById("sell-hint").textContent = `Remaining quantities include unfilled orders. Existing sell orders are deducted from the target and holdings when sizing new orders. Subtract actual fills from both targets and holdings. ${isCrypto() ? "Quantities use the exchange step, including fractions." : "Output uses whole shares."} Switching ticker clears sale quantities.`;
@@ -1011,6 +1089,7 @@
       const weekSessions = remainingWeekSessions();
       let deadlineSessions = null;
       try {
+        if (usesMonthlyPolicy() && monthlyRefreshPending) throw new Error("Today's quote and monthly inputs are still refreshing. Retry shortly.");
         if (deadlineRaw && !deadline) throw new Error("Choose a valid deadline or leave it blank.");
         if (deadline) deadlineSessions = sessionsThrough(deadline);
         if (!(reference > 0) || !Number.isFinite(reference)) throw new Error("Enter a positive reference price.");
@@ -1046,7 +1125,7 @@
       document.getElementById("empty").hidden = true;
       const stack = document.getElementById("result-stack"); stack.hidden = false; stack.innerHTML = html;
       document.getElementById("session-label").textContent = side === "buy"
-        ? `${windowState.preview ? "Preview · " : ""}${planningBudgetMonth()} · maximum ${ExecutionCore.monthlyTradeLimit(values("monthly-limit"))} trades · entered deployment amount`
+        ? `${windowState.preview ? "Preview · " : ""}${planningBudgetMonth()} · maximum ${ExecutionCore.monthlyTradeLimit(values("monthly-limit"))} trades · ${usesMonthlyPolicy() ? "monthly price and allocation model" : "full entered amount"}`
         : `${windowState.preview ? "Preview · " : ""}${weekSessions} sessions in planning week · ${deadlineSessions === null ? "no deadline · weekly pace / price seeking" : deadlineSessions + " to deadline"}`;
     });
     document.getElementById("calculator-form").addEventListener("input", event => {
@@ -1060,17 +1139,34 @@
       clearResults();
       syncSellPolicy();
       window.ExecutionMonthlyScaling?.render(monthlyResearchContext());
+      renderModel();
       applyTradingWindow();
     });
     function refreshClock() {
       window.ExecutionProgressUI?.refresh();
       const cycle = `${selectedInstrumentId}:${key(nyParts().date)}`;
-      if (isCrypto() && cycle !== lastDailyCycle) {
+      if ((isCrypto() || usesMonthlyPolicy()) && cycle !== lastDailyCycle) {
         lastDailyCycle = cycle;
         document.getElementById("reference-price").value = "";
         document.getElementById("closeout-bid").value = "";
         bidUpdatedAt = 0;
         clearResults();
+        if (usesMonthlyPolicy()) {
+          const instrument = selectedInstrumentId;
+          monthlyRefreshPending = true;
+          Promise.all([fetchJson(PARAMS_URL), quoteController.select(instrument)]).then(([payload]) => {
+            const updated = payload?.instruments?.[instrument];
+            if (updated && selectedInstrumentId === instrument && usesMonthlyPolicy()) {
+              paramsById[instrument] = {...updated, instrument_id: instrument};
+              params = ExecutionCore.sideParameters(paramsById[instrument], "buy");
+              clearResults();
+            }
+          }).finally(() => {
+            monthlyRefreshPending = false;
+            renderModel();
+            applyTradingWindow();
+          });
+        }
       }
       renderModel();
       syncSellPolicy();
@@ -1094,6 +1190,7 @@
     applyTradingWindow();
     loadParams();
     window.ExecutionMonthlyScaling?.load(monthlyResearchContext);
+    window.ExecutionMonthlyPolicy?.load(() => { clearResults(); renderModel(); });
   </script>
   <script src="./task-ledger.js?v=1"></script>
   <script src="./task-ledger-ui.js?v=2"></script>
