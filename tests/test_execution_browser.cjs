@@ -682,9 +682,14 @@ if (process.env.RUN_EXECUTION_BROWSER_TESTS !== "1") {
     assert.equal(await page.locator("#reference-price").inputValue(), "36");
     await page.locator("#side-sell").click();
     await submit(page);
+    await page.route(url => url.origin === 'https://execution-market-quotes.attmgromov.chatgpt.site' && url.searchParams.get('instrument') === 'ARCX:ETH', async route => {
+      await new Promise(resolve => setTimeout(resolve, 150));
+      await route.fallback();
+    });
     await page.locator("#instrument-select").selectOption("ARCX:ETH");
     if (await page.locator("#side-buy").getAttribute("aria-pressed") === "true") await page.locator("#weekly-one").fill("10000");
     await cleared(page);
+    await page.waitForFunction(() => document.getElementById('reference-price').value === '23.32');
     assert.equal(await page.locator("#reference-price").inputValue(), "23.32");
     for (const suffix of ["one", "two"]) for (const field of ["weekly", "held", "reserved", "total"])
       assert.equal(await page.locator(`#sell-${field}-${suffix}`).inputValue(), ["total", "held"].includes(field) ? "" : "0");
