@@ -65,6 +65,11 @@ The default-five fits did not pass the declared out-of-sample gate, so they are
 not promoted into order prices. See
 [the result and limitations](research/results/monthly-single-order-report.md).
 The prior daily-ladder fit is labeled as a legacy price reference on BUY.
+BUY displays the active limit offset and marks order spacing as not used, because
+each plan contains at most one order. Daily touch counts are hidden on BUY;
+legacy ladder selection diagnostics are in a separate collapsed disclosure.
+The monthly trade limit does not itself rescale the offset. SELL continues to
+show its independently fitted ladder spacing and touch estimates.
 
 The phase-one notes below describe the retained legacy ladder/SELL and optional
 weekly-record paths where they differ from the current accumulation BUY form.

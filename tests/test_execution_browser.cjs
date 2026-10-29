@@ -409,8 +409,22 @@ if (process.env.RUN_EXECUTION_BROWSER_TESTS !== "1") {
 
   test("selection diagnostics distinguish raw minimum, adopted gap, score window, and latest market session", async t => {
     const page = await open(t);
+    assert.equal(await page.locator("#selection-details").evaluate(node => node.open), false);
+    assert.equal(await page.locator("#base-spacing").innerText(), "Not used");
+    assert.equal(await page.locator("#base-first-label").innerText(), "BUY LIMIT OFFSET");
+    assert.equal(await page.locator("#base-first").innerText(), "0.25%");
+    assert.equal(await page.locator("#base-hits").isVisible(), false);
+    assert.equal(await page.locator("#buy-pricing-note").isVisible(), true);
+    assert.match(await page.locator("#selection-heading").innerText(), /Legacy ladder research/);
+    await page.locator("#selection-heading").click();
     for (const side of ["buy", "sell"]) {
-      if (side === "sell") await page.locator("#side-sell").click();
+      if (side === "sell") {
+        await page.locator("#side-sell").click();
+        assert.equal(await page.locator("#base-spacing").innerText(), "0.80%");
+        assert.equal(await page.locator("#base-hits").isVisible(), true);
+        assert.equal(await page.locator("#buy-pricing-note").isVisible(), false);
+        assert.equal(await page.locator("#selection-heading").innerText(), "Sell ladder research");
+      }
       const summary = await page.locator("#selection-summary").innerText();
       assert.match(summary, /Raw sample minimum: 5 sessions\/days, 0\.15% offset \/ 0\.65% spacing/);
       assert.match(summary, /Adopted excess modeled cost: 1\.23 bp; paired standard error: 2\.34 bp/);
@@ -421,6 +435,12 @@ if (process.env.RUN_EXECUTION_BROWSER_TESTS !== "1") {
       assert.match(window, /Latest market session: 2026-10-02/);
       assert.match(window, /before a scoring week becomes complete/);
     }
+    await page.locator("#side-buy").click();
+    assert.equal(await page.locator("#base-spacing").innerText(), "Not used");
+    assert.equal(await page.locator("#base-hits").isVisible(), false);
+    await page.locator("#instrument-select").selectOption("BINANCE:SPOT:BTCUSDT");
+    assert.equal(await page.locator("#base-spacing").innerText(), "Not used");
+    assert.equal(await page.locator("#base-first").innerText(), "0.25%");
   });
 
   test("native numeric validation accepts fractional inputs and rejects blank, negative, and zero reference", async t => {

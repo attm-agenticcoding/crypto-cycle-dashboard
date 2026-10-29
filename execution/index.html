@@ -230,19 +230,23 @@
         <p id="instrument-rationale" class="instrument-meta instrument-rationale"></p>
         <p id="crypto-contract" class="instrument-meta warning" hidden>24/7 · UTC daily reset. GTC orders do not expire at midnight: cancel or update old orders before replacing the ladder. Quantities and minimum order sizes follow the exchange's published filters.</p>
         <div class="metrics">
-          <div class="metric"><div class="metric-label">Base first offset</div><div id="base-first" class="metric-value">—</div></div>
-          <div class="metric"><div class="metric-label">Daily model spacing</div><div id="base-spacing" class="metric-value">—</div></div>
-          <div class="metric"><div class="metric-label">Daily model proxy touches</div><div id="base-hits" class="metric-value">—</div></div>
-          <div class="metric"><div class="metric-label">Rolling lookback</div><div id="base-lookback" class="metric-value">—</div></div>
+          <div class="metric"><div id="base-first-label" class="metric-label">Buy limit offset</div><div id="base-first" class="metric-value">—</div></div>
+          <div class="metric"><div class="metric-label">Order spacing</div><div id="base-spacing" class="metric-value">Not used</div></div>
+          <div class="metric" data-sell hidden><div class="metric-label">Daily model proxy touches</div><div id="base-hits" class="metric-value">—</div></div>
+          <div class="metric"><div id="base-lookback-label" class="metric-label">Price-reference lookback</div><div id="base-lookback" class="metric-value">—</div></div>
           <div class="metric"><div class="metric-label">Data status</div><div id="base-freshness" class="metric-value freshness">—</div></div>
           <div class="metric"><div class="metric-label">Latest completed session</div><div id="base-date" class="metric-value">—</div></div>
           <div class="metric"><div class="metric-label">Parameters generated</div><div id="base-run" class="metric-value">—</div></div>
           <div class="metric"><div class="metric-label">Next expected update</div><div id="base-next-run" class="metric-value">—</div></div>
         </div>
-        <p id="selection-summary" class="instrument-meta"></p>
-        <p id="selection-reason" class="instrument-meta"></p>
-        <p id="selection-window" class="instrument-meta"></p>
-        <p class="instrument-meta"><a href="./selector.html">View raw minimum, adopted parameters and selection details</a>. Eligible candidates form a selection band, not a confidence interval. Prospective advantage is not established.</p>
+        <p id="buy-pricing-note" class="instrument-meta" data-buy>Each calculation plans at most one buy order, so ladder spacing and expected daily touches are not used. The limit uses the offset above, retained from the legacy price model. Monthly research has not replaced that offset; changing the trade limit does not change it.</p>
+        <details id="selection-details">
+          <summary id="selection-heading">Legacy ladder research · separate from monthly optimization</summary>
+          <p id="selection-summary" class="instrument-meta"></p>
+          <p id="selection-reason" class="instrument-meta"></p>
+          <p id="selection-window" class="instrument-meta"></p>
+          <p class="instrument-meta"><a href="./selector.html">View raw minimum, adopted parameters and selection details</a>. Eligible candidates form a selection band, not a confidence interval. Prospective advantage is not established.</p>
+        </details>
         <div id="monthly-scaling" class="progress-card" aria-live="polite">
           <h3>Monthly single-order optimization</h3>
           <p id="monthly-scaling-status" class="instrument-meta">Loading monthly research…</p>
@@ -804,10 +808,13 @@
       const status = document.getElementById("model-status");
       status.textContent = pending ? `Awaiting first ${side} scaling` : (live ? `${side === "buy" ? "Buy legacy price reference" : "Sell adopted heuristic"}` : "Buy fallback seed");
       status.classList.toggle("live", live);
+      document.getElementById("base-first-label").textContent = side === "buy" ? "Buy limit offset" : "Base first offset";
       document.getElementById("base-first").textContent = pending ? "—" : (+params.first_offset_pct).toFixed(2) + "%";
-      document.getElementById("base-spacing").textContent = pending ? "—" : (+params.spacing_pct).toFixed(2) + "%";
+      document.getElementById("base-spacing").textContent = side === "buy" ? "Not used" : pending ? "—" : (+params.spacing_pct).toFixed(2) + "%";
       document.getElementById("base-hits").textContent = pending ? "—" : (+params.expected_rungs_per_session).toFixed(2) + " / day";
+      document.getElementById("base-lookback-label").textContent = side === "buy" ? "Price-reference lookback" : "Rolling lookback";
       document.getElementById("base-lookback").textContent = pending ? "—" : params.lookback_sessions + (isCrypto() ? " calendar days" : " sessions");
+      document.getElementById("selection-heading").textContent = side === "buy" ? "Legacy ladder research · separate from monthly optimization" : "Sell ladder research";
       const freshness = pending
         ? { label: "Pending first fit", className: "pending", title: "The instrument is registered and will be fitted by the next scaling run." }
         : parameterFreshness(params.data_as_of, live);
