@@ -914,4 +914,20 @@ if (process.env.RUN_EXECUTION_BROWSER_TESTS !== "1") {
     await page.screenshot({path:path.join(artifacts,'monthly-dynamic-mobile.png'),fullPage:true});
   });
 
+  test("a late monthly fit cannot erase an explicitly selected legacy plan", async t => {
+    const page=await open(t);
+    let release;
+    const gate=new Promise(resolve=>{release=resolve;});
+    t.after(()=>release());
+    await page.route('**/data/execution_monthly_dynamic_params.json',async route=>{await gate;await route.fallback();});
+    await page.reload();await page.waitForFunction(()=>!document.getElementById('instrument-select').disabled);
+    await page.locator('#buy-policy').selectOption('legacy');
+    await setFields(page,{'reference-price':100,'weekly-one':10000,'monthly-used':0,'monthly-working':0});await submit(page);
+    const before=await page.locator('#result-stack').innerHTML();
+    assert.equal(await page.locator('#result-stack tbody tr').count(),1);
+    release();await page.waitForFunction(()=>ExecutionMonthlyPolicy.status().loaded);
+    assert.equal(await page.locator('#result-stack').innerHTML(),before);
+    assert.equal(await page.locator('#result-stack').isVisible(),true);
+  });
+
 }

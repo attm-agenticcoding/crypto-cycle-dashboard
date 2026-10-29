@@ -1190,7 +1190,7 @@
     applyTradingWindow();
     loadParams();
     window.ExecutionMonthlyScaling?.load(monthlyResearchContext);
-    window.ExecutionMonthlyPolicy?.load(() => { clearResults(); renderModel(); });
+    window.ExecutionMonthlyPolicy?.load(() => { if (usesMonthlyPolicy()) clearResults(); renderModel(); });
   </script>
   <script src="./task-ledger.js?v=1"></script>
   <script src="./task-ledger-ui.js?v=2"></script>
