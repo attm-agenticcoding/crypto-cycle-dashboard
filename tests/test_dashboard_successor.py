@@ -119,7 +119,7 @@ class SuccessorTests(unittest.TestCase):
             self.assertEqual(len(calls), 1)
             sleep.assert_not_called()
 
-    def test_persistent_missing_rows_and_duplicates_retry_three_times_then_fail_closed(self):
+    def test_persistent_missing_rows_and_duplicates_use_90_second_budget_then_fail_closed(self):
         for payload in ({'total_count': 1, 'workflow_runs': []},
                         {'total_count': 0, 'workflow_runs': [run()]},
                         {'total_count': 2, 'workflow_runs': [run(), run()]}):
@@ -127,13 +127,19 @@ class SuccessorTests(unittest.TestCase):
             def api(*args):
                 calls.append(args)
                 return payload
-            with patch.object(successor.time, 'sleep') as sleep, patch('sys.stdout', new_callable=io.StringIO) as output:
-                with self.assertRaisesRegex(ValueError, 'inconsistent after 3'):
+            seconds = [0]
+            def advance(delay):
+                seconds[0] += delay
+            with patch.object(successor.time, 'monotonic', side_effect=lambda: seconds[0]), \
+                    patch.object(successor.time, 'sleep', side_effect=advance) as sleep, \
+                    patch('sys.stdout', new_callable=io.StringIO) as output:
+                with self.assertRaisesRegex(ValueError, 'deadline'):
                     successor.enqueue(self.env(), api)
-            self.assertEqual(len(calls), 3)
-            self.assertEqual([c.args[0] for c in sleep.call_args_list], [1, 2])
+            self.assertEqual(seconds[0], 90)
+            self.assertEqual(len(calls), 20)
+            self.assertEqual([c.args[0] for c in sleep.call_args_list], [1, 2, 3, 4] + [5] * 16)
             diagnostics = [json.loads(line) for line in output.getvalue().splitlines()]
-            self.assertEqual([d['attempt'] for d in diagnostics], [1, 2, 3])
+            self.assertEqual([d['attempt'] for d in diagnostics], list(range(1, 21)))
             self.assertIn('status=requested page=1', diagnostics[0]['reason'])
             self.assertNotIn('test-self-token', output.getvalue())
 
@@ -303,7 +309,7 @@ class SuccessorTests(unittest.TestCase):
             if len(args) > 2 and args[2] == 'POST':
                 raise TimeoutError('response lost after acceptance')
             return result
-        with self.assertRaises(TimeoutError):
+        with self.assertRaisesRegex(RuntimeError, 'uncertain.*no retry'):
             successor.enqueue(self.env(), request)
         self.assertEqual(len(api.posts), 1)
 
@@ -363,6 +369,249 @@ class SuccessorTests(unittest.TestCase):
         self.assertIn('timeout-minutes: 3', WORKFLOW)
         self.assertIn('CLOCK_SUCCESSOR_STATUS: ${{ steps.successor.outputs.status }}', WORKFLOW)
         self.assertNotIn('continue-on-error:', WORKFLOW)
+
+
+class IncidentAPI(FakeAPI):
+    """Recorded jobs plus reconstructed stale/active run indexes, all offline."""
+    def __init__(self):
+        self.fixture = json.loads((ROOT / 'tests/fixtures/clock-20261104.json').read_text())
+        self.old = self.fixture['predecessor']
+        self.current = self.fixture['current']
+        self.old.update(status='in_progress', conclusion=None)
+        self.current.update(status='in_progress', conclusion=None)
+        current_job = self.fixture['current_jobs']['jobs'][0]
+        current_job.update(status='in_progress', conclusion=None, completed_at=None)
+        current_job['steps'] = current_job['steps'][:2]
+        current_job['steps'][-1].update(status='in_progress', conclusion=None, completed_at=None)
+        self.records = {self.old['id']: self.old, self.current['id']: self.current}
+        self.jobs = {self.old['id']: self.fixture['predecessor_jobs'],
+                     self.current['id']: self.fixture['current_jobs']}
+        super().__init__([self.old, self.current])
+
+    def __call__(self, path, token, method='GET', body=None):
+        if path.startswith(successor.RUNS + '/'):
+            self.calls.append((path, token, method, body))
+            tail = path.removeprefix(successor.RUNS + '/').split('/')
+            run_id = int(tail[0])
+            if len(tail) == 1:
+                return deepcopy(self.records[run_id])
+            if len(tail) == 4 and tail[1] == 'attempts' and tail[3].startswith('jobs?'):
+                # Enforce attempt-pinned endpoint; never silently supply latest.
+                if int(tail[2]) != self.records[run_id]['run_attempt']:
+                    raise ValueError('Attempt mismatch')
+                return deepcopy(self.jobs[run_id])
+            raise AssertionError(path)
+        return super().__call__(path, token, method, body)
+
+    def env(self):
+        return SuccessorTests().env(GITHUB_RUN_ID=str(self.current['id']),
+                GITHUB_RUN_ATTEMPT=str(self.current['run_attempt']),
+                GITHUB_SHA=self.current['head_sha'], GITHUB_JOB='tick')
+
+
+class IncidentRegressionTests(unittest.TestCase):
+    def assert_closed(self, api, request=None, env=None):
+        try:
+            result = successor.enqueue(env or api.env(), request or api)
+        except (ValueError, RuntimeError, OSError):
+            pass
+        else:
+            self.assertEqual(result['status'], 'successor-already-active')
+        self.assertEqual(api.posts, [])
+
+    def test_november_4_1631_stale_predecessor_successfully_enqueues_one_successor(self):
+        api = IncidentAPI()
+        self.assertEqual(successor.enqueue(api.env(), api), {'status': 'successor-enqueued'})
+        self.assertEqual(len(api.posts), 1)
+        old_jobs_reads = [c for c in api.calls if f"/{api.old['id']}/attempts/1/jobs?" in c[0]]
+        self.assertGreaterEqual(len(old_jobs_reads), 3)
+        self.assertNotIn('/cancel', ' '.join(c[0] for c in api.calls))
+
+    def test_november_4_1117_three_total_one_rows_zero_reads_do_not_exhaust_budget(self):
+        api, seconds, failures = FakeAPI(), [0], [0]
+        def request(*args):
+            seconds[0] += 3
+            if failures[0] < 3:
+                failures[0] += 1
+                return {'total_count': 1, 'workflow_runs': []}
+            return api(*args)
+        with patch.object(successor.time, 'monotonic', side_effect=lambda: seconds[0]), \
+                patch.object(successor.time, 'sleep', side_effect=lambda delay: seconds.__setitem__(0, seconds[0] + delay)):
+            self.assertEqual(successor.enqueue(SuccessorTests().env(), request)['status'], 'successor-enqueued')
+        self.assertGreater(seconds[0], 12)
+        self.assertLess(seconds[0], 90)
+        self.assertEqual(failures[0], 3)
+        self.assertEqual(len(api.posts), 1)
+
+    def test_authoritative_success_and_matching_current_rerun_are_safe(self):
+        api = IncidentAPI()
+        api.records[api.old['id']] = {**api.old, 'status': 'completed', 'conclusion': 'success'}
+        api.current['run_attempt'] = 2
+        api.jobs[api.current['id']]['jobs'][0]['run_attempt'] = 2
+        self.assertEqual(successor.enqueue(api.env(), api)['status'], 'successor-enqueued')
+        self.assertEqual(len(api.posts), 1)
+
+    def test_real_old_execution_or_cancellation_never_gets_exempted(self):
+        for status, conclusion in [('in_progress', None), ('queued', None), ('waiting', None),
+                                   ('completed', 'cancelled'), ('completed', 'action_required'),
+                                   ('completed', 'unknown'), ('completed', None), ('completed', 'failure')]:
+            with self.subTest(status=status, conclusion=conclusion):
+                api = IncidentAPI()
+                api.jobs[api.old['id']]['jobs'][0].update(status=status, conclusion=conclusion)
+                self.assert_closed(api)
+        for status, conclusion in [('waiting', None), ('pending', None), ('queued', None),
+                                   ('completed', 'cancelled'), ('completed', 'action_required')]:
+            api = IncidentAPI()
+            # Index still says active while the authoritative run denies success.
+            api.records[api.old['id']] = {**api.old, 'status': status, 'conclusion': conclusion}
+            self.assert_closed(api)
+
+    def test_unknown_or_changed_identity_and_predecessor_relationship_fail_closed(self):
+        changes = [{'run_attempt': 0}, {'run_attempt': None}, {'workflow_id': 1},
+                   {'head_branch': 'other'}, {'path': '.github/workflows/other.yml'},
+                   {'repository': {'full_name': 'other/fork'}}, {'display_title': 'ambiguous'},
+                   {'head_sha': 'x' * 40}, {'run_number': 99999},
+                   {'created_at': '2026-11-04T16:32:00Z'}, {'event': 'pull_request'}]
+        for change in changes:
+            with self.subTest(change=change):
+                api = IncidentAPI()
+                # Keep original active index as a blocker; corrupt a detail read.
+                api.records[api.old['id']] = {**api.old, **change}
+                self.assert_closed(api)
+
+    def test_complete_jobs_and_exact_attempt_are_required(self):
+        for payload in ({}, {'total_count': 1, 'jobs': []}, {'total_count': 0, 'jobs': []},
+                        {'total_count': 2, 'jobs': []}, {'total_count': True, 'jobs': [{}]}):
+            api = IncidentAPI()
+            api.jobs[api.old['id']] = payload
+            self.assert_closed(api)
+        for change in ({'run_attempt': 2}, {'run_id': 1}, {'id': None}, {'name': 'other'},
+                       {'head_sha': '0' * 40}, {'head_branch': 'other'}, {'run_url': 'https://elsewhere'},
+                       {'completed_at': None}, {'completed_at': '2026-11-04T16:32:00Z'},
+                       {'completed_at': '2026-11-04T16:00:00Z'}, {'steps': []},
+                       {'steps': [{'name': 'Complete job', 'status': 'in_progress', 'conclusion': None}]}):
+            with self.subTest(change=change):
+                api = IncidentAPI()
+                api.jobs[api.old['id']]['jobs'][0].update(change)
+                self.assert_closed(api)
+        api = IncidentAPI()
+        payload = api.jobs[api.old['id']]
+        payload['jobs'].append(deepcopy(payload['jobs'][0]))
+        payload['total_count'] = 2
+        self.assert_closed(api)
+
+    def test_current_execution_must_match_environment_attempt_sha_job_and_live_state(self):
+        for change in ({'GITHUB_RUN_ATTEMPT': '2'}, {'GITHUB_RUN_ATTEMPT': ''},
+                       {'GITHUB_SHA': '0' * 40}, {'GITHUB_JOB': 'other'}):
+            api = IncidentAPI()
+            self.assert_closed(api, env={**api.env(), **change})
+        api = IncidentAPI()
+        api.jobs[api.current['id']]['jobs'][0].update(status='completed', conclusion='cancelled')
+        self.assert_closed(api)
+
+    def test_incomplete_cleanup_steps_or_malformed_step_times_remain_blockers(self):
+        for omitted in range(6):
+            api = IncidentAPI()
+            del api.jobs[api.old['id']]['jobs'][0]['steps'][omitted]
+            self.assert_closed(api)
+        for change in ({'number': 1}, {'status': 'in_progress'}, {'conclusion': 'cancelled'},
+                       {'started_at': None}, {'completed_at': None},
+                       {'completed_at': '2026-11-04T16:33:00Z'}):
+            api = IncidentAPI()
+            api.jobs[api.old['id']]['jobs'][0]['steps'][-2].update(change)
+            self.assert_closed(api)
+
+    def test_attempt_change_during_evidence_collection_blocks_dispatch(self):
+        api = IncidentAPI()
+        def request(*args):
+            result = api(*args)
+            if f"/{api.old['id']}/attempts/" in args[0]:
+                api.records[api.old['id']]['run_attempt'] = 2
+            return result
+        self.assert_closed(api, request)
+
+    def test_final_recheck_catches_new_attempt_even_after_index_drops_old_run(self):
+        api, scans = IncidentAPI(), [0]
+        def request(*args):
+            if 'status=requested' in args[0]:
+                scans[0] += 1
+                if scans[0] == 2:
+                    api.runs = [api.current]
+                    api.records[api.old['id']]['run_attempt'] = 2
+            return api(*args)
+        self.assert_closed(api, request)
+
+    def test_job_state_change_between_complete_scans_blocks_dispatch(self):
+        api, scans = IncidentAPI(), [0]
+        def request(*args):
+            if 'status=requested' in args[0]:
+                scans[0] += 1
+                if scans[0] == 2:
+                    api.jobs[api.old['id']]['jobs'][0]['status'] = 'in_progress'
+            return api(*args)
+        self.assert_closed(api, request)
+
+    def test_current_job_identity_change_before_dispatch_fails_closed(self):
+        api, reads = IncidentAPI(), [0]
+        def request(*args):
+            if f"/{api.current['id']}/attempts/" in args[0]:
+                reads[0] += 1
+                if reads[0] == 2:
+                    api.jobs[api.current['id']]['jobs'][0]['id'] += 1
+            return api(*args)
+        self.assert_closed(api, request)
+
+    def test_multiple_blockers_are_not_hidden_by_completed_predecessor(self):
+        api = IncidentAPI()
+        api.runs.extend([run(api.current['id'] + 1, 'waiting'), run(api.current['id'] + 2, 'queued')])
+        result = successor.enqueue(api.env(), api)
+        self.assertEqual(result['run_ids'], [api.current['id'] + 1, api.current['id'] + 2])
+        self.assertEqual(api.posts, [])
+
+    def test_new_successor_appearing_during_retirement_scan_prevents_post(self):
+        api, scans = IncidentAPI(), [0]
+        def request(*args):
+            if 'status=requested' in args[0]:
+                scans[0] += 1
+                if scans[0] == 2:
+                    api.runs.append(run(api.current['id'] + 1, 'pending'))
+            return api(*args)
+        self.assert_closed(api, request)
+
+    def test_denied_or_rate_limited_job_evidence_never_grants_exemption(self):
+        for code in (403, 404, 429, 503):
+            api = IncidentAPI()
+            def request(*args):
+                if '/attempts/' in args[0]:
+                    raise urllib.error.HTTPError('https://api.github.com', code, 'failed', {}, None)
+                return api(*args)
+            self.assert_closed(api, request)
+
+    def test_accepted_dispatch_with_lost_response_reads_back_without_second_post(self):
+        api = FakeAPI()
+        def request(*args):
+            result = api(*args)
+            if len(args) > 2 and args[2] == 'POST':
+                api.runs.append(run(124, 'waiting'))
+                raise TimeoutError('Accepted remotely, response lost')
+            return result
+        with self.assertRaisesRegex(RuntimeError, r'uncertain; active run IDs=\[124\]; no retry'):
+            successor.enqueue(SuccessorTests().env(), request)
+        self.assertEqual(len(api.posts), 1)
+        self.assertEqual(api.calls[-1][2], 'GET')
+
+    def test_readback_denied_after_ambiguous_post_does_not_retry(self):
+        api = FakeAPI()
+        def request(*args):
+            if api.posts:
+                raise RuntimeError('read denied')
+            result = api(*args)
+            if len(args) > 2 and args[2] == 'POST':
+                raise TimeoutError('response lost')
+            return result
+        with self.assertRaisesRegex(RuntimeError, 'uncertain; read-back unavailable; no retry'):
+            successor.enqueue(SuccessorTests().env(), request)
+        self.assertEqual(len(api.posts), 1)
 
 
 if __name__ == '__main__':

@@ -32,10 +32,12 @@ own run ID (including reruns), and lets an existing main-branch successor contin
 Known verification runs have their separate concurrency group; ambiguous main
 runs block a new production dispatch. Each state is paginated in batches of 100,
 up to GitHub's 1,000-result filtered-search bound. A count mismatch, changing total,
-or repeated ID within a state's pages restarts the **whole read-only scan**, at
-most three attempts with one- and two-second backoff. A dispatch requires two
+or repeated ID within a state's pages restarts the **whole read-only scan**, within
+the full 90-second reconciliation budget with one-, two-, three-, four-, then
+five-second capped backoff. The final sleep is capped by the remaining budget. A dispatch requires two
 complete scans without a blocker. An observed active blocker is retained even if
-a later status query reports that run completed. Missing/malformed schema or
+a later status query reports that run completed, except for the narrowly proven
+successful predecessor described below. Missing/malformed schema or
 identity, more than 1,000 results, persistent inconsistency, and exhausted read
 budget all fail closed. Retry diagnostics record the attempt, status, page, total,
 and received row count without tokens or response bodies.
@@ -45,8 +47,10 @@ before dispatch; each HTTP read attempt uses at most five seconds or the remaini
 budget, with at most two attempts. This is a cooperative budget, not a hard
 whole-response deadline (urllib timeouts bound blocking socket operations).
 The existing two-minute step timeout remains the outer bound. The step issues at
-most one dispatch POST, with no retry after a lost or failed response. A later rerun or watchdog check reconciles any run
-GitHub accepted. No cancellation, extra credential, permission, service, or
+most one dispatch POST, with no retry after a lost or failed response. After an uncertain POST, the invocation performs a read-only reconciliation and
+fails visibly with the observed IDs (or unavailable read-back). It never resends,
+even if the index is empty. A later clock/watchdog check must reconcile again;
+visibility is not an attribution or an exactly-once dispatch receipt. No cancellation, extra credential, permission, service, or
 environment-rule change is introduced. Production retains `cancel-in-progress:
 false`, and verification still allows at most one successor with `remaining=0`.
 
@@ -181,3 +185,93 @@ stale/future timestamps, close/live ordering, Sunday close and DST. Timer recove
 adds the exact stuck-wait fixture, the 25-minute strict boundary, timer resets,
 reviewer/custom-rule additions, unknown configuration, main-only policy checks,
 read failures and confirmation of cancellation before any replacement.
+
+
+## November 4 predecessor and read-budget repair (local preparation)
+
+At 11:17 UTC the run index returned `total_count=1` with zero rows three times.
+The three-attempt limit stopped recovery in approximately twelve seconds despite
+a 90-second budget. Read-only whole-inventory retries now use that time budget;
+invalid identities, refused reads, exhausted transport retries, oversize responses,
+and deadline exhaustion still prevent dispatch. No mutation is retried.
+
+At 16:31:32 UTC, clock `41867208857` treated predecessor `41865476360` as an
+active successor. The public job record shows the predecessor's `Complete job`
+step ended at 16:26:22 and its job completed at 16:26:24, before the current tick
+started at 16:31:29. Tests preserve these actual job records and reconstruct the
+reported stale run index; this is a local reproduction, not a live recovery test.
+
+An older run ID only selects a candidate for additional evidence. Exemption
+requires all of the following; anything unknown fails closed:
+
+- Exact repository, workflow path and workflow ID, main branch, recognized event
+  and production/verification name, SHA, positive run number and run attempt.
+- The current run matches `GITHUB_RUN_ID`, `GITHUB_RUN_ATTEMPT`, `GITHUB_SHA`, and
+  `GITHUB_JOB=tick`, and its sole job is still running without a conclusion.
+- The candidate has an earlier run number and creation time. Its sole job is
+  fetched from the **specific attempt** endpoint and matches run ID, attempt,
+  SHA, branch and repository run URL. The response must contain exactly one job;
+  zero, extra, partial, or unexpected jobs cannot establish termination.
+- The candidate job completed successfully before the current tick started, with
+  all reported steps complete, success/skipped conclusions, and a successful
+  `Complete job` step. Cancelled, denied, failure, unknown, and still-active jobs
+  are not exempted. A stale run-level `in_progress`/null state is tolerated only
+  with this successful job evidence.
+- Run identity is read before and after jobs. Each complete inventory pass checks
+  the evidence again. Every exempted candidate is rechecked before dispatch even
+  if it disappears from a later index; the current execution is also rechecked.
+  Changed attempts, job IDs, steps, times or other job data block dispatch.
+
+Only existing Actions read access is used. The environment timers, concurrency,
+cancellation behavior, workflow triggers, credentials and private publisher stay
+unchanged. The private clock transport now retries GET only, including no retry
+of installation-token creation, workflow dispatch, or revocation. Its refresh
+guard checks all five active states and rejects missing/inconsistent inventory.
+After an uncertain private dispatch it reads active state once more, revokes its
+token, and reports uncertainty without another POST. A visible run is not proof
+that this invocation caused it; an empty index is not proof of rejection.
+
+### Completion-event recovery considered, deferred
+
+Adding `workflow_run: completed` could reduce dependence on cron delivery but is
+not part of this patch. It must examine successful completions too: the false
+`successor-already-active` incident ended successfully. The existing twenty-minute
+cooldown would defer an immediate completion-triggered restart, so merely adding
+an event would not fix a broken chain. A separate design must reconcile the exact
+trusted event/run/attempt and active inventory, preserve cooldown or establish an
+equally safe replacement, and prevent dispatch/completion loops and duplicate
+recovery paths. No extra permissions, dependencies, or triggers have been added.
+
+### Required production acceptance after separately authorized rollout
+
+Local tests, a successful merge check, verify-only ticks, or a manual catch-up do
+not establish stable unattended publication. After an authorized rollout:
+
+1. Recheck current main and CI path triggers, apply/review the exact patch, and
+   preserve existing environment rules and both concurrency groups. A main push
+   to these paths can run the watchdog and production recovery; authorization
+   must cover that effect. Do not push this preparation without authorization.
+2. Observe an existing production chain adopt the new workflow, or obtain
+   separate permission for one guarded recovery if the chain is broken. That
+   initial recovery does not count as unattended acceptance.
+3. Observe at least one **subsequent scheduled due slot** with no manual dispatch,
+   rerun, cancellation, local timer intervention or forced publication. Record the
+   automatic clock and private publisher run IDs/attempts, event/actor, source
+   timestamps, logical New York slot, generation and publication timestamps.
+4. Independently fetch served `cloud-runtime.json`, `index.html`, and
+   `snapshot.json`; verify both SHA-256 entries, `publisher=github-actions`,
+   `kind=main`, masked snapshot, due slot and source freshness. Check retained
+   history against its pre-slot baseline and the expected slot append/update;
+   no unexplained rewrite or loss is acceptable.
+5. Confirm a successor waits through the existing timer, runs automatically and
+   creates the following successor. Reconcile all five active states and exact
+   attempt jobs for public clocks and private publishers: at most one executing
+   production writer, no competing chain, unchanged concurrency and protections.
+6. Keep the full evidence and label the outcome accurately: one unattended slot
+   demonstrates that slot, not long-term reliability. Outages, stale APIs and
+   invisible dispatches remain possible; verify later slots before claiming
+   sustained recovery. GitHub dispatch provides no atomic idempotency key and
+   client-side reads cannot eliminate a concurrent rerun/dispatch race.
+
+References: [attempt-specific job inventory](https://docs.github.com/en/rest/actions/workflow-jobs#list-jobs-for-a-workflow-run-attempt)
+and [completion events](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#workflow_run).

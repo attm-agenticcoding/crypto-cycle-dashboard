@@ -48,6 +48,7 @@ jobs:
         shell: python
         run: |
           # BEGIN CHECKOUT-INDEPENDENT SUCCESSOR
+          from datetime import datetime
           import json
           import os
           import time
@@ -58,6 +59,8 @@ jobs:
           WORKFLOW = 'dashboard-clock.yml'
           PREFIX = f'/repos/{REPOSITORY}/actions/workflows/{WORKFLOW}'
           ACTIVE = ('requested', 'pending', 'waiting', 'queued', 'in_progress')
+          RUNS = f'/repos/{REPOSITORY}/actions/runs'
+          PRODUCTION_NAME = 'Dashboard publication clock (production)'
           VERIFY_NAME = 'Dashboard publication clock (verify)'
 
           class NoRedirect(urllib.request.HTTPRedirectHandler):
@@ -69,6 +72,7 @@ jobs:
               req = urllib.request.Request('https://api.github.com' + path, data=payload, method=method,
                   headers={'Authorization': 'Bearer ' + token, 'Accept': 'application/vnd.github+json',
                            'Content-Type': 'application/json', 'X-GitHub-Api-Version': '2022-11-28',
+                           'Cache-Control': 'no-cache',
                            'User-Agent': 'dashboard-clock-successor'})
               # Read retries are bounded. Never retry an uncertain dispatch:
               # GitHub may have accepted it before the response was lost.
@@ -138,32 +142,166 @@ jobs:
                       raise ValueError('Run inventory exceeds page bound; refusing dispatch')
               return found
 
+          def run_identity(run):
+              """Strict identity for the narrow completed-predecessor exception."""
+              if (not isinstance(run, dict)
+                      or any(type(run.get(k)) is not int or run[k] < 1
+                             for k in ('id', 'run_attempt', 'workflow_id', 'run_number'))
+                      or run.get('path') != '.github/workflows/' + WORKFLOW
+                      or run.get('repository', {}).get('full_name') != REPOSITORY
+                      or run.get('head_branch') != 'main'
+                      or run.get('event') not in ('workflow_dispatch', 'schedule')
+                      or run.get('display_title') not in (PRODUCTION_NAME, VERIFY_NAME)
+                      or not isinstance(run.get('head_sha'), str)
+                      or len(run['head_sha']) != 40
+                      or any(c not in '0123456789abcdef' for c in run['head_sha'])):
+                  raise ValueError('Unproven clock run identity; refusing predecessor exemption')
+              stamp(run.get('created_at'))
+              return {k: run[k] for k in ('id', 'run_attempt', 'workflow_id', 'run_number',
+                      'path', 'head_branch', 'event', 'display_title', 'head_sha', 'created_at')}
+
+          def stamp(value):
+              if not isinstance(value, str):
+                  raise ValueError('Missing execution timestamp')
+              result = datetime.fromisoformat(value.replace('Z', '+00:00'))
+              if result.tzinfo is None:
+                  raise ValueError('Execution timestamp lacks timezone')
+              return result
+
+          def sole_tick(payload, identity):
+              # This workflow has exactly one job. Extra, missing or partial jobs cannot
+              # prove that all execution has ended. Pin the jobs endpoint to the attempt.
+              if (not isinstance(payload, dict) or type(payload.get('total_count')) is not int
+                      or payload['total_count'] != 1 or not isinstance(payload.get('jobs'), list)
+                      or len(payload['jobs']) != 1):
+                  raise ValueError('Incomplete clock jobs; refusing predecessor exemption')
+              job = payload['jobs'][0]
+              if (not isinstance(job, dict) or type(job.get('id')) is not int or job['id'] < 1
+                      or job.get('name') != 'tick' or job.get('run_id') != identity['id']
+                      or type(job.get('run_attempt')) is not int
+                      or job['run_attempt'] != identity['run_attempt']
+                      or job.get('head_sha') != identity['head_sha'] or job.get('head_branch') != 'main'
+                      or job.get('run_url') != 'https://api.github.com' + RUNS + '/' + str(identity['id'])):
+                  raise ValueError('Unproven clock job identity; refusing predecessor exemption')
+              stamp(job.get('started_at'))
+              return job
+
+          def execution(env, request, run_id, deadline):
+              path = RUNS + '/' + str(run_id)
+              check_budget(deadline)
+              first = request(path, env['GH_TOKEN'])
+              identity = run_identity(first)
+              if identity['id'] != run_id:
+                  raise ValueError('Run ID mismatch; refusing predecessor exemption')
+              check_budget(deadline)
+              jobs = request(path + f"/attempts/{identity['run_attempt']}/jobs?per_page=100&page=1", env['GH_TOKEN'])
+              job = sole_tick(jobs, identity)
+              check_budget(deadline)
+              last = request(path, env['GH_TOKEN'])
+              if run_identity(last) != identity:
+                  raise ValueError('Run attempt or identity changed; refusing predecessor exemption')
+              return identity, job, first, last
+
+          def current_execution(env, request, current, verify, deadline):
+              identity, job, first, last = execution(env, request, current, deadline)
+              if (identity['run_attempt'] != int(env.get('GITHUB_RUN_ATTEMPT', '0'))
+                      or identity['head_sha'] != env.get('GITHUB_SHA') or env.get('GITHUB_JOB') != 'tick'
+                      or identity['display_title'] != (VERIFY_NAME if verify else PRODUCTION_NAME)
+                      or any(r.get('status') != 'in_progress' or r.get('conclusion', 'missing') is not None
+                             for r in (first, last))
+                      or job.get('status') != 'in_progress' or job.get('conclusion', 'missing') is not None
+                      or job.get('completed_at', 'missing') is not None):
+                  raise ValueError('Current execution cannot be confirmed; refusing predecessor exemption')
+              return identity, job['id'], job['started_at']
+
+          def ended_predecessor(env, request, candidate, context, deadline):
+              old = run_identity(candidate)
+              current, _, started_at = context
+              if (old['workflow_id'] != current['workflow_id']
+                      or old['display_title'] != current['display_title']
+                      or old['run_number'] >= current['run_number']
+                      or stamp(old['created_at']) >= stamp(current['created_at'])):
+                  return None
+              identity, job, first, last = execution(env, request, old['id'], deadline)
+              if identity != old:
+                  raise ValueError('Inventory attempt or identity changed; refusing predecessor exemption')
+              # Only successful completion is exempted. Cancellation, denial, unknown
+              # conclusions, and genuinely active jobs remain blockers, regardless of age.
+              if (any(not (r.get('status') == 'in_progress' and r.get('conclusion', 'missing') is None
+                           or r.get('status') == 'completed' and r.get('conclusion') == 'success')
+                      for r in (first, last))
+                      or job.get('status') != 'completed' or job.get('conclusion') != 'success'):
+                  return None
+              if not (stamp(old['created_at']) <= stamp(job['started_at'])
+                      <= stamp(job.get('completed_at')) <= stamp(started_at)):
+                  return None
+              steps = job.get('steps')
+              required_steps = {'Set up job', 'Ensure one successor before checkout',
+                                'Check out only the public clock', 'Check publication after securing the successor',
+                                'Post Check out only the public clock', 'Complete job'}
+              if (not isinstance(steps, list) or not steps
+                      or any(not isinstance(step, dict) or step.get('status') != 'completed'
+                             or step.get('conclusion') not in ('success', 'skipped')
+                             or type(step.get('number')) is not int or step['number'] < 1 for step in steps)
+                      or len({step['number'] for step in steps}) != len(steps)
+                      or not required_steps.issubset({step.get('name') for step in steps})
+                      or not any(step.get('name') == 'Complete job' and step.get('conclusion') == 'success'
+                                 and stamp(step.get('completed_at')) <= stamp(job['completed_at']) for step in steps)):
+                  return None
+              for step in steps:
+                  if step['conclusion'] != 'skipped' and not (
+                          stamp(job['started_at']) <= stamp(step.get('started_at'))
+                          <= stamp(step.get('completed_at')) <= stamp(job['completed_at'])):
+                      return None
+              return identity, job
+
           def reconcile(env, request, current, verify, deadline):
-              # Retry the entire read-only scan, never the dispatch. Counts and
-              # rows can disagree while GitHub updates its run-state indexes.
-              for attempt in range(1, 4):
+              # Use the whole bounded read budget for transient index inconsistency.
+              # Never turn a timeout, denied read, or malformed identity into permission.
+              attempt = 0
+              while True:
+                  attempt += 1
                   try:
-                      blockers = set()
-                      # Two complete scans reduce the window for state transitions
-                      # between filters. They are not an atomic GitHub snapshot.
+                      blockers, retired, context = set(), {}, None
                       for _ in range(2):
                           for run in inventory(env, request, deadline):
-                              if (run['id'] != current and run['head_branch'] == 'main'
-                                      and run['status'] in ACTIVE
-                                      and (run['display_title'] == VERIFY_NAME) == verify):
+                              if (run['id'] == current or run['head_branch'] != 'main'
+                                      or run['status'] not in ACTIVE
+                                      or (run['display_title'] == VERIFY_NAME) != verify):
+                                  continue
+                              # ID order only selects candidates for evidence collection;
+                              # it never grants an exemption from the single-writer guard.
+                              evidence = None
+                              if run['id'] < current:
+                                  if context is None:
+                                      context = current_execution(env, request, current, verify, deadline)
+                                  evidence = ended_predecessor(env, request, run, context, deadline)
+                              if evidence is None:
                                   blockers.add(run['id'])
+                              else:
+                                  if run['id'] in retired and retired[run['id']][1] != evidence:
+                                      raise ValueError('Predecessor evidence changed; refusing dispatch')
+                                  retired[run['id']] = (run, evidence)
                           if blockers:
                               return blockers
+                      # Recheck every exempted run even if it vanished from later indexes.
+                      # A rerun/new attempt or changed jobs invalidates earlier evidence.
+                      for candidate, evidence in retired.values():
+                          if ended_predecessor(env, request, candidate, context, deadline) != evidence:
+                              raise ValueError('Predecessor evidence changed; refusing dispatch')
+                      if context is not None and current_execution(env, request, current, verify, deadline) != context:
+                          raise ValueError('Current execution changed; refusing dispatch')
                       check_budget(deadline)
+                      if retired:
+                          print(json.dumps({'event': 'successor-completed-predecessors',
+                                            'run_ids': sorted(retired)}, sort_keys=True))
                       return blockers
                   except InventoryChanged as exc:
                       print(json.dumps({'event': 'successor-inventory-retry', 'attempt': attempt,
                                         'reason': str(exc)}, sort_keys=True))
-                      if attempt == 3:
-                          raise ValueError(f'Run inventory inconsistent after {attempt} scans; refusing dispatch: {exc}') from None
                       check_budget(deadline)
-                      time.sleep(attempt)
-              raise AssertionError('Unreachable inventory retry state')
+                      time.sleep(min(attempt, 5, max(0, deadline - time.monotonic())))
+                      check_budget(deadline)
 
           def enqueue(env, request=github_api):
               if (env.get('GITHUB_REPOSITORY') != REPOSITORY or env.get('GITHUB_REF') != 'refs/heads/main'
@@ -185,8 +323,17 @@ jobs:
               if blockers:
                   return {'status': 'successor-already-active', 'run_ids': sorted(blockers)}
               check_budget(deadline)
-              request(PREFIX + '/dispatches', env['GH_TOKEN'], 'POST',
-                      {'ref': 'main', 'inputs': {'verify_only': str(verify).lower(), 'remaining': '0'}})
+              try:
+                  request(PREFIX + '/dispatches', env['GH_TOKEN'], 'POST',
+                          {'ref': 'main', 'inputs': {'verify_only': str(verify).lower(), 'remaining': '0'}})
+              except (RuntimeError, OSError, ValueError):
+                  # The POST may have succeeded. Reconcile read-only, never
+                  # resend, even if no run is visible or the read is denied.
+                  try:
+                      observed = reconcile(env, read, current, verify, deadline)
+                  except (RuntimeError, OSError, ValueError):
+                      raise RuntimeError('Successor dispatch uncertain; read-back unavailable; no retry') from None
+                  raise RuntimeError(f'Successor dispatch uncertain; active run IDs={sorted(observed)}; no retry') from None
               return {'status': 'successor-enqueued'}
 
           def main():

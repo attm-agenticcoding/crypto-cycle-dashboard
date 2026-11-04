@@ -59,8 +59,11 @@ def api(path, token, method='GET', body=None):
     request = urllib.request.Request('https://api.github.com' + path, data=data, method=method,
         headers={'Authorization': 'Bearer ' + token, 'Accept': 'application/vnd.github+json',
                  'Content-Type': 'application/json', 'User-Agent': 'dashboard-publication-clock',
+                 'Cache-Control': 'no-cache',
                  'X-GitHub-Api-Version': '2022-11-28'})
-    for attempt in range(3):
+    # A lost mutation response does not prove GitHub rejected the request.
+    attempts = 3 if method == 'GET' else 1
+    for attempt in range(attempts):
         try:
             with urllib.request.build_opener(NoRedirect).open(request, timeout=20) as response:
                 payload = response.read()
@@ -68,10 +71,11 @@ def api(path, token, method='GET', body=None):
         except urllib.error.HTTPError as exc:
             retry = exc.code >= 500 or exc.code == 429
             message = f'GitHub API returned HTTP {exc.code}'
+            exc.close()
         except (urllib.error.URLError, TimeoutError):
             retry = True
             message = 'GitHub API connection failed'
-        if not retry or attempt == 2:
+        if not retry or attempt == attempts - 1:
             raise RuntimeError(message) from None
         time.sleep(attempt + 1)
 
@@ -114,12 +118,31 @@ def refresh_private(env, request=api):
             or repositories[0].get('private') is not True):
             raise RuntimeError('Refusing unexpected installation scope')
         workflow = f'/repos/{repository}/actions/workflows/dashboard-cloud.yml'
-        for status in ('in_progress', 'queued'):
-            runs = request(workflow + f'/runs?status={status}&per_page=1', token)
-            if runs.get('total_count', 0):
-                return 'refresh-already-running'
-        request(workflow + '/dispatches', token, 'POST',
-                {'ref': 'main', 'inputs': {'mode': 'auto', 'force': 'false', 'publish': 'true'}})
+        def active_refresh():
+            for status in ('requested', 'pending', 'waiting', 'queued', 'in_progress'):
+                runs = request(workflow + f'/runs?status={status}&per_page=1', token)
+                count = runs.get('total_count') if isinstance(runs, dict) else None
+                rows = runs.get('workflow_runs') if isinstance(runs, dict) else None
+                if (type(count) is not int or count < 0 or not isinstance(rows, list)
+                        or len(rows) != min(count, 1)):
+                    raise ValueError('Incomplete private run inventory; refusing dispatch')
+                if count:
+                    return True
+            return False
+        if active_refresh():
+            return 'refresh-already-running'
+        try:
+            request(workflow + '/dispatches', token, 'POST',
+                    {'ref': 'main', 'inputs': {'mode': 'auto', 'force': 'false', 'publish': 'true'}})
+        except (RuntimeError, OSError, ValueError):
+            # Read back before any later attempt; visibility is not a dispatch
+            # receipt and an empty index does not prove non-acceptance. Never
+            # retry this POST, even if the read fails or remains empty.
+            try:
+                observed = active_refresh()
+            except (RuntimeError, OSError, ValueError):
+                raise RuntimeError('Private dispatch uncertain; read-back unavailable; no retry') from None
+            raise RuntimeError(f'Private dispatch uncertain; active run observed={observed}; no retry') from None
         return 'refresh-requested'
     finally:
         request('/installation/token', token, 'DELETE')

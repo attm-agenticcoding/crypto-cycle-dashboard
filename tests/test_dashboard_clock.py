@@ -134,7 +134,7 @@ class ClockTests(unittest.TestCase):
                 return {'token': 'test-installation-token', 'permissions': {'actions': 'write', 'metadata': 'read',
                         **({'contents': 'write'} if extra_permission else {})}, 'repositories': [
                         {'full_name': 'attm-agenticcoding/test-private-source', 'private': True}]}
-            if '/runs?' in path: return {'total_count': 1 if running else 0}
+            if '/runs?' in path: return {'total_count': 1 if running else 0, 'workflow_runs': [{'id': 999}] if running else []}
             if path.endswith('/dispatches'):
                 self.assertEqual(body, {'ref': 'main', 'inputs': {'mode': 'auto', 'force': 'false', 'publish': 'true'}})
                 if fail_dispatch: raise RuntimeError('dispatch failed')
@@ -164,7 +164,7 @@ class ClockTests(unittest.TestCase):
 
     def test_failed_private_dispatch_also_revokes_the_token(self):
         calls, request = self.mock_private(fail_dispatch=True)
-        with patch.object(clock, 'app_jwt', return_value='test-jwt'), self.assertRaisesRegex(RuntimeError, 'dispatch failed'):
+        with patch.object(clock, 'app_jwt', return_value='test-jwt'), self.assertRaisesRegex(RuntimeError, 'dispatch uncertain'):
             clock.refresh_private(self.env(), request)
         self.assertEqual(calls[-1][:2], ('/installation/token', 'DELETE'))
 
@@ -181,6 +181,89 @@ class ClockTests(unittest.TestCase):
             verified = subprocess.run(['openssl', 'dgst', '-sha256', '-verify', str(public), '-signature', str(sig)],
                                       input=f'{header}.{payload}'.encode(), capture_output=True)
             self.assertEqual(verified.returncode, 0)
+
+
+    def test_all_mutations_attempt_once_but_transient_gets_retry(self):
+        import urllib.error
+        for method, expected in [('POST', 1), ('DELETE', 1), ('GET', 3)]:
+            for failure in (TimeoutError(), urllib.error.URLError('offline'),
+                            urllib.error.HTTPError('https://api.github.com', 503, 'busy', {}, None),
+                            urllib.error.HTTPError('https://api.github.com', 429, 'limited', {}, None)):
+                with self.subTest(method=method, failure=type(failure).__name__), \
+                        patch.object(clock.urllib.request, 'build_opener') as opener, \
+                        patch.object(clock.time, 'sleep') as sleep:
+                    opener.return_value.open.side_effect = failure
+                    with self.assertRaises(RuntimeError):
+                        clock.api('/test-only', 'fake-token', method)
+                    self.assertEqual(opener.return_value.open.call_count, expected)
+                    self.assertEqual(sleep.call_count, expected - 1)
+        for code in (302, 401, 403, 404):
+            with patch.object(clock.urllib.request, 'build_opener') as opener, patch.object(clock.time, 'sleep') as sleep:
+                opener.return_value.open.side_effect = urllib.error.HTTPError('https://api.github.com', code, 'denied', {}, None)
+                with self.assertRaises(RuntimeError):
+                    clock.api('/test-only', 'fake-token')
+                self.assertEqual(opener.return_value.open.call_count, 1)
+                sleep.assert_not_called()
+
+    def test_private_dispatch_lost_response_reconciles_and_revokes_without_retry(self):
+        for accepted, read_denied in ((True, False), (False, False), (True, True)):
+            calls, base = self.mock_private()
+            dispatched = [False]
+            def request(path, token, method='GET', body=None):
+                if dispatched[0] and '/runs?' in path:
+                    calls.append((path, method, body))
+                    if read_denied:
+                        raise RuntimeError('read denied')
+                    return {'total_count': int(accepted), 'workflow_runs': [{'id': 999}] if accepted else []}
+                result = base(path, token, method, body)
+                if path.endswith('/dispatches'):
+                    dispatched[0] = True
+                    raise TimeoutError('response lost after possible acceptance')
+                return result
+            with patch.object(clock, 'app_jwt', return_value='test-jwt'), \
+                    self.assertRaisesRegex(RuntimeError, 'dispatch uncertain.*no retry'):
+                clock.refresh_private(self.env(), request)
+            self.assertEqual(sum(p.endswith('/dispatches') for p, _, _ in calls), 1)
+            post_index = next(i for i, (p, _, _) in enumerate(calls) if p.endswith('/dispatches'))
+            self.assertIn('/runs?', calls[post_index + 1][0])
+            self.assertEqual(calls[-1][:2], ('/installation/token', 'DELETE'))
+
+    def test_every_private_active_state_blocks_and_missing_inventory_fails_closed(self):
+        states = ('requested', 'pending', 'waiting', 'queued', 'in_progress')
+        for state in states:
+            calls, base = self.mock_private()
+            def request(path, token, method='GET', body=None):
+                if '/runs?' in path:
+                    calls.append((path, method, body))
+                    active = f'status={state}&' in path
+                    return {'total_count': int(active), 'workflow_runs': [{'id': 999}] if active else []}
+                return base(path, token, method, body)
+            with patch.object(clock, 'app_jwt', return_value='test-jwt'):
+                self.assertEqual(clock.refresh_private(self.env(), request), 'refresh-already-running')
+            self.assertFalse(any(p.endswith('/dispatches') for p, _, _ in calls))
+        for payload in ({}, [], {'total_count': 0}, {'total_count': 1, 'workflow_runs': []},
+                        {'total_count': -1, 'workflow_runs': []}, {'total_count': False, 'workflow_runs': []}):
+            calls, base = self.mock_private()
+            def request(path, token, method='GET', body=None):
+                if '/runs?' in path:
+                    return payload
+                return base(path, token, method, body)
+            with patch.object(clock, 'app_jwt', return_value='test-jwt'), self.assertRaises(ValueError):
+                clock.refresh_private(self.env(), request)
+            self.assertFalse(any(p.endswith('/dispatches') for p, _, _ in calls))
+            self.assertEqual(calls[-1][:2], ('/installation/token', 'DELETE'))
+
+    def test_accepted_transport_post_is_not_repeated_even_when_reading_response_fails(self):
+        class LostResponse:
+            def __enter__(self): return self
+            def __exit__(self, *args): pass
+            def read(self): raise TimeoutError('accepted, response lost')
+        with patch.object(clock.urllib.request, 'build_opener') as opener, patch.object(clock.time, 'sleep') as sleep:
+            opener.return_value.open.return_value = LostResponse()
+            with self.assertRaises(RuntimeError):
+                clock.api('/test-only/dispatches', 'fake-token', 'POST', {})
+            self.assertEqual(opener.return_value.open.call_count, 1)
+            sleep.assert_not_called()
 
 
 if __name__ == '__main__': unittest.main()
