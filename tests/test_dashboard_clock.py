@@ -228,6 +228,41 @@ class ClockTests(unittest.TestCase):
             self.assertIn('/runs?', calls[post_index + 1][0])
             self.assertEqual(calls[-1][:2], ('/installation/token', 'DELETE'))
 
+    def test_private_accepted_dispatch_hidden_from_index_is_not_repeated(self):
+        calls, base = self.mock_private()
+        # Server acceptance and index visibility deliberately have separate
+        # storage: acceptance must not make a run visible to the client's GETs.
+        remote = {'accepted_runs': [], 'visible_runs': [], 'token_revoked': False}
+        readbacks = []
+
+        def request(path, token, method='GET', body=None):
+            if '/runs?' in path:
+                calls.append((path, method, body))
+                if remote['accepted_runs']:
+                    readbacks.append((path, method, list(remote['visible_runs'])))
+                return {'total_count': len(remote['visible_runs']),
+                        'workflow_runs': list(remote['visible_runs'])}
+            result = base(path, token, method, body)
+            if path.endswith('/dispatches'):
+                remote['accepted_runs'].append({'id': 999, 'status': 'queued'})
+                raise TimeoutError('Server accepted dispatch; response lost before index update')
+            if path == '/installation/token' and method == 'DELETE':
+                remote['token_revoked'] = True
+            return result
+
+        with patch.object(clock, 'app_jwt', return_value='test-jwt'), \
+                self.assertRaisesRegex(RuntimeError, 'dispatch uncertain; active run observed=False; no retry'):
+            clock.refresh_private(self.env(), request)
+        self.assertEqual(remote['accepted_runs'], [{'id': 999, 'status': 'queued'}])
+        self.assertEqual(remote['visible_runs'], [])
+        self.assertTrue(remote['token_revoked'])
+        self.assertEqual(sum(p.endswith('/dispatches') for p, _, _ in calls), 1)
+        self.assertEqual(len(readbacks), 5)
+        self.assertTrue(all(method == 'GET' and rows == [] for _, method, rows in readbacks))
+        post_index = next(i for i, (p, _, _) in enumerate(calls) if p.endswith('/dispatches'))
+        self.assertEqual(calls[post_index + 1:-1], [(path, 'GET', None) for path, _, _ in readbacks])
+        self.assertEqual(calls[-1][:2], ('/installation/token', 'DELETE'))
+
     def test_every_private_active_state_blocks_and_missing_inventory_fails_closed(self):
         states = ('requested', 'pending', 'waiting', 'queued', 'in_progress')
         for state in states:

@@ -530,6 +530,38 @@ class IncidentRegressionTests(unittest.TestCase):
             return result
         self.assert_closed(api, request)
 
+    def test_active_second_attempt_cannot_reuse_successful_first_attempt(self):
+        api = IncidentAPI()
+        old_id = api.old['id']
+        successful_first = deepcopy(api.jobs[old_id])
+        active_second = deepcopy(successful_first)
+        job = active_second['jobs'][0]
+        job.update(id=job['id'] + 1, run_attempt=2, status='in_progress',
+                   conclusion=None, started_at='2026-11-04T16:31:00Z', completed_at=None)
+        job['steps'] = [{'name': 'Set up job', 'number': 1, 'status': 'in_progress',
+                         'conclusion': None, 'started_at': job['started_at'], 'completed_at': None}]
+        # Both attempts remain retrievable. The run and active inventory point
+        # to attempt 2; requesting attempt 1 would return a real success fixture.
+        attempt_jobs = {1: successful_first, 2: active_second}
+        api.old.update(run_attempt=2, status='in_progress', conclusion=None)
+        prefix = successor.RUNS + f'/{old_id}/attempts/'
+
+        def request(path, token, method='GET', body=None):
+            if path.startswith(prefix):
+                api.calls.append((path, token, method, body))
+                attempt = int(path.removeprefix(prefix).split('/')[0])
+                return deepcopy(attempt_jobs[attempt])
+            return api(path, token, method, body)
+
+        self.assertEqual(successor.enqueue(api.env(), request),
+                         {'status': 'successor-already-active', 'run_ids': [old_id]})
+        queried = [path for path, _, _, _ in api.calls if path.startswith(prefix)]
+        self.assertEqual(queried, [prefix + '2/jobs?per_page=100&page=1'])
+        self.assertEqual(attempt_jobs[1]['jobs'][0]['conclusion'], 'success')
+        self.assertEqual(attempt_jobs[2]['jobs'][0]['status'], 'in_progress')
+        self.assertTrue(all(method == 'GET' for _, _, method, _ in api.calls))
+        self.assertEqual(api.posts, [])
+
     def test_final_recheck_catches_new_attempt_even_after_index_drops_old_run(self):
         api, scans = IncidentAPI(), [0]
         def request(*args):
