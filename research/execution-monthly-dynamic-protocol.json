@@ -1,0 +1,42 @@
+{
+  "version": "monthly-dynamic-v1",
+  "locked_on": "2026-10-29",
+  "start": "2025-01-01",
+  "as_of": "2026-10-27",
+  "training_months": 6,
+  "minimum_oos_months": 8,
+  "max_lookback": 60,
+  "monthly_limits": [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31],
+  "task_notional": 10000,
+  "lookbacks": [10,20,40,60],
+  "fill_intensities": [0.5,1,2],
+  "allocation_scales": [0.5,1,1.5],
+  "quantile_bounds": [0.25,0.9],
+  "offset_bounds_bps": [5,500],
+  "minimum_fraction": 0.05,
+  "multiple_opportunity_maximum_fraction": 0.75,
+  "capital_arrivals": ["month_start", "five_installments"],
+  "scenarios": [
+    {"name":"nominal", "fee_bps":1, "penetration_bps":0, "fill_fraction":1, "immediate_slippage_bps":0},
+    {"name":"adverse", "fee_bps":10, "penetration_bps":5, "fill_fraction":0.5, "immediate_slippage_bps":5}
+  ],
+  "maximum_completion_deterioration": 0.05,
+  "materiality_bps": 5,
+  "bootstrap_replicates": 1024,
+  "bootstrap_block_months": 3,
+  "seed": 29102026,
+  "notes": [
+    "User objective: price priority, allow unspent capital to carry to later months, and choose each order's amount while preserving later opportunities. There is no forced month-end purchase.",
+    "At each daily review, use strictly prior completed session drawdowns, remaining eligible sessions this New York month, remaining trade slots, current reference price and remaining cash. At most one new order per review.",
+    "Quantile = clip(1 - fill_intensity * min(slots, days) / days, .25, .90). Offset is that historical drawdown quantile, clipped to 5-500 bp. This is a model family, not a claimed optimal law.",
+    "Fraction = clip(allocation_scale / min(slots,days) * clip(sqrt(offset / median_drawdown), .5, 2), .05, .75 if more than one opportunity remains else 1). With no slot or no day, do not create an order. No weekly or divide-by-three rule applies.",
+    "Each month contributes 10000 in one arrival or five fixed installments. These are exogenous sensitivity scenarios, not inferred user capital or a calculator allocation rule. Unspent cash AND acquired units carry between months; only the monthly trade count resets.",
+    "Each candidate is replayed causally over the same complete-month history with cash and units carried continuously. Selection scores only the last six complete months' changes in wealth shortfall and deployed cash; those counterfactual paths retain their earlier holdings. Minimize mean wealth-shortfall increment versus same-cap immediate execution, subject to deployment no more than five percentage points below fixed-25-split in every fill scenario. If none qualify, publish the best-completing dynamic candidate with an explicit failed completion constraint, never fabricate eligibility.",
+    "Each test month uses a candidate chosen exclusively from the previous six months. The out-of-sample path carries the selected policy's cash and units across parameter changes. Baselines are immediate, fixed-25-full, and fixed-25-split. All receive identical cash arrivals, limits, fees and order filters.",
+    "Reported total cost is terminal wealth difference divided by total contributed cash. Monthly paired observations are changes in that wealth difference divided by that month's contributions; they include marked-to-market exposure from earlier fills. Report completion, unspent cash and trade counts separately.",
+    "Validation is retrospective and exploratory, with paired 3-month blocks and no multiple-search correction. A failed advantage check is displayed. Applying a fitted candidate in this user-requested calculator is not a claim of validated superiority or an automatic order submission.",
+    "Replay assumes confirmed cancellation of prior unfilled orders before each daily replacement and before New York month rollover. New orders with partial fills consume one slot; cash spent includes fees. No hypothetical closing fill is inserted.",
+    "Listed sessions use 09:35 ET references and actual exchange holidays/half-days; ETF prices are explicitly indexed spot proxies. Crypto reviews use 00:00 UTC with the final monthly window truncated at New York midnight. Live arithmetic can use an entered current quote; arbitrary intraday review times and fills are not validated by this daily replay.",
+    "Current instrument filters are held constant. Other instruments/accounts/sells and carried working orders require user-supplied shared reservations. This snapshot does not create or change any production schedule. Daily inputs use the existing completed-session data feed."
+  ]
+}

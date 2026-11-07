@@ -1,10 +1,11 @@
 /* Shared, dependency-free execution math. Used by the page and Node tests. */
 (function (root, factory) {
   const calendar = typeof module === "object" && module.exports ? require("./market-calendar.js") : root.ExecutionCalendar;
-  const api = factory(calendar);
+  const monthlyPolicy = typeof module === "object" && module.exports ? require("./monthly-policy.js") : root.ExecutionMonthlyPolicy;
+  const api = factory(calendar, monthlyPolicy);
   if (typeof module === "object" && module.exports) module.exports = api;
   else root.ExecutionCore = api;
-})(typeof globalThis !== "undefined" ? globalThis : this, function (calendar) {
+})(typeof globalThis !== "undefined" ? globalThis : this, function (calendar, monthlyPolicy) {
   "use strict";
 
   function parametersReady(item) {
@@ -108,7 +109,7 @@
     return {...counts, limit, remaining, available};
   }
 
-  function accumulationBuyPlan({deployment, capital = null, reference, horizon = null, params, accumulation}) {
+  function accumulationBuyPlan({deployment, capital = null, reference, horizon = null, params, accumulation, monthly = null}) {
     if (!parametersReady(params) || params.trade_side !== "buy") throw new Error("Independent buy scaling is not ready.");
     const allowance = monthlyTradeBudget(accumulation);
     const entered = nonnegative(deployment, "Remaining capital to deploy");
@@ -116,9 +117,12 @@
     const availableCapital = hasTotal ? nonnegative(capital, "Total remaining capital") : null;
     const hasDeadline = horizon !== null && horizon !== undefined && horizon !== "";
     if (hasDeadline && !(Number.isFinite(horizon) && horizon > 0)) throw new Error("No eligible trading sessions remain for this deadline.");
-    // This is an already-decided deployment amount, not a weekly pace.
-    // Cash is only a cap; neither the deadline nor unused slots resizes it.
+    // The entered goal is not a weekly pace. Monthly policy allocates a
+    // modeled fraction; the explicitly selected legacy path uses the full cap.
     const budget = Math.min(entered, hasTotal ? availableCapital : entered);
+    const selection = monthly && allowance.available > 0 ? monthlyPolicy.decision({samples: params.session_samples,
+      candidate: monthly.candidate, remainingDays: monthly.remainingDays, sessionDate: monthly.sessionDate, slots: allowance.available}) : null;
+    const orderBudget = budget * (monthly ? selection?.fraction || 0 : 1);
     // weekly remains an internal compatibility alias for optional legacy records.
     const controller = {budget, weekly: budget, entered, availableCapital, hasTotal,
       hasDeadline, enabled: false, scheduleFloor: 0, factor: 1, lift: 1,
@@ -131,31 +135,34 @@
       throw new Error("A positive reference price and verified order increments are required.");
     if (crypto && ![params.min_quantity, params.min_notional].every(x => Number.isFinite(x) && x >= 0))
       throw new Error("Verified exchange minimum order sizes are missing.");
-    const first = params.first_offset_pct / 100, spacing = 0;
+    const first = selection ? selection.offset : params.first_offset_pct / 100, spacing = 0;
     const price = quantize(ref * (1 - first), tick);
     if (!(price > 0) || price < (params.min_price || tick) || (params.max_price > 0 && price > params.max_price))
       throw new Error("The single buy limit is outside the instrument's price bounds.");
     // Retain reference-based exposure sizing; the discount is not used to
     // increase the desired position. Never split a size-limit remainder.
-    const targetShares = quantize(budget / ref, step);
+    const targetShares = quantize(orderBudget / ref, step);
     let shares = quantize(Math.min(targetShares, params.max_quantity || Infinity,
       params.max_notional > 0 ? params.max_notional / price : Infinity), step);
-    while (shares > 0 && shares * price > budget) shares = quantize(Math.max(0, shares - step), step);
+    while (shares > 0 && shares * price > orderBudget) shares = quantize(Math.max(0, shares - step), step);
     const minimum = Math.max(step, params.min_quantity || 0);
     const orders = [];
     let reason = "One limit order for the remaining capital to deploy. The amount is not divided by weeks or unused trade slots. An unfilled order is not an instruction to submit another.";
+    if (selection) reason = `Monthly price-priority model: ${(selection.fraction * 100).toFixed(1)}% of the remaining budget is allocated to this order. Unspent funds may carry into next month; no month-end purchase is forced.`;
     if (allowance.available < 1) reason = "HOLD: no monthly trade slot is available after actual trades, working-order reservations and optional reserves.";
-    else if (!(budget > 0)) reason = "HOLD: the remaining capital to deploy or total remaining capital is zero.";
+    else if (!(orderBudget > 0)) reason = monthly ? "HOLD: the remaining capital, modeled allocation or remaining trading days are zero." : "HOLD: the remaining capital to deploy or total remaining capital is zero.";
     else if (shares < minimum || shares * price < (params.min_notional || 0)) reason = "HOLD: the budget is below the minimum order size. Accumulate cash before the next review.";
     else orders.push({rung: 1, price, shares, notional: shares * price});
     const orderQuantity = orders.length ? shares : 0;
     return {controller, first, spacing, targetShares, perRung: orderQuantity, orders, orderQuantity,
       unallocated: Math.max(0, quantize(targetShares - orderQuantity, step)), fractionalRemainder: 0,
-      allowance, accumulation: true, reason};
+      allowance, accumulation: true, reason,
+      ...(monthly ? {monthly: {...selection, candidateId: monthly.candidate?.id, remainingDays: monthly.remainingDays,
+        sessionDate: monthly.sessionDate, orderBudget, retainedCapital: Math.max(0, budget - orderBudget)}} : {})};
   }
 
-  function buyPlan({weekly, total = null, deployment = weekly, capital = total, reference, weekSessions, horizon = null, params, accumulation = null}) {
-    if (accumulation) return accumulationBuyPlan({deployment, capital, reference, horizon, params, accumulation});
+  function buyPlan({weekly, total = null, deployment = weekly, capital = total, reference, weekSessions, horizon = null, params, accumulation = null, monthly = null}) {
+    if (accumulation) return accumulationBuyPlan({deployment, capital, reference, horizon, params, accumulation, monthly});
     if (params.market_calendar === "24X7") return cryptoPlan({weekly, total, reference, weekSessions, horizon, params});
     if (!parametersReady(params) || params.trade_side !== "buy") throw new Error("Independent buy scaling is not ready.");
     const controller = sellPace(weekly, total, weekSessions, horizon);
