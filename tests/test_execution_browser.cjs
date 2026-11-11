@@ -94,6 +94,7 @@ if (process.env.RUN_EXECUTION_BROWSER_TESTS !== "1") {
         "/execution/market-calendar.js": "execution/market-calendar.js",
         "/execution/market-quotes.js": "execution/market-quotes.js",
         "/execution/monthly-scaling.js": "execution/monthly-scaling.js",
+        "/execution/monthly-policy.js": "execution/monthly-policy.js",
         "/execution/task-ledger.js": "execution/task-ledger.js",
         "/execution/task-ledger-ui.js": "execution/task-ledger-ui.js"
       };
@@ -111,7 +112,7 @@ if (process.env.RUN_EXECUTION_BROWSER_TESTS !== "1") {
     if (server) await new Promise(resolve => server.close(resolve));
   });
 
-  async function open(t, { time = "2026-10-05T14:00:00Z", data = fixture(), viewport = { width: 1440, height: 1000 }, mobile = false, keepDefaultDeadline = false } = {}) {
+  async function open(t, { time = "2026-10-05T14:00:00Z", data = fixture(), viewport = { width: 1440, height: 1000 }, mobile = false, keepDefaultDeadline = false, monthly = false } = {}) {
     const context = await browser.newContext({ viewport, locale: "en-US", timezoneId: "UTC",
       ...(mobile ? { isMobile: true, hasTouch: true, deviceScaleFactor: 1 } : {}) });
     t.after(() => context.close());
@@ -129,6 +130,7 @@ if (process.env.RUN_EXECUTION_BROWSER_TESTS !== "1") {
       }
       if (url.origin !== origin) return route.abort();
       if (url.pathname === "/data/execution_params.json") return route.fulfill({ json: data });
+      if (url.pathname === "/data/execution_monthly_dynamic_params.json") return route.fulfill({json:{schema_version:1,policy_version:'monthly-dynamic-v1',status:'fitted_candidate_unproven',instruments:Object.fromEntries(Object.keys(data.instruments).map(id=>[id,{instrument_id:id,data_as_of:'2026-10-02',price_source:'direct_spot',profiles:Object.fromEntries(Array.from({length:31},(_,i)=>[String(i+1),{monthly_limit:i+1,candidate:{id:'monthly-10-1-1',lookback:10,fill_intensity:1,allocation_scale:1},oos_months:['2026-08','2026-09'],latest_training_months:['2026-09'],advantage_check_passed:false,training_constraint_passed:true}]))}]))}});
       if (url.pathname === "/data/execution_instruments.json") return route.fulfill({ json: {
         schema_version: 1, default_instrument_id: data.default_instrument_id,
         instruments: Object.values(data.instruments).map(item => ({ instrument_id: item.instrument_id, enabled: true }))
@@ -166,6 +168,7 @@ if (process.env.RUN_EXECUTION_BROWSER_TESTS !== "1") {
     }
     await page.goto(`${origin}/execution/`);
     await page.waitForFunction(() => !document.getElementById("instrument-select").disabled);
+    if (!monthly) await page.locator('#buy-policy').selectOption('legacy');
     // Existing parity cases explicitly exercise no-deadline weekly pacing.
     if (!keepDefaultDeadline) await page.locator("#deadline").fill("");
     await page.locator("#weekly-one").fill("10000");
@@ -679,9 +682,14 @@ if (process.env.RUN_EXECUTION_BROWSER_TESTS !== "1") {
     assert.equal(await page.locator("#reference-price").inputValue(), "36");
     await page.locator("#side-sell").click();
     await submit(page);
+    await page.route(url => url.origin === 'https://execution-market-quotes.attmgromov.chatgpt.site' && url.searchParams.get('instrument') === 'ARCX:ETH', async route => {
+      await new Promise(resolve => setTimeout(resolve, 150));
+      await route.fallback();
+    });
     await page.locator("#instrument-select").selectOption("ARCX:ETH");
     if (await page.locator("#side-buy").getAttribute("aria-pressed") === "true") await page.locator("#weekly-one").fill("10000");
     await cleared(page);
+    await page.waitForFunction(() => document.getElementById('reference-price').value === '23.32');
     assert.equal(await page.locator("#reference-price").inputValue(), "23.32");
     for (const suffix of ["one", "two"]) for (const field of ["weekly", "held", "reserved", "total"])
       assert.equal(await page.locator(`#sell-${field}-${suffix}`).inputValue(), ["total", "held"].includes(field) ? "" : "0");
@@ -838,6 +846,8 @@ if (process.env.RUN_EXECUTION_BROWSER_TESTS !== "1") {
     await page.route('**/data/execution_monthly_params.json', route=>route.fulfill({json:{schema_version:1,policy_version:'monthly-single-order-v1',status:'research_only',instruments:{'ARCX:BTC':{instrument_id:'ARCX:BTC',data_as_of:'2026-10-02',price_source:'indexed_spot_proxy_NOT_ETF_quotes',profiles:{'4':p(4),'5':p(5)}}}}}));
     await page.reload();
     await page.waitForFunction(()=>document.getElementById('monthly-scaling-status').textContent.includes('fixture-5'));
+    await page.locator('#buy-policy').selectOption('legacy');
+    await page.locator('#selection-heading').click();
     const original = await page.locator('#base-first').innerText();
     assert.match(await page.locator('#monthly-scaling-status').innerText(),/Validation threshold not passed/);
     await page.locator('#monthly-limit').fill('4');
@@ -847,6 +857,77 @@ if (process.env.RUN_EXECUTION_BROWSER_TESTS !== "1") {
     assert.match(await page.locator('#monthly-scaling-status').innerText(),/fixture-5/);
     await page.locator('#monthly-limit').fill('32');
     assert.match(await page.locator('#monthly-scaling-status').innerText(),/No monthly research profile/);
+  });
+
+  test("monthly price-priority model changes daily price and allocation while retaining later capital", async t => {
+    const page=await open(t,{monthly:true});
+    await page.waitForFunction(()=>document.getElementById('monthly-policy-state').textContent.includes('free slots'));
+    assert.equal(await page.locator('#buy-policy').inputValue(),'monthly');
+    assert.match(await page.locator('#monthly-policy-evidence').innerText(),/not a validated optimum/);
+    await setFields(page,{'reference-price':100,'weekly-one':10000});
+    await submit(page);
+    const call=()=>page.evaluate(()=>window.__executionCalls.filter(x=>x.method==='buyPlan').at(-1));
+    const early=(await call()).output;
+    assert.equal(early.monthly.remainingDays,20);
+    assert.ok(early.monthly.orderBudget<10000&&early.orderQuantity>0);
+    assert.equal(early.orders.length,1);
+    assert.match(await page.locator('#result-stack').innerText(),/Capital kept for later/);
+    await page.locator('#reference-price').fill('120'); await submit(page);
+    const repriced=(await call()).output;
+    assert.ok(repriced.orders[0].price>early.orders[0].price);
+    assert.equal(repriced.first,early.first);
+    await moveClock(page,'2026-10-29T14:00:00Z');
+    await page.locator('#reference-price').fill('100'); await submit(page);
+    const late=(await call()).output;
+    assert.equal(late.monthly.remainingDays,2);
+    assert.ok(late.first<early.first);
+    assert.notEqual(late.monthly.orderBudget,early.monthly.orderBudget);
+    await page.locator('#monthly-used').fill('5');await submit(page);
+    assert.equal((await call()).output.orders.length,0);
+    await page.locator('#monthly-limit').fill('32');
+    await page.locator('#monthly-used').fill('0');await submit(page);
+    await errorIncludes(page,/No fitted monthly model/);
+  });
+
+  test("missing monthly model fails closed instead of silently using the old offset", async t => {
+    const page=await open(t,{monthly:true});
+    await page.route('**/data/execution_monthly_dynamic_params.json',route=>route.fulfill({status:503,body:'Unavailable'}));
+    await page.reload();await page.waitForFunction(()=>!document.getElementById('instrument-select').disabled&&ExecutionMonthlyPolicy.status().failed);
+    await setFields(page,{'reference-price':100,'weekly-one':10000,'monthly-used':0,'monthly-working':0});await submit(page);
+    await errorIncludes(page,/Monthly model data is unavailable/);
+    await page.locator('#buy-policy').selectOption('legacy');await submit(page);
+    assert.equal(await page.locator('#result-stack tbody tr').count(),1);
+  });
+
+  test("monthly mobile plan exposes reserved capital and latest-price refresh recalculates it", async t => {
+    const page=await open(t,{monthly:true,mobile:true,viewport:{width:390,height:844}});
+    await page.waitForFunction(()=>document.getElementById('monthly-policy-state').textContent.includes('free slots'));
+    await setFields(page,{'reference-price':100,'weekly-one':10000});await submit(page);
+    const read=()=>page.evaluate(()=>window.__executionCalls.filter(x=>x.method==='buyPlan').at(-1).output);
+    const first=await read();
+    await page.route('https://execution-market-quotes.attmgromov.chatgpt.site/api/quote?*',route=>route.fulfill({json:{instrumentId:'ARCX:BTC',currency:'USD',latest:{price:120,time:'2026-10-05T14:00:00Z',source:'Fixture',realtime:true,stale:false},reference:{date:'2026-10-05',status:'pending'}}}));
+    await page.locator('#use-latest-price').click();
+    await page.waitForFunction(()=>document.getElementById('reference-price').value==='120'&&!document.getElementById('result-stack').hidden);
+    const repriced=await read();assert.ok(repriced.orders[0].price>first.orders[0].price);
+    assert.equal(repriced.monthly.orderBudget,first.monthly.orderBudget);
+    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+    await page.screenshot({path:path.join(artifacts,'monthly-dynamic-mobile.png'),fullPage:true});
+  });
+
+  test("a late monthly fit cannot erase an explicitly selected legacy plan", async t => {
+    const page=await open(t);
+    let release;
+    const gate=new Promise(resolve=>{release=resolve;});
+    t.after(()=>release());
+    await page.route('**/data/execution_monthly_dynamic_params.json',async route=>{await gate;await route.fallback();});
+    await page.reload();await page.waitForFunction(()=>!document.getElementById('instrument-select').disabled);
+    await page.locator('#buy-policy').selectOption('legacy');
+    await setFields(page,{'reference-price':100,'weekly-one':10000,'monthly-used':0,'monthly-working':0});await submit(page);
+    const before=await page.locator('#result-stack').innerHTML();
+    assert.equal(await page.locator('#result-stack tbody tr').count(),1);
+    release();await page.waitForFunction(()=>ExecutionMonthlyPolicy.status().loaded);
+    assert.equal(await page.locator('#result-stack').innerHTML(),before);
+    assert.equal(await page.locator('#result-stack').isVisible(),true);
   });
 
 }
