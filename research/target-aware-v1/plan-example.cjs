@@ -1,0 +1,11 @@
+'use strict';
+const k=require('./kernel.cjs');
+const windows=k.sessionWindows('2026-10-05','2026-10-09','XNYS'),start=windows[0].start,now=windows[2].start;
+const rules={quantityStep:1,priceTick:.01,minQuantity:1,minNotional:0,maxQuantity:0,maxNotional:0};
+let book=k.createBook({position:25,target:125,cash:20000,startAt:start,rules});
+book=k.submit(book,{side:'buy',quantity:20,limitPrice:99,feeBps:2,kind:'passive_limit'},'working-order',start);
+book=k.applyFill(book,{id:'confirmed-fill',orderId:'working-order',quantity:10,price:99,feeBps:2,at:start+1});
+const history=Array.from({length:21},(_,i)=>({observedAt:start-(21-i)*k.DAY,availableAt:start-(21-i)*k.DAY,price:100*Math.exp(.01*(i%2))}));
+const config={strategy:'paced_passive',deadlineAt:windows.at(-1).end,passiveFeeBps:2,aggressiveFeeBps:5,aggressiveSlippageBps:5};
+const plan=k.plan(book,config,{now,nextReviewAt:windows[2].end,windows,history,quote:{at:now,availableAt:now,mid:100,bid:99.99,ask:100.01}});
+console.log(JSON.stringify({label:'Normalized engineering example only',initialPosition:25,currentPosition:k.units(book,book.positionLots),targetPosition:125,confirmedFills:10,plan},null,2));
